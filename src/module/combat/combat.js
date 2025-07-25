@@ -32,7 +32,7 @@ export class CombatSidebarDw {
         // Get the incput and actor element.
         const dataset = event.currentTarget.dataset;
         let $input = $(event.currentTarget);
-        let $actorRow = $input.parents('.directory-item.actor-elem');
+        let $actorRow = $input.parents('.combatant.actor-elem');
 
         // If there isn't an actor element, don't proceed.
         if (!$actorRow.length > 0) {
@@ -78,7 +78,7 @@ export class CombatSidebarDw {
       if (game.user.isGM) {
         $('body')
           // Initiate the drag event.
-          .on('dragstart', '#combat .directory-item.actor-elem', (event) => {
+          .on('dragstart', '#combat .combatant.actor-elem', (event) => {
             // Set the drag data for later usage.
             let dragData = event.currentTarget.dataset;
             event.originalEvent.dataTransfer.setData('text/plain', JSON.stringify(dragData));
@@ -90,10 +90,10 @@ export class CombatSidebarDw {
             event.originalEvent.dataTransfer.setData(`newtype--${dragData.actorType}`, '');
           })
           // Add a class on hover, if the actor types match.
-          .on('dragover', '#combat .directory-item.actor-elem', (event) => {
+          .on('dragover', '#combat .combatant.actor-elem', (event) => {
             // Get the drop target.
             let $self = $(event.originalEvent.target);
-            let $dropTarget = $self.parents('.directory-item');
+            let $dropTarget = $self.parents('.combatant');
 
             // Exit early if we don't need to make any changes.
             if ($dropTarget.hasClass('drop-hover')) {
@@ -130,22 +130,22 @@ export class CombatSidebarDw {
             return false;
           })
           // Remove the class on drag leave.
-          .on('dragleave', '#combat .directory-item.actor-elem', (event) => {
+          .on('dragleave', '#combat .combatant.actor-elem', (event) => {
             // Get the drop target and remove any hover classes on it when
             // the mouse leaves it.
             let $self = $(event.originalEvent.target);
-            let $dropTarget = $self.parents('.directory-item');
+            let $dropTarget = $self.parents('.combatant');
             $dropTarget.removeClass('drop-hover');
             return false;
           })
           // Update initiative on drop.
-          .on('drop', '#combat .directory-item.actor-elem', async (event) => {
+          .on('drop', '#combat .combatant.actor-elem', async (event) => {
             // Retrieve the default encounter.
             let combat = game.combat;
 
             // Retreive the drop target, remove any hover classes.
             let $self = $(event.originalEvent.target);
-            let $dropTarget = $self.parents('.directory-item');
+            let $dropTarget = $self.parents('.combatant');
             $dropTarget.removeClass('drop-hover');
 
             // Attempt to retrieve and parse the data transfer from the drag.
@@ -244,9 +244,9 @@ export class CombatSidebarDw {
     // its HTML with a custom version.
     Hooks.on('renderCombatTracker', async (app, html, options) => {
       // Find the combat element, which is where combatants are stored.
-      let newHtml = html.find('#combat');
+      let newHtml = $(html).find('#combat');
       if (newHtml.length < 1) {
-        newHtml = html;
+        newHtml = $(html);
       }
 
       // If there's as combat, we can proceed.
@@ -272,12 +272,12 @@ export class CombatSidebarDw {
 
         // Render the template and update the markup with our new version.
         let content = await renderTemplate(template, templateData)
-        newHtml.find('#combat-tracker').remove();
+        newHtml.find('.combat-tracker').remove();
         newHtml.find('.combat-tracker-header').after(content);
 
         // Drag handler for the combat tracker.
         if (game.user.isGM) {
-          newHtml.find('.directory-item.actor-elem').attr('draggable', true).addClass('draggable');
+          newHtml.find('.combatant.actor-elem').attr('draggable', true).addClass('draggable');
         }
       }
     });

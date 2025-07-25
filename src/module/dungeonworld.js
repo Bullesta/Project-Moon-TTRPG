@@ -16,7 +16,7 @@ import { DwClassItemSheet } from "./item/class-item-sheet.js";
 import { DwRegisterHelpers } from "./handlebars.js";
 import { preloadHandlebarsTemplates } from "./templates.js";
 import { DwUtility } from "./utility.js";
-// import { CombatSidebarDw } from "./combat/combat.js";
+import { CombatSidebarDw } from "./combat/combat.js";
 import { MigrateDw } from "./migrate/migrate.js";
 
 import * as chat from "./chat.js";
@@ -62,8 +62,8 @@ Hooks.once("init", async function() {
 
   DwRegisterHelpers.init();
 
-  // let combatDw = new CombatSidebarDw();
-  // combatDw.startup();
+  let combatDw = new CombatSidebarDw();
+  combatDw.startup();
 
   /**
    * Track the system version upon which point a migration was last applied
