@@ -9,13 +9,14 @@
 
 // Theme overrides.
 .vtt {
-  @import 'global/application/window';
   @import 'global/application/chat';
   @import 'global/application/sidebar';
   @import 'global/components/combat';
 }
 
 .dungeonworld {
+  @import 'global/application/window';
+
   font-family: $font-stack-base;
 
   textarea {
