@@ -6,7 +6,7 @@ import { DwRolls } from "../rolls.js";
  * Extend the basic ActorSheet with some very simple modifications
  * @extends {ActorSheet}
  */
-export class DwActorSheet extends ActorSheet {
+export class DwActorSheet extends foundry.appv1.sheets.ActorSheet {
 
   /** @inheritdoc */
   constructor(...args) {

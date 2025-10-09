@@ -271,7 +271,7 @@ export class CombatSidebarDw {
         };
 
         // Render the template and update the markup with our new version.
-        let content = await renderTemplate(template, templateData)
+        let content = await foundry.applications.handlebars.renderTemplate(template, templateData)
         newHtml.find('.combat-tracker').remove();
         newHtml.find('.combat-tracker-header').after(content);
 
