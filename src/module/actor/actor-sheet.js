@@ -3,6 +3,7 @@ import { DwUtility } from "../utility.js";
 import { DwRolls } from "../rolls.js";
 
 const { TextEditor } = foundry.applications.ux;
+const { renderTemplate } = foundry.applications.handlebars;
 
 /**
  * Extend the basic ActorSheet with some very simple modifications

@@ -1,4 +1,5 @@
 import { DwUtility } from "../utility.js";
+const { renderTemplate } = foundry.applications.handlebars;
 
 /**
  * Helper class to handle rendering the custom combat tracker.

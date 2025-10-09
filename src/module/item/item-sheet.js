@@ -2,6 +2,7 @@ import { DwClassList } from "../config.js";
 import { DwUtility } from "../utility.js";
 
 const { TextEditor } = foundry.applications.ux;
+const { renderTemplate } = foundry.applications.handlebars;
 
 /**
  * Extend the basic ItemSheet with some very simple modifications

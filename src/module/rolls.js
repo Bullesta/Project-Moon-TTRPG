@@ -1,4 +1,5 @@
 import { DwUtility } from "./utility.js";
+const { renderTemplate } = foundry.applications.handlebars;
 
 export class DwRolls {
 

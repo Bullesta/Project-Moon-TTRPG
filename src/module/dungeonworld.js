@@ -23,6 +23,7 @@ import * as chat from "./chat.js";
 
 const { Actors, Items } = foundry.documents.collections;
 const { ActorSheet, ItemSheet } = foundry.appv1.sheets;
+const { renderTemplate } = foundry.applications.handlebars;
 
 /* -------------------------------------------- */
 /*  Foundry VTT Initialization                  */
