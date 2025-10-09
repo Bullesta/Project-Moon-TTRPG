@@ -1,4 +1,5 @@
 import { DwClassList } from "../config.js";
+import { DwUtility } from "../utility.js";
 
 /**
  * Extend the basic ItemSheet with some very simple modifications
@@ -24,7 +25,7 @@ export class DwItemSheet extends foundry.appv1.sheets.ItemSheet {
       submitOnChange: true,
     });
 
-    if (CONFIG.DW.nightmode) {
+    if (DwUtility.nightmode) {
       options.classes.push('nightmode');
     }
 

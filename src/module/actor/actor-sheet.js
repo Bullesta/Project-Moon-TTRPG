@@ -24,7 +24,7 @@ export class DwActorSheet extends foundry.appv1.sheets.ActorSheet {
       tabs: [{ navSelector: ".sheet-tabs", contentSelector: ".sheet-body", initial: "moves" }]
     });
 
-    if (CONFIG.DW.nightmode) {
+    if (DwUtility.nightmode) {
       options.classes.push('nightmode');
     }
 
@@ -834,7 +834,7 @@ export class DwActorSheet extends foundry.appv1.sheets.ActorSheet {
       resizable: true
     };
 
-    if (CONFIG.DW.nightmode) {
+    if (DwUtility.nightmode) {
       dlg_options.classes.push('nightmode');
     }
 
@@ -1321,7 +1321,7 @@ export class DwActorSheet extends foundry.appv1.sheets.ActorSheet {
       resizable: true
     };
 
-    if (CONFIG.DW.nightmode) {
+    if (DwUtility.nightmode) {
       dlg_options.classes.push('nightmode');
     }
 

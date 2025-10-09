@@ -152,4 +152,8 @@ export class DwUtility {
     return compendium
 
   }
+
+  static get nightmode() {
+    return document.querySelector('body').classList.contains('theme-dark');
+  }
 }

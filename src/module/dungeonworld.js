@@ -348,9 +348,6 @@ Hooks.once("ready", async function() {
     CONFIG.DW.rollResults[k].label = game.i18n.localize(v.label);
   }
 
-  // Add nightmode class.
-  CONFIG.DW.nightmode = game.settings.get('dungeonworld', 'nightmode') ?? false;
-
   // Handle sockets.
   game.socket.on('system.dungeonworld', (data) => {
     if (!game.user.isGM) {
