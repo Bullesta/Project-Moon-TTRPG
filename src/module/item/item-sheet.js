@@ -1,6 +1,8 @@
 import { DwClassList } from "../config.js";
 import { DwUtility } from "../utility.js";
 
+const { TextEditor } = foundry.applications.ux;
+
 /**
  * Extend the basic ItemSheet with some very simple modifications
  * @extends {ItemSheet}

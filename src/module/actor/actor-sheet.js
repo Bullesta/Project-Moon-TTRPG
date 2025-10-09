@@ -2,6 +2,8 @@ import { DwClassList } from "../config.js";
 import { DwUtility } from "../utility.js";
 import { DwRolls } from "../rolls.js";
 
+const { TextEditor } = foundry.applications.ux;
+
 /**
  * Extend the basic ActorSheet with some very simple modifications
  * @extends {ActorSheet}
