@@ -1042,6 +1042,10 @@ export class DwActorSheet extends foundry.appv1.sheets.ActorSheet {
 
     await actor.update({ system: system });
     await actor.setFlag('dungeonworld', 'levelup', false);
+    // Workaround for attempting to level up a new character.
+    setTimeout(() => {
+      actor.sheet.render(true);
+    }, 100);
   }
 
   // @todo abstract the logic in this method so that we can combine it with onLevelUp as much as possible.
