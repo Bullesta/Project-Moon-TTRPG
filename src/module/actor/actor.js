@@ -399,6 +399,19 @@ export class ActorDw extends Actor {
   }
 
   /** @override */
+  async _preCreate(data, options, user) {
+    if (this.type === "character") {
+      this.updateSource({
+        prototypeToken: {
+          actorLink: true,
+          disposition: CONST.TOKEN_DISPOSITIONS.FRIENDLY,
+          sight: { enabled: true }
+        }
+      });
+    }
+  }
+
+  /** @override */
   async _preUpdate(data, options, userId) {
     await super._preUpdate(data, options, userId);
     options.dw = options?.dw ?? {};
