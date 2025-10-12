@@ -12,7 +12,8 @@
     "extractPacks": "gulp extractPacks",
     "patch": "gulp patch",
     "minor": "gulp minor",
-    "major": "gulp major"
+    "major": "gulp major",
+    "symlinks:create": "node ./tools/create-symlink.mjs"
   },
   "browserslist": [
     "last 3 versions"
