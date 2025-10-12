@@ -142,16 +142,6 @@ Hooks.once("init", async function() {
     browserDefaultColor = true;
   }
 
-  game.settings.register("dungeonworld", "nightmode", {
-    name: game.i18n.localize("DW.Settings.nightmode.name"),
-    hint: game.i18n.localize("DW.Settings.nightmode.hint"),
-    scope: 'client',
-    config: true,
-    type: Boolean,
-    default: browserDefaultColor,
-    onChange: () => window.location.reload()
-  });
-
   game.settings.register("dungeonworld", "alignmentSingle", {
     name: game.i18n.localize("DW.Settings.alignmentSingle.name"),
     hint: game.i18n.localize("DW.Settings.alignmentSingle.hint"),

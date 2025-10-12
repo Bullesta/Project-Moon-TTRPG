@@ -201,8 +201,6 @@ DW.the-ranger.Bond4: _______________ non comprende la vita nelle terre selvagge,
 
 DW.Settings.itemIcons.name: "Abilita icona oggetti"
 DW.Settings.itemIcons.hint: "Abilita icona visuale per per mosse, incantesimi ed equipaggiamento nella scheda personaggio (richiede riavvio)."
-DW.Settings.nightmode.name: "Abilita modalità notte"
-DW.Settings.nightmode.hint: "Abilita la modalità scura/notte per le schede personaggio (per ogni utente)"
 DW.Settings.enableDamageButtons.name: "Abilita pulsanti danno"
 DW.Settings.enableDamageButtons.hint: "Abilita i pulsanti per il danno sulle card in chat, per gli utenti GM. Il danno verrà applicato ai token selezionati (non ai token con un bersaglio) e verrà ridotto da armatura e modificatori (richiede riavvio)."
 DW.Settings.xpFormula.name: "Formula EXP"

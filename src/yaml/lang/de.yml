@@ -199,8 +199,6 @@ DW.the-ranger.Bond3: "_______________ zollt der Natur keinen Respekt, also habe 
 DW.the-ranger.Bond4: "_______________ versteht das Leben in der Wildnis nicht, also werde ich es ihm/ihr beibringen."
 DW.Settings.itemIcons.name: "Aktiviere Gegenstands-Symbole"
 DW.Settings.itemIcons.hint: "Aktiviere Symbol-Icons für Spielzüge, Zauber und Ausrüstung in Characterbögen (erfordert Browser-Reload)."
-DW.Settings.nightmode.name: "Aktiviere dunklen Modus"
-DW.Settings.nightmode.hint: "Aktiviere Tag-/Nacht-Modus für Character-Bögen (je User)."
 DW.Settings.enableDamageButtons.name: "Aktiviere Schadens-Knöpfe"
 DW.Settings.enableDamageButtons.hint: "Aktiviere Schadens-Knöpfe auf Chat-Karten für SL-User. Schaden wird auf angewählte Token angewandt (nicht zielmarkierte Tokens). Hierbei werden Rüstung und Rüstungsdurchdringung gemäß Regelwerk eingerechnet. Erfordert Browser-Reload."
 DW.Settings.xpFormula.name: "Erfahrungs-Formel"
