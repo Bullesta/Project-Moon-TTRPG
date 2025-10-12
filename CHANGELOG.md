@@ -1,3 +1,12 @@
+# 1.9.0
+Release notes: https://github.com/asacolips-projects/dungeonworld/releases/tag/1.9.0
+- Added Foundry v13 support
+- Removed Foundry v12 support
+- Updated characters to be linked by default
+- Improved bond translation handling
+- Removed nightmode setting in favor of core setting
+- Fixed a bug with the level up dialog
+
 # 1.8.0
 
 Release notes: https://github.com/asacolips-projects/dungeonworld/releases/tag/1.8.0

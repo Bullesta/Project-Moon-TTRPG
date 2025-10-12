@@ -6,7 +6,7 @@ TYPES.Item.equipment: "Utrustning"
 TYPES.Item.spell: "Besvärjelse"
 TYPES.Item.bond: "Band"
 TYPES.Item.tag: "Etikett"
-TYPES.Item.class: "Klass"             
+TYPES.Item.class: "Klass"
 Dungeon World: Dungeon World
 DW.title: Dungeon World
 DW.description: Spela Dungeon World i Foundry VTT!
@@ -213,8 +213,6 @@ DW.the-ranger.Bond4: _______________ förstår inte vildmarkslivet, så jag ska 
 
 DW.Settings.itemIcons.name: Aktivera föremålsikoner
 DW.Settings.itemIcons.hint: Aktivera ikoner på rollformuläret för drag, besvärjelser och utrustning (kräver att webbläsaren laddas om).
-DW.Settings.nightmode.name: Aktivera nattläge
-DW.Settings.nightmode.hint: Aktivera natt-/mörkt läge för rollformuläret (per spelare).
 DW.Settings.enableDamageButtons.name: Aktivera skadeknappar
 DW.Settings.enableDamageButtons.hint: Aktivera skadeknappar på chattkortet (för SL). Skadan åsamkas vald markör (inte på markörer som bara är mål). Rustning eller pansarbrytande används i enlighet med grundreglerna. Kräver omstart av webbläsaren.
 DW.Settings.xpFormula.name: XP-formel

@@ -213,8 +213,6 @@ DW.the-ranger.Bond4: _______________ does not understand life in the wild, so I 
 
 DW.Settings.itemIcons.name: "Enable Item Icons"
 DW.Settings.itemIcons.hint: "Enable visual icons for moves, spells, and equipment in character sheets (requires browser reload)."
-DW.Settings.nightmode.name: "Enable Nightmode"
-DW.Settings.nightmode.hint: "Enable night/dark mode for character sheets (per user)."
 DW.Settings.enableDamageButtons.name: "Enable Damage Buttons"
 DW.Settings.enableDamageButtons.hint: "Enable damage buttons on chat cards for GM users. Damage will be applied to selected tokens (not targeted tokens) and will be reduced by armor and piercing values per the core rules. Requires reloading the browser to take effect."
 DW.Settings.xpFormula.name: "XP Formula"

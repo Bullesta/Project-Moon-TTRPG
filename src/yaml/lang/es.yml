@@ -223,9 +223,6 @@ DW.the-ranger.Bond4: _______________ no comprende la vida en el entorno natural,
 DW.Settings.itemIcons.name: Habilitar iconos
 DW.Settings.itemIcons.hint: Habilitar iconos para movimientos, conjuros y equipo en
   la hoja de personaje (requiere recargar el navegador).
-DW.Settings.nightmode.name: Activar modo nocturno
-DW.Settings.nightmode.hint: Activar el modo nocturno/oscuridad para las hojas de personaje
-  (por usuario).
 DW.Settings.enableDamageButtons.name: Activar botones de daño
 DW.Settings.enableDamageButtons.hint: Activar los botones de daño en las tarjetas
   del chat para usuarios DJ. El daño será aplicado para tokens seleccionados (no tokens

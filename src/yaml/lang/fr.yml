@@ -204,8 +204,6 @@ DW.the-ranger.Bond4: "_______________ ne comprend pas la vie dans la nature, alo
 
 DW.Settings.itemIcons.name: "Active les icones des objets"
 DW.Settings.itemIcons.hint: "Activation des icônes visuelles pour les mouvements, les sorts et l'équipement dans les feuilles de personnage (nécessite un rechargement du navigateur)."
-DW.Settings.nightmode.name: "Activation du mode sombre"
-DW.Settings.nightmode.hint: "Activation du mode sombre (par utilisateur)"
 DW.Settings.enableDamageButtons.name: "Enable Damage Buttons"
 DW.Settings.enableDamageButtons.hint: "Activation des boutons de dégâts sur les cartes de chat pour les utilisateurs MJ. Les dégâts seront appliqués aux jetons sélectionnés (pas aux jetons ciblés) et seront réduits par les valeurs d'armure et de perforation selon les règles de base. Nécessite de recharger le navigateur pour prendre effet."
 DW.Settings.xpFormula.name: "Formule d'XP"
