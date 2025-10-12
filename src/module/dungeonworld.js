@@ -21,6 +21,10 @@ import { MigrateDw } from "./migrate/migrate.js";
 
 import * as chat from "./chat.js";
 
+const { Actors, Items } = foundry.documents.collections;
+const { ActorSheet, ItemSheet } = foundry.appv1.sheets;
+const { renderTemplate } = foundry.applications.handlebars;
+
 /* -------------------------------------------- */
 /*  Foundry VTT Initialization                  */
 /* -------------------------------------------- */
@@ -345,9 +349,6 @@ Hooks.once("ready", async function() {
     CONFIG.DW.rollResults[k].label = game.i18n.localize(v.label);
   }
 
-  // Add nightmode class.
-  CONFIG.DW.nightmode = game.settings.get('dungeonworld', 'nightmode') ?? false;
-
   // Handle sockets.
   game.socket.on('system.dungeonworld', (data) => {
     if (!game.user.isGM) {
@@ -402,16 +403,16 @@ Hooks.on('createChatMessage', async (message, options, id) => {
   }
 });
 
-Hooks.on('renderChatMessage', (app, html, data) => {
+Hooks.on('renderChatMessageHTML', (app, html, data) => {
   // Determine visibility.
   let chatData = app;
   const whisper = chatData.whisper || [];
   const isBlind = whisper.length && chatData.blind;
   const isVisible = (whisper.length) ? game.user.isGM || whisper.includes(game.user.id) || (!isBlind) : true;
   if (!isVisible) {
-    html.find('.dice-formula').text('???');
-    html.find('.dice-total').text('?');
-    html.find('.dice-tooltip').remove();
+    html.querySelectorAll('.dice-formula').forEach(e => e.innerText = '???');
+    html.querySelectorAll('.dice-total').forEach(e => e.innerText = '?');
+    html.querySelectorAll('.dice-tooltip').forEach(e => e.remove());
   }
 
   chat.displayChatActionButtons(app, html, data);

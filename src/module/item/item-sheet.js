@@ -1,10 +1,14 @@
 import { DwClassList } from "../config.js";
+import { DwUtility } from "../utility.js";
+
+const { TextEditor } = foundry.applications.ux;
+const { renderTemplate } = foundry.applications.handlebars;
 
 /**
  * Extend the basic ItemSheet with some very simple modifications
  * @extends {ItemSheet}
  */
-export class DwItemSheet extends ItemSheet {
+export class DwItemSheet extends foundry.appv1.sheets.ItemSheet {
 
   /** @inheritdoc */
   constructor(...args) {
@@ -24,7 +28,7 @@ export class DwItemSheet extends ItemSheet {
       submitOnChange: true,
     });
 
-    if (CONFIG.DW.nightmode) {
+    if (DwUtility.nightmode) {
       options.classes.push('nightmode');
     }
 

@@ -1,14 +1,14 @@
-<ol id="combat-tracker" class="directory-list directory-list--dw">
+<ol class="combat-tracker directory-list directory-list--dw data-application-part="header">
   {{#each combatants as |combatantGroup group|}}
     {{!-- Render the group label. --}}
-    <li class="directory-item flexrow directory-item--group {{group}}">
+    <li class="combatant directory-item flexrow directory-item--group {{group}}">
       <div class="ct-label ct-label--name">{{localize (concat "DW." group "s")}}</div>
       {{#ifEquals group "character"}}
       <div class="ct-label ct-label--moves">{{../moveTotal}}</div>
       {{/ifEquals}}
     </li>
     {{!-- Render the column labels. --}}
-    <li class="directory-item grid {{#ifEquals group "character"}}grid-6col{{else}}grid-5col{{/ifEquals}} directory-item--labels {{group}}">
+    <li class="combatant directory-item grid {{#ifEquals group "character"}}grid-6col{{else}}grid-5col{{/ifEquals}} directory-item--labels {{group}}">
       <div class="ct-item ct-item--img"></div>
       <div class="ct-item ct-item--name">{{localize "DW.Common.Name"}}</div>
       <div class="ct-item ct-item--hp">{{localize "DW.HP"}}</div>
@@ -21,7 +21,7 @@
     {{!-- Render the combatants for this actor type. --}}
     <ol class="directory-list--dw {{group}}">
       {{#each combatantGroup as |c index|}}
-        <li class="directory-item actor-elem {{#if c.token.hidden}}hidden{{/if}} grid {{#ifEquals group "character"}}grid-6col{{else}}grid-5col{{/ifEquals}}" data-actor-id="{{c.actor.id}}" data-token-id="{{c.token.id}}" data-combatant-id="{{c.id}}" data-actor-type="{{c.actor.type}}">
+        <li class="combatant directory-item actor-elem {{#if c.token.hidden}}hidden{{/if}} grid {{#ifEquals group "character"}}grid-6col{{else}}grid-5col{{/ifEquals}}" data-actor-id="{{c.actor.id}}" data-token-id="{{c.token.id}}" data-combatant-id="{{c.id}}" data-actor-type="{{c.actor.type}}">
           {{!-- Token image with a progress circle. --}}
           <div class="ct-item ct-item--img">
             <div class="image-wrapper">

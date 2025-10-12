@@ -1,4 +1,5 @@
 import { DwUtility } from "./utility.js";
+const { renderTemplate } = foundry.applications.handlebars;
 
 export class DwRolls {
 
@@ -56,7 +57,7 @@ export class DwRolls {
       classes: ['dungeonworld', 'dw-dialog']
     };
 
-    if (CONFIG.DW.nightmode) dlgOptions.classes.push('nightmode');
+    if (DwUtility.nightmode) dlgOptions.classes.push('nightmode');
 
     // Handle item rolls (moves).
     if (this.item) {

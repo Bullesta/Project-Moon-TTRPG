@@ -1,4 +1,5 @@
 import { DwUtility } from '../utility.js';
+const { renderTemplate } = foundry.applications.handlebars;
 
 /**
  * Extends the basic Actor class for Dungeon World.
@@ -109,7 +110,7 @@ export class ActorDw extends Actor {
             }
 
               // Add matching damage bonus tags if it's unset or if the value is higher.
-              if (dmgBonus[1] > 0 || dmgBonus[2] > 0) { 
+              if (dmgBonus[1] > 0 || dmgBonus[2] > 0) {
                 dmgBonus = (dmgBonus[1] ?? dmgBonus[2]) ?? 0;
                 if (!data.attributes.damage?.dmgBonus || dmgBonus > data.attributes.damage.dmgBonus) {
                   data.attributes.damage.dmgBonus = dmgBonus;
@@ -221,7 +222,7 @@ export class ActorDw extends Actor {
    * Roll a move and use the chat card template.
    * @param {Object} templateData
    */
-  rollMove(roll, actor, dataset, templateData, form = null, applyDamage = false) {
+  async rollMove(roll, actor, dataset, templateData, form = null, applyDamage = false) {
     let actorData = actor.system;
     // Render the roll.
     let template = 'systems/dungeonworld/templates/chat/chat-move.html';
@@ -259,7 +260,7 @@ export class ActorDw extends Actor {
       if (formula != null) {
         // Do the roll.
         let roll = new Roll(`${formula}`, actor.getRollData());
-        roll.roll();
+        await roll.roll();
         // Add success notification.
         if (formula.includes('2d6')) {
           if (roll.total < 7) {
@@ -394,6 +395,19 @@ export class ActorDw extends Actor {
         };
         canvas.interface.createScrollingText(token.center, content, foundry.utils.mergeObject(textOptions, overrideOptions));
       }
+    }
+  }
+
+  /** @override */
+  async _preCreate(data, options, user) {
+    if (this.type === "character") {
+      this.updateSource({
+        prototypeToken: {
+          actorLink: true,
+          disposition: CONST.TOKEN_DISPOSITIONS.FRIENDLY,
+          sight: { enabled: true }
+        }
+      });
     }
   }
 

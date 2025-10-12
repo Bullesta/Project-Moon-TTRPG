@@ -1,7 +1,9 @@
 # IDE
 .idea/
 .vs/
+foundry/
 foundry.js
+foundry-config.yaml
 jsconfig.json
 
 # Node Modules

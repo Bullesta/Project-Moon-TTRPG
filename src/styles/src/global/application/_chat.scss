@@ -1,4 +1,4 @@
-#chat-log {
+.chat-log {
   .message {
     background: $c-white;
     font-family: $font-stack-base;
@@ -137,8 +137,14 @@
       margin: 5px 0;
     }
 
+    .row.xp {
+      display: flex;
+      flex-direction: row;
+    }
+
     .xp-button,
     .chat-damage-buttons .button {
+      flex: 1;
       background: $c-navy;
       box-shadow: 0 0 2px $c-navy-hover inset;
       border-color: $c-black;

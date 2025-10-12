@@ -1,4 +1,5 @@
 export const displayChatActionButtons = function(message, html, data) {
+  html = $(html);
   const chatCard = html.find(".dw.chat-card");
 
   // Hide damage buttons if necessary.
@@ -20,6 +21,7 @@ export const displayChatActionButtons = function(message, html, data) {
 }
 
 export const activateChatListeners = function(html) {
+  html = $(html);
   html.on('click', 'button[data-action]', (event) => _onChatCardAction(event));
 }
 

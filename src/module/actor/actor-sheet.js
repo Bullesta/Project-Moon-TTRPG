@@ -2,11 +2,14 @@ import { DwClassList } from "../config.js";
 import { DwUtility } from "../utility.js";
 import { DwRolls } from "../rolls.js";
 
+const { TextEditor } = foundry.applications.ux;
+const { renderTemplate } = foundry.applications.handlebars;
+
 /**
  * Extend the basic ActorSheet with some very simple modifications
  * @extends {ActorSheet}
  */
-export class DwActorSheet extends ActorSheet {
+export class DwActorSheet extends foundry.appv1.sheets.ActorSheet {
 
   /** @inheritdoc */
   constructor(...args) {
@@ -24,7 +27,7 @@ export class DwActorSheet extends ActorSheet {
       tabs: [{ navSelector: ".sheet-tabs", contentSelector: ".sheet-body", initial: "moves" }]
     });
 
-    if (CONFIG.DW.nightmode) {
+    if (DwUtility.nightmode) {
       options.classes.push('nightmode');
     }
 
@@ -834,7 +837,7 @@ export class DwActorSheet extends ActorSheet {
       resizable: true
     };
 
-    if (CONFIG.DW.nightmode) {
+    if (DwUtility.nightmode) {
       dlg_options.classes.push('nightmode');
     }
 
@@ -1039,6 +1042,10 @@ export class DwActorSheet extends ActorSheet {
 
     await actor.update({ system: system });
     await actor.setFlag('dungeonworld', 'levelup', false);
+    // Workaround for attempting to level up a new character.
+    setTimeout(() => {
+      actor.sheet.render(true);
+    }, 100);
   }
 
   // @todo abstract the logic in this method so that we can combine it with onLevelUp as much as possible.
@@ -1321,7 +1328,7 @@ export class DwActorSheet extends ActorSheet {
       resizable: true
     };
 
-    if (CONFIG.DW.nightmode) {
+    if (DwUtility.nightmode) {
       dlg_options.classes.push('nightmode');
     }
 
