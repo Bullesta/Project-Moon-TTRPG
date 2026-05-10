@@ -1,7 +1,7 @@
 name: Herculean Appetites
 type: move
 flags: {}
-img: systems/dungeonworld/assets/icons/skills/blood_11.webp
+img: systems/projectmoonttrpg/assets/icons/skills/blood_11.webp
 _id: 7EpgYJc7Isi37fD5
 system:
   name: ''
@@ -50,7 +50,7 @@ effects: []
 folder: null
 sort: 0
 _stats:
-  systemId: dungeonworld
+  systemId: projectmoonttrpg
   systemVersion: 1.6.2
   coreVersion: '10.291'
   createdTime: null

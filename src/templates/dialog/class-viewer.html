@@ -11,7 +11,7 @@
     <div class="grid grid-col">
       {{#if races}}
         <section class="cell cell--races">
-          <h2 class="cell__title">{{localize "DW.Race"}}</h2>
+          <h2 class="cell__title">{{localize "TTRPG.Race"}}</h2>
           <ul class="selection-list">
             {{#each races as |race key|}}
               <li>
@@ -26,7 +26,7 @@
       {{/if}}
       {{#if alignments}}
         <section class="cell cell--alignments">
-          <h2 class="cell__title">{{localize "DW.Alignment"}}</h2>
+          <h2 class="cell__title">{{localize "TTRPG.Alignment"}}</h2>
           <ul class="selection-list">
             {{#each alignments as |alignment key|}}
               <li>
@@ -54,10 +54,10 @@
                       <span class="item-label">{{item.name}}<span class="item-details-toggle"><i class="fas fa-chevron-down"></i></span></span>
                     </h4>
                     <div class="item-meta tags">
-                      {{#if item.system.equipped }}<span class="tag equipped" data-action="equipped">{{localize "DW.Equipped"}}</span>{{/if}}
-                      {{#if item.system.uses }}<a class="tag counter uses" data-action="uses">{{localize "DW.Uses"}}: {{item.system.uses}}</a>{{/if}}
-                      {{#if item.system.quantity }}<a class="tag counter quantity" data-action="quantity">{{localize "DW.Qty"}}: {{item.system.quantity}}</a>{{/if}}
-                      {{#if item.system.weight }}<span class="tag">{{localize "DW.Wt"}}: {{item.system.weight}}</span>{{/if}}
+                      {{#if item.system.equipped }}<span class="tag equipped" data-action="equipped">{{localize "TTRPG.Equipped"}}</span>{{/if}}
+                      {{#if item.system.uses }}<a class="tag counter uses" data-action="uses">{{localize "TTRPG.Uses"}}: {{item.system.uses}}</a>{{/if}}
+                      {{#if item.system.quantity }}<a class="tag counter quantity" data-action="quantity">{{localize "TTRPG.Qty"}}: {{item.system.quantity}}</a>{{/if}}
+                      {{#if item.system.weight }}<span class="tag">{{localize "TTRPG.Wt"}}: {{item.system.weight}}</span>{{/if}}
                     </div>
                     <div class="item-description">
                       {{#if item.system.tags}}{{{dwTags item.system.tags}}}{{/if}}
@@ -74,7 +74,7 @@
 
     {{#if starting_moves}}
       <section class="cell cell--starting_moves">
-        <h1 class="cell__title">{{localize "DW.MovesStarting"}}</h1>
+        <h1 class="cell__title">{{localize "TTRPG.MovesStarting"}}</h1>
         <ul class="selection-list">
           {{!-- Loop through each group of starting moves. --}}
           {{#each starting_move_groups as |moves group|}}
@@ -97,7 +97,7 @@
                     <div class="result result--failure"><strong class="result-label">6-:</strong>{{{move.system.moveResults.failure.value}}}</div>
                   {{/if}}
                   {{#if move.system.choices}}
-                    <div class="result result--choices"><strong class="result-label">{{localize 'DW.Choices'}}:</strong>{{{move.system.choices}}}</div>
+                    <div class="result result--choices"><strong class="result-label">{{localize 'TTRPG.Choices'}}:</strong>{{{move.system.choices}}}</div>
                   {{/if}}
                 </div>
               </li>
@@ -110,7 +110,7 @@
 
     {{#ifor advanced_moves_2 advanced_moves_6}}
       <section class="cell cell--advanced_moves">
-        <h1 class="cell__title">{{localize "DW.MovesAdvanced"}} 2-5</h1>
+        <h1 class="cell__title">{{localize "TTRPG.MovesAdvanced"}} 2-5</h1>
         {{#if advanced_moves_2}}
           <ul class="selection-list grid grid-2col">
             {{#each advanced_moves_2 as |move key|}}
@@ -129,14 +129,14 @@
                     <div class="result result--failure"><strong class="result-label">6-:</strong>{{{move.system.moveResults.failure.value}}}</div>
                   {{/if}}
                   {{#if move.system.choices}}
-                    <div class="result result--choices"><strong class="result-label">{{localize 'DW.Choices'}}:</strong>{{{move.system.choices}}}</div>
+                    <div class="result result--choices"><strong class="result-label">{{localize 'TTRPG.Choices'}}:</strong>{{{move.system.choices}}}</div>
                   {{/if}}
                 </div>
               </li>
             {{/each}}
           </ul>
         {{/if}}
-        <h1 class="cell__title">{{localize "DW.MovesAdvanced"}} 6-10</h1>
+        <h1 class="cell__title">{{localize "TTRPG.MovesAdvanced"}} 6-10</h1>
         {{#if advanced_moves_6}}
           <ul class="selection-list grid grid-2col">
             {{#each advanced_moves_6 as |move key|}}
@@ -154,7 +154,7 @@
                     <div class="result result--failure"><strong class="result-label">6-:</strong>{{{move.system.moveResults.failure.value}}}</div>
                   {{/if}}
                   {{#if move.system.choices}}
-                    <div class="result result--choices"><strong class="result-label">{{localize 'DW.Choices'}}:</strong>{{{move.system.choices}}}</div>
+                    <div class="result result--choices"><strong class="result-label">{{localize 'TTRPG.Choices'}}:</strong>{{{move.system.choices}}}</div>
                   {{/if}}
                 </div>
               </li>
@@ -166,13 +166,13 @@
 
     {{#if cast_spells}}
       <section class="cell cell--spells">
-        <h1 class="cell__title">{{localize "DW.Spells"}}</h1>
+        <h1 class="cell__title">{{localize "TTRPG.Spells"}}</h1>
         {{#each spells as |spellsByCaster casterKey|}}
           {{#if spellsByCaster.description }}
             <div class="cell__description">{{{spellsByCaster.description}}}</div>
           {{/if}}
           {{#each spellsByCaster.spells as |spellsByLevel spellLevel|}}
-            <h2 class="cell__subtitle">{{localize (concat "DW.Spells" spellLevel)}}</h2>
+            <h2 class="cell__subtitle">{{localize (concat "TTRPG.Spells" spellLevel)}}</h2>
             <ul class="selection-list grid grid-2col">
               {{#each spellsByLevel as |spell key|}}
                 <li>

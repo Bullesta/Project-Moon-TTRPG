@@ -7,9 +7,9 @@
 
   // Define template paths to load
   const templatePaths = [
-    "systems/dungeonworld/templates/parts/chat-buttons.html",
-    "systems/dungeonworld/templates/parts/sheet-moves.html",
-    "systems/dungeonworld/templates/parts/sheet-level-up-move.html"
+    "systems/projectmoonttrpg/templates/parts/chat-buttons.html",
+    "systems/projectmoonttrpg/templates/parts/sheet-moves.html",
+    "systems/projectmoonttrpg/templates/parts/sheet-level-up-move.html"
   ];
 
   // Load the template parts

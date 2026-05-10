@@ -14,7 +14,7 @@ data:
   class: The Cleric
   prepared: false
 flags: {}
-img: systems/dungeonworld/assets/icons/spells/enchant-jade-3.webp
+img: systems/projectmoonttrpg/assets/icons/spells/enchant-jade-3.webp
 effects: []
 _id: E1DWyTydLiqEUqgc
 _key: '!items!E1DWyTydLiqEUqgc'

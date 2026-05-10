@@ -14,7 +14,7 @@ data:
   class: The Wizard
   prepared: false
 flags: {}
-img: systems/dungeonworld/assets/icons/spells/light-sky-3.webp
+img: systems/projectmoonttrpg/assets/icons/spells/light-sky-3.webp
 effects: []
 _id: xyWWVGy3izIXf3ng
 _key: '!items!xyWWVGy3izIXf3ng'

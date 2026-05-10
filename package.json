@@ -1,7 +1,7 @@
 {
-  "name": "dungeonworld",
+  "name": "projectmoonttrpg",
   "version": "1.0.0",
-  "description": "CSS compiler for the Dungeon World system",
+  "description": "CSS compiler for the Project Moon TTRPG system",
   "scripts": {
     "build": "gulp build",
     "compile": "gulp css",

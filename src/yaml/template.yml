@@ -49,34 +49,34 @@ Actor:
         value: 0
         max: 0
     abilities:
-      str:
-        value: 10
-        min: 3
+      for:
+        value: 0
+        min: -1
         mod: 0
         debility: false
-      dex:
-        value: 10
-        min: 3
+      pru:
+        value: 0
+        min: -1
         mod: 0
         debility: false
-      con:
-        value: 10
-        min: 3
-        mod: 0
-        debility: false
-      int:
-        value: 10
-        min: 3
-        mod: 0
-        debility: false
-      wis:
-        value: 10
-        min: 3
+      jus:
+        value: 0
+        min: -1
         mod: 0
         debility: false
       cha:
-        value: 10
-        min: 3
+        value: 0
+        min: -1
+        mod: 0
+        debility: false
+      ins:
+        value: 0
+        min: -1
+        mod: 0
+        debility: false
+      tem:
+        value: 0
+        min: -1
         mod: 0
         debility: false
     details:
@@ -84,10 +84,6 @@ Actor:
         value: ''
         description: ''
       look: ''
-      class: ''
-      race:
-        value: ''
-        description: ''
   npc:
     templates:
       - base
@@ -98,10 +94,10 @@ Item:
     - move
     - npcMove
     - equipment
-    - spell
-    - bond
-    - tag
-    - class
+    - attack
+    - skill
+    - effect
+    - misc
   templates:
     base:
       name: ''

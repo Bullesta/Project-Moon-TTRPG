@@ -1,6 +1,6 @@
 # Contributing
 
-The Dungeon World system is under the MIT license and is accepting merge requests and issue reports. Feel free to submit improvements to the system, and I'll review them and merge them if they're broadly useful for the community!
+The Project Moon TTRPG system is under the MIT license and is accepting merge requests and issue reports. Feel free to submit improvements to the system, and I'll review them and merge them if they're broadly useful for the community!
 
 # Running the development version of the system
 
@@ -18,7 +18,7 @@ If you would like to have the gulp task actively watch for new changes, you can 
 Once you have the system compiled, you can symlink or copy the dist dir into your install. For example, from the root of the repo:
 
 ```bash
-ln -s ./dungeonworld/dist $FoundryUserDataPath/systems/dungeonworld
+ln -s ./projectmoonttrpg/dist $FoundryUserDataPath/systems/projectmoonttrpg
 ```
 
 Replace the `$FoundryUserDataPath` variable with the actual path to your Foundry user data directory.

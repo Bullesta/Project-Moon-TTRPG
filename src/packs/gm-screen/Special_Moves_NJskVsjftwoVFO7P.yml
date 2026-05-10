@@ -13,7 +13,7 @@ content: >-
   <h2>Last Breath</h2>
 
   <p style="text-align: center;"><img
-  src="systems/dungeonworld/assets/icons/skills/shadow_17.webp" alt=""
+  src="systems/projectmoonttrpg/assets/icons/skills/shadow_17.webp" alt=""
   width="48" height="48" /></p>
 
   <p>When you&rsquo;re dying you catch a glimpse of what lies beyond the Black
@@ -169,7 +169,7 @@ content: >-
   <h2>Bolster</h2>
 
   <p style="text-align: center;"><img
-  src="systems/dungeonworld/assets/icons/skills/affliction_24.webp" alt=""
+  src="systems/projectmoonttrpg/assets/icons/skills/affliction_24.webp" alt=""
   width="48" height="48" /></p>
 
   <p>When you spend your leisure time in study, meditation, or hard practice,
@@ -183,7 +183,7 @@ content: >-
   <h2>Level Up</h2>
 
   <p style="text-align: center;"><img
-  src="systems/dungeonworld/assets/icons/skills/yellow_13.webp" alt=""
+  src="systems/projectmoonttrpg/assets/icons/skills/yellow_13.webp" alt=""
   width="48" height="48" /></p>
 
   <p>When you have downtime (hours or days) and XP equal to (or greater than)

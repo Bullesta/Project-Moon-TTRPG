@@ -13,7 +13,7 @@ data:
   class: The Wizard
   prepared: false
 flags: {}
-img: systems/dungeonworld/assets/icons/spells/link-spirit-3.webp
+img: systems/projectmoonttrpg/assets/icons/spells/link-spirit-3.webp
 effects: []
 _id: A8iZNegMDcCCqLRk
 _key: '!items!A8iZNegMDcCCqLRk'

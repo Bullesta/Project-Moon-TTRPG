@@ -39,12 +39,12 @@ data:
   tagsString: close, reach, group, large
 sort: 100001
 flags: {}
-img: systems/dungeonworld/tokens/enemies/Giant_Lizard_Large_Beast_01.webp
+img: systems/projectmoonttrpg/tokens/enemies/Giant_Lizard_Large_Beast_01.webp
 token:
   flags: {}
   name: Crocodilian
   displayName: 0
-  img: systems/dungeonworld/tokens/enemies/Giant_Lizard_Large_Beast_01.webp
+  img: systems/projectmoonttrpg/tokens/enemies/Giant_Lizard_Large_Beast_01.webp
   tint: null
   width: 2
   height: 2

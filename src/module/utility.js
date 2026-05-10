@@ -1,4 +1,4 @@
-export class DwUtility {
+export class PMTTRPGUtility {
   static cleanClass(string) {
     //Lower case everything
     string = string.toLowerCase();
@@ -21,8 +21,8 @@ export class DwUtility {
     }
 
     // Cache results.
-    if (game.dungeonworld.equipment && !update) {
-      return game.dungeonworld.equipment;
+    if (game.projectmoonttrpg.equipment && !update) {
+      return game.projectmoonttrpg.equipment;
     }
 
     // Load new results.
@@ -35,7 +35,7 @@ export class DwUtility {
       }
     }
 
-    game.dungeonworld.equipment = items;
+    game.projectmoonttrpg.equipment = items;
 
     return items;
   }
@@ -46,68 +46,21 @@ export class DwUtility {
   }
 
   static getAbilityMod(abilityScore, force=false) {
-    const noAbilityScores = game.settings.get('dungeonworld', 'noAbilityScores');
+    const noAbilityScores = game.settings.get('projectmoonttrpg', 'noAbilityScores');
     if (noAbilityScores && !force) {
-      return abilityScore
-    }
-    let abilityMod = 0;
-
-    if (abilityScore >= 18) {
-      abilityMod = 3;
-    }
-    else if (abilityScore > 15) {
-      abilityMod = 2;
-    }
-    else if (abilityScore > 12) {
-      abilityMod = 1;
-    }
-    else if (abilityScore > 8) {
-      abilityMod = 0;
-    }
-    else if (abilityScore > 5) {
-      abilityMod = -1;
-    }
-    else if (abilityScore > 3) {
-      abilityMod = -2;
-    }
-    else {
-      abilityMod = -3;
-    }
-
-    return abilityMod;
-  }
-
-  static getAbilityScore(abilityMod, force=false) {
-    const noAbilityScores = game.settings.get('dungeonworld', 'noAbilityScores');
-    if (noAbilityScores && !force) {
-      return abilityScore
-    }
-
-    let abilityScore = 0;
-
-    if (abilityMod >= 3) {
-      abilityScore = 18;
-    }
-    else if (abilityMod == 2) {
-      abilityScore = 16;
-    }
-    else if (abilityMod == 1) {
-      abilityScore = 13;
-    }
-    else if (abilityMod == 0) {
-      abilityScore = 9;
-    }
-    else if (abilityMod == -1) {
-      abilityScore = 8;
-    }
-    else if (abilityMod == -2) {
-      abilityScore = 5;
-    }
-    else {
-      abilityScore = 3;
+      return abilityScore;
     }
 
     return abilityScore;
+  }
+
+  static getAbilityScore(abilityMod, force=false) {
+    const noAbilityScores = game.settings.get('projectmoonttrpg', 'noAbilityScores');
+    if (noAbilityScores && !force) {
+      return abilityScore;
+    }
+
+    return abilityMod;
   }
 
   static getProgressCircle({ current = 100, max = 100, radius = 16 }) {
@@ -135,14 +88,14 @@ export class DwUtility {
 
     const compendium = []
 
-    const noCompendiumAutoData = game.settings.get('dungeonworld', 'noCompendiumAutoData');
+    const noCompendiumAutoData = game.settings.get('projectmoonttrpg', 'noCompendiumAutoData');
     if (!noCompendiumAutoData) {
-      const pack_id = `dungeonworld.${slug}`;
+      const pack_id = `projectmoonttrpg.${slug}`;
       const pack = game.packs.get(pack_id);
       compendium.push(...(pack ? await pack.getDocuments() : []));
     }
 
-    const compendiumPrefix = game.settings.get('dungeonworld', 'compendiumPrefix');
+    const compendiumPrefix = game.settings.get('projectmoonttrpg', 'compendiumPrefix');
     if (compendiumPrefix != '') {
       const pack_id = `${compendiumPrefix.toLowerCase()}-${slug}`;
       const pack = game.packs.find(p => {return p.metadata?.name?.indexOf(pack_id) >= 0});

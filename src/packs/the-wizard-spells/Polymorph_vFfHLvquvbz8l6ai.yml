@@ -24,7 +24,7 @@ data:
   class: The Wizard
   prepared: false
 flags: {}
-img: systems/dungeonworld/assets/icons/skills/emerald_05.webp
+img: systems/projectmoonttrpg/assets/icons/skills/emerald_05.webp
 effects: []
 _id: vFfHLvquvbz8l6ai
 _key: '!items!vFfHLvquvbz8l6ai'

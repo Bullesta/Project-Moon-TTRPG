@@ -16,7 +16,7 @@ data:
   class: The Wizard
   prepared: false
 flags: {}
-img: systems/dungeonworld/assets/icons/skills/shadow_12.webp
+img: systems/projectmoonttrpg/assets/icons/skills/shadow_12.webp
 effects: []
 _id: QDiZ6yGaGb7qvWhu
 _key: '!items!QDiZ6yGaGb7qvWhu'

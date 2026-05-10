@@ -1,16 +1,16 @@
-import { DwItemSheet } from './item-sheet.js';
-import { DwUtility } from "../utility.js";
+import { PMTTRPGItemSheet } from './item-sheet.js';
+import { PMTTRPGUtility } from "../utility.js";
 
 /**
  * Extend the basic ItemSheet with some very simple modifications
  * @extends {ItemSheet}
  */
-export class DwClassItemSheet extends DwItemSheet {
+export class PMTTRPGClassItemSheet extends PMTTRPGItemSheet {
 
   /** @override */
   static get defaultOptions() {
     return foundry.utils.mergeObject(super.defaultOptions, {
-      classes: ["dungeonworld", "sheet", "item", "class"],
+      classes: ["projectmoonttrpg", "sheet", "item", "class"],
       width: 960,
       height: 640,
       tabs: [{ navSelector: ".sheet-tabs", contentSelector: ".sheet-body", initial: "equipment" }],
@@ -22,7 +22,7 @@ export class DwClassItemSheet extends DwItemSheet {
 
   /** @override */
   get template() {
-    const path = "systems/dungeonworld/templates/items";
+    const path = "systems/projectmoonttrpg/templates/items";
     return `${path}/${this.item.type}-sheet.html`;
   }
 
@@ -118,7 +118,7 @@ export class DwClassItemSheet extends DwItemSheet {
     // Filter items.
     let existing_items = [];
 
-    if (!DwUtility.isEmpty(originalData.system.equipment[groupId]['items'])) {
+    if (!PMTTRPGUtility.isEmpty(originalData.system.equipment[groupId]['items'])) {
       existing_items = originalData.system.equipment[groupId]['items'];
     }
     else {

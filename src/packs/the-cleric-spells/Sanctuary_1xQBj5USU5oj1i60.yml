@@ -15,7 +15,7 @@ data:
   class: The Cleric
   prepared: false
 flags: {}
-img: systems/dungeonworld/assets/icons/spells/protect-magenta-3.webp
+img: systems/projectmoonttrpg/assets/icons/spells/protect-magenta-3.webp
 effects: []
 _id: 1xQBj5USU5oj1i60
 _key: '!items!1xQBj5USU5oj1i60'

@@ -13,7 +13,7 @@ data:
   class: The Cleric
   prepared: false
 flags: {}
-img: systems/dungeonworld/assets/icons/spells/wind-grasp-air-3.webp
+img: systems/projectmoonttrpg/assets/icons/spells/wind-grasp-air-3.webp
 effects: []
 _id: Jw5WVEeQNKyB2DUv
 _key: '!items!Jw5WVEeQNKyB2DUv'

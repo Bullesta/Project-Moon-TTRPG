@@ -84,7 +84,7 @@ data:
   load: 6
   damage: d6
 flags: {}
-img: systems/dungeonworld/assets/icons/skills/green_13.webp
+img: systems/projectmoonttrpg/assets/icons/skills/green_13.webp
 effects: []
 _key: '!items!9YSGXFmudY88vP2l'
 

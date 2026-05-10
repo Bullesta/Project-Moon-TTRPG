@@ -13,7 +13,7 @@ data:
   class: The Wizard
   prepared: false
 flags: {}
-img: systems/dungeonworld/assets/icons/spells/air-burst-sky-2.webp
+img: systems/projectmoonttrpg/assets/icons/spells/air-burst-sky-2.webp
 effects: []
 _id: Fl3WpwCz9K5IFC4S
 _key: '!items!Fl3WpwCz9K5IFC4S'

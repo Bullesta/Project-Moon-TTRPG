@@ -13,7 +13,7 @@ data:
   class: The Wizard
   prepared: false
 flags: {}
-img: systems/dungeonworld/assets/icons/spells/heal-sky-1.webp
+img: systems/projectmoonttrpg/assets/icons/spells/heal-sky-1.webp
 effects: []
 _id: xQa1PWJZ5KX0IwhS
 _key: '!items!xQa1PWJZ5KX0IwhS'

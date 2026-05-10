@@ -12,13 +12,13 @@
                 <option value="{{class}}" />
                 {{/each}}
               </datalist>
-			  <a class="clickable-class-viewer" title='{{localize "DW.ClassViewer"}}'><i class="fas fa-book"></i></a>
+			  <a class="clickable-class-viewer" title='{{localize "PMTTRPG.ClassViewer"}}'><i class="fas fa-book"></i></a>
               <div class="flex-item flex-item--level">
-                <label for="system.atributes.level.value">{{ localize "DW.Level" }}</label>
+                <label for="system.atributes.level.value">{{ localize "PMTTRPG.Level" }}</label>
                 <input name="system.attributes.level.value" type="text" value="{{system.attributes.level.value}}" placeholder="Level" data-dtype="Number"/>
               </div>
               <div class="flex-item flex-item--xp">
-                <label for="system.attributes.xp.value">{{ localize "DW.XP" }}</label>
+                <label for="system.attributes.xp.value">{{ localize "PMTTRPG.XP" }}</label>
                 <input name="system.attributes.xp.value" type="text" value="{{system.attributes.xp.value}}" placeholder="XP" data-dtype="Number"/>
                 {{{progressCircle system.xpSvg}}}
               </div>
@@ -39,35 +39,35 @@
       </section>
 
       {{!-- Sidebar --}}
-      <section class="sheet-look{{#if actor.flags.dungeonworld.sheetDisplay.sidebarClosed}} closed{{/if}}">
+      <section class="sheet-look{{#if actor.flags.projectmoonttrpg.sheetDisplay.sidebarClosed}} closed{{/if}}">
         <div class="cell cell--aesthetics">
           <div class="cell cell--image">
             <img class="profile-img" src="{{actor.img}}" data-edit="img" title="{{actor.name}}" height="100" width="100"/>
           </div>
 
           <div class="cell cell--look">
-            <label class="cell__title">{{localize "DW.Look"}}</label>
+            <label class="cell__title">{{localize "PMTTRPG.Look"}}</label>
             {{editor system.details.lookEnriched target="system.details.look" button=true owner=owner editable=editable}}
           </div>
 
           <div class="cell cell--alignment">
-            <label class="cell__title">{{localizeOverride "DW.Alignment" "alignmentSingle"}}</label>
+            <label class="cell__title">{{localizeOverride "PMTTRPG.Alignment" "alignmentSingle"}}</label>
             <input type="text" class="input input--title" name="system.details.alignment.value" value="{{system.details.alignment.value}}" data-dtype="String"/>
             {{editor system.details.alignment.enriched target="system.details.alignment.description" button=true owner=owner editable=editable}}
           </div>
 
           <div class="cell cell--race">
-            <label class="cell__title">{{localizeOverride "DW.Race" "raceSingle"}}</label>
+            <label class="cell__title">{{localizeOverride "PMTTRPG.Race" "raceSingle"}}</label>
             <input type="text" class="input input--title" name="system.details.race.value" value="{{system.details.race.value}}" data-dtype="String"/>
             {{editor system.details.race.enriched target="system.details.race.description" button=true owner=owner editable=editable}}
           </div>
 
           <div class="cell cell--bonds">
             <div class="cell__title">
-              <label>{{localizeOverride "DW.Bonds" "bondPlural"}}</label>
+              <label>{{localizeOverride "PMTTRPG.Bonds" "bondPlural"}}</label>
               <div class="item-controls">
-                <button  type="button" class="item-control item-create" title='{{localize "DW.Add"}}' data-type="bond">
-                  <i class="fas fa-plus"></i> <span class="visually-hidden">{{localize "DW.Add"}}</span>
+                <button  type="button" class="item-control item-create" title='{{localize "PMTTRPG.Add"}}' data-type="bond">
+                  <i class="fas fa-plus"></i> <span class="visually-hidden">{{localize "PMTTRPG.Add"}}</span>
                 </button>
               </div>
             </div>
@@ -84,7 +84,7 @@
           </div>
         </div>
 
-        <button  type="button" class="toggle toggle--look{{#if actor.flags.dungeonworld.sheetDisplay.sidebarClosed}} closed{{/if}}"><i class="fas fa-chevron-left"></i></button>
+        <button  type="button" class="toggle toggle--look{{#if actor.flags.projectmoonttrpg.sheetDisplay.sidebarClosed}} closed{{/if}}"><i class="fas fa-chevron-left"></i></button>
       </section>
 
       {{!-- Main --}}
@@ -93,24 +93,24 @@
         <section class="sheet-attributes">
 
           <div class="cell cell--damage">
-            <label class="cell__title damage-rollable rollable" data-roll="{{system.attributes.damage.value}}{{#if system.attributes.damage.misc}}+{{system.attributes.damage.misc}}{{/if}}" data-label="{{localize "DW.Damage"}}"><i class="fas fa-dice-d20"></i> {{localize "DW.Damage"}}</label>
+            <label class="cell__title damage-rollable rollable" data-roll="{{system.attributes.damage.value}}{{#if system.attributes.damage.misc}}+{{system.attributes.damage.misc}}{{/if}}" data-label="{{localize "PMTTRPG.Damage"}}"><i class="fas fa-dice-d20"></i> {{localize "PMTTRPG.Damage"}}</label>
             {{!-- <input type="text" name="system.attributes.damage.value" value="{{system.attributes.damage.value}}" data-dtype="String"/> --}}
             <div class="damage-inputs">
               <select name="system.attributes.damage.value" data-dtype="String">
                 {{selectOptions selects.damages selected=system.attributes.damage.value blank='—'}}
               </select>
               <span>+</span>
-              <input type="text" name="system.attributes.damage.misc" value="{{system.attributes.damage.misc}}" placeholder="{{localize "DW.Misc"}}" data-dtype="String"/>
+              <input type="text" name="system.attributes.damage.misc" value="{{system.attributes.damage.misc}}" placeholder="{{localize "PMTTRPG.Misc"}}" data-dtype="String"/>
             </div>
           </div>
 
           <div class="cell cell--ac">
-            <label class="cell__title">{{localize "DW.Armor"}}<i class="fas fa-shield-alt attribute-icon"></i></label>
+            <label class="cell__title">{{localize "PMTTRPG.Armor"}}<i class="fas fa-shield-alt attribute-icon"></i></label>
             <input type="text" name="system.attributes.ac.value" value="{{system.attributes.ac.value}}" data-dtype="Number"/>
           </div>
 
           <div class="cell cell--hp">
-            <label for="system.attributes.hp.value" class="cell__title">{{localize "DW.HP"}}<i class="fas fa-heart attribute-icon"></i></label>
+            <label for="system.attributes.hp.value" class="cell__title">{{localize "PMTTRPG.HP"}}<i class="fas fa-heart attribute-icon"></i></label>
             <div class="cell__counter">
               <div class="cell__wrapper">
                 <button type="button" class="resource-control resource-decrease" data-action="decrease" data-attr="attributes.hp.value">-</button>
@@ -123,7 +123,7 @@
           </div>
 
           <div class="cell cell--weight">
-            <label for="system.attributes.weight.value" class="cell__title">{{localize "DW.Weight"}}<i class="fas fa-weight-hanging attribute-icon"></i></label>
+            <label for="system.attributes.weight.value" class="cell__title">{{localize "PMTTRPG.Weight"}}<i class="fas fa-weight-hanging attribute-icon"></i></label>
             <div class="cell__counter">
               <input class="disabled" type="text" name="system.attributes.weight.value" value="{{system.attributes.weight.value}}" data-dtype="Number" readonly/>
               <span> / </span>
@@ -132,7 +132,7 @@
           </div>
 
           <div class="cell cell--coin">
-            <label class="cell__title">{{localize "DW.Coin"}}<i class="fas fa-coins attribute-icon"></i></label>
+            <label class="cell__title">{{localize "PMTTRPG.Coin"}}<i class="fas fa-coins attribute-icon"></i></label>
             <div class="cell__wrapper">
               <button type="button" class="resource-control resource-decrease" data-action="decrease" data-attr="attributes.coin.value">-</button>
               <input type="text" name="system.attributes.coin.value" value="{{system.attributes.coin.value}}" data-dtype="Number"/>
@@ -161,10 +161,10 @@
 
         {{!-- Sheet Tab Navigation --}}
         <nav class="sheet-tabs tabs" data-group="primary">
-            <a class="item" data-tab="description">{{localize "DW.Description"}}</a>
-            <a class="item" data-tab="moves">{{localize "DW.Moves"}}</a>
-            <a class="item" data-tab="spells">{{localize "DW.Spells"}}</a>
-            <a class="item" data-tab="equipment">{{localize "DW.Equipment"}}</a>
+            <a class="item" data-tab="description">{{localize "PMTTRPG.Description"}}</a>
+            <a class="item" data-tab="moves">{{localize "PMTTRPG.Moves"}}</a>
+            <a class="item" data-tab="spells">{{localize "PMTTRPG.Spells"}}</a>
+            <a class="item" data-tab="equipment">{{localize "PMTTRPG.Equipment"}}</a>
         </nav>
 
         {{!-- Sheet Body --}}
@@ -174,7 +174,7 @@
             <div class="tab description" data-group="primary" data-tab="description">
               <div class="sheet-tab">
                 <div class="cell cell--bio">
-                  <label class="cell__title">{{localize "DW.Biography"}}</label>
+                  <label class="cell__title">{{localize "PMTTRPG.Biography"}}</label>
                   {{editor system.details.biographyEnriched target="system.details.biography" button=true owner=owner editable=editable}}
                 </div>
               </div>
@@ -192,7 +192,7 @@
 
                 <section class="sheet-resources">
                   <div class="cell cell--forward">
-                    <label class="cell__title">{{localize "DW.Forward"}}</label>
+                    <label class="cell__title">{{localize "PMTTRPG.Forward"}}</label>
                     <div class="cell__wrapper">
                       <button  type="button" class="resource-control resource-decrease" data-action="decrease" data-attr="attributes.forward.value">-</button>
                       <input type="number" name="system.attributes.forward.value" value="{{system.attributes.forward.value}}" data-dtype="Number"/>
@@ -201,7 +201,7 @@
                   </div>
 
                   <div class="cell cell--ongoing">
-                    <label class="cell__title">{{localize "DW.Ongoing"}}</label>
+                    <label class="cell__title">{{localize "PMTTRPG.Ongoing"}}</label>
                     <div class="cell__wrapper">
                       <button  type="button" class="resource-control resource-decrease" data-action="decrease" data-attr="attributes.ongoing.value">-</button>
                       <input type="number" name="system.attributes.ongoing.value" value="{{system.attributes.ongoing.value}}" data-dtype="Number"/>
@@ -210,7 +210,7 @@
                   </div>
 
                   <div class="cell cell--hold">
-                    <label class="cell__title">{{localize "DW.Hold"}}</label>
+                    <label class="cell__title">{{localize "PMTTRPG.Hold"}}</label>
                     <div class="cell__wrapper">
                       <button  type="button" class="resource-control resource-decrease" data-action="decrease" data-attr="attributes.hold.value">-</button>
                       <input type="number" name="system.attributes.hold.value" value="{{system.attributes.hold.value}}" data-dtype="Number"/>
@@ -236,23 +236,23 @@
                   </div>
 
                   <div class="cell cell--roll-formula">
-                    <label class="cell__title">{{localize "DW.RollFormula"}}</label>
+                    <label class="cell__title">{{localize "PMTTRPG.RollFormula"}}</label>
                     <div class="cell__wrapper">
                       <input type="text" name="system.attributes.rollFormula.value" value="{{system.attributes.rollFormula.value}}" placeholder="2d6" data-dtype="String"/>
                     </div>
                   </div>
 
                   <div class="cell cell--roll-mode flexrow">
-                    <label class="cell__title">{{localize "DW.RollMode"}}</label>
-                    {{radioBoxes 'flags.dungeonworld.rollMode' rollModes checked=flags.dungeonworld.rollMode localize=true}}
+                    <label class="cell__title">{{localize "PMTTRPG.RollMode"}}</label>
+                    {{radioBoxes 'flags.projectmoonttrpg.rollMode' rollModes checked=flags.projectmoonttrpg.rollMode localize=true}}
                   </div>
                 </section>
 
                 <div class="cell cell--basic-moves">
                   <h2 class="cell__title">
-                    <label>{{localize "DW.MovesBasic"}}</label>
+                    <label>{{localize "PMTTRPG.MovesBasic"}}</label>
                     <div class="item-controls">
-                      <button  type="button" class="item-control item-create" title='{{localize "DW.MoveCreate"}}' data-type="move" data-moveType="basic">
+                      <button  type="button" class="item-control item-create" title='{{localize "PMTTRPG.MoveCreate"}}' data-type="move" data-moveType="basic">
                         <i class="fas fa-plus"></i>
                       </button>
                     </div>
@@ -260,7 +260,7 @@
                   <ol class="items-list">
                   {{#each basicMoves as |item id|}}
                     <li class="item flexrow" data-item-id="{{item._id}}" draggable="true">
-                      {{> "systems/dungeonworld/templates/parts/sheet-moves.html" item=item rollData=../rollData statSettings=../../system.statSettings}}
+                      {{> "systems/projectmoonttrpg/templates/parts/sheet-moves.html" item=item rollData=../rollData statSettings=../../system.statSettings}}
                     </li>
                   {{/each}}
                   </ol>
@@ -268,9 +268,9 @@
 
                 <div class="cell cell--starting-moves">
                   <h2 class="cell__title">
-                    <label>{{localize "DW.MovesStarting"}}</label>
+                    <label>{{localize "PMTTRPG.MovesStarting"}}</label>
                     <div class="item-controls">
-                      <button  type="button" class="item-control item-create" title='{{localize "DW.MoveCreate"}}' data-type="move" data-moveType="starting">
+                      <button  type="button" class="item-control item-create" title='{{localize "PMTTRPG.MoveCreate"}}' data-type="move" data-moveType="starting">
                         <i class="fas fa-plus"></i>
                       </button>
                     </div>
@@ -278,7 +278,7 @@
                   <ol class="items-list">
                   {{#each startingMoves as |item id|}}
                     <li class="item flexrow" data-item-id="{{item._id}}" draggable="true">
-                      {{> "systems/dungeonworld/templates/parts/sheet-moves.html" item=item rollData=../rollData statSettings=../../system.statSettings}}
+                      {{> "systems/projectmoonttrpg/templates/parts/sheet-moves.html" item=item rollData=../rollData statSettings=../../system.statSettings}}
                     </li>
                   {{/each}}
                   </ol>
@@ -286,9 +286,9 @@
 
                 <div class="cell cell--advanced-moves">
                   <h2 class="cell__title">
-                    <label>{{localize "DW.MovesAdvanced"}}</label>
+                    <label>{{localize "PMTTRPG.MovesAdvanced"}}</label>
                     <div class="item-controls">
-                      <button  type="button" class="item-control item-create" title='{{localize "DW.MoveCreate"}}' data-type="move" data-moveType="advanced">
+                      <button  type="button" class="item-control item-create" title='{{localize "PMTTRPG.MoveCreate"}}' data-type="move" data-moveType="advanced">
                         <i class="fas fa-plus"></i>
                       </button>
                     </div>
@@ -296,7 +296,7 @@
                   <ol class="items-list">
                   {{#each advancedMoves as |item id|}}
                     <li class="item flexrow" data-item-id="{{item._id}}" draggable="true">
-                      {{> "systems/dungeonworld/templates/parts/sheet-moves.html" item=item rollData=../rollData statSettings=../../system.statSettings}}
+                      {{> "systems/projectmoonttrpg/templates/parts/sheet-moves.html" item=item rollData=../rollData statSettings=../../system.statSettings}}
                     </li>
                   {{/each}}
                   </ol>
@@ -304,9 +304,9 @@
 
                 <div class="cell cell--special-moves">
                   <h2 class="cell__title">
-                    <label>{{localize "DW.MovesSpecial"}}</label>
+                    <label>{{localize "PMTTRPG.MovesSpecial"}}</label>
                     <div class="item-controls">
-                      <button  type="button" class="item-control item-create" title='{{localize "DW.MoveCreate"}}' data-type="move" data-moveType="special">
+                      <button  type="button" class="item-control item-create" title='{{localize "PMTTRPG.MoveCreate"}}' data-type="move" data-moveType="special">
                         <i class="fas fa-plus"></i>
                       </button>
                     </div>
@@ -314,7 +314,7 @@
                   <ol class="items-list">
                   {{#each specialMoves as |item id|}}
                     <li class="item flexrow" data-item-id="{{item._id}}" draggable="true">
-                      {{> "systems/dungeonworld/templates/parts/sheet-moves.html" item=item rollData=../rollData statSettings=../../system.statSettings}}
+                      {{> "systems/projectmoonttrpg/templates/parts/sheet-moves.html" item=item rollData=../rollData statSettings=../../system.statSettings}}
                     </li>
                   {{/each}}
                   </ol>
@@ -322,9 +322,9 @@
 
                 <div class="cell cell--other-moves">
                   <h2 class="cell__title">
-                    <label>{{localize "DW.MovesOther"}}</label>
+                    <label>{{localize "PMTTRPG.MovesOther"}}</label>
                     <div class="item-controls">
-                      <button  type="button" class="item-control item-create" title='{{localize "DW.MoveCreate"}}' data-type="move">
+                      <button  type="button" class="item-control item-create" title='{{localize "PMTTRPG.MoveCreate"}}' data-type="move">
                         <i class="fas fa-plus"></i>
                       </button>
                     </div>
@@ -332,7 +332,7 @@
                   <ol class="items-list">
                   {{#each moves as |item id|}}
                     <li class="item flexrow" data-item-id="{{item._id}}" draggable="true">
-                      {{> "systems/dungeonworld/templates/parts/sheet-moves.html" item=item rollData=../rollData statSettings=../../system.statSettings}}
+                      {{> "systems/projectmoonttrpg/templates/parts/sheet-moves.html" item=item rollData=../rollData statSettings=../../system.statSettings}}
                     </li>
                   {{/each}}
                   </ol>
@@ -353,9 +353,9 @@
                   <ol class="items-list">
                   {{#each spells as |spellsPerLevel spellLevel|}}
                     <h2 class="cell__title">
-                      <label>{{localize (concat "DW.Spells" spellLevel)}}</label>
+                      <label>{{localize (concat "PMTTRPG.Spells" spellLevel)}}</label>
                       <div class="item-controls">
-                      <button  type="button" class="item-control item-create" title='{{localize "DW.Spells"}}' data-type="spell" data-level="{{spellLevel}}">
+                      <button  type="button" class="item-control item-create" title='{{localize "PMTTRPG.Spells"}}' data-type="spell" data-level="{{spellLevel}}">
                         <i class="fas fa-plus"></i>
                       </button>
                     </div>
@@ -378,9 +378,9 @@
                         </h4>
                         <div class="item-meta tags">
                           {{#if item.system.prepared}}
-                            <a class="tag prepared">{{localize "DW.Prepared"}}</a>
+                            <a class="tag prepared">{{localize "PMTTRPG.Prepared"}}</a>
                           {{else}}
-                            <a class="tag prepared unprepared">{{localize "DW.Unprepared"}}</a>
+                            <a class="tag prepared unprepared">{{localize "PMTTRPG.Unprepared"}}</a>
                           {{/if}}
                         </div>
                         <div class="item-controls">
@@ -408,9 +408,9 @@
                   </section>
 
                   <h2 class="cell__title">
-                    <label>{{localize "DW.Equipment"}}</label>
+                    <label>{{localize "PMTTRPG.Equipment"}}</label>
                     <div class="item-controls">
-                      <button  type="button" class="item-control item-create" title='{{localize "DW.Equipment"}}' data-type="equipment">
+                      <button  type="button" class="item-control item-create" title='{{localize "PMTTRPG.Equipment"}}' data-type="equipment">
                         <i class="fas fa-plus"></i>
                       </button>
                     </div>
@@ -433,10 +433,10 @@
                           </h4>
 
                           <div class="item-meta tags">
-                            {{#if item.system.equipped }}<span class="tag equipped" data-action="equipped">{{localize "DW.Equipped"}}</span>{{/if}}
-                            {{#if item.system.uses }}<a class="tag counter uses" data-action="uses">{{localize "DW.Uses"}}: {{item.system.uses}}</a>{{/if}}
-                            {{#if item.system.quantity }}<a class="tag counter quantity" data-action="quantity">{{localize "DW.Qty"}}: {{item.system.quantity}}</a>{{/if}}
-                            {{#if item.system.weight }}<span class="tag">{{localize "DW.Wt"}}: {{item.system.weight}}</span>{{/if}}
+                            {{#if item.system.equipped }}<span class="tag equipped" data-action="equipped">{{localize "PMTTRPG.Equipped"}}</span>{{/if}}
+                            {{#if item.system.uses }}<a class="tag counter uses" data-action="uses">{{localize "PMTTRPG.Uses"}}: {{item.system.uses}}</a>{{/if}}
+                            {{#if item.system.quantity }}<a class="tag counter quantity" data-action="quantity">{{localize "PMTTRPG.Qty"}}: {{item.system.quantity}}</a>{{/if}}
+                            {{#if item.system.weight }}<span class="tag">{{localize "PMTTRPG.Wt"}}: {{item.system.weight}}</span>{{/if}}
                           </div>
                           <div class="item-controls">
                               <a class="item-control item-equip" title="Equip Item"><i class="fa-solid fa-shirt"></i></a>
@@ -444,7 +444,7 @@
                               <a class="item-control item-delete" title="Delete Item"><i class="fas fa-trash"></i></a>
                           </div>
                           <div class="item-description">
-                            {{#if item.system.tags}}{{{dwTags item.system.tags}}}{{/if}}
+                            {{#if item.system.tags}}{{{PMTTRPGTags item.system.tags}}}{{/if}}
                             <div class="description">{{{item.system.descriptionEnriched}}}</div>
                           </div>
                       </li>

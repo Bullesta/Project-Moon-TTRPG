@@ -6,7 +6,7 @@ type: class
 data:
   name: ''
   description: >-
-    <p>The lands of Dungeon World are a gods-forsaken mess. They’re lousy with
+    <p>The lands of Project Moon TTRPG are a gods-forsaken mess. They’re lousy with
     the walking dead, beasts of all sorts, and the vast unnatural spaces between
     safe and temple-blessed civilizations. It is a godless world out there.
     That’s why it needs you.</p>
@@ -73,7 +73,7 @@ data:
   load: 10
   damage: d6
 flags: {}
-img: systems/dungeonworld/assets/icons/skills/light_06.webp
+img: systems/projectmoonttrpg/assets/icons/skills/light_06.webp
 effects: []
 _key: '!items!rN7wK6CzyUIOX7nj'
 

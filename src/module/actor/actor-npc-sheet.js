@@ -1,22 +1,22 @@
-import { DwActorSheet } from './actor-sheet.js';
-import { DwUtility } from '../utility.js';
+import { PMTTRPGActorSheet } from './actor-sheet.js';
+import { PMTTRPGUtility } from '../utility.js';
 
 /**
  * Extend the basic ActorSheet with some very simple modifications
  * @extends {ActorSheet}
  */
-export class DwActorNpcSheet extends DwActorSheet {
+export class PMTTRPGActorNpcSheet extends PMTTRPGActorSheet {
 
   /** @override */
   static get defaultOptions() {
     let options = foundry.utils.mergeObject(super.defaultOptions, {
-      classes: ["dungeonworld", "sheet", "actor", "npc"],
+      classes: ["projectmoonttrpg", "sheet", "actor", "npc"],
       width: 560,
       height: 640,
       tabs: [{ navSelector: ".sheet-tabs", contentSelector: ".sheet-body", initial: "moves" }]
     });
 
-    if (DwUtility.nightmode) {
+    if (PMTTRPGUtility.nightmode) {
       options.classes.push('nightmode');
     }
 

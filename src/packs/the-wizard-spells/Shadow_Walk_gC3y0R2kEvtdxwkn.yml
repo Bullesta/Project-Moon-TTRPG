@@ -15,7 +15,7 @@ data:
   class: The Wizard
   prepared: false
 flags: {}
-img: systems/dungeonworld/assets/icons/spells/haste-fire-1.webp
+img: systems/projectmoonttrpg/assets/icons/spells/haste-fire-1.webp
 effects: []
 _id: gC3y0R2kEvtdxwkn
 _key: '!items!gC3y0R2kEvtdxwkn'

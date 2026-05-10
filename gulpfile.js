@@ -36,7 +36,7 @@ function compilePacks() {
   const packs = folders.map((folder) => {
     return gulp.src(path.join(PACK_SRC, folder))
       .pipe(shell([
-        `fvtt package --id dungeonworld --type System pack <%= file.stem %> -c --yaml --in "<%= file.path %>" --out ${PACK_DEST}`
+        `fvtt package --id projectmoonttrpg --type System pack <%= file.stem %> -c --yaml --in "<%= file.path %>" --out ${PACK_DEST}`
       ]))
   })
 
@@ -67,7 +67,7 @@ function extractPacks() {
   // Start a stream for all db files in the packs dir.
   const packs = gulp.src(`${PACK_DEST}/*`)
     .pipe(shell([
-      'fvtt package --id dungeonworld --type System unpack <%= file.stem %> -c --yaml --in dist/packs --out src/packs/<%= file.stem %>'
+      'fvtt package --id projectmoonttrpg --type System unpack <%= file.stem %> -c --yaml --in dist/packs --out src/packs/<%= file.stem %>'
     ]));
 
   // Call the streams.

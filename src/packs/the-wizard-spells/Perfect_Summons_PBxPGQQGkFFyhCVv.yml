@@ -14,7 +14,7 @@ data:
   class: The Wizard
   prepared: false
 flags: {}
-img: systems/dungeonworld/assets/icons/skills/blue_26.webp
+img: systems/projectmoonttrpg/assets/icons/skills/blue_26.webp
 effects: []
 _id: PBxPGQQGkFFyhCVv
 _key: '!items!PBxPGQQGkFFyhCVv'

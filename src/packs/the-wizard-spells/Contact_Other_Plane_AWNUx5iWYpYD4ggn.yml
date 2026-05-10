@@ -14,7 +14,7 @@ data:
   class: The Wizard
   prepared: false
 flags: {}
-img: systems/dungeonworld/assets/icons/spells/evil-eye-red-3.webp
+img: systems/projectmoonttrpg/assets/icons/spells/evil-eye-red-3.webp
 effects: []
 _id: AWNUx5iWYpYD4ggn
 _key: '!items!AWNUx5iWYpYD4ggn'

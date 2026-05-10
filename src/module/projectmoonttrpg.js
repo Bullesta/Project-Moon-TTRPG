@@ -5,19 +5,19 @@
  */
 
 // Import Modules
-import { DW } from "./config.js";
-import { DwClassList } from "./config.js";
-import { ActorDw } from "./actor/actor.js";
-import { ItemDw } from "./item/item.js";
-import { DwItemSheet } from "./item/item-sheet.js";
-import { DwActorSheet } from "./actor/actor-sheet.js";
-import { DwActorNpcSheet } from "./actor/actor-npc-sheet.js";
-import { DwClassItemSheet } from "./item/class-item-sheet.js";
-import { DwRegisterHelpers } from "./handlebars.js";
+import { PMTTRPG } from "./config.js";
+import { PMTTRPGClassList } from "./config.js";
+import { ActorPMTTRPG } from "./actor/actor.js";
+import { ItemPMTTRPG } from "./item/item.js";
+import { PMTTRPGItemSheet } from "./item/item-sheet.js";
+import { PMTTRPGActorSheet } from "./actor/actor-sheet.js";
+import { PMTTRPGActorNpcSheet } from "./actor/actor-npc-sheet.js";
+import { PMTTRPGClassItemSheet } from "./item/class-item-sheet.js";
+import { PMTTRPGRegisterHelpers } from "./handlebars.js";
 import { preloadHandlebarsTemplates } from "./templates.js";
-import { DwUtility } from "./utility.js";
-import { CombatSidebarDw } from "./combat/combat.js";
-import { MigrateDw } from "./migrate/migrate.js";
+import { PMTTRPGUtility } from "./utility.js";
+import { CombatSidebarPMTTRPG } from "./combat/combat.js";
+import { MigratePMTTRPG } from "./migrate/migrate.js";
 
 import * as chat from "./chat.js";
 
@@ -30,49 +30,49 @@ const { renderTemplate } = foundry.applications.handlebars;
 /* -------------------------------------------- */
 
 Hooks.once("init", async function() {
-  console.log(`Initializing Dungeon World!`);
+  console.log(`Initializing Project Moon TTRPG!`);
 
-  game.dungeonworld = {
-    ActorDw,
-    ItemDw,
+  game.projectmoonttrpg = {
+    ActorPMTTRPG,
+    ItemPMTTRPG,
     rollItemMacro,
-    DwUtility,
-    MigrateDw,
+    PMTTRPGUtility,
+    MigratePMTTRPG,
   };
 
   // TODO: Extend the combat class.
-  // CONFIG.Combat.entityClass = CombatDw;
+  // CONFIG.Combat.entityClass = CombatPMTTRPG;
 
-  CONFIG.DW = DW;
-  CONFIG.Actor.documentClass = ActorDw;
-  CONFIG.Item.documentClass = ItemDw;
+  CONFIG.PMTTRPG = PMTTRPG;
+  CONFIG.Actor.documentClass = ActorPMTTRPG;
+  CONFIG.Item.documentClass = ItemPMTTRPG;
 
   // Register sheet application classes
   Actors.unregisterSheet("core", ActorSheet);
-  Actors.registerSheet("dungeonworld", DwActorSheet, {
+  Actors.registerSheet("projectmoonttrpg", PMTTRPGActorSheet, {
     types: ['character'],
     makeDefault: true
   });
-  Actors.registerSheet("dungeonworld", DwActorNpcSheet, {
+  Actors.registerSheet("projectmoonttrpg", PMTTRPGActorNpcSheet, {
     types: ['npc'],
     makeDefault: true
   });
   Items.unregisterSheet("core", ItemSheet);
-  Items.registerSheet("dungeonworld", DwItemSheet, { makeDefault: false });
-  Items.registerSheet("dungeonworld", DwClassItemSheet, {
+  Items.registerSheet("projectmoonttrpg", PMTTRPGItemSheet, { makeDefault: false });
+  Items.registerSheet("projectmoonttrpg", PMTTRPGClassItemSheet, {
     types: ['class'],
     makeDefault: true
   });
 
-  DwRegisterHelpers.init();
+  PMTTRPGRegisterHelpers.init();
 
-  let combatDw = new CombatSidebarDw();
-  combatDw.startup();
+  let combatPMTTRPG = new CombatSidebarPMTTRPG();
+  combatPMTTRPG.startup();
 
   /**
    * Track the system version upon which point a migration was last applied
    */
-  game.settings.register("dungeonworld", "systemMigrationVersion", {
+  game.settings.register("projectmoonttrpg", "systemMigrationVersion", {
     name: "System Migration Version",
     scope: "world",
     config: false,
@@ -81,56 +81,18 @@ Hooks.once("init", async function() {
   });
 
   // Configurable system settings.
-  game.settings.register("dungeonworld", "xpFormula", {
-    name: game.i18n.localize("DW.Settings.xpFormula.name"),
-    hint: game.i18n.localize("DW.Settings.xpFormula.hint"),
+  game.settings.register("projectmoonttrpg", "xpFormula", {
+    name: game.i18n.localize("PMTTRPG.Settings.xpFormula.name"),
+    hint: game.i18n.localize("PMTTRPG.Settings.xpFormula.hint"),
     scope: "world",
     config: true,
     type: String,
     default: "@attributes.level.value + 7"
   });
 
-  game.settings.register("dungeonworld", "advForward", {
-    name: game.i18n.localize("DW.Settings.advForward.name"),
-    hint: game.i18n.localize("DW.Settings.advForward.hint"),
-    scope: 'world',
-    config: true,
-    type: Boolean,
-    default: false
-  });
-
-  game.settings.register("dungeonworld", "disDebility", {
-    name: game.i18n.localize("DW.Settings.disDebility.name"),
-    hint: game.i18n.localize("DW.Settings.disDebility.hint"),
-    scope: "world",
-    config: true,
-    type: Boolean,
-    default: false,
-    onChange: () => window.location.reload(),
-  })
-
-  game.settings.register("dungeonworld", "coinWeight", {
-    name: game.i18n.localize("DW.Settings.coinWeight.name"),
-    hint: game.i18n.localize("DW.Settings.coinWeight.hint"),
-    scope: "world",
-    config: true,
-    type: Number,
-    default: 100
-  });
-
-  // TODO: Remove this setting.
-  game.settings.register("dungeonworld", "itemIcons", {
-    name: game.i18n.localize("DW.Settings.itemIcons.name"),
-    hint: game.i18n.localize("DW.Settings.itemIcons.hint"),
-    scope: 'client',
-    config: false,
-    type: Boolean,
-    default: true
-  });
-
-  game.settings.register("dungeonworld", "enableDamageButtons", {
-    name: game.i18n.localize("DW.Settings.enableDamageButtons.name"),
-    hint: game.i18n.localize("DW.Settings.enableDamageButtons.hint"),
+  game.settings.register("projectmoonttrpg", "enableDamageButtons", {
+    name: game.i18n.localize("PMTTRPG.Settings.enableDamageButtons.name"),
+    hint: game.i18n.localize("PMTTRPG.Settings.enableDamageButtons.hint"),
     scope: 'world',
     config: true,
     type: Boolean,
@@ -142,63 +104,9 @@ Hooks.once("init", async function() {
     browserDefaultColor = true;
   }
 
-  game.settings.register("dungeonworld", "alignmentSingle", {
-    name: game.i18n.localize("DW.Settings.alignmentSingle.name"),
-    hint: game.i18n.localize("DW.Settings.alignmentSingle.hint"),
-    scope: 'world',
-    config: true,
-    type: String,
-    default: ''
-  });
-
-  game.settings.register("dungeonworld", "alignmentPlural", {
-    name: game.i18n.localize("DW.Settings.alignmentPlural.name"),
-    hint: game.i18n.localize("DW.Settings.alignmentPlural.hint"),
-    scope: 'world',
-    config: true,
-    type: String,
-    default: ''
-  });
-
-  game.settings.register("dungeonworld", "raceSingle", {
-    name: game.i18n.localize("DW.Settings.raceSingle.name"),
-    hint: game.i18n.localize("DW.Settings.raceSingle.hint"),
-    scope: 'world',
-    config: true,
-    type: String,
-    default: ''
-  });
-
-  game.settings.register("dungeonworld", "racePlural", {
-    name: game.i18n.localize("DW.Settings.racePlural.name"),
-    hint: game.i18n.localize("DW.Settings.racePlural.hint"),
-    scope: 'world',
-    config: true,
-    type: String,
-    default: ''
-  });
-
-  game.settings.register("dungeonworld", "bondSingle", {
-    name: game.i18n.localize("DW.Settings.bondSingle.name"),
-    hint: game.i18n.localize("DW.Settings.bondSingle.hint"),
-    scope: 'world',
-    config: true,
-    type: String,
-    default: ''
-  });
-
-  game.settings.register("dungeonworld", "bondPlural", {
-    name: game.i18n.localize("DW.Settings.bondPlural.name"),
-    hint: game.i18n.localize("DW.Settings.bondPlural.hint"),
-    scope: 'world',
-    config: true,
-    type: String,
-    default: ''
-  });
-
-  game.settings.register("dungeonworld", "noCompendiumAutoData", {
-    name: game.i18n.localize("DW.Settings.noCompendiumAutoData.name"),
-    hint: game.i18n.localize("DW.Settings.noCompendiumAutoData.hint"),
+  game.settings.register("projectmoonttrpg", "noCompendiumAutoData", {
+    name: game.i18n.localize("PMTTRPG.Settings.noCompendiumAutoData.name"),
+    hint: game.i18n.localize("PMTTRPG.Settings.noCompendiumAutoData.hint"),
     scope: 'world',
     config: true,
     type: Boolean,
@@ -206,105 +114,14 @@ Hooks.once("init", async function() {
     onChange: () => window.location.reload()
   });
 
-  game.settings.register("dungeonworld", "compendiumPrefix", {
-    name: game.i18n.localize("DW.Settings.compendiumPrefix.name"),
-    hint: game.i18n.localize("DW.Settings.compendiumPrefix.hint"),
+  game.settings.register("projectmoonttrpg", "compendiumPrefix", {
+    name: game.i18n.localize("PMTTRPG.Settings.compendiumPrefix.name"),
+    hint: game.i18n.localize("PMTTRPG.Settings.compendiumPrefix.hint"),
     scope: 'world',
     config: true,
     type: String,
     default: '',
     onChange: () => window.location.reload()
-  });
-
-  game.settings.register("dungeonworld", "noAbilityScores", {
-    name: game.i18n.localize("DW.Settings.noAbilityScores.name"),
-    hint: game.i18n.localize("DW.Settings.noAbilityScores.hint"),
-    scope: 'world',
-    config: true,
-    type: Boolean,
-    default: false,
-    onChange: () => window.location.reload()
-  });
-
-  game.settings.register("dungeonworld", "noAbilityIncrease", {
-    name: game.i18n.localize("DW.Settings.noAbilityIncrease.name"),
-    hint: game.i18n.localize("DW.Settings.noAbilityIncrease.hint"),
-    scope: 'world',
-    config: true,
-    type: Boolean,
-    default: false
-  });
-
-  game.settings.register("dungeonworld", "noConstitutionToHP", {
-    name: game.i18n.localize("DW.Settings.noConstitutionToHP.name"),
-    hint: game.i18n.localize("DW.Settings.noConstitutionToHP.hint"),
-    scope: 'world',
-    config: true,
-    type: Boolean,
-    default: false
-  });
-
-  game.settings.register("dungeonworld", "noSTRToMaxLoad", {
-    name: game.i18n.localize("DW.Settings.noSTRToMaxLoad.name"),
-    hint: game.i18n.localize("DW.Settings.noSTRToMaxLoad.hint"),
-    scope: 'world',
-    config: true,
-    type: Boolean,
-    default: false
-  });
-
-  game.settings.register("dungeonworld", "debilityLabelSTR", {
-    name: game.i18n.localize("DW.Settings.debilityLabelSTR.name"),
-    hint: game.i18n.localize("DW.Settings.debilityLabelSTR.hint"),
-    scope: 'world',
-    config: true,
-    type: String,
-    default: "DW.DebilityStr"
-  });
-
-  game.settings.register("dungeonworld", "debilityLabelDEX", {
-    name: game.i18n.localize("DW.Settings.debilityLabelDEX.name"),
-    hint: game.i18n.localize("DW.Settings.debilityLabelDEX.hint"),
-    scope: 'world',
-    config: true,
-    type: String,
-    default: "DW.DebilityDex"
-  });
-
-  game.settings.register("dungeonworld", "debilityLabelCON", {
-    name: game.i18n.localize("DW.Settings.debilityLabelCON.name"),
-    hint: game.i18n.localize("DW.Settings.debilityLabelCON.hint"),
-    scope: 'world',
-    config: true,
-    type: String,
-    default: "DW.DebilityCon"
-  });
-
-  game.settings.register("dungeonworld", "debilityLabelINT", {
-    name: game.i18n.localize("DW.Settings.debilityLabelINT.name"),
-    hint: game.i18n.localize("DW.Settings.debilityLabelINT.hint"),
-    scope: 'world',
-    config: true,
-    type: String,
-    default: "DW.DebilityInt"
-  });
-
-  game.settings.register("dungeonworld", "debilityLabelWIS", {
-    name: game.i18n.localize("DW.Settings.debilityLabelWIS.name"),
-    hint: game.i18n.localize("DW.Settings.debilityLabelWIS.hint"),
-    scope: 'world',
-    config: true,
-    type: String,
-    default: "DW.DebilityWis"
-  });
-
-  game.settings.register("dungeonworld", "debilityLabelCHA", {
-    name: game.i18n.localize("DW.Settings.debilityLabelCHA.name"),
-    hint: game.i18n.localize("DW.Settings.debilityLabelCHA.hint"),
-    scope: 'world',
-    config: true,
-    type: String,
-    default: "DW.DebilityCha"
   });
 
   // Preload template partials.
@@ -316,7 +133,7 @@ Hooks.once("ready", async function() {
   Hooks.on("hotbarDrop", (bar, data, slot) => {
     //overwrite the default drop-to-hotbar behaviour for items
     if (data.type == "Item") {
-      createDwMacro(data, slot);
+      createPMTTRPGMacro(data, slot);
       return false;
     }
     else {
@@ -324,23 +141,23 @@ Hooks.once("ready", async function() {
     }
   });
 
-  DW.classlist = await DwClassList.getClasses();
-  CONFIG.DW = DW;
+  PMTTRPG.classlist = await PMTTRPGClassList.getClasses();
+  CONFIG.PMTTRPG = PMTTRPG;
 
   // Add a lang class to the body.
   const lang = game.settings.get('core', 'language');
   $('html').addClass(`lang-${lang}`);
 
   // Run migrations.
-  MigrateDw.runMigration();
+  MigratePMTTRPG.runMigration();
 
   // Update config.
-  for (let [k,v] of Object.entries(CONFIG.DW.rollResults)) {
-    CONFIG.DW.rollResults[k].label = game.i18n.localize(v.label);
+  for (let [k,v] of Object.entries(CONFIG.PMTTRPG.rollResults)) {
+    CONFIG.PMTTRPG.rollResults[k].label = game.i18n.localize(v.label);
   }
 
   // Handle sockets.
-  game.socket.on('system.dungeonworld', (data) => {
+  game.socket.on('system.projectmoonttrpg', (data) => {
     if (!game.user.isGM) {
       return;
     }
@@ -375,12 +192,12 @@ Hooks.on('createChatMessage', async (message, options, id) => {
     if (r) {
       r.render().then(rTemplate => {
         // Render the damage buttons.
-        renderTemplate(`systems/dungeonworld/templates/parts/chat-buttons.html`, {}).then(buttonTemplate => {
-          if (message?.flags?.dungeonworld?.damageButtons) return;
+        renderTemplate(`systems/projectmoonttrpg/templates/parts/chat-buttons.html`, {}).then(buttonTemplate => {
+          if (message?.flags?.projectmoonttrpg?.damageButtons) return;
           // Update the chat message with the appended buttons.
           message.update({
             content: rTemplate + buttonTemplate,
-            'flags.dungeonworld.damageButtons': true,
+            'flags.projectmoonttrpg.damageButtons': true,
           })
           // Update the chat log scroll position.
             .then(m => {
@@ -425,7 +242,7 @@ Hooks.once("setup", function() {
     "abilities", "debilities"
   ];
   for (let o of toLocalize) {
-    CONFIG.DW[o] = Object.entries(CONFIG.DW[o]).reduce((obj, e) => {
+    CONFIG.PMTTRPG[o] = Object.entries(CONFIG.PMTTRPG[o]).reduce((obj, e) => {
       obj[e[0]] = game.i18n.localize(e[1]);
       return obj;
     }, {});
@@ -441,11 +258,11 @@ Hooks.on('createActor', async (actor, options, id) => {
 
   if (actor.type == 'character') {
     // Allow the character to levelup up when their level changes.
-    await actor.setFlag('dungeonworld', 'levelup', true);
+    await actor.setFlag('projectmoonttrpg', 'levelup', true);
 
     // Get the item moves as the priority.
     let moves = game.items.filter(i => i.type == 'move' && (i.system.moveType == 'basic' || i.system.moveType == 'special'));
-    const compendium = await DwUtility.loadCompendia('basic-moves');
+    const compendium = await PMTTRPGUtility.loadCompendia('basic-moves');
     let actorMoves = [];
 
     actorMoves = actor.items.filter(i => i.type == 'move');
@@ -480,7 +297,7 @@ Hooks.on('createActor', async (actor, options, id) => {
     });
 
     // Add default look.
-    updates['system.details.look'] = game.i18n.localize('DW.DefaultLook');
+    updates['system.details.look'] = game.i18n.localize('PMTTRPG.DefaultLook');
 
     // Link the token.
     updates['token.actorLink'] = true;
@@ -524,7 +341,7 @@ Hooks.on('createActor', async (actor, options, id) => {
 // Update the item list on new item creation.
 Hooks.on('createItem', async (item, options, id) => {
   if (item.type == 'equipment') {
-    DwUtility.getEquipment(true);
+    PMTTRPGUtility.getEquipment(true);
   }
 })
 
@@ -533,7 +350,7 @@ Hooks.on('preUpdateActor', (actor, updateData, options, id) => {
     // Allow the character to levelup up when their level changes.
     if (updateData.system && updateData.system.attributes && updateData.system.attributes.level) {
       if (updateData.system.attributes.level.value > actor.system.attributes.level.value) {
-        actor.setFlag('dungeonworld', 'levelup', true);
+        actor.setFlag('projectmoonttrpg', 'levelup', true);
       }
     }
   }
@@ -579,7 +396,7 @@ Hooks.on('renderDialog', (dialog, html, options) => {
         $self.find('option').each((opt_index, opt_item) => {
           let $opt = $(opt_item);
           let val = parseInt($opt.attr('value'));
-          const noAbilityScores = game.settings.get('dungeonworld', 'noAbilityScores');
+          const noAbilityScores = game.settings.get('projectmoonttrpg', 'noAbilityScores');
           if (!isNaN(val)) {
             if (noAbilityScores) {
               const alreadySelected = scores.filter(v => v == val) || [];
@@ -613,7 +430,7 @@ Hooks.on('renderDialog', (dialog, html, options) => {
  * @param {number} slot     The hotbar slot to use
  * @returns {Promise}
  */
-async function createDwMacro(data, slot) {
+async function createPMTTRPGMacro(data, slot) {
   // First, determine if this is a valid owned item.
   if (data.type !== "Item") return;
   if (!data.uuid.includes('Actor.') && !data.uuid.includes('Token.')) {
@@ -624,7 +441,7 @@ async function createDwMacro(data, slot) {
 
   // Create the macro command
   // @todo refactor this to use uuids and folders.
-  const command = `game.dungeonworld.rollItemMacro("${item.name}");`;
+  const command = `game.projectmoonttrpg.rollItemMacro("${item.name}");`;
   let macro = game.macros.find(m => (m.name === item.name) && (m.command === command));
   if (!macro) {
     macro = await Macro.create({
@@ -633,8 +450,8 @@ async function createDwMacro(data, slot) {
       img: item.img,
       command: command,
       flags: {
-        "dungeonworld.itemMacro": true,
-        "dungeonworld.itemUuid": data.uuid
+        "projectmoonttrpg.itemMacro": true,
+        "projectmoonttrpg.itemUuid": data.uuid
       }
     });
   }

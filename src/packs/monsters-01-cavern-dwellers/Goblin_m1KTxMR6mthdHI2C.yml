@@ -52,12 +52,12 @@ data:
   tagsString: close, reach, horde, small, intelligent, organized
 sort: 100001
 flags: {}
-img: systems/dungeonworld/tokens/enemies/Goblin_Small_Humanoid_01.webp
+img: systems/projectmoonttrpg/tokens/enemies/Goblin_Small_Humanoid_01.webp
 token:
   flags: {}
   name: Goblin
   displayName: 0
-  img: systems/dungeonworld/tokens/enemies/Goblin_Small_Humanoid_01.webp
+  img: systems/projectmoonttrpg/tokens/enemies/Goblin_Small_Humanoid_01.webp
   tint: null
   width: 1
   height: 1

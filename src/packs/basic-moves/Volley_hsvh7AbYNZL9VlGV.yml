@@ -27,7 +27,7 @@ data:
     success:
       value: <p>You have a clear shot—deal your damage.</p>
 flags: {}
-img: systems/dungeonworld/assets/icons/skills/yellow_34.webp
+img: systems/projectmoonttrpg/assets/icons/skills/yellow_34.webp
 effects: []
 _id: hsvh7AbYNZL9VlGV
 _key: '!items!hsvh7AbYNZL9VlGV'

@@ -13,7 +13,7 @@ data:
   class: The Cleric
   prepared: false
 flags: {}
-img: systems/dungeonworld/assets/icons/spells/runes-royal-1.webp
+img: systems/projectmoonttrpg/assets/icons/spells/runes-royal-1.webp
 effects: []
 _id: dGVOUmPkpKxLRVS7
 _key: '!items!dGVOUmPkpKxLRVS7'

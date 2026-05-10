@@ -6,7 +6,7 @@ type: class
 data:
   name: ''
   description: >-
-    <p>Dungeon World has rules. Not the laws of men or the rule of some petty
+    <p>Project Moon TTRPG has rules. Not the laws of men or the rule of some petty
     tyrant. Bigger, better rules. You drop something—it falls. You can’t make
     something out of nothing. The dead stay dead, right?</p>
 
@@ -72,7 +72,7 @@ data:
   load: 7
   damage: d4
 flags: {}
-img: systems/dungeonworld/assets/icons/skills/red_14.webp
+img: systems/projectmoonttrpg/assets/icons/skills/red_14.webp
 effects: []
 _key: '!items!nnT65Jfm3rFHbcsI'
 

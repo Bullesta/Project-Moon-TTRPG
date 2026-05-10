@@ -1,7 +1,7 @@
 // Example of how to import compendium content.
-async function importDwTags(content) {
+async function importPMTTRPGTags(content) {
   // Reference a Compendium pack by it's callection ID
-  const pack = game.packs.find(p => p.collection === `dungeonworld.tags`);
+  const pack = game.packs.find(p => p.collection === `projectmoonttrpg.tags`);
 
   // Create temporary Actor documents which impose structure on the imported data
   Item.createMany(content, { temporary: true }).then(items => {
@@ -43,4 +43,4 @@ const content = [
   { "name": "Clumsy", "type": "tag" }
 ];
 
-importDwTags(content);
+importPMTTRPGTags(content);

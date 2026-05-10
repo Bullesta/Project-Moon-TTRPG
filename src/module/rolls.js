@@ -1,7 +1,7 @@
-import { DwUtility } from "./utility.js";
+import { PMTTRPGUtility } from "./utility.js";
 const { renderTemplate } = foundry.applications.handlebars;
 
-export class DwRolls {
+export class PMTTRPGRolls {
 
   constructor() {
     this.actor = null;
@@ -54,10 +54,10 @@ export class DwRolls {
     let data = {};
 
     let dlgOptions = {
-      classes: ['dungeonworld', 'dw-dialog']
+      classes: ['projectmoonttrpg', 'PMTTRPG-dialog']
     };
 
-    if (DwUtility.nightmode) dlgOptions.classes.push('nightmode');
+    if (PMTTRPGUtility.nightmode) dlgOptions.classes.push('nightmode');
 
     // Handle item rolls (moves).
     if (this.item) {
@@ -90,28 +90,28 @@ export class DwRolls {
 
           for (let stat of stats) {
             statButtons[stat] = {
-              label: game.i18n.localize(`DW.${stat.toUpperCase()}`),
+              label: game.i18n.localize(`PMTTRPG.${stat.toUpperCase()}`),
               callback: () => this.rollMoveExecute(stat, data, templateData)
             };
           }
           new Dialog({
-            title: game.i18n.localize('DW.Dialog.askTitle'),
-            content: `<p>${game.i18n.format('DW.Dialog.askContent', {name: this.item.name})}`,
+            title: game.i18n.localize('PMTTRPG.Dialog.askTitle'),
+            content: `<p>${game.i18n.format('PMTTRPG.Dialog.askContent', {name: this.item.name})}`,
             buttons: statButtons
           }, dlgOptions).render(true);
         }
         // If this is a PROMPT roll, render a different bond to let the user
         // enter their bond value.
         else if (data.roll == 'bond') {
-          let template = 'systems/dungeonworld/templates/chat/roll-dialog.html';
+          let template = 'systems/projectmoonttrpg/templates/chat/roll-dialog.html';
           let dialogData = {
-            title: game.i18n.format('DW.Dialog.bondContent', {name: this.item.name}),
+            title: game.i18n.format('PMTTRPG.Dialog.bondContent', {name: this.item.name}),
             bond: null
           };
           const html = await renderTemplate(template, dialogData);
           return new Promise(resolve => {
             new Dialog({
-              title: game.i18n.localize('DW.Dialog.bondTitle'),
+              title: game.i18n.localize('PMTTRPG.Dialog.bondTitle'),
               content: html,
               buttons: {
                 submit: {
@@ -162,8 +162,8 @@ export class DwRolls {
 
   static async rollMoveExecute(roll, dataset, templateData, form = null) {
     // Render the roll.
-    let template = 'systems/dungeonworld/templates/chat/chat-move.html';
-    let dice = DwUtility.getRollFormula('2d6');
+    let template = 'systems/projectmoonttrpg/templates/chat/chat-move.html';
+    let dice = PMTTRPGUtility.getRollFormula('2d6');
     let forwardUsed = false;
     let rollModeUsed = false;
     let resultRangeNeeded = false;
@@ -207,7 +207,7 @@ export class DwRolls {
     }
     templateData.tags = JSON.stringify(tags);
     // Handle dice rolls.
-    if (!DwUtility.isEmpty(roll)) {
+    if (!PMTTRPGUtility.isEmpty(roll)) {
       // Test if the roll is a formula.
       let validRoll = false;
       try {
@@ -261,9 +261,9 @@ export class DwRolls {
         }
 
         // Handle adv/dis.
-        let rollMode = this.actor.flags?.dungeonworld?.rollMode ?? 'def';
+        let rollMode = this.actor.flags?.projectmoonttrpg?.rollMode ?? 'def';
         const debilityIsActive = this.actorData.abilities[roll] !== undefined ? this.actorData.abilities[roll].debility : false;
-        if (game.settings.get("dungeonworld", "disDebility") && debilityIsActive) {
+        if (game.settings.get("projectmoonttrpg", "disDebility") && debilityIsActive) {
           // If the roll had advantage, the debility disadvantage cancels it out,
           // otherwise the debility gives disadvantage
           if (rollMode === "adv") {
@@ -305,7 +305,7 @@ export class DwRolls {
         }
 
         // Append the modifiers.
-        let modifiers = DwRolls.getModifiers(this.actor);
+        let modifiers = PMTTRPGRolls.getModifiers(this.actor);
         formula = `${formula}${modifiers}`;
         forwardUsed = Number(this.actor.system.attributes?.forward?.value) != 0;
       }
@@ -317,7 +317,7 @@ export class DwRolls {
         // Add success notification.
         if (resultRangeNeeded || rollType == 'move') {
           // Retrieve the result ranges.
-          let resultRanges = CONFIG.DW.rollResults;
+          let resultRanges = CONFIG.PMTTRPG.rollResults;
           let resultType = null;
           // Iterate through each result range until we find a match.
           for (let [resultKey, resultRange] of Object.entries(resultRanges)) {
@@ -364,7 +364,7 @@ export class DwRolls {
         // Render it.
         templateData.actor = this.actor;
         roll.render().then(r => {
-          templateData.rollDw = r;
+          templateData.rollPMTTRPG = r;
           templateData.roll = roll;
           renderTemplate(template, templateData).then(content => {
             chatData.content = content;
@@ -390,16 +390,16 @@ export class DwRolls {
     if (game.combat && game.combat.combatants) {
       let combatant = game.combat.combatants.find(c => c.actor.id == this.actor.id);
       if (combatant) {
-        let moveCount = combatant.flags.dungeonworld ? combatant.flags.dungeonworld.moveCount : 0;
+        let moveCount = combatant.flags.projectmoonttrpg ? combatant.flags.projectmoonttrpg.moveCount : 0;
         moveCount = moveCount ? Number(moveCount) + 1 : 1;
         // Emit a socket for the GM client.
         if (!game.user.isGM) {
-          game.socket.emit('system.dungeonworld', {
-            combatantUpdate: { _id: combatant.id, 'flags.dungeonworld.moveCount': moveCount }
+          game.socket.emit('system.projectmoonttrpg', {
+            combatantUpdate: { _id: combatant.id, 'flags.projectmoonttrpg.moveCount': moveCount }
           });
         }
         else {
-          await game.combat.updateEmbeddedDocuments('Combatant', [{ _id: combatant.id, 'flags.dungeonworld.moveCount': moveCount }]);
+          await game.combat.updateEmbeddedDocuments('Combatant', [{ _id: combatant.id, 'flags.projectmoonttrpg.moveCount': moveCount }]);
           ui.combat.render();
         }
       }
@@ -409,8 +409,8 @@ export class DwRolls {
     if (forwardUsed || rollModeUsed) {
       let updates = {};
       if (forwardUsed) updates['system.attributes.forward.value'] = 0;
-      if (rollModeUsed && game.settings.get('dungeonworld', 'advForward')) {
-        updates['flags.dungeonworld.rollMode'] = 'def';
+      if (rollModeUsed && game.settings.get('projectmoonttrpg', 'advForward')) {
+        updates['flags.projectmoonttrpg.rollMode'] = 'def';
       }
       await this.actor.update(updates);
     }

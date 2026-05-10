@@ -1,14 +1,14 @@
-export class MigrateDw {
+export class MigratePMTTRPG {
 
   static runMigration() {
     // Retrieve the version.
-    let version = game.settings.get('dungeonworld', 'systemMigrationVersion');
+    let version = game.settings.get('projectmoonttrpg', 'systemMigrationVersion');
 
     // Update 1: Assign basic/special moves on actors.
     if (version < 1) {
       this.updateSpecialMoves();
       version++;
-      game.settings.set('dungeonworld', 'systemMigrationVersion', version);
+      game.settings.set('projectmoonttrpg', 'systemMigrationVersion', version);
     }
   }
 

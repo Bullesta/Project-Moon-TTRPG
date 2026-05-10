@@ -12,7 +12,7 @@ data:
   class: The Wizard
   prepared: false
 flags: {}
-img: systems/dungeonworld/assets/icons/spells/needles-sky-1.webp
+img: systems/projectmoonttrpg/assets/icons/spells/needles-sky-1.webp
 effects: []
 _id: E37vFHQJ0aMdKzYP
 _key: '!items!E37vFHQJ0aMdKzYP'

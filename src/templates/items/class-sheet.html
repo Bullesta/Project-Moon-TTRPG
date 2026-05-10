@@ -5,15 +5,15 @@
         <img class="profile-img" src="{{item.img}}" data-edit="img" title="{{item.name}}"/>
       </div>
       <div class="header-fields">
-        <h1 class="charname"><input name="name" type="text" value="{{item.name}}" placeholder="{{localize "DW.Common.Name"}}"/></h1>
+        <h1 class="charname"><input name="name" type="text" value="{{item.name}}" placeholder="{{localize "TTRPG.Common.Name"}}"/></h1>
       </div>
     </header>
 
     {{!-- Sheet Tab Navigation --}}
     <nav class="sheet-navigation sheet-tabs tabs" data-group="primary">
-      <a class="item" data-tab="description">{{localize "DW.Common.Description" }}</a>
-      <a class="item" data-tab="details">{{localize "DW.Common.Details" }}</a>
-      <a class="item" data-tab="equipment">{{localize "DW.Equipment"}}</a>
+      <a class="item" data-tab="description">{{localize "TTRPG.Common.Description" }}</a>
+      <a class="item" data-tab="details">{{localize "TTRPG.Common.Details" }}</a>
+      <a class="item" data-tab="equipment">{{localize "TTRPG.Equipment"}}</a>
     </nav>
 
     {{!-- Sheet Body --}}
@@ -30,7 +30,7 @@
           {{!-- Races --}}
           <div class="cell resource">
             <div class="cell__title">
-              <label>{{localizeOverride "DW.Races" "racePlural"}}</label>
+              <label>{{localizeOverride "TTRPG.Races" "racePlural"}}</label>
               <a class="class-control" data-action="create" data-type="races"><i class="fas fa-plus"></i></a>
             </div>
             <ul class="items-list">
@@ -48,7 +48,7 @@
           {{!-- Alignments --}}
           <div class="cell resource">
             <div class="cell__title">
-              <label>{{localizeOverride "DW.Alignments" "alignmentPlural"}}</label>
+              <label>{{localizeOverride "TTRPG.Alignments" "alignmentPlural"}}</label>
               <a class="class-control" data-action="create" data-type="alignments"><i class="fas fa-plus"></i></a>
             </div>
             <ul class="items-list">
@@ -67,21 +67,21 @@
           <div class="cell resource resource--settings">
             <div class="resource-wrapper">
               <div class="cell__title">
-                <label>{{localize "DW.ClassSettings"}}</label>
+                <label>{{localize "TTRPG.ClassSettings"}}</label>
               </div>
               <div class="resource">
-                <label>{{localize "DW.ClassBaseHp"}}</label>
-                <div class="help-text">{{localize "DW.ClassBaseHpHelp"}}</div>
+                <label>{{localize "TTRPG.ClassBaseHp"}}</label>
+                <div class="help-text">{{localize "TTRPG.ClassBaseHpHelp"}}</div>
                 <input type="text" name="system.hp" value="{{system.hp}}" data-dtype="Number">
               </div>
               <div class="resource">
-                <label>{{localize "DW.ClassBaseLoad"}}</label>
-                <div class="help-text">{{localize "DW.ClassBaseLoadHelp"}}</div>
+                <label>{{localize "TTRPG.ClassBaseLoad"}}</label>
+                <div class="help-text">{{localize "TTRPG.ClassBaseLoadHelp"}}</div>
                 <input type="text" name="system.load" value="{{system.load}}" data-dtype="Number">
               </div>
               <div class="resource">
-                <label>{{localize "DW.ClassDamage"}}</label>
-                <div class="help-text">{{localize "DW.ClassDamageHelp"}}</div>
+                <label>{{localize "TTRPG.ClassDamage"}}</label>
+                <div class="help-text">{{localize "TTRPG.ClassDamageHelp"}}</div>
                 <select name="system.damage" data-dtype="String">
                   {{selectOptions selects.damages selected=system.damage blank='—'}}
                 </select>
@@ -97,10 +97,10 @@
 
           <div class="cell resource resource--equipment-help flexrow">
             <div>
-              <p>{{localize "DW.ClassEquipmentGroupHelp"}}</p>
+              <p>{{localize "TTRPG.ClassEquipmentGroupHelp"}}</p>
             </div>
             <div class="class-controls">
-              <button type="button" class="class-control" data-action="create" data-type="equipment-groups"><i class="fas fa-plus"></i> {{localize "DW.ClassAddEquipmentGroup"}}</button>
+              <button type="button" class="class-control" data-action="create" data-type="equipment-groups"><i class="fas fa-plus"></i> {{localize "TTRPG.ClassAddEquipmentGroup"}}</button>
             </div>
           </div>
 
@@ -109,7 +109,7 @@
             {{#each system.equipment as |equipmentGroup groupId|}}
               <div class="cell resource equipment-group" data-index="{{groupId}}">
                 <div class="cell__title">
-                  <input type="text" name="system.equipment.{{groupId}}.label" placeholder="{{localize "DW.ClassEquipmentGroupPlaceholder"}}" value="{{equipmentGroup.label}}">
+                  <input type="text" name="system.equipment.{{groupId}}.label" placeholder="{{localize "TTRPG.ClassEquipmentGroupPlaceholder"}}" value="{{equipmentGroup.label}}">
                   <select name="system.equipment.{{groupId}}.mode">
                     {{selectOptions ../selects.equipmentGroupModes selected=equipmentGroup.mode localize=true}}
                   </select>
@@ -125,7 +125,7 @@
                     {{/each}}
                     </ul>
                   {{else}}
-                  <span>{{localize "DW.ClassEquipmentDropText"}}</span>
+                  <span>{{localize "TTRPG.ClassEquipmentDropText"}}</span>
                   {{/if}}
                 </div>
               </div>

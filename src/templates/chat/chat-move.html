@@ -1,5 +1,5 @@
-<section class="dw-chat-card">
-  <div class="cell cell--chat dw chat-card move-card" {{#if roll}}data-roll-total="{{roll.total}}"{{/if}} data-actor-id="{{actor._id}}" {{#if tokenId}}data-token-id="{{tokenId}}"{{/if}}>
+<section class="TTRPG-chat-card">
+  <div class="cell cell--chat TTRPG chat-card move-card" {{#if roll}}data-roll-total="{{roll.total}}"{{/if}} data-actor-id="{{actor._id}}" {{#if tokenId}}data-token-id="{{tokenId}}"{{/if}}>
     <div class="chat-title row flexrow">
       {{#if image}}<img class="item-icon" src="{{image}}" alt="{{title}}"/>{{/if}}
       <h2 class="cell__title">{{localize title}}</h2>
@@ -23,12 +23,12 @@
     {{#if rollDw}}
       <div class="roll{{#if result}} {{result}}{{/if}}">{{{rollDw}}}</div>
       {{#if resultLabel}}{{else}}
-        {{> "systems/dungeonworld/templates/parts/chat-buttons.html" }}
+        {{> "systems/projectmoonttrpg/templates/parts/chat-buttons.html" }}
       {{/if}}
     {{/if}}
     {{!-- XP --}}
     {{#if xp}}
-      <div class="row xp"><button class="button xp-button" type="button" data-action="xp" actor="{{actor._id}}">{{localize "DW.MarkXp"}}</button></div>
+      <div class="row xp"><button class="button xp-button" type="button" data-action="xp" actor="{{actor._id}}">{{localize "TTRPG.MarkXp"}}</button></div>
     {{/if}}
     {{!-- Tags --}}
     {{#if tags}}

@@ -1,7 +1,7 @@
-import { DwUtility } from "../utility.js";
-import { DwRolls } from "../rolls.js";
+import { PMTTRPGUtility } from "../utility.js";
+import { PMTTRPGRolls } from "../rolls.js";
 
-export class ItemDw extends Item {
+export class ItemPMTTRPG extends Item {
   /**
    * Augment the basic Item data model with additional dynamic data.
    */
@@ -18,7 +18,7 @@ export class ItemDw extends Item {
       if (itemData.system.equipment) {
         for (let [group_key, group] of Object.entries(itemData.system.equipment)) {
           if (group) {
-            if (DwUtility.isEmpty(group['items'])) {
+            if (PMTTRPGUtility.isEmpty(group['items'])) {
               group['items'] = [];
               group['objects'] = [];
             }
@@ -32,7 +32,7 @@ export class ItemDw extends Item {
     let obj = null;
     let itemData = this;
 
-    let items = await DwUtility.getEquipment(force_reload);
+    let items = await PMTTRPGUtility.getEquipment(force_reload);
     let equipment = [];
 
     if (itemData.system.equipment) {
@@ -59,6 +59,6 @@ export class ItemDw extends Item {
    * @return {Promise}
    */
    async roll({ configureDialog = true } = {}) {
-    DwRolls.rollMove({actor: this.actor, data: this});
+    PMTTRPGRolls.rollMove({actor: this.actor, data: this});
   }
 }

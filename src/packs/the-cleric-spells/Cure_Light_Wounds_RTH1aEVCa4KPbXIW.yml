@@ -12,7 +12,7 @@ data:
   class: The Cleric
   prepared: false
 flags: {}
-img: systems/dungeonworld/assets/icons/spells/heal-royal-1.webp
+img: systems/projectmoonttrpg/assets/icons/spells/heal-royal-1.webp
 effects: []
 _id: RTH1aEVCa4KPbXIW
 _key: '!items!RTH1aEVCa4KPbXIW'

@@ -1,9 +1,9 @@
 export const displayChatActionButtons = function(message, html, data) {
   html = $(html);
-  const chatCard = html.find(".dw.chat-card");
+  const chatCard = html.find(".PMTTRPG.chat-card");
 
   // Hide damage buttons if necessary.
-  if (!game.user.isGM || !game.settings.get('dungeonworld', 'enableDamageButtons')) {
+  if (!game.user.isGM || !game.settings.get('projectmoonttrpg', 'enableDamageButtons')) {
     html.find('.chat-damage-buttons').hide();
   }
 
@@ -93,14 +93,14 @@ async function _chatActionMarkXp(actor, message) {
   let $button = $content.find('.xp-button');
 
   // Replace the button.
-  let newButton = `<span class="xp-button button button-disabled">${game.i18n.localize("DW.XpMarked")} <i class="fas fa-check"></i></span>`;
+  let newButton = `<span class="xp-button button button-disabled">${game.i18n.localize("PMTTRPG.XpMarked")} <i class="fas fa-check"></i></span>`;
   $button.replaceWith($(newButton));
 
   if (message.isAuthor || game.user.isGM) {
     await message.update({'content': $content[0].outerHTML});
   }
   else {
-    game.socket.emit('system.dungeonworld', {
+    game.socket.emit('system.projectmoonttrpg', {
       message: message.id,
       content: $content[0].outerHTML
     });

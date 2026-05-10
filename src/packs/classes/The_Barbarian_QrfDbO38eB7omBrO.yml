@@ -12,7 +12,7 @@ data:
     through flesh and bone just the same? The Paladin swears fealty to the
     divine. She can keep her fairy tale god—you are your own master.</p>
 
-    <p>You hail from the far reaches of Dungeon World in search of—what? Glory?
+    <p>You hail from the far reaches of Project Moon TTRPG in search of—what? Glory?
     Treasure? Spilt blood? In the end it matters not. They call you barbarian.
     Uncivilized. Let them. You know better. Their world of nobles and laws is
     fleeting.</p>
@@ -58,7 +58,7 @@ data:
   load: 8
   damage: d10
 flags: {}
-img: systems/dungeonworld/assets/icons/skills/yellow_27.webp
+img: systems/projectmoonttrpg/assets/icons/skills/yellow_27.webp
 effects: []
 _key: '!items!QrfDbO38eB7omBrO'
 

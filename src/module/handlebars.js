@@ -1,4 +1,4 @@
-export class DwRegisterHelpers {
+export class PMTTRPGRegisterHelpers {
   static init() {
     Handlebars.registerHelper('concat', function() {
       var outStr = '';
@@ -14,7 +14,7 @@ export class DwRegisterHelpers {
       return str.toLowerCase();
     });
 
-    Handlebars.registerHelper('dwTags', function(tagsInput) {
+    Handlebars.registerHelper('PMTTRPGTags', function(tagsInput) {
       const tags = JSON.parse(tagsInput);
       let output = '<div class="tags">';
       for (let tag of tags) {
@@ -57,7 +57,7 @@ export class DwRegisterHelpers {
     });
 
     Handlebars.registerHelper('localizeOverride', function(i18nKey, settingKey = false) {
-      let result = settingKey ? game.settings.get('dungeonworld', settingKey) : '';
+      let result = settingKey ? game.settings.get('projectmoonttrpg', settingKey) : '';
       if (typeof result === 'string' && result.length > 0) {
         return result;
       }

@@ -1,10 +1,10 @@
-import { DwUtility } from "../utility.js";
+import { PMTTRPGUtility } from "../utility.js";
 const { renderTemplate } = foundry.applications.handlebars;
 
 /**
  * Helper class to handle rendering the custom combat tracker.
  */
-export class CombatSidebarDw {
+export class CombatSidebarPMTTRPG {
   // This must be called in the `init` hook in order for the other hooks to
   // fire correctly.
   startup() {
@@ -13,7 +13,7 @@ export class CombatSidebarDw {
     // Add support for damage rolls via event delegation.
     Hooks.on('ready', () => {
       // Damage rolls from the combat tracker.
-      $('body').on('click', '.dw-rollable', (event) => {
+      $('body').on('click', '.PMTTRPG-rollable', (event) => {
         let $self = $(event.currentTarget);
         let $actorElem = $self.parents('.actor-elem');
         let combatant_id = $actorElem.length > 0 ? $actorElem.attr('data-combatant-id') : null;
@@ -212,7 +212,7 @@ export class CombatSidebarDw {
       }
     });
 
-    // Pre-roll initiative for new combatants. Because DW doesn't use
+    // Pre-roll initiative for new combatants. Because PMTTRPG doesn't use
     // initiative, set them in increments of 10. However, the system still has
     // initiative formula using a d20, in case the reroll initiative button
     // is used.
@@ -260,12 +260,12 @@ export class CombatSidebarDw {
         let moveTotal = 0;
         if (combatants.character) {
           combatants.character.forEach(c => {
-            moveTotal = c.flags.dungeonworld ? moveTotal + Number(c.flags.dungeonworld.moveCount) : moveTotal;
+            moveTotal = c.flags.projectmoonttrpg ? moveTotal + Number(c.flags.projectmoonttrpg.moveCount) : moveTotal;
           });
         }
 
         // Get the custom template.
-        let template = 'systems/dungeonworld/templates/combat/combat.html';
+        let template = 'systems/projectmoonttrpg/templates/combat/combat.html';
         let templateData = {
           combatants: combatants,
           moveTotal: moveTotal
@@ -355,7 +355,7 @@ export class CombatSidebarDw {
         combatant.editable = combatant.isOwner || game.user.isGM;
 
         // Build the radial progress circle settings for the template.
-        combatant.healthSvg = DwUtility.getProgressCircle({
+        combatant.healthSvg = PMTTRPGUtility.getProgressCircle({
           current: combatant.actor.system.attributes.hp.value,
           max: combatant.actor.system.attributes.hp.max,
           radius: 16

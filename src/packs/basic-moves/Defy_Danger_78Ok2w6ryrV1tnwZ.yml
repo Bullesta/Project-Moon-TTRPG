@@ -29,7 +29,7 @@ data:
     success:
       value: <p>You do what you set out to, the threat doesn’t come to bear.</p>
 flags: {}
-img: systems/dungeonworld/assets/icons/skills/red_01.webp
+img: systems/projectmoonttrpg/assets/icons/skills/red_01.webp
 effects: []
 _id: 78Ok2w6ryrV1tnwZ
 _key: '!items!78Ok2w6ryrV1tnwZ'

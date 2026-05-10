@@ -1,5 +1,5 @@
-import { DwClassList } from "../config.js";
-import { DwUtility } from "../utility.js";
+import { PMTTRPGClassList } from "../config.js";
+import { PMTTRPGUtility } from "../utility.js";
 
 const { TextEditor } = foundry.applications.ux;
 const { renderTemplate } = foundry.applications.handlebars;
@@ -8,7 +8,7 @@ const { renderTemplate } = foundry.applications.handlebars;
  * Extend the basic ItemSheet with some very simple modifications
  * @extends {ItemSheet}
  */
-export class DwItemSheet extends foundry.appv1.sheets.ItemSheet {
+export class PMTTRPGItemSheet extends foundry.appv1.sheets.ItemSheet {
 
   /** @inheritdoc */
   constructor(...args) {
@@ -21,14 +21,14 @@ export class DwItemSheet extends foundry.appv1.sheets.ItemSheet {
   /** @override */
   static get defaultOptions() {
     let options = foundry.utils.mergeObject(super.defaultOptions, {
-      classes: ["dungeonworld", "sheet", "item"],
+      classes: ["projectmoonttrpg", "sheet", "item"],
       width: 520,
       height: 480,
       tabs: [{ navSelector: ".sheet-tabs", contentSelector: ".sheet-body", initial: "description" }],
       submitOnChange: true,
     });
 
-    if (DwUtility.nightmode) {
+    if (PMTTRPGUtility.nightmode) {
       options.classes.push('nightmode');
     }
 
@@ -39,7 +39,7 @@ export class DwItemSheet extends foundry.appv1.sheets.ItemSheet {
 
   /** @override */
   get template() {
-    const path = "systems/dungeonworld/templates/items";
+    const path = "systems/projectmoonttrpg/templates/items";
     return `${path}/${this.item.type}-sheet.html`;
   }
 
@@ -87,7 +87,7 @@ export class DwItemSheet extends foundry.appv1.sheets.ItemSheet {
 
     context.dtypes = ["String", "Number", "Boolean"];
     // Add classlist.
-    context.system.classlist = await DwClassList.getClasses();
+    context.system.classlist = await PMTTRPGClassList.getClasses();
 
     // Prepare enrichment options.
     const enrichmentOptions = {
@@ -145,17 +145,17 @@ export class DwItemSheet extends foundry.appv1.sheets.ItemSheet {
     context.selects = {};
     if (itemData.type == 'equipment') {
       context.selects.itemTypes = {
-        weapon: 'DW.Weapon',
-        armor: 'DW.Armor',
-        dungeongear: 'DW.DungeonGear',
-        poison: 'DW.Poison',
-        service: 'DW.Service',
-        meal: 'DW.Meal',
-        transport: 'DW.Transport',
-        landbuilding: 'DW.LandBuildings',
-        bribe: 'DW.Bribe',
-        giftsfinery: 'DW.GiftsFinery',
-        hoard: 'DW.Hoard',
+        weapon: 'PMTTRPG.Weapon',
+        armor: 'PMTTRPG.Armor',
+        dungeongear: 'PMTTRPG.DungeonGear',
+        poison: 'PMTTRPG.Poison',
+        service: 'PMTTRPG.Service',
+        meal: 'PMTTRPG.Meal',
+        transport: 'PMTTRPG.Transport',
+        landbuilding: 'PMTTRPG.LandBuildings',
+        bribe: 'PMTTRPG.Bribe',
+        giftsfinery: 'PMTTRPG.GiftsFinery',
+        hoard: 'PMTTRPG.Hoard',
       };
     }
     if (itemData.type == 'spell' || itemData.type == 'move') {
@@ -166,28 +166,28 @@ export class DwItemSheet extends foundry.appv1.sheets.ItemSheet {
     }
     if (itemData.type == 'npcMove') {
       context.selects.moveTypes = {
-        basic: 'DW.MoveBasic',
-        special: 'DW.MoveSpecial',
+        basic: 'PMTTRPG.MoveBasic',
+        special: 'PMTTRPG.MoveSpecial',
       };
     }
     if (itemData.type == 'move') {
       context.selects.moveTypes = {
-        basic: 'DW.MoveBasic',
-        starting: 'DW.MoveStarting',
-        advanced: 'DW.MoveAdvanced',
-        special: 'DW.MoveSpecial',
+        basic: 'PMTTRPG.MoveBasic',
+        starting: 'PMTTRPG.MoveStarting',
+        advanced: 'PMTTRPG.MoveAdvanced',
+        special: 'PMTTRPG.MoveSpecial',
       };
 
       context.selects.rollTypes = {
-        STR: 'DW.STR',
-        DEX: 'DW.DEX',
-        CON: 'DW.CON',
-        INT: 'DW.INT',
-        WIS: 'DW.WIS',
-        CHA: 'DW.CHA',
-        ASK: 'DW.ASK',
-        BOND: 'DW.Modifier',
-        FORMULA: 'DW.FORMULA',
+        STR: 'PMTTRPG.STR',
+        DEX: 'PMTTRPG.DEX',
+        CON: 'PMTTRPG.CON',
+        INT: 'PMTTRPG.INT',
+        WIS: 'PMTTRPG.WIS',
+        CHA: 'PMTTRPG.CHA',
+        ASK: 'PMTTRPG.ASK',
+        BOND: 'PMTTRPG.Modifier',
+        FORMULA: 'PMTTRPG.FORMULA',
       };
     }
     if (itemData.type == 'class') {
@@ -199,8 +199,8 @@ export class DwItemSheet extends foundry.appv1.sheets.ItemSheet {
         d12: 'd12',
       };
       context.selects.equipmentGroupModes = {
-        radio: 'DW.ChooseOne',
-        checkbox: 'DW.ChooseAny',
+        radio: 'PMTTRPG.ChooseOne',
+        checkbox: 'PMTTRPG.ChooseAny',
       };
     }
 
@@ -364,7 +364,7 @@ export class DwItemSheet extends foundry.appv1.sheets.ItemSheet {
       else if (field_type == 'equipment-groups') {
         const field_values = this.object.system.equipment;
         const nk = Object.keys(field_values).length + 1;
-        let template = '/systems/dungeonworld/templates/items/_class-sheet--equipment-group.html';
+        let template = '/systems/projectmoonttrpg/templates/items/_class-sheet--equipment-group.html';
         let templateData = {
           group: nk
         };

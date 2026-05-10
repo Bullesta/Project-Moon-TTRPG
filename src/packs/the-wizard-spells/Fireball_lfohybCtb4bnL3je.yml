@@ -12,7 +12,7 @@ data:
   class: The Wizard
   prepared: false
 flags: {}
-img: systems/dungeonworld/assets/icons/spells/fireball-red-3.webp
+img: systems/projectmoonttrpg/assets/icons/spells/fireball-red-3.webp
 effects: []
 _id: lfohybCtb4bnL3je
 _key: '!items!lfohybCtb4bnL3je'

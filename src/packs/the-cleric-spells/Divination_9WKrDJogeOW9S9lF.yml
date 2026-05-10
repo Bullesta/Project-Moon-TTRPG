@@ -12,7 +12,7 @@ data:
   class: The Cleric
   prepared: false
 flags: {}
-img: systems/dungeonworld/assets/icons/spells/evil-eye-red-3.webp
+img: systems/projectmoonttrpg/assets/icons/spells/evil-eye-red-3.webp
 effects: []
 _id: 9WKrDJogeOW9S9lF
 _key: '!items!9WKrDJogeOW9S9lF'

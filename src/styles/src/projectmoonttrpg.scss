@@ -14,7 +14,7 @@
   @import 'global/components/combat';
 }
 
-.dungeonworld {
+.projectmoonttrpg {
   @import 'global/application/window';
 
   font-family: $font-stack-base;
@@ -79,7 +79,7 @@
     @import 'global/components/moves';
     @import 'global/components/look';
     @import 'global/components/npc';
-    @import 'global/components/dw-level-up';
+    @import 'global/components/TTRPG-level-up';
     @import 'global/components/class';
   }
 }

@@ -15,7 +15,7 @@ data:
   class: The Wizard
   prepared: false
 flags: {}
-img: systems/dungeonworld/assets/icons/spells/link-royal-2.webp
+img: systems/projectmoonttrpg/assets/icons/spells/link-royal-2.webp
 effects: []
 _id: j9Xe9y4h7Mr5eQoR
 _key: '!items!j9Xe9y4h7Mr5eQoR'

@@ -14,7 +14,7 @@ data:
   class: The Wizard
   prepared: false
 flags: {}
-img: systems/dungeonworld/assets/icons/spells/shielding-eerie-3.webp
+img: systems/projectmoonttrpg/assets/icons/spells/shielding-eerie-3.webp
 effects: []
 _id: bJ12HIjhSTh4h4ma
 _key: '!items!bJ12HIjhSTh4h4ma'

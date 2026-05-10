@@ -1,7 +1,7 @@
-id: dungeonworld
-title: Dungeon World
-description: The Dungeon World system for FoundryVTT!
-version: "1.9.0"
+id: projectmoonttrpg
+title: Project Moon TTRPG
+description: The Project Moon TTRPG system for FoundryVTT!
+version: "0.0.1"
 compatibility:
   minimum: "13"
   verified: "13.350"
@@ -10,15 +10,15 @@ authors:
   - name: 'Asacolips'
     discord: 'asacolips'
 esmodules:
-  - module/dungeonworld.js
+  - module/projectmoonttrpg.js
 styles:
   - styles/lib/tagify.css
-  - styles/dist/dungeonworld.css
+  - styles/dist/projectmoonttrpg.css
 # @todo make a custom logo
 # media:
 #   - type: setup
-#     url: "systems/dungeonworld/assets/dungeon-world.webp"
-#     thumbnail: "systems/dungeonworld/assets/dungeon-world.webp"
+#     url: "systems/projectmoonttrpg/assets/dungeon-world.webp"
+#     thumbnail: "systems/projectmoonttrpg/assets/dungeon-world.webp"
 #     loop: false
 #     flags: {}
 scripts:
@@ -26,201 +26,201 @@ scripts:
 packs:
   - name: classes
     label: Classes
-    system: dungeonworld
+    system: projectmoonttrpg
     path: "./packs/classes.db"
     type: Item
   - name: basic-moves
     label: Basic Moves
-    system: dungeonworld
+    system: projectmoonttrpg
     path: "./packs/basic-moves.db"
     type: Item
   - name: the-barbarian-moves
     label: The Barbarian Moves
-    system: dungeonworld
+    system: projectmoonttrpg
     path: "./packs/the-barbarian-moves.db"
     type: Item
   - name: the-bard-moves
     label: The Bard Moves
-    system: dungeonworld
+    system: projectmoonttrpg
     path: "./packs/the-bard-moves.db"
     type: Item
   - name: the-cleric-moves
     label: The Cleric Moves
-    system: dungeonworld
+    system: projectmoonttrpg
     path: "./packs/the-cleric-moves.db"
     type: Item
   - name: the-cleric-spells
     label: The Cleric Spells
-    system: dungeonworld
+    system: projectmoonttrpg
     path: "./packs/the-cleric-spells.db"
     type: Item
   - name: the-druid-moves
     label: The Druid Moves
-    system: dungeonworld
+    system: projectmoonttrpg
     path: "./packs/the-druid-moves.db"
     type: Item
   - name: the-fighter-moves
     label: The Fighter Moves
-    system: dungeonworld
+    system: projectmoonttrpg
     path: "./packs/the-fighter-moves.db"
     type: Item
   - name: the-immolator-moves
     label: The Immolator Moves
-    system: dungeonworld
+    system: projectmoonttrpg
     path: "./packs/the-immolator-moves.db"
     type: Item
   - name: the-paladin-moves
     label: The Paladin Moves
-    system: dungeonworld
+    system: projectmoonttrpg
     path: "./packs/the-paladin-moves.db"
     type: Item
   - name: the-ranger-moves
     label: The Ranger Moves
-    system: dungeonworld
+    system: projectmoonttrpg
     path: "./packs/the-ranger-moves.db"
     type: Item
   - name: the-thief-moves
     label: The Thief Moves
-    system: dungeonworld
+    system: projectmoonttrpg
     path: "./packs/the-thief-moves.db"
     type: Item
   - name: the-wizard-moves
     label: The Wizard Moves
-    system: dungeonworld
+    system: projectmoonttrpg
     path: "./packs/the-wizard-moves.db"
     type: Item
   - name: the-wizard-spells
     label: The Wizard Spells
-    system: dungeonworld
+    system: projectmoonttrpg
     path: "./packs/the-wizard-spells.db"
     type: Item
   - name: tags
     label: Tags
-    system: dungeonworld
+    system: projectmoonttrpg
     path: "./packs/tags.db"
     type: Item
   - name: equipment-armor
     label: Equipment (Armor)
-    system: dungeonworld
+    system: projectmoonttrpg
     path: "./packs/equipment-armor.db"
     type: Item
   - name: equipment-class
     label: Equipment (Class)
-    system: dungeonworld
+    system: projectmoonttrpg
     path: "./packs/equipment-class.db"
     type: Item
   - name: equipment-gear
     label: Equipment (Gear)
-    system: dungeonworld
+    system: projectmoonttrpg
     path: "./packs/equipment-gear.db"
     type: Item
   - name: equipment-magic
     label: Equipment (Magic)
-    system: dungeonworld
+    system: projectmoonttrpg
     path: "./packs/equipment-magic.db"
     type: Item
   - name: equipment-poisons
     label: Equipment (Poisons)
-    system: dungeonworld
+    system: projectmoonttrpg
     path: "./packs/equipment-poisons.db"
     type: Item
   - name: equipment-weapons
     label: Equipment (Weapons)
-    system: dungeonworld
+    system: projectmoonttrpg
     path: "./packs/equipment-weapons.db"
     type: Item
   - label: Rollable Tables
     type: RollTable
     name: rollable-tables
     path: packs/rollable-tables.db
-    system: dungeonworld
+    system: projectmoonttrpg
     package: world
     absPath: "./packs/rollable-tables.db"
   - label: GM Moves/Principals
     type: JournalEntry
     name: gm-movesprincipals
     path: packs/gm-movesprincipals.db
-    system: dungeonworld
+    system: projectmoonttrpg
     package: world
     absPath: "./packs/gm-movesprincipals.db"
   - label: Charts
     type: JournalEntry
     name: charts
     path: packs/charts.db
-    system: dungeonworld
+    system: projectmoonttrpg
     package: world
     absPath: "./packs/charts.db"
   - label: Monsters - 01 Cavern Dwellers
     type: Actor
     name: monsters-01-cavern-dwellers
     path: packs/monsters-01-cavern-dwellers.db
-    system: dungeonworld
+    system: projectmoonttrpg
     package: world
     absPath: "./packs/monsters-01-cavern-dwellers.db"
   - label: Monsters - 02 Swamp Denizens
     type: Actor
     name: monsters-02-swamp-denizens
     path: packs/monsters-02-swamp-denizens.db
-    system: dungeonworld
+    system: projectmoonttrpg
     package: world
     absPath: "./packs/monsters-02-swamp-denizens.db"
   - label: Monsters - 03 Undead Legions
     type: Actor
     name: monsters-03-undead-legions
     path: packs/monsters-03-undead-legions.db
-    system: dungeonworld
+    system: projectmoonttrpg
     package: world
     absPath: "./packs/monsters-03-undead-legions.db"
   - label: Monsters - 04 Dark Woods
     type: Actor
     name: monsters-04-dark-woods
     path: packs/monsters-04-dark-woods.db
-    system: dungeonworld
+    system: projectmoonttrpg
     package: world
     absPath: "./packs/monsters-04-dark-woods.db"
   - label: Monsters - 05 Ravenous Hordes
     type: Actor
     name: monsters-05-ravenous-hordes
     path: packs/monsters-05-ravenous-hordes.db
-    system: dungeonworld
+    system: projectmoonttrpg
     package: world
     absPath: "./packs/monsters-05-ravenous-hordes.db"
   - label: Monsters - 06 Twisted Experiments
     type: Actor
     name: monsters-06-twisted-experiments
     path: packs/monsters-06-twisted-experiments.db
-    system: dungeonworld
+    system: projectmoonttrpg
     package: world
     absPath: "./packs/monsters-06-twisted-experiments.db"
   - label: Monsters - 07 Lower Depths
     type: Actor
     name: monsters-07-lower-depths
     path: packs/monsters-07-lower-depths.db
-    system: dungeonworld
+    system: projectmoonttrpg
     package: world
     absPath: "./packs/monsters-07-lower-depths.db"
   - label: Monsters - 08 Planar Powers
     type: Actor
     name: monsters-08-planar-powers
     path: packs/monsters-08-planar-powers.db
-    system: dungeonworld
+    system: projectmoonttrpg
     package: world
     absPath: "./packs/monsters-08-planar-powers.db"
   - label: Monsters - 09 Folk of the Realm
     type: Actor
     name: monsters-09-folk-of-the-realm
     path: packs/monsters-09-folk-of-the-realm.db
-    system: dungeonworld
+    system: projectmoonttrpg
     package: world
     absPath: "./packs/monsters-09-folk-of-the-realm.db"
   - name: gm-screen
     label: GM Screen
-    system: dungeonworld
+    system: projectmoonttrpg
     path: "./packs/gm-screen.db"
     type: JournalEntry
   - name: tables
     label: Tables
-    system: dungeonworld
+    system: projectmoonttrpg
     path: "./packs/tables.db"
     type: RollTable
 languages:
@@ -252,8 +252,8 @@ primaryTokenAttribute: attributes.hp
 secondaryTokenAttribute: attributes.xp
 initiative: 1d20
 socket: true
-url: https://gitlab.com/asacolips-projects/foundry-mods/dungeonworld
-manifest: https://asacolips-artifacts.s3.amazonaws.com/dungeonworld/latest/system.json
-download: https://asacolips-artifacts.s3.amazonaws.com/dungeonworld/1.9.0/dungeonworld.zip
-changelog: https://github.com/asacolips-projects/dungeonworld/blob/main/CHANGELOG.md
-bugs: https://github.com/asacolips-projects/dungeonworld/issues
+url: https://gitlab.com/asacolips-projects/foundry-mods/projectmoonttrpg
+manifest: https://asacolips-artifacts.s3.amazonaws.com/projectmoonttrpg/latest/system.json
+download: https://asacolips-artifacts.s3.amazonaws.com/projectmoonttrpg/1.9.0/projectmoonttrpg.zip
+changelog: https://github.com/asacolips-projects/projectmoonttrpg/blob/main/CHANGELOG.md
+bugs: https://github.com/asacolips-projects/projectmoonttrpg/issues

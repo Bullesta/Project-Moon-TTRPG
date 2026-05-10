@@ -13,7 +13,7 @@ content: >-
   <h2>Hack And Slash</h2>
 
   <p style="text-align: center;"><img
-  src="systems/dungeonworld/assets/icons/skills/red_12.webp" alt="" width="48"
+  src="systems/projectmoonttrpg/assets/icons/skills/red_12.webp" alt="" width="48"
   height="48" /></p>
 
   <p>When you attack an enemy in melee, roll+STR. On a 10+ you deal your damage
@@ -26,7 +26,7 @@ content: >-
   <h2>Volley</h2>
 
   <p style="text-align: center;"><img
-  src="systems/dungeonworld/assets/icons/skills/yellow_34.webp" alt=""
+  src="systems/projectmoonttrpg/assets/icons/skills/yellow_34.webp" alt=""
   width="48" height="48" /></p>
 
   <p>When you take aim and shoot at an enemy at range, roll+DEX. On a 10+ you
@@ -40,7 +40,7 @@ content: >-
   <h2>Defy Danger</h2>
 
   <p style="text-align: center;"><img
-  src="systems/dungeonworld/assets/icons/skills/red_01.webp" alt="" width="48"
+  src="systems/projectmoonttrpg/assets/icons/skills/red_01.webp" alt="" width="48"
   height="48" /></p>
 
   <p>When you act despite an imminent threat or suffer a calamity, say how you
@@ -73,7 +73,7 @@ content: >-
   <h2>Aid or Interfere</h2>
 
   <p style="text-align: center;"><img
-  src="systems/dungeonworld/assets/icons/skills/red_05.webp" alt="" width="48"
+  src="systems/projectmoonttrpg/assets/icons/skills/red_05.webp" alt="" width="48"
   height="48" /></p>
 
   <p>When you help or hinder someone you have a bond with, roll+Bond with them.
@@ -114,7 +114,7 @@ content: >-
   <h2>Parley</h2>
 
   <p style="text-align: center;"><img
-  src="systems/dungeonworld/assets/icons/skills/light_07.webp" alt="" width="48"
+  src="systems/projectmoonttrpg/assets/icons/skills/light_07.webp" alt="" width="48"
   height="48" /></p>
 
   <p>When you you have leverage on a GM character and manipulate them, roll+CHA.

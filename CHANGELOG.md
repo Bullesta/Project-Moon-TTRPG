@@ -1,5 +1,5 @@
 # 1.9.0
-Release notes: https://github.com/asacolips-projects/dungeonworld/releases/tag/1.9.0
+Release notes: https://github.com/asacolips-projects/projectmoonttrpg/releases/tag/1.9.0
 - Added Foundry v13 support
 - Removed Foundry v12 support
 - Updated characters to be linked by default
@@ -9,14 +9,14 @@ Release notes: https://github.com/asacolips-projects/dungeonworld/releases/tag/1
 
 # 1.8.0
 
-Release notes: https://github.com/asacolips-projects/dungeonworld/releases/tag/1.8.0
+Release notes: https://github.com/asacolips-projects/projectmoonttrpg/releases/tag/1.8.0
 
 - Added Foundry v12 support
 - Removed Foundry v11 support
 
 # 1.7.2
 
-Release notes: https://github.com/asacolips-projects/dungeonworld/releases/tag/1.7.2
+Release notes: https://github.com/asacolips-projects/projectmoonttrpg/releases/tag/1.7.2
 
 - Fixed various bugs related to enriched text fields.
 

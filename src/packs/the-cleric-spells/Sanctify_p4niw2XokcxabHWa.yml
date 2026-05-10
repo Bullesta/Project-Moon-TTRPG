@@ -13,7 +13,7 @@ data:
   class: The Cleric
   prepared: false
 flags: {}
-img: systems/dungeonworld/assets/icons/skills/green_32.webp
+img: systems/projectmoonttrpg/assets/icons/skills/green_32.webp
 effects: []
 _id: p4niw2XokcxabHWa
 _key: '!items!p4niw2XokcxabHWa'

@@ -25,7 +25,7 @@ data:
     success:
       value: ''
 flags: {}
-img: systems/dungeonworld/assets/icons/skills/affliction_24.webp
+img: systems/projectmoonttrpg/assets/icons/skills/affliction_24.webp
 effects: []
 _id: qdxEBncoO9DzbQTt
 _key: '!items!qdxEBncoO9DzbQTt'

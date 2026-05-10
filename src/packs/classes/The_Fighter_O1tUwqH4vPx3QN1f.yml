@@ -87,8 +87,8 @@ data:
       mode: radio
 flags:
   core:
-    sheetClass: dungeonworld.DwClassItemSheet
-img: systems/dungeonworld/assets/icons/skills/yellow_37.webp
+    sheetClass: projectmoonttrpg.DwClassItemSheet
+img: systems/projectmoonttrpg/assets/icons/skills/yellow_37.webp
 effects: []
 _key: '!items!O1tUwqH4vPx3QN1f'
 

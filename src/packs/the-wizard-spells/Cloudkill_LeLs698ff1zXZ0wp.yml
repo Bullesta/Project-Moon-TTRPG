@@ -17,7 +17,7 @@ data:
   class: The Wizard
   prepared: false
 flags: {}
-img: systems/dungeonworld/assets/icons/spells/fog-acid-3.webp
+img: systems/projectmoonttrpg/assets/icons/spells/fog-acid-3.webp
 effects: []
 _id: LeLs698ff1zXZ0wp
 _key: '!items!LeLs698ff1zXZ0wp'

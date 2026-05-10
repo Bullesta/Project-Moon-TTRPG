@@ -1,6 +1,6 @@
-import { DwClassList } from "../config.js";
-import { DwUtility } from "../utility.js";
-import { DwRolls } from "../rolls.js";
+import { PMTTRPGClassList } from "../config.js";
+import { PMTTRPGUtility } from "../utility.js";
+import { PMTTRPGRolls } from "../rolls.js";
 
 const { TextEditor } = foundry.applications.ux;
 const { renderTemplate } = foundry.applications.handlebars;
@@ -9,7 +9,7 @@ const { renderTemplate } = foundry.applications.handlebars;
  * Extend the basic ActorSheet with some very simple modifications
  * @extends {ActorSheet}
  */
-export class DwActorSheet extends foundry.appv1.sheets.ActorSheet {
+export class PMTTRPGActorSheet extends foundry.appv1.sheets.ActorSheet {
 
   /** @inheritdoc */
   constructor(...args) {
@@ -21,13 +21,13 @@ export class DwActorSheet extends foundry.appv1.sheets.ActorSheet {
   /** @override */
   static get defaultOptions() {
     let options = foundry.utils.mergeObject(super.defaultOptions, {
-      classes: ["dungeonworld", "sheet", "actor"],
+      classes: ["projectmoonttrpg", "sheet", "actor"],
       width: 840,
       height: 780,
       tabs: [{ navSelector: ".sheet-tabs", contentSelector: ".sheet-body", initial: "moves" }]
     });
 
-    if (DwUtility.nightmode) {
+    if (PMTTRPGUtility.nightmode) {
       options.classes.push('nightmode');
     }
 
@@ -38,7 +38,7 @@ export class DwActorSheet extends foundry.appv1.sheets.ActorSheet {
 
   /** @override */
   get template() {
-    const path = "systems/dungeonworld/templates/sheet";
+    const path = "systems/projectmoonttrpg/templates/sheet";
     return `${path}/${this.actor.type}-sheet.html`;
   }
 
@@ -80,9 +80,9 @@ export class DwActorSheet extends foundry.appv1.sheets.ActorSheet {
 
     // Flags
     context.rollModes = {
-      def: 'DW.Normal',
-      adv: 'DW.Advantage',
-      dis: 'DW.Disadvantage'
+      def: 'PMTTRPG.Normal',
+      adv: 'PMTTRPG.Advantage',
+      dis: 'PMTTRPG.Disadvantage'
     };
 
     // Copy Active Effects
@@ -113,7 +113,7 @@ export class DwActorSheet extends foundry.appv1.sheets.ActorSheet {
 
     // Add classlist.
     if (this.actor.type == 'character') {
-      context.system.classlist = await DwClassList.getClasses();
+      context.system.classlist = await PMTTRPGClassList.getClasses();
 
       let xpSvg = {
         radius: 16,
@@ -149,7 +149,7 @@ export class DwActorSheet extends foundry.appv1.sheets.ActorSheet {
         // Calculate xp bar length.
         let currentXp = Number(context.system.attributes.xp.value);
         let nextLevel = Number(context.system.attributes.xp.max);
-        xpSvg = DwUtility.getProgressCircle({ current: currentXp, max: nextLevel, radius: 16 });
+        xpSvg = PMTTRPGUtility.getProgressCircle({ current: currentXp, max: nextLevel, radius: 16 });
       }
       else {
         context.system.levelup = false;
@@ -160,19 +160,19 @@ export class DwActorSheet extends foundry.appv1.sheets.ActorSheet {
 
     // Stats.
     context.system.statSettings = {
-      'str': 'DW.STR',
-      'dex': 'DW.DEX',
-      'con': 'DW.CON',
-      'int': 'DW.INT',
-      'wis': 'DW.WIS',
-      'cha': 'DW.CHA'
+      'for': 'PMTTRPG.FOR',
+      'pru': 'PMTTRPG.PRU',
+      'jus': 'PMTTRPG.JUS',
+      'cha': 'PMTTRPG.CHA',
+      'ins': 'PMTTRPG.INS',
+      'tem': 'PMTTRPG.TEM'
     };
 
     // Add item icon setting.
-    context.system.itemIcons = game.settings.get('dungeonworld', 'itemIcons');
+    context.system.itemIcons = game.settings.get('projectmoonttrpg', 'itemIcons');
 
     // Check if ability scores are disabled
-    context.system.noAbilityScores = game.settings.get('dungeonworld', 'noAbilityScores');
+    context.system.noAbilityScores = game.settings.get('projectmoonttrpg', 'noAbilityScores');
 
     // Setup select options.
     context.selects = {};
@@ -534,10 +534,10 @@ export class DwActorSheet extends foundry.appv1.sheets.ActorSheet {
     const actorData = this.actor.system;
     let orig_class_name = actorData.details.class;
     let char_class_name = orig_class_name.trim();
-    let class_list = await DwClassList.getClasses();
-    let class_list_items = await DwClassList.getClasses(false);
+    let class_list = await PMTTRPGClassList.getClasses();
+    let class_list_items = await PMTTRPGClassList.getClasses(false);
 
-    let char_class = DwUtility.cleanClass(char_class_name);
+    let char_class = PMTTRPGUtility.cleanClass(char_class_name);
     let char_level = Number(actorData.attributes.level.value);
 
     // Handle level 1 > 2.
@@ -547,27 +547,27 @@ export class DwActorSheet extends foundry.appv1.sheets.ActorSheet {
 
     // Get the original class name if this was a translation.
     if (game.babele) {
-      let babele_classes = game.babele.translations.find(p => p.collection == 'dungeonworld.classes');
+      let babele_classes = game.babele.translations.find(p => p.collection == 'projectmoonttrpg.classes');
       if (babele_classes) {
         let babele_pack = babele_classes.entries.find(p => p.name == char_class_name);
         if (babele_pack) {
           char_class_name = babele_pack.id;
-          char_class = DwUtility.cleanClass(babele_pack.id);
+          char_class = PMTTRPGUtility.cleanClass(babele_pack.id);
         }
       }
     }
 
     if (!class_list.includes(orig_class_name) && !class_list.includes(char_class_name)) {
-      ui.notifications.warn(game.i18n.localize('DW.Notifications.noClassWarning'));
+      ui.notifications.warn(game.i18n.localize('PMTTRPG.Notifications.noClassWarning'));
       return;
     }
 
 
-    const compendium = await DwUtility.loadCompendia(`${char_class}-moves`)
+    const compendium = await PMTTRPGUtility.loadCompendia(`${char_class}-moves`)
 
     let class_item = class_list_items.find(i => i.name == orig_class_name);
     if (!class_item?.system) {
-      ui.notifications.warn(game.i18n.localize('DW.Notifications.noClassWarning'));
+      ui.notifications.warn(game.i18n.localize('PMTTRPG.Notifications.noClassWarning'));
       return;
     }
     let blurb = class_item ? class_item.system.description : null;
@@ -617,12 +617,12 @@ export class DwActorSheet extends foundry.appv1.sheets.ActorSheet {
     }
 
     // Get ability scores.
-    const noAbilityScores = game.settings.get('dungeonworld', 'noAbilityScores');
+    const noAbilityScores = game.settings.get('projectmoonttrpg', 'noAbilityScores');
     let ability_scores = [16, 15, 13, 12, 9, 8];
     if (noAbilityScores) {
       ability_scores = [2, 1, 1, 0, 0, -1];
     }
-    let ability_labels = Object.entries(CONFIG.DW.abilities).map(a => {
+    let ability_labels = Object.entries(CONFIG.PMTTRPG.abilities).map(a => {
       return {
         short: a[0],
         long: a[1],
@@ -720,9 +720,9 @@ export class DwActorSheet extends foundry.appv1.sheets.ActorSheet {
           return i.type == 'spell'
             && i.system.class
           // Check if this spell has either `classname` or `the classname` as its class.
-            && [caster_class, `the ${caster_class}`].includes(DwUtility.cleanClass(i.system.class));
+            && [caster_class, `the ${caster_class}`].includes(PMTTRPGUtility.cleanClass(i.system.class));
         });
-        const spells_compendium = await DwUtility.loadCompendia(`${char_class}-spells`);
+        const spells_compendium = await PMTTRPGUtility.loadCompendia(`${char_class}-spells`);
 
         // Get the compendium spells next.
         let spells_compendium_items = spells_compendium.filter(s => {
@@ -799,7 +799,7 @@ export class DwActorSheet extends foundry.appv1.sheets.ActorSheet {
     }
 
     // Build the content.
-    const template = 'systems/dungeonworld/templates/dialog/level-up.html';
+    const template = 'systems/projectmoonttrpg/templates/dialog/level-up.html';
     const templateData = {
       char_class: char_class,
       char_class_name: orig_class_name,
@@ -816,7 +816,7 @@ export class DwActorSheet extends foundry.appv1.sheets.ActorSheet {
       advanced_moves_6: advanced_moves_6.length > 0 ? advanced_moves_6 : null,
       cast_spells: cast_spells.length > 0 && spells.length > 0 ? true : false,
       spells: spells.length > 0 ? spells : null,
-      no_ability_increase: game.settings.get('dungeonworld', 'noAbilityIncrease'),
+      no_ability_increase: game.settings.get('projectmoonttrpg', 'noAbilityIncrease'),
     };
     const html = await renderTemplate(template, templateData);
 
@@ -833,11 +833,11 @@ export class DwActorSheet extends foundry.appv1.sheets.ActorSheet {
     const dlg_options = {
       width: 920,
       height: 640,
-      classes: ['dw-level-up', 'dungeonworld', 'sheet'],
+      classes: ['PMTTRPG-level-up', 'projectmoonttrpg', 'sheet'],
       resizable: true
     };
 
-    if (DwUtility.nightmode) {
+    if (PMTTRPGUtility.nightmode) {
       dlg_options.classes.push('nightmode');
     }
 
@@ -849,18 +849,18 @@ export class DwActorSheet extends foundry.appv1.sheets.ActorSheet {
       buttons: {
         cancel: {
           icon: '<i class="fas fa-times"></i>',
-          label: game.i18n.localize("DW.Cancel"),
+          label: game.i18n.localize("PMTTRPG.Cancel"),
           callback: () => null
         },
         submit: {
           icon: '<i class="fas fa-check"></i>',
-          label: game.i18n.localize("DW.Confirm"),
+          label: game.i18n.localize("PMTTRPG.Confirm"),
           callback: dlg => this._onLevelUpSave(dlg, this.actor, itemData, this)
           // callback: dlg => _onImportPower(dlg, this.actor)
         }
       },
       render: () => {
-        $('.dw-level-up').find('.item-label').click(this._showItemDetails.bind(this));
+        $('.PMTTRPG-level-up').find('.item-label').click(this._showItemDetails.bind(this));
       }
     }, dlg_options);
     d.render(true);
@@ -982,12 +982,12 @@ export class DwActorSheet extends foundry.appv1.sheets.ActorSheet {
 
     //Set Level 1 bonds
     if (Number(actor.system.attributes.xp.value) == 0) {
-      let theclass = DwUtility.cleanClass(actor.system.details.class);
+      let theclass = PMTTRPGUtility.cleanClass(actor.system.details.class);
       let newbonds = [];
 
       for (let i = 1; i < 7; i++) {
-        if (game.i18n.localize("DW." + theclass + ".Bond" + i ) != "DW." + theclass + ".Bond" + i ) {
-          newbonds.push({name: game.i18n.localize("DW." + theclass + ".Bond" + i), type: 'bond', system: ''});
+        if (game.i18n.localize("PMTTRPG." + theclass + ".Bond" + i ) != "PMTTRPG." + theclass + ".Bond" + i ) {
+          newbonds.push({name: game.i18n.localize("PMTTRPG." + theclass + ".Bond" + i), type: 'bond', system: ''});
         }
       }
 
@@ -998,7 +998,7 @@ export class DwActorSheet extends foundry.appv1.sheets.ActorSheet {
 
     // Adjust hp.
     if (itemData.class_item.system.hp) {
-      const noConstitutionToHP = game.settings.get('dungeonworld', 'noConstitutionToHP');
+      const noConstitutionToHP = game.settings.get('projectmoonttrpg', 'noConstitutionToHP');
       let constitution = 0;
       if (!noConstitutionToHP) {
         constitution = actor.system.abilities.con.value;
@@ -1013,7 +1013,7 @@ export class DwActorSheet extends foundry.appv1.sheets.ActorSheet {
 
     // Adjust load.
     if (itemData.class_item.system.load) {
-      const noSTRToMaxLoad = game.settings.get('dungeonworld', 'noSTRToMaxLoad');
+      const noSTRToMaxLoad = game.settings.get('projectmoonttrpg', 'noSTRToMaxLoad');
       if (noSTRToMaxLoad) {
         system['attributes.weight.max'] = Number(itemData.class_item.system.load)
       } else {
@@ -1021,7 +1021,7 @@ export class DwActorSheet extends foundry.appv1.sheets.ActorSheet {
         if (system['abilities.str.value']) {
           strength = system['abilities.str.value'];
         }
-        system['attributes.weight.max'] = Number(itemData.class_item.system.load) + Number(DwUtility.getAbilityMod(strength));
+        system['attributes.weight.max'] = Number(itemData.class_item.system.load) + Number(PMTTRPGUtility.getAbilityMod(strength));
       }
     }
 
@@ -1041,7 +1041,7 @@ export class DwActorSheet extends foundry.appv1.sheets.ActorSheet {
     }
 
     await actor.update({ system: system });
-    await actor.setFlag('dungeonworld', 'levelup', false);
+    await actor.setFlag('projectmoonttrpg', 'levelup', false);
     // Workaround for attempting to level up a new character.
     setTimeout(() => {
       actor.sheet.render(true);
@@ -1056,33 +1056,33 @@ export class DwActorSheet extends foundry.appv1.sheets.ActorSheet {
     const actorData = this.actor.system;
     let orig_class_name = actorData.details.class;
     let char_class_name = orig_class_name.trim();
-    let class_list = await DwClassList.getClasses();
-    let class_list_items = await DwClassList.getClasses(false);
+    let class_list = await PMTTRPGClassList.getClasses();
+    let class_list_items = await PMTTRPGClassList.getClasses(false);
 
-    let char_class = DwUtility.cleanClass(char_class_name);
+    let char_class = PMTTRPGUtility.cleanClass(char_class_name);
 
     // Get the original class name if this was a translation.
     if (game.babele) {
-      let babele_classes = game.babele.translations.find(p => p.collection == 'dungeonworld.classes');
+      let babele_classes = game.babele.translations.find(p => p.collection == 'projectmoonttrpg.classes');
       if (babele_classes) {
         let babele_pack = babele_classes.entries.find(p => p.name == char_class_name);
         if (babele_pack) {
           char_class_name = babele_pack.id;
-          char_class = DwUtility.cleanClass(babele_pack.id);
+          char_class = PMTTRPGUtility.cleanClass(babele_pack.id);
         }
       }
     }
 
     if (!class_list.includes(orig_class_name) && !class_list.includes(char_class_name)) {
-      ui.notifications.warn(game.i18n.localize('DW.Notifications.noClassWarning'));
+      ui.notifications.warn(game.i18n.localize('PMTTRPG.Notifications.noClassWarning'));
       return;
     }
 
-    const compendium = await DwUtility.loadCompendia(`${char_class}-moves`)
+    const compendium = await PMTTRPGUtility.loadCompendia(`${char_class}-moves`)
 
     let class_item = class_list_items.find(i => i.name == orig_class_name);
     if (!class_item?.system) {
-      ui.notifications.warn(game.i18n.localize('DW.Notifications.noClassWarning'));
+      ui.notifications.warn(game.i18n.localize('PMTTRPG.Notifications.noClassWarning'));
       return;
     }
     let blurb = class_item ? class_item.system.description : null;
@@ -1126,12 +1126,12 @@ export class DwActorSheet extends foundry.appv1.sheets.ActorSheet {
       }
 
     // Get ability scores.
-    const noAbilityScores = game.settings.get('dungeonworld', 'noAbilityScores');
+    const noAbilityScores = game.settings.get('projectmoonttrpg', 'noAbilityScores');
     let ability_scores = [16, 15, 13, 12, 9, 8];
     if (noAbilityScores) {
       ability_scores = [2, 1, 1, 0, 0, -1];
     }
-    let ability_labels = Object.entries(CONFIG.DW.abilities).map(a => {
+    let ability_labels = Object.entries(CONFIG.PMTTRPG.abilities).map(a => {
       return {
         short: a[0],
         long: a[1],
@@ -1215,9 +1215,9 @@ export class DwActorSheet extends foundry.appv1.sheets.ActorSheet {
           return i.type == 'spell'
             && i.system.class
           // Check if this spell has either `classname` or `the classname` as its class.
-            && [caster_class, `the ${caster_class}`].includes(DwUtility.cleanClass(i.system.class));
+            && [caster_class, `the ${caster_class}`].includes(PMTTRPGUtility.cleanClass(i.system.class));
         });
-        const spells_compendium = await DwUtility.loadCompendia(`${char_class}-spells`);
+        const spells_compendium = await PMTTRPGUtility.loadCompendia(`${char_class}-spells`);
 
         // Get the compendium spells next.
         let spells_compendium_items = spells_compendium;
@@ -1290,7 +1290,7 @@ export class DwActorSheet extends foundry.appv1.sheets.ActorSheet {
     }
 
     // Build the content.
-    const template = 'systems/dungeonworld/templates/dialog/class-viewer.html';
+    const template = 'systems/projectmoonttrpg/templates/dialog/class-viewer.html';
     const templateData = {
       char_class: char_class,
       char_class_name: orig_class_name,
@@ -1307,7 +1307,7 @@ export class DwActorSheet extends foundry.appv1.sheets.ActorSheet {
       advanced_moves_6: advanced_moves_6.length > 0 ? advanced_moves_6 : null,
       cast_spells: cast_spells.length > 0 && spells.length > 0 ? true : false,
       spells: spells.length > 0 ? spells : null,
-      no_ability_increase: game.settings.get('dungeonworld', 'noAbilityIncrease'),
+      no_ability_increase: game.settings.get('projectmoonttrpg', 'noAbilityIncrease'),
     };
     const html = await renderTemplate(template, templateData);
 
@@ -1324,22 +1324,22 @@ export class DwActorSheet extends foundry.appv1.sheets.ActorSheet {
     const dlg_options = {
       width: 920,
       height: 640,
-      classes: ['dw-level-up', 'dungeonworld', 'sheet'],
+      classes: ['PMTTRPG-level-up', 'projectmoonttrpg', 'sheet'],
       resizable: true
     };
 
-    if (DwUtility.nightmode) {
+    if (PMTTRPGUtility.nightmode) {
       dlg_options.classes.push('nightmode');
     }
 
     // Render the dialog.
     let d = new Dialog({
-      title: game.i18n.localize("DW.ClassViewer"),
+      title: game.i18n.localize("PMTTRPG.ClassViewer"),
       content: html,
       id: char_class_name,
       buttons: {},
       render: () => {
-        $('.dw-level-up').find('.item-label').click(this._showItemDetails.bind(this));
+        $('.PMTTRPG-level-up').find('.item-label').click(this._showItemDetails.bind(this));
       }
     }, dlg_options);
     d.render(true);
@@ -1448,7 +1448,7 @@ export class DwActorSheet extends foundry.appv1.sheets.ActorSheet {
     let flavorText = null;
     let templateData = {};
 
-    let dice = DwUtility.getRollFormula('2d6');
+    let dice = PMTTRPGUtility.getRollFormula('2d6');
 
     // Handle rolls coming directly from the ability score.
     if ($(a).hasClass('ability-rollable') && data.roll) {
@@ -1463,7 +1463,7 @@ export class DwActorSheet extends foundry.appv1.sheets.ActorSheet {
       };
 
       // this.rollMove(formula, actorData, data, templateData);
-      DwRolls.rollMove({actor: this.actor, data: null, formula: formula, templateData: templateData});
+      PMTTRPGRolls.rollMove({actor: this.actor, data: null, formula: formula, templateData: templateData});
     }
     else if ($(a).hasClass('damage-rollable') && data.roll) {
       formula = data.roll;
@@ -1475,7 +1475,7 @@ export class DwActorSheet extends foundry.appv1.sheets.ActorSheet {
         rollType: 'damage'
       };
 
-      DwRolls.rollMove({actor: this.actor, data: null, formula: formula, templateData: templateData});
+      PMTTRPGRolls.rollMove({actor: this.actor, data: null, formula: formula, templateData: templateData});
     }
     else if (itemId != undefined) {
       await item.roll();
@@ -1496,7 +1496,7 @@ export class DwActorSheet extends foundry.appv1.sheets.ActorSheet {
 
     // Update flags.
     let closed = $look.hasClass('closed');
-    await this.actor.update({'flags.dungeonworld.sheetDisplay.sidebarClosed': closed});
+    await this.actor.update({'flags.projectmoonttrpg.sheetDisplay.sidebarClosed': closed});
   }
 
   /* -------------------------------------------- */
@@ -1512,7 +1512,7 @@ export class DwActorSheet extends foundry.appv1.sheets.ActorSheet {
     const data = foundry.utils.duplicate(header.dataset);
     data.moveType = data.movetype;
     data.spellLevel = data.level;
-    const name = type == 'bond' ? game.i18n.localize("DW.BondDefault") : `New ${type.capitalize()}`;
+    const name = type == 'bond' ? game.i18n.localize("PMTTRPG.BondDefault") : `New ${type.capitalize()}`;
     const itemData = {
       name: name,
       type: type,

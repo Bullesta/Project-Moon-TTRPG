@@ -12,7 +12,7 @@ data:
   class: The Wizard
   prepared: false
 flags: {}
-img: systems/dungeonworld/assets/icons/spells/runes-magenta-3.webp
+img: systems/projectmoonttrpg/assets/icons/spells/runes-magenta-3.webp
 effects: []
 _id: Qu860CPdbkn5EhvF
 _key: '!items!Qu860CPdbkn5EhvF'

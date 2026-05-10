@@ -80,7 +80,7 @@ data:
   load: 9
   damage: d8
 flags: {}
-img: systems/dungeonworld/assets/icons/skills/yellow_09.webp
+img: systems/projectmoonttrpg/assets/icons/skills/yellow_09.webp
 effects: []
 _key: '!items!YIg0g4l5FLqwFo7H'
 

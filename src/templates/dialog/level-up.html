@@ -12,7 +12,7 @@
 
       {{#if races}}
         <section class="cell cell--races">
-          <h2 class="cell__title">{{localize "DW.ChooseRace"}}</h2>
+          <h2 class="cell__title">{{localize "TTRPG.ChooseRace"}}</h2>
           <ul class="selection-list">
             {{#each races as |race key|}}
               <li>
@@ -31,7 +31,7 @@
 
       {{#if alignments}}
         <section class="cell cell--alignments">
-          <h2 class="cell__title">{{localize "DW.ChooseAlignment"}}</h2>
+          <h2 class="cell__title">{{localize "TTRPG.ChooseAlignment"}}</h2>
           <ul class="selection-list">
             {{#each alignments as |alignment key|}}
               <li>
@@ -50,7 +50,7 @@
 
       {{#if ability_scores}}
         <section class="cell cell--ability-scores">
-          <h2 class="cell__title">{{localize "DW.ChooseAbilityScores"}}</h2>
+          <h2 class="cell__title">{{localize "TTRPG.ChooseAbilityScores"}}</h2>
           <ul class="selection-list">
             {{#each ability_labels as |ability ability_key|}}
               <li>
@@ -82,7 +82,7 @@
       {{else}}
         <div class="flexrow center">
           <section class="cell cell--ability-scores">
-            <h2 class="cell__title">{{localize "DW.ChooseAbilityScoresIncrease"}}</h2>
+            <h2 class="cell__title">{{localize "TTRPG.ChooseAbilityScoresIncrease"}}</h2>
             <ul class="selection-list">
               {{#each ability_labels as |ability ability_key|}}
                 <li>
@@ -121,10 +121,10 @@
                     </h4>
 
                     <div class="item-meta tags">
-                      {{#if item.system.equipped }}<span class="tag equipped" data-action="equipped">{{localize "DW.Equipped"}}</span>{{/if}}
-                      {{#if item.system.uses }}<a class="tag counter uses" data-action="uses">{{localize "DW.Uses"}}: {{item.system.uses}}</a>{{/if}}
-                      {{#if item.system.quantity }}<a class="tag counter quantity" data-action="quantity">{{localize "DW.Qty"}}: {{item.system.quantity}}</a>{{/if}}
-                      {{#if item.system.weight }}<span class="tag">{{localize "DW.Wt"}}: {{item.system.weight}}</span>{{/if}}
+                      {{#if item.system.equipped }}<span class="tag equipped" data-action="equipped">{{localize "TTRPG.Equipped"}}</span>{{/if}}
+                      {{#if item.system.uses }}<a class="tag counter uses" data-action="uses">{{localize "TTRPG.Uses"}}: {{item.system.uses}}</a>{{/if}}
+                      {{#if item.system.quantity }}<a class="tag counter quantity" data-action="quantity">{{localize "TTRPG.Qty"}}: {{item.system.quantity}}</a>{{/if}}
+                      {{#if item.system.weight }}<span class="tag">{{localize "TTRPG.Wt"}}: {{item.system.weight}}</span>{{/if}}
                     </div>
                     <div class="item-description">
                       {{#if item.system.tags}}{{{dwTags item.system.tags}}}{{/if}}
@@ -141,21 +141,21 @@
 
     {{#if starting_moves}}
       <section class="cell cell--starting_moves">
-        <h1 class="cell__title">{{localize "DW.ChooseStartingMoves"}}</h1>
+        <h1 class="cell__title">{{localize "TTRPG.ChooseStartingMoves"}}</h1>
         <ul class="selection-list">
           {{!-- Loop through each group of starting moves. --}}
           {{#each starting_move_groups as |moves group|}}
             {{!-- If a movegroup is defined, that means this should be an OR choice. --}}
             {{#if moves.0.system.moveGroup}}
-              <h2 class="cell__subtitle">{{localize "DW.ChooseStartingOne"}}</h2>
+              <h2 class="cell__subtitle">{{localize "TTRPG.ChooseStartingOne"}}</h2>
             {{!-- Otherwise, everything is valid. --}}
             {{else}}
-              <h2 class="cell__subtitle">{{localize "DW.ChooseStartingAll"}}</h2>
+              <h2 class="cell__subtitle">{{localize "TTRPG.ChooseStartingAll"}}</h2>
             {{/if}}
             {{!-- Create the grid and loop through moves within the groups. --}}
             <div class="grid grid-2col">
               {{#each moves as |move key|}}
-                {{> "systems/dungeonworld/templates/parts/sheet-level-up-move.html" move=move preselect=1}}
+                {{> "systems/projectmoonttrpg/templates/parts/sheet-level-up-move.html" move=move preselect=1}}
               {{/each}}
             </div>
           {{/each}}
@@ -165,21 +165,21 @@
 
     {{#ifor advanced_moves_2 advanced_moves_6}}
       <section class="cell cell--advanced_moves">
-        <h1 class="cell__title">{{localize "DW.ChooseAdvancedMoves"}}</h1>
+        <h1 class="cell__title">{{localize "TTRPG.ChooseAdvancedMoves"}}</h1>
         {{#if advanced_moves_2}}
-          <h2 class="cell__subtitle">{{localize "DW.ChooseAdvanced2"}}</h2>
+          <h2 class="cell__subtitle">{{localize "TTRPG.ChooseAdvanced2"}}</h2>
           <ul class="selection-list grid grid-2col">
             {{#each advanced_moves_2 as |move key|}}
-              {{> "systems/dungeonworld/templates/parts/sheet-level-up-move.html" move=move}}
+              {{> "systems/projectmoonttrpg/templates/parts/sheet-level-up-move.html" move=move}}
             {{/each}}
           </ul>
         {{/if}}
 
         {{#if advanced_moves_6}}
-          <h2 class="cell__subtitle">{{localize "DW.ChooseAdvanced6"}}</h2>
+          <h2 class="cell__subtitle">{{localize "TTRPG.ChooseAdvanced6"}}</h2>
           <ul class="selection-list grid grid-2col">
             {{#each advanced_moves_6 as |move key|}}
-              {{> "systems/dungeonworld/templates/parts/sheet-level-up-move.html" move=move}}
+              {{> "systems/projectmoonttrpg/templates/parts/sheet-level-up-move.html" move=move}}
             {{/each}}
           </ul>
         {{/if}}
@@ -189,13 +189,13 @@
 
     {{#if cast_spells}}
     <section class="cell cell--spells">
-      <h1 class="cell__title">{{localize "DW.ChooseSpells"}}</h1>
+      <h1 class="cell__title">{{localize "TTRPG.ChooseSpells"}}</h1>
       {{#each spells as |spellsByCaster casterKey|}}
         {{#if spellsByCaster.description }}
           <div class="cell__description">{{{spellsByCaster.description}}}</div>
         {{/if}}
         {{#each spellsByCaster.spells as |spellsByLevel spellLevel|}}
-          <h2 class="cell__subtitle">{{localize (concat "DW.Spells" spellLevel)}}</h2>
+          <h2 class="cell__subtitle">{{localize (concat "TTRPG.Spells" spellLevel)}}</h2>
           <ul class="selection-list grid grid-2col">
             {{#each spellsByLevel as |spell key|}}
               <li>

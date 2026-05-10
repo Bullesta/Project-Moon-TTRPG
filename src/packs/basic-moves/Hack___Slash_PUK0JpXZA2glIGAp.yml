@@ -25,7 +25,7 @@ data:
         option, you may choose to do +1d6 damage but expose yourself to the
         enemy’s attack.</p>
 flags: {}
-img: systems/dungeonworld/assets/icons/skills/red_12.webp
+img: systems/projectmoonttrpg/assets/icons/skills/red_12.webp
 effects: []
 _id: PUK0JpXZA2glIGAp
 _key: '!items!PUK0JpXZA2glIGAp'

@@ -140,7 +140,7 @@ System Reference Document Copyright 2000-2003, Wizards of the Coast, Inc.; Autho
 
 Modern System Reference Document Copyright 2002-2004, Wizards of the Coast, Inc.; Authors Bill Slavicsek, Jeff Grubb, Rich Redman, Charles Ryan, Eric Cagle, David Noonan, Stan!, Christopher Perkins, Rodney Thompson, and JD Wiker, based on material by Jonathan Tweet, Monte Cook, Skip Williams, Richard Baker, Peter Adkison, Bruce R. Cordell, John Tynes, Andy Collins, and JD Wiker.
 
-Dungeon World Copyright 2012, Sage Kobold Productions; Authors Sage LaTorra and Adam Koebel.
+Project Moon TTRPG Copyright 2012, Sage Kobold Productions; Authors Sage LaTorra and Adam Koebel.
 
 Rot Grub from the Tome of Horrors Copyright 2002, Necromancer Games, Inc.; Authors Scott Greene and Clark Peterson, based on original material by Gary Gygax.
 END OF LICENSE

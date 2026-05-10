@@ -2,11 +2,11 @@
 
 ## Install
 
-You can find Dungeon World in the Foundry VTT package listing.
+You can find Project Moon TTRPG in the Foundry VTT package listing.
 
 To install manually, use this manifest link:
 
-https://asacolips-artifacts.s3.amazonaws.com/dungeonworld/latest/system.json
+https://asacolips-artifacts.s3.amazonaws.com/projectmoonttrpg/latest/system.json
 
 ## Features
 
@@ -31,20 +31,20 @@ https://asacolips-artifacts.s3.amazonaws.com/dungeonworld/latest/system.json
 ## Screenshots
 
 ### Character Sheet
-![character sheet](https://mattsmithin.nyc3.digitaloceanspaces.com/assets/dw-0.3.0.png)
+![character sheet](https://mattsmithin.nyc3.digitaloceanspaces.com/assets/TTRPG-0.3.0.png)
 
 ### Character Builder
-![character builder](https://mattsmithin.nyc3.digitaloceanspaces.com/assets/dw-0.3.0-character-builder.png)
+![character builder](https://mattsmithin.nyc3.digitaloceanspaces.com/assets/TTRPG-0.3.0-character-builder.png)
 
 ### Level Up
-![level up](https://mattsmithin.nyc3.digitaloceanspaces.com/assets/dw-0.3.0-level-up.png)
+![level up](https://mattsmithin.nyc3.digitaloceanspaces.com/assets/TTRPG-0.3.0-level-up.png)
 
 ### Combat Tracker
-![combat tracker](https://gitlab.com/asacolips-projects/foundry-mods/dungeonworld/uploads/e3ff32b9c9e94c0dd57aeffa7e679e28/image.png)
+![combat tracker](https://gitlab.com/asacolips-projects/foundry-mods/projectmoonttrpg/uploads/e3ff32b9c9e94c0dd57aeffa7e679e28/image.png)
 
 ## Contributing
 
-This project is accepting issue reports and code merge requests! See the [CONTRIBUTING.MD](https://gitlab.com/asacolips-projects/foundry-mods/dungeonworld/-/blob/master/CONTRIBUTING.md) page for details.
+This project is accepting issue reports and code merge requests! See the [CONTRIBUTING.MD](https://gitlab.com/asacolips-projects/foundry-mods/projectmoonttrpg/-/blob/master/CONTRIBUTING.md) page for details.
 
 ### Translations
 
@@ -63,7 +63,7 @@ npm install
 npm run build
 ```
 
-Once the build has been completed, you can either copy/paste the dist directory's contents into `<foundryData>/systems/dungeonworld/` or you can symlink the dist directory to that location using your operating system's respective commands for it.
+Once the build has been completed, you can either copy/paste the dist directory's contents into `<foundryData>/systems/projectmoonttrpg/` or you can symlink the dist directory to that location using your operating system's respective commands for it.
 
 In addition, there are other commands for individual tasks, such as `npm run yaml` for compiling the yaml > json assets only.
 
@@ -77,11 +77,11 @@ This project uses SCSS for generating its CSS. This can also be compiled via `np
 
 ## Licensing
 
-All HTML, CSS, and JS is licensed under the [MIT license](https://gitlab.com/asacolips-projects/foundry-mods/dungeonworld/-/raw/master/LICENSE.txt).
+All HTML, CSS, and JS is licensed under the [MIT license](https://gitlab.com/asacolips-projects/foundry-mods/projectmoonttrpg/-/raw/master/LICENSE.txt).
 
 Token artwork created by [Forgotten Adventures](https://www.forgotten-adventures.net/). Support them on [Patreon](https://www.patreon.com/forgottenadventures)!
 
 Compendium content is licensed under the Creative Commons Attribution 3.0 Unported License. To view a copy of this license, visit http://creativecommons.org/licenses/by/3.0/ or send a letter to Creative Commons, 444 Castro Street, Suite 900, Mountain View, California, 94041, USA.
 
-In addition, the compendium content uses the OPEN GAME LICENSE Version 1.0a. See the [LICENSE-COMPENDIUM.txt](https://gitlab.com/asacolips-projects/foundry-mods/dungeonworld/-/raw/master/LICENSE-COMPENDIUM.txt) file for additional details.
+In addition, the compendium content uses the OPEN GAME LICENSE Version 1.0a. See the [LICENSE-COMPENDIUM.txt](https://gitlab.com/asacolips-projects/foundry-mods/projectmoonttrpg/-/raw/master/LICENSE-COMPENDIUM.txt) file for additional details.
 

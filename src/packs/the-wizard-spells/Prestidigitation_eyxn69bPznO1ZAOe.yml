@@ -16,7 +16,7 @@ data:
   class: The Wizard
   prepared: false
 flags: {}
-img: systems/dungeonworld/assets/icons/spells/air-burst-jade-1.webp
+img: systems/projectmoonttrpg/assets/icons/spells/air-burst-jade-1.webp
 effects: []
 _id: eyxn69bPznO1ZAOe
 _key: '!items!eyxn69bPznO1ZAOe'

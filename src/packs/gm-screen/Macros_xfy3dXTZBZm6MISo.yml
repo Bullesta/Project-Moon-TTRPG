@@ -22,7 +22,7 @@ content: >-
 
   <h2>Attack Assistant</h2>
 
-  <p><img src="systems/dungeonworld/assets/icons/macros/Attack%20Assistant.svg"
+  <p><img src="systems/projectmoonttrpg/assets/icons/macros/Attack%20Assistant.svg"
   alt="" width="48" height="48" /></p>
 
   <p>Features<br />- Rolls damage if success. Offers Expose Yourself Damage in
@@ -50,7 +50,7 @@ content: >-
 
   <h2>EXP Manager</h2>
 
-  <p><img src="systems/dungeonworld/assets/icons/macros/EXP%20Manager.svg"
+  <p><img src="systems/projectmoonttrpg/assets/icons/macros/EXP%20Manager.svg"
   alt="" width="48" height="48" /></p>
 
   <p>Features<br />- Select a token and it'll be selected in the combo<br />-
@@ -61,7 +61,7 @@ content: >-
 
   <h2>Instant NPC</h2>
 
-  <p><img src="systems/dungeonworld/assets/icons/macros/Instant%20NPC.svg"
+  <p><img src="systems/projectmoonttrpg/assets/icons/macros/Instant%20NPC.svg"
   alt="" width="48" height="48" /></p>
 
   <p>Features</p>
@@ -72,7 +72,7 @@ content: >-
 
   <h2>Open GM Screen</h2>
 
-  <p><img src="systems/dungeonworld/assets/icons/macros/gmscreen.svg" alt=""
+  <p><img src="systems/projectmoonttrpg/assets/icons/macros/gmscreen.svg" alt=""
   width="48" height="48" /></p>
 
   <p>Features</p>
@@ -84,7 +84,7 @@ content: >-
   <h2>Set Tokens Bars</h2>
 
   <p><img
-  src="systems/dungeonworld/assets/icons/macros/Token%20Names%20and%20Bars.svg"
+  src="systems/projectmoonttrpg/assets/icons/macros/Token%20Names%20and%20Bars.svg"
   alt="" width="48" height="48" /></p>
 
   <p>Features<br />- Select all PCs on the scene to:<br />-- Set HP Bar<br />--

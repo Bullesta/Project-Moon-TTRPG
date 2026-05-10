@@ -30,7 +30,7 @@ data:
   class: The Cleric
   prepared: false
 flags: {}
-img: systems/dungeonworld/assets/icons/skills/affliction_07.webp
+img: systems/projectmoonttrpg/assets/icons/skills/affliction_07.webp
 effects: []
 _id: r5N6Jk1DHmY2OHkf
 _key: '!items!r5N6Jk1DHmY2OHkf'

@@ -18,18 +18,18 @@
       <section class="sheet-attributes sheet-attributes--npc">
 
         <div class="cell cell--damage">
-          <label class="cell__title damage-rollable rollable" data-roll="{{system.attributes.damage.value}}" data-label="{{localize "DW.Damage"}}" data-flavor="{{system.attributes.damage.piercing}}"><i class="fas fa-dice-d20"></i> {{localize "DW.Damage"}}</label>
+          <label class="cell__title damage-rollable rollable" data-roll="{{system.attributes.damage.value}}" data-label="{{localize "TTRPG.Damage"}}" data-flavor="{{system.attributes.damage.piercing}}"><i class="fas fa-dice-d20"></i> {{localize "TTRPG.Damage"}}</label>
           <input type="text" name="system.attributes.damage.value" value="{{system.attributes.damage.value}}" placeholder="e.g. 2d12+7" data-dtype="String"/>
           <input type="text" name="system.attributes.damage.piercing" value="{{system.attributes.damage.piercing}}" placeholder="e.g. 4 piercing" data-dtype="String"/>
         </div>
 
         <div class="cell cell--ac">
-          <label class="cell__title">{{localize "DW.Armor"}}</label>
+          <label class="cell__title">{{localize "TTRPG.Armor"}}</label>
           <input type="text" name="system.attributes.ac.value" value="{{system.attributes.ac.value}}" data-dtype="Number"/>
         </div>
 
         <div class="cell cell--hp">
-          <label for="system.attributes.hp.value" class="cell__title">{{localize "DW.HP"}}</label>
+          <label for="system.attributes.hp.value" class="cell__title">{{localize "TTRPG.HP"}}</label>
           <div class="cell__counter">
             <input type="text" name="system.attributes.hp.value" value="{{system.attributes.hp.value}}" data-dtype="Number"/>
             <span> / </span>
@@ -38,8 +38,8 @@
         </div>
 
         <div class="cell cell--tags">
-          <label for="tag" class="control-label">{{localize "DW.Tags"}}</label>
-          <div class="help-text"><p>{{localize "DW.TagsHelp" }}</p></div>
+          <label for="tag" class="control-label">{{localize "TTRPG.Tags"}}</label>
+          <div class="help-text"><p>{{localize "TTRPG.TagsHelp" }}</p></div>
           <input class='tags-input-source' name="system.tags" placeholder='write some tags' value='{{ system.tags }}'/>
         </div>
 
@@ -47,8 +47,8 @@
 
       {{!-- Sheet Tab Navigation --}}
         <nav class="sheet-tabs tabs" data-group="primary">
-          <a class="item" data-tab="description">{{localize "DW.Description"}}</a>
-          <a class="item" data-tab="moves">{{localize "DW.Moves"}}</a>
+          <a class="item" data-tab="description">{{localize "TTRPG.Description"}}</a>
+          <a class="item" data-tab="moves">{{localize "TTRPG.Moves"}}</a>
         </nav>
 
       {{!-- Sheet Body --}}
@@ -57,11 +57,11 @@
         <div class="tab description" data-group="primary" data-tab="description">
           <section class="sheet-tab">
             <div class="cell cell--special-qualities">
-              <label class="cell__title">{{localize "DW.SpecialQualities"}}</label>
+              <label class="cell__title">{{localize "TTRPG.SpecialQualities"}}</label>
               <input type="text" name="system.attributes.specialQualities.value" value="{{system.attributes.specialQualities.value}}" data-dtype="String"/>
             </div>
             <div class="cell cell--description">
-              <label class="cell__title">{{localize "DW.Description"}}</label>
+              <label class="cell__title">{{localize "TTRPG.Description"}}</label>
               {{editor system.details.biographyEnriched target="system.details.biography" button=true owner=owner editable=editable}}
             </div>
           </section>
@@ -72,9 +72,9 @@
 
             <div class="cell cell--basic-moves">
               <h2 class="cell__title">
-                <label>{{localize "DW.MovesBasic"}}</label>
+                <label>{{localize "TTRPG.MovesBasic"}}</label>
                 <div class="item-controls">
-                  <button  type="button" class="item-control item-create" title='{{localize "DW.MoveCreate"}}' data-type="npcMove" data-moveType="basic">
+                  <button  type="button" class="item-control item-create" title='{{localize "TTRPG.MoveCreate"}}' data-type="npcMove" data-moveType="basic">
                     <i class="fas fa-plus"></i>
                   </button>
                 </div>
@@ -82,7 +82,7 @@
               <ol class="items-list">
               {{#each basicMoves as |item id|}}
                 <li class="item flexrow" data-item-id="{{item._id}}" draggable="true">
-                  {{> "systems/dungeonworld/templates/parts/sheet-moves.html" item=item rollData=../../rollData statSettings=../../system.statSettings}}
+                  {{> "systems/projectmoonttrpg/templates/parts/sheet-moves.html" item=item rollData=../../rollData statSettings=../../system.statSettings}}
                 </li>
               {{/each}}
               </ol>
@@ -90,9 +90,9 @@
 
             <div class="cell cell--special-moves">
               <h2 class="cell__title">
-                <label>{{localize "DW.MovesSpecial"}}</label>
+                <label>{{localize "TTRPG.MovesSpecial"}}</label>
                 <div class="item-controls">
-                  <button  type="button" class="item-control item-create" title='{{localize "DW.MoveCreate"}}' data-type="npcMove" data-moveType="special">
+                  <button  type="button" class="item-control item-create" title='{{localize "TTRPG.MoveCreate"}}' data-type="npcMove" data-moveType="special">
                     <i class="fas fa-plus"></i>
                   </button>
                 </div>
@@ -100,7 +100,7 @@
               <ol class="items-list">
               {{#each specialMoves as |item id|}}
                 <li class="item flexrow" data-item-id="{{item._id}}" draggable="true">
-                  {{> "systems/dungeonworld/templates/parts/sheet-moves.html" item=item rollData=../../rollData statSettings=../../system.statSettings}}
+                  {{> "systems/projectmoonttrpg/templates/parts/sheet-moves.html" item=item rollData=../../rollData statSettings=../../system.statSettings}}
                 </li>
               {{/each}}
               </ol>

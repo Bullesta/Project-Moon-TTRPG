@@ -51,12 +51,12 @@ data:
   tagsString: near, horde, small
 sort: 100001
 flags: {}
-img: systems/dungeonworld/tokens/enemies/Giant_Fire_Beetle_Small_Beast_01.webp
+img: systems/projectmoonttrpg/tokens/enemies/Giant_Fire_Beetle_Small_Beast_01.webp
 token:
   flags: {}
   name: Fire Beetle
   displayName: 0
-  img: systems/dungeonworld/tokens/enemies/Giant_Fire_Beetle_Small_Beast_01.webp
+  img: systems/projectmoonttrpg/tokens/enemies/Giant_Fire_Beetle_Small_Beast_01.webp
   tint: null
   width: 1
   height: 1

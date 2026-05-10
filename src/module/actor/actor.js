@@ -1,11 +1,11 @@
-import { DwUtility } from '../utility.js';
+import { PMTTRPGUtility } from '../utility.js';
 const { renderTemplate } = foundry.applications.handlebars;
 
 /**
- * Extends the basic Actor class for Dungeon World.
+ * Extends the basic Actor class for Project Moon TTRPG.
  * @extends {Actor}
  */
-export class ActorDw extends Actor {
+export class ActorPMTTRPG extends Actor {
 
   /**
    * Augment the basic actor data with additional dynamic data.
@@ -26,21 +26,7 @@ export class ActorDw extends Actor {
   _prepareCharacterData(actorData) {
     const data = actorData.system;
 
-    let debilities = {
-      "str": game.settings.get('dungeonworld', 'debilityLabelSTR'),
-      "dex": game.settings.get('dungeonworld', 'debilityLabelDEX'),
-      "con": game.settings.get('dungeonworld', 'debilityLabelCON'),
-      "int": game.settings.get('dungeonworld', 'debilityLabelINT'),
-      "wis": game.settings.get('dungeonworld', 'debilityLabelWIS'),
-      "cha": game.settings.get('dungeonworld', 'debilityLabelCHA')
-    }
-
-    debilities = Object.entries(debilities).reduce((obj, e) => {
-      obj[e[0]] = game.i18n.localize(e[1]);
-      return obj;
-    }, {});
-
-    const noAbilityScores = game.settings.get('dungeonworld', 'noAbilityScores');
+    const noAbilityScores = game.settings.get('projectmoonttrpg', 'noAbilityScores');
 
     // Ability Scores
     for (let [a, abl] of Object.entries(data.abilities)) {
@@ -48,89 +34,20 @@ export class ActorDw extends Actor {
       // upper and lower ends.
       // abl.mod = Math.floor(abl.value * 0.4 - (abl.value < 11 ? 3.4 : 4.2));
 
-      // @todo: This could be improved by storing old scores in a flag.
-      // Convert ability scores if the no mod setting changed.
-      if (noAbilityScores) {
-        if (!Number.isNaN(abl.value) && abl.value > 3) {
-          abl.value = DwUtility.getAbilityMod(abl.value, true);
-        }
-      }
-      else {
-        if (!Number.isNaN(abl.value) && abl.value < 4) {
-          abl.value = DwUtility.getAbilityScore(abl.value, true);
-        }
-      }
-
-      // Ability modifiers.
-      abl.mod = DwUtility.getAbilityMod(abl.value);
+      abl.value = abl.mod = PMTTRPGUtility.getAbilityScore(abl.value, true);
 
       // Add labels.
-      abl.label = CONFIG.DW.abilities[a];
-      abl.debilityLabel = debilities[a];
-      // Adjust mod based on debility.
-      if (abl.debility && !game.settings.get("dungeonworld", "disDebility")) {
-        abl.mod -= 1;
-      }
+      abl.label = CONFIG.PMTTRPG.abilities[a];
     }
-
-    // Calculate weight.
-    let coin = data.attributes.coin.value ?? 0;
-    let coinWeight = game.settings.get("dungeonworld", "coinWeight");
-    let weight = coinWeight > 0 ? Math.floor(coin/coinWeight ) : 0;
-    let items = actorData.items;
-    if (items) {
-      let equipment = items.filter(i => i.type == 'equipment');
-      equipment.forEach(i => {
-        // Add weight for each item.
-        let itemQuantity = Number(i.system.quantity);
-        let itemWeight = Number(i.system.weight);
-        if (itemWeight > 0) {
-          weight = weight + (itemQuantity * itemWeight);
-        }
-        // Add weapon tags.
-        if (i.system?.equipped && i.system.itemType == 'weapon') {
-          let tags = i.system.tags ? JSON.parse(i.system.tags) : [];
-          for (let tag of tags) {
-          // Match for piercing, armor, and damage tags.
-            let piercing = tag.value.toLowerCase().match(/(\d+)\s*piercing|piercing\s*(\d+)/) ?? [];
-            let ignoreArmor = tag.value.toLowerCase().includes('ignores armor');
-            let dmgBonus = tag.value.toLowerCase().match(/[+](\d+)\s*damage|damage\s*[+](\d+)/) ?? [];
-
-            // Add matching piercing tags if it's unset or if the value is higher.
-            if (piercing[1] > 0 || piercing[2] > 0) {
-              piercing = (piercing[1] ?? piercing[2]) ?? 0;
-              if (!data.attributes.damage?.piercing || piercing > data.attributes.damage.piercing) {
-                data.attributes.damage.piercing = piercing;
-              }
-            }
-
-            // Add matching ignore armor tags if it's unset.
-            if (!data.attributes.damage?.ignoreArmor) {
-              data.attributes.damage.ignoreArmor = ignoreArmor;
-            }
-
-              // Add matching damage bonus tags if it's unset or if the value is higher.
-              if (dmgBonus[1] > 0 || dmgBonus[2] > 0) {
-                dmgBonus = (dmgBonus[1] ?? dmgBonus[2]) ?? 0;
-                if (!data.attributes.damage?.dmgBonus || dmgBonus > data.attributes.damage.dmgBonus) {
-                  data.attributes.damage.dmgBonus = dmgBonus;
-                }
-              }
-            }
-        }
-      });
-    }
-    // Update the value.
-    data.attributes.weight.value = weight;
 
     // Add base flags.
-    if (!actorData.flags.dungeonworld) actorData.flags.dungeonworld = {};
-    if (!actorData.flags.dungeonworld.sheetDisplay) actorData.flags.dungeonworld.sheetDisplay = {};
+    if (!actorData.flags.projectmoonttrpg) actorData.flags.projectmoonttrpg = {};
+    if (!actorData.flags.projectmoonttrpg.sheetDisplay) actorData.flags.projectmoonttrpg.sheetDisplay = {};
 
     // Handle max XP.
     let rollData = this.getRollData();
-    if (!rollData.attributes.level.value) rollData.attributes.level.value = 1;
-    let xpRequiredFormula = game.settings.get('dungeonworld', 'xpFormula');
+    if (!rollData.attributes.level.value) rollData.attributes.level.value = 0;
+    let xpRequiredFormula = game.settings.get('projectmoonttrpg', 'xpFormula');
     let xpRequired = parseInt(xpRequiredFormula)
     if (isNaN(xpRequired)) {
       // Evaluate the max XP roll.
@@ -141,8 +58,8 @@ export class ActorDw extends Actor {
     data.attributes.xp.max = xpRequired;
 
     // Handle roll mode flag.
-    if (actorData?.flags?.dungeonworld) {
-      if (!actorData.flags.dungeonworld.rollMode) actorData.flags.dungeonworld.rollMode = 'def';
+    if (actorData?.flags?.projectmoonttrpg) {
+      if (!actorData.flags.projectmoonttrpg.rollMode) actorData.flags.projectmoonttrpg.rollMode = 'def';
     }
   }
 
@@ -192,9 +109,6 @@ export class ActorDw extends Actor {
     if ($(a).hasClass('ability-rollable') && data.mod) {
       formula = `2d6+${data.mod}`;
       flavorText = data.label;
-      if (data.debility) {
-        flavorText += ` (${data.debility})`;
-      }
 
       templateData = {
         title: flavorText
@@ -225,7 +139,7 @@ export class ActorDw extends Actor {
   async rollMove(roll, actor, dataset, templateData, form = null, applyDamage = false) {
     let actorData = actor.system;
     // Render the roll.
-    let template = 'systems/dungeonworld/templates/chat/chat-move.html';
+    let template = 'systems/projectmoonttrpg/templates/chat/chat-move.html';
     // GM rolls.
     let chatData = {
       user: game.user.id,
@@ -275,7 +189,7 @@ export class ActorDw extends Actor {
         }
         // Render it.
         roll.render().then(r => {
-          templateData.rollDw = r;
+          templateData.rollPMTTRPG = r;
           renderTemplate(template, templateData).then(content => {
             chatData.content = content;
             if (game.dice3d) {
@@ -343,10 +257,10 @@ export class ActorDw extends Actor {
 
     if (newHp !== hp) {
       const update = {'system.attributes.hp.value': newHp};
-      // Set options.dw so that we can update scrolling text in
+      // Set options.PMTTRPG so that we can update scrolling text in
       // preUpdate and onUpdate.
       const context = {
-        dw: {
+        PMTTRPG: {
           armor: {
             reduced: reduced,
             value: armor,
@@ -414,17 +328,17 @@ export class ActorDw extends Actor {
   /** @override */
   async _preUpdate(data, options, userId) {
     await super._preUpdate(data, options, userId);
-    options.dw = options?.dw ?? {};
+    options.PMTTRPG = options?.PMTTRPG ?? {};
 
-    if (!options.dw?.preUpdate) {
-      options.dw.preUpdate = {system: foundry.utils.duplicate(this.system)};
+    if (!options.PMTTRPG?.preUpdate) {
+      options.PMTTRPG.preUpdate = {system: foundry.utils.duplicate(this.system)};
     }
   }
 
   /** @override */
   async _onUpdate(updateData, options, userId) {
     await super._onUpdate(updateData, options, userId);
-    const context = options?.dw?.preUpdate ?? false;
+    const context = options?.PMTTRPG?.preUpdate ?? false;
 
     if (!options.diff || !context || updateData.system === undefined) return; // Nothing to do.
 
@@ -447,18 +361,18 @@ export class ActorDw extends Actor {
         hp.delta = hp.current - hp.original;
 
         if (hp.delta !== 0) {
-          this.showScrollingText(hp.delta, hp.max, game.i18n.localize('DW.HP'), {anchor: CONST.TEXT_ANCHOR_POINTS.TOP});
+          this.showScrollingText(hp.delta, hp.max, game.i18n.localize('PMTTRPG.HP'), {anchor: CONST.TEXT_ANCHOR_POINTS.TOP});
         }
 
-        if (hp.delta < 0 && options?.dw?.armor?.reduced) {
+        if (hp.delta < 0 && options?.PMTTRPG?.armor?.reduced) {
           let armorContext = {
-            reduced: options.dw.armor.reduced,
-            piercing: options.dw.armor?.piercing ?? 0
+            reduced: options.PMTTRPG.armor.reduced,
+            piercing: options.PMTTRPG.armor?.piercing ?? 0
           };
 
-          let textToShow = game.i18n.format('DW.Scrolling.armorReduced', armorContext);
+          let textToShow = game.i18n.format('PMTTRPG.Scrolling.armorReduced', armorContext);
           if (armorContext.piercing > 0) {
-            textToShow = textToShow + '\r\n' + game.i18n.format('DW.Scrolling.armorPiercing', armorContext);
+            textToShow = textToShow + '\r\n' + game.i18n.format('PMTTRPG.Scrolling.armorPiercing', armorContext);
           }
           this.showScrollingText(null, null, textToShow, {anchor: CONST.TEXT_ANCHOR_POINTS.CENTER});
         }

@@ -9,7 +9,7 @@ data:
     <p>You’ve heard them, sitting around the campfire. Bragging about this
     battle or that. About how their gods are smiling on your merry band. You
     count your coins and smile to yourself—this is the thrill above all. You
-    alone know the secret of Dungeon World—filthy filthy lucre.</p>
+    alone know the secret of Project Moon TTRPG—filthy filthy lucre.</p>
 
     <p>Sure, they give you lip for all the times you’ve snuck off alone but
     without you, who among them wouldn’t have been dissected by a flying
@@ -69,7 +69,7 @@ data:
   load: 9
   damage: d8
 flags: {}
-img: systems/dungeonworld/assets/icons/skills/gray_05.webp
+img: systems/projectmoonttrpg/assets/icons/skills/gray_05.webp
 effects: []
 _key: '!items!AvWAW7gj4kwlqeZv'
 

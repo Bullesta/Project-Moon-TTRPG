@@ -15,7 +15,7 @@ data:
   class: The Cleric
   prepared: false
 flags: {}
-img: systems/dungeonworld/assets/icons/skills/blood_13.webp
+img: systems/projectmoonttrpg/assets/icons/skills/blood_13.webp
 effects: []
 _id: AwQTw85OBEdNxK29
 _key: '!items!AwQTw85OBEdNxK29'

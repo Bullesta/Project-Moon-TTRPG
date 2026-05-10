@@ -5,14 +5,14 @@
         <img class="profile-img" src="{{item.img}}" data-edit="img" title="{{item.name}}"/>
       </div>
       <div class="header-fields">
-          <h1 class="charname"><input name="name" type="text" value="{{item.name}}" placeholder="{{localize "DW.Common.Name"}}"/></h1>
+          <h1 class="charname"><input name="name" type="text" value="{{item.name}}" placeholder="{{localize "TTRPG.Common.Name"}}"/></h1>
       </div>
     </header>
 
     {{!-- Sheet Tab Navigation --}}
     <nav class="sheet-navigation sheet-tabs tabs" data-group="primary">
-        <a class="item" data-tab="description">{{localize "DW.Common.Description" }}</a>
-        <a class="item" data-tab="details">{{localize "DW.Common.Details" }}</a>
+        <a class="item" data-tab="description">{{localize "TTRPG.Common.Description" }}</a>
+        <a class="item" data-tab="details">{{localize "TTRPG.Common.Details" }}</a>
     </nav>
 
     {{!-- Sheet Body --}}
@@ -26,42 +26,42 @@
         {{!-- Details Tab --}}
         <div class="tab" data-group="primary" data-tab="details">
           <div class="resource">
-            <label for="tag" class="control-label">{{localize "DW.Tags"}}</label>
-            <div class="help-text"><p>{{localize "DW.TagsHelp" }}</p></div>
+            <label for="tag" class="control-label">{{localize "TTRPG.Tags"}}</label>
+            <div class="help-text"><p>{{localize "TTRPG.TagsHelp" }}</p></div>
             <input class='tags-input-source' name="system.tags" placeholder='write some tags' value='{{ system.tags }}'/>
           </div>
           <div class="resource">
-            <label>{{localize "DW.Equipped"}}</label>
+            <label>{{localize "TTRPG.Equipped"}}</label>
             <input type="checkbox" name="system.equipped" {{checked system.equipped}}/>
           </div>
           <div class="resource">
-            <label>{{localize "DW.Quantity"}}</label>
+            <label>{{localize "TTRPG.Quantity"}}</label>
             <input type="text" name="system.quantity" value="{{system.quantity}}" data-dtype="Number"/>
           </div>
           <div class="resource">
-            <label>{{localize "DW.Uses"}}</label>
+            <label>{{localize "TTRPG.Uses"}}</label>
             <input type="text" name="system.uses" value="{{system.uses}}" data-dtype="Number"/>
           </div>
           <div class="resource">
-            <label>{{localize "DW.Weight"}}</label>
+            <label>{{localize "TTRPG.Weight"}}</label>
             <input type="text" name="system.weight" value="{{system.weight}}" data-dtype="Number"/>
           </div>
           <div class="resource">
-            <label>{{localize "DW.Price"}}</label>
+            <label>{{localize "TTRPG.Price"}}</label>
             <input type="text" name="system.price" value="{{system.price}}" data-dtype="Number"/>
           </div>
           {{#if (eq system.itemType "weapon")}}
           <div class="resource">
-            <label>{{localize "DW.DamageOverride"}}</label>
+            <label>{{localize "TTRPG.DamageOverride"}}</label>
             <input type="text" name="system.rollFormula" value="{{system.rollFormula}}" placeholder="e.g. 1d4+3" data-dtype="String"/>
           </div>
           {{/if}}
           <div class="resource">
-            <label>{{localize "DW.MagicItem"}}</label>
+            <label>{{localize "TTRPG.MagicItem"}}</label>
             <input type="checkbox" name="system.magic" {{checked system.magic}}/>
           </div>
           <div class="resource">
-            <label>{{localize "DW.ItemType"}}</label>
+            <label>{{localize "TTRPG.ItemType"}}</label>
             <select name="system.itemType" data-dtype="String">
               {{selectOptions selects.itemTypes selected=system.itemType blank='—' localize=true}}
             </select>
