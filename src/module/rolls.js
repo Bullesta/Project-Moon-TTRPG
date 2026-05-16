@@ -48,6 +48,9 @@ export class PMTTRPGRolls {
     // Grab the formula, if any.
     let formula = options.formula ?? null;
     let label = options?.data?.label ?? '';
+    
+    // Grab the stat modifier (from stat roll dialog), if any.
+    let statModifier = options?.statModifier ?? 0;
 
     // Prepare template data for the roll.
     let templateData = options.templateData ? foundry.utils.duplicate(options.templateData): {};
@@ -153,14 +156,25 @@ export class PMTTRPGRolls {
         data.roll = this.item.system.rollFormula;
         this.rollMoveExecute(data.roll, data, templateData);
       }
+      else if (this.item.type == 'weapon') {
+        templateData = foundry.utils.mergeObject({
+          image: this.item.img,
+          title: this.item.name,
+          trigger: null,
+          details: this.item.system.description,
+          rollType: 'damage'
+        }, templateData);
+        data.roll = this.item.system.offensiveDiceComputed;
+        this.rollMoveExecute(data.roll, data, templateData);
+      }
     }
     // Handle formula-only rolls.
     else {
-      this.rollMoveExecute(formula, data, templateData);
+      this.rollMoveExecute(formula, data, templateData, null, statModifier);
     }
   }
 
-  static async rollMoveExecute(roll, dataset, templateData, form = null) {
+  static async rollMoveExecute(roll, dataset, templateData, form = null, statModifier = 0) {
     // Render the roll.
     let template = 'systems/projectmoonttrpg/templates/chat/chat-move.html';
     let dice = PMTTRPGUtility.getRollFormula('2d6');
@@ -240,6 +254,10 @@ export class PMTTRPGRolls {
           if (dataset.mod && dataset.mod != 0) {
             formula += `+${dataset.mod}`;
           }
+          // Add stat modifier from dialog (if provided)
+          if (statModifier && statModifier != 0) {
+            formula += statModifier > 0 ? `+${statModifier}` : `${statModifier}`;
+          }
         }
 
         // Handle formula overrides.
@@ -262,17 +280,6 @@ export class PMTTRPGRolls {
 
         // Handle adv/dis.
         let rollMode = this.actor.flags?.projectmoonttrpg?.rollMode ?? 'def';
-        const debilityIsActive = this.actorData.abilities[roll] !== undefined ? this.actorData.abilities[roll].debility : false;
-        if (game.settings.get("projectmoonttrpg", "disDebility") && debilityIsActive) {
-          // If the roll had advantage, the debility disadvantage cancels it out,
-          // otherwise the debility gives disadvantage
-          if (rollMode === "adv") {
-            rollModeUsed = true;
-            rollMode = "def";
-          } else {
-            rollMode = "dis";
-          }
-        }
         switch (rollMode) {
           case 'adv':
             rollModeUsed = true;

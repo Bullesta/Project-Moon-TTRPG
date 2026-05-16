@@ -1,4 +1,5 @@
 .editor {
+  color: #fff;
   min-height: 80px;
   height: 100% !important;
   background: rgba($c-black, 0.05);
@@ -20,13 +21,12 @@
   .tox-toolbar-overlord,
   .tox-toolbar__primary {
     background: transparent;
-    border-bottom: 1px solid $c-black;
+    box-shadow: inset 0 -1px 0 rgba($c-black, 0.18);
   }
 
   button {
     font-size: 12px;
     padding: 0;
-    border: 0;
     background: transparent;
     margin: 0;
     width: auto;

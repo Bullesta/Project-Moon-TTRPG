@@ -1,0 +1,29 @@
+<div class="stat-roll-dialog">
+  <form>
+    <div class="dialog-header">
+      <div class="stat-icon"><i class="fas fa-dice-d20"></i></div>
+      <div class="dialog-header__body">
+        <h3>{{abilityLabel}}</h3>
+      </div>
+    </div>
+
+    <div class="form-grid">
+      <div class="form-group">
+        <label for="advantage">{{localize "PMTTRPG.Dialog.rollMode"}}</label>
+        <select id="advantage" name="advantage" class="form-control">
+          <option value="dis">{{localize "PMTTRPG.Disadvantage"}}</option>
+          <option value="def" selected>{{localize "PMTTRPG.Normal"}}</option>
+          <option value="adv">{{localize "PMTTRPG.Advantage"}}</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label for="modifier">{{localize "PMTTRPG.Dialog.modifier"}}</label>
+        <div class="modifier-input">
+          <input type="number" id="modifier" name="modifier" class="form-control" value="0" min="-20" max="20" />
+          <span class="modifier-hint">{{localize "PMTTRPG.Dialog.modifierHint"}}</span>
+        </div>
+      </div>
+    </div>
+  </form>
+</div>

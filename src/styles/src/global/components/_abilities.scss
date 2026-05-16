@@ -1,73 +1,101 @@
 .cell--abilities {
-  grid-column: span 16;
-  // background: rgba($c-navy-up, 0.25);
-  // padding: 0 10px;
-  padding: 0;
-
   .abilities-list {
     display: grid;
-    grid-column: span 3 / span 3;
     grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: 0px 10px;
-    margin: 10px 0;
+    grid-auto-rows: auto;
+    gap: 12px;
+    margin: 8px 0 4px;
     padding: 0;
   }
 
   .ability {
     display: flex;
-    flex-direction: row;
-    flex-wrap: wrap;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
     position: relative;
+    background: var(--sheet-card);
+    border-radius: 12px;
+    padding: 12px 8px 8px;
+    box-shadow: 0 6px 14px var(--sheet-shadow);
+    gap: 8px;
 
-    .cell__title {
-      flex: 100%;
-      background: $c-navy;
-      color: $c-white;
-      padding: $padding-sm;
-      border-radius: 0 50px 0 0;
-    }
+    .ability-label {
+      width: 100%;
+      height: auto;
+      background: transparent;
+      color: var(--sheet-ink);
+      padding: 0;
+      border-radius: 0;
+      font-size: 12px;
+      letter-spacing: 0.6px;
+      text-transform: uppercase;
+      text-align: center;
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
 
-    .rollable:hover {
-      background: $c-navy-up;
-      cursor: pointer;
+      &::before {
+        content: '';
+        display: block;
+        width: 64px;
+        height: 64px;
+        background-size: cover;
+        background-position: center;
+        flex-shrink: 0;
+      }
+
+      &.rollable:hover {
+        opacity: 0.8;
+        cursor: pointer;
+      }
     }
 
     .ability-value {
-      flex: 32px;
-      flex-grow: 0;
-    }
-
-    .ability-mod {
-      position: absolute;
-      top: -23px;
-      right: -2px;
-      bottom: 0;
-      margin: auto;
-      width: 50px;
-      height: 50px;
+      width: 100%;
       text-align: center;
-      border: 2px solid $c-navy;
-      border-radius: 50px;
-      line-height: 38px;
-      font-size: 24px;
-      background: $c-white;
-      color: $c-navy;
-      display: flex;
-      align-items: center;
-      justify-content: center;
+      margin: 0;
+      padding: 4px;
+      height: 32px;
+      font-size: 20px;
+      font-weight: 600;
+      background: var(--sheet-paper-alt);
+      border-radius: 8px;
+      color: var(--sheet-gold);
+      box-shadow: inset 0 0 0 1px rgba(111, 82, 56, 0.1);
     }
+  }
 
-    .ability-debility {
-      display: flex;
-      flex-direction: row;
-      flex-wrap: nowrap;
-      align-items: center;
-      margin: 0 8px 8px;
-      font-size: 10px;
+  .ability[data-ability="for"] .ability-label::before {
+    background-image: url('../../assets/icons/sheet/02_fortitude.webp');
+  }
 
-      input {
-        margin-right: 4px;
-      }
+  .ability[data-ability="pru"] .ability-label::before {
+    background-image: url('../../assets/icons/sheet/02_prudence.webp');
+  }
+
+  .ability[data-ability="jus"] .ability-label::before {
+    background-image: url('../../assets/icons/sheet/02_justice.webp');
+  }
+
+  .ability[data-ability="cha"] .ability-label::before {
+    background-image: url('../../assets/icons/sheet/02_charm.webp');
+  }
+
+  .ability[data-ability="ins"] .ability-label::before {
+    background-image: url('../../assets/icons/sheet/02_insight.webp');
+  }
+
+  .ability[data-ability="tem"] .ability-label::before {
+    background-image: url('../../assets/icons/sheet/02_temperance.webp');
+  }
+
+  @media (max-width: 960px) {
+    .abilities-list {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
     }
   }
 }

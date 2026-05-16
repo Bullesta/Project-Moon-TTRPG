@@ -15,7 +15,18 @@ export class PMTTRPGRegisterHelpers {
     });
 
     Handlebars.registerHelper('PMTTRPGTags', function(tagsInput) {
-      const tags = JSON.parse(tagsInput);
+      const tags = typeof tagsInput === 'string' ? JSON.parse(tagsInput) : tagsInput;
+      let output = '<div class="tags">';
+      for (let tag of tags) {
+        output += `<div class="tag">${tag.value}</div>`;
+      }
+      output += '</div>';
+      return output;
+    });
+
+    Handlebars.registerHelper('dwTags', function(tagsInput) {
+      const tags = typeof tagsInput === 'string' ? JSON.parse(tagsInput) : tagsInput;
+      if (!tags || tags.length < 1) return '';
       let output = '<div class="tags">';
       for (let tag of tags) {
         output += `<div class="tag">${tag.value}</div>`;

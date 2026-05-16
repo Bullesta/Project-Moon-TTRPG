@@ -1,0 +1,118 @@
+<form class="{{cssClass}} item-form flexcol" autocomplete="off">
+  <div class="sheet-wrapper flexcol">
+    <header class="sheet-header flexrow">
+      <div class="cell cell--image">
+        <img class="profile-img" src="{{item.img}}" data-edit="img" title="{{item.name}}"/>
+      </div>
+      <div class="header-fields">
+        <h1><input name="name" type="text" value="{{item.name}}" placeholder="{{localize "PMTTRPG.Common.Name"}}"/></h1>
+      </div>
+    </header>
+
+    <nav class="sheet-tabs tabs" data-group="primary">
+      <a class="item" data-tab="description">{{localize "PMTTRPG.Common.Description"}}</a>
+      <a class="item" data-tab="defenses">{{localize "PMTTRPG.OutfitDefenses"}}</a>
+      <a class="item" data-tab="resistances">{{localize "PMTTRPG.Resistances"}}</a>
+      <a class="item" data-tab="advanced">{{localize "PMTTRPG.Advanced"}}</a>
+    </nav>
+
+    <section class="sheet-body">
+      <div class="tab" data-group="primary" data-tab="description">
+        {{editor system.descriptionEnriched target="system.description" button=true owner=owner editable=editable}}
+      </div>
+
+      <div class="tab" data-group="primary" data-tab="defenses">
+        <div class="resource-group">
+          <div class="resource">
+            <label>{{localize "PMTTRPG.OutfitProperty"}}</label>
+            <select name="system.outfitProperty" data-dtype="String">
+              {{selectOptions selects.outfitProperties selected=system.outfitProperty localize=true}}
+            </select>
+          </div>
+          <div class="resource">
+            <label>{{localize "PMTTRPG.OutfitRank"}}</label>
+            <input type="text" name="system.rank" value="{{system.rank}}" data-dtype="Number"/>
+          </div>
+          <div class="resource">
+            <label>{{localize "PMTTRPG.EP"}}</label>
+            <input class="disabled" type="text" value="{{system.epMax}}" readonly/>
+          </div>
+          <div class="resource">
+            <label>{{localize "PMTTRPG.BlockDice"}}</label>
+            <input class="disabled" type="text" value="{{system.blockDiceComputed}}" readonly/>
+          </div>
+          <div class="resource">
+            <label>{{localize "PMTTRPG.EvadeDice"}}</label>
+            <input class="disabled" type="text" value="{{system.evadeDiceComputed}}" readonly/>
+          </div>
+          <div class="resource">
+            <label>{{localize "PMTTRPG.BlockDicePower"}}</label>
+            <input class="disabled" type="text" value="{{system.blockDicePower}}" readonly/>
+          </div>
+          <div class="resource">
+            <label>{{localize "PMTTRPG.EvadeDicePower"}}</label>
+            <input class="disabled" type="text" value="{{system.evadeDicePower}}" readonly/>
+          </div>
+          <div class="resource">
+            <label>{{localize "PMTTRPG.BonusLight"}}</label>
+            <input class="disabled" type="text" value="{{system.bonusLight}}" readonly/>
+          </div>
+          <div class="resource">
+            <label>{{localize "PMTTRPG.BonusEP"}}</label>
+            <input class="disabled" type="text" value="{{system.bonusEP}}" readonly/>
+          </div>
+          <div class="resource">
+            <label>{{localize "PMTTRPG.Equipped"}}</label>
+            <input type="checkbox" name="system.equipped" {{checked system.equipped}}/>
+          </div>
+        </div>
+      </div>
+
+      <div class="tab" data-group="primary" data-tab="resistances">
+        <div class="resource-group">
+          <div class="resource">
+            <label>{{localize "PMTTRPG.ResistanceTrading"}}</label>
+            <div class="help-text">
+              <p>{{localize "PMTTRPG.ResistanceTradingHelp"}}</p>
+            </div>
+          </div>
+          <div class="resource-grid">
+            <div class="resource-group resource-group--resistance resource-group--hp" data-resistance="hp">
+              <h3>{{localize "PMTTRPG.HPResistances"}}</h3>
+              {{#each system.resistances.hp as |resistance key|}}
+                <div class="resource">
+                  <label>{{localize (lookup ../selects.damageTypes key)}}</label>
+                  <select name="system.resistances.hp.{{key}}" data-dtype="String">
+                    {{selectOptions ../selects.resistanceLevels selected=resistance localize=true}}
+                  </select>
+                  <span class="resistance-multiplier">{{lookup ../system.resistancesDisplay.hp key}}</span>
+                </div>
+              {{/each}}
+            </div>
+            <div class="resource-group resource-group--resistance resource-group--st" data-resistance="st">
+              <h3>{{localize "PMTTRPG.STResistances"}}</h3>
+              {{#each system.resistances.st as |resistance key|}}
+                <div class="resource">
+                  <label>{{localize (lookup ../selects.damageTypes key)}}</label>
+                  <select name="system.resistances.st.{{key}}" data-dtype="String">
+                    {{selectOptions ../selects.resistanceLevels selected=resistance localize=true}}
+                  </select>
+                  <span class="resistance-multiplier">{{lookup ../system.resistancesDisplay.st key}}</span>
+                </div>
+              {{/each}}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="tab" data-group="primary" data-tab="advanced">
+        <div class="resource-group">
+          <div class="resource">
+            <label>{{localize "PMTTRPG.CustomNotes"}}</label>
+            <textarea name="system.customNotes" rows="6" data-dtype="String">{{system.customNotes}}</textarea>
+          </div>
+        </div>
+      </div>
+    </section>
+  </div>
+</form>

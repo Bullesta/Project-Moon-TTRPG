@@ -1,32 +1,57 @@
 .sheet-wrapper {
   display: flex;
-  flex-direction: row;
-  flex-wrap: wrap;
+  flex-direction: column;
+  flex-wrap: nowrap;
   align-items: stretch;
-  justify-content: space-between;
-  height: 100%;
+  justify-content: flex-start;
+  min-height: 100%;
+  gap: 12px;
+  padding: 12px;
+  background:
+    linear-gradient(145deg, rgba(255, 255, 255, 0.06) 0%, rgba(255, 255, 255, 0) 40%),
+    var(--sheet-card);
+  border-radius: 18px;
+  box-shadow: 0 12px 28px var(--sheet-shadow);
+  position: relative;
+
+  &::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-image: repeating-linear-gradient(135deg, rgba(255, 255, 255, 0.02) 0, rgba(255, 255, 255, 0.02) 1px, transparent 1px, transparent 12px);
+    opacity: 0.15;
+    pointer-events: none;
+    border-radius: 18px;
+  }
+
+  > * {
+    position: relative;
+    z-index: 1;
+  }
 
   &.flexcol {
     flex-direction: column;
   }
 
   .sheet-header {
-    // Use 101% to force a line break;
-    width: 101%;
+    // Use auto width for flexible header
+    width: 100%;
     order: 0;
-    margin-bottom: 10px;
-    max-height: 80px;
-    min-height: 50px;
+    margin-bottom: 0;
+    max-height: none;
+    min-height: 64px;
+    flex: 0 0 auto;
 
     input {
       &::placeholder {
-        color: $c-navy-top;
+        color: rgba(244, 201, 111, 0.5);
       }
     }
   }
 
   .sheet-notifications {
-    width: 101%;
+    width: 100%;
+    flex: 0 0 auto;
 
     .error,
     .warning {
@@ -34,16 +59,28 @@
     }
   }
 
+  .content-wrapper {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    gap: 12px;
+    flex: 1 1 auto;
+    min-height: 0;
+  }
+
   .sheet-look {
-    flex: 33% 1 1;
+    flex: 0 0 28%;
     order: 1;
-    max-width: 33%;
-    transition: max-width ease-in-out 0.25s;
+    transition: flex ease-in-out 0.25s;
     display: flex;
     flex-direction: row;
     flex-wrap: nowrap;
     align-items: stretch;
-    height: calc(100% - 80px);
+    background: var(--sheet-paper);
+    border-radius: 14px;
+    box-shadow: 0 6px 16px var(--sheet-shadow);
+    padding: 10px;
+    min-height: 0;
 
     .cell--aesthetics {
       transition: max-width ease-in-out 0.25s;
@@ -51,7 +88,7 @@
     }
 
     &.closed {
-      max-width: 40px;
+      flex: 0 0 46px;
       overflow: hidden;
       padding: 0;
 
@@ -67,12 +104,14 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      background: transparent;
+      background: linear-gradient(180deg, rgba(255, 255, 255, 0.35) 0%, rgba(255, 255, 255, 0) 100%);
+      border-radius: 10px;
+      color: var(--sheet-brown-dark);
       transition: all ease-in-out 0.25s;
       height: 225px;
 
       &:hover {
-        background: #bbb;
+        background: var(--sheet-paper-alt);
       }
 
       &:focus {
@@ -105,16 +144,44 @@
   }
 
   .sheet-main {
-    flex: 66% 1 1;
+    flex: 1 1 72%;
     order: 2;
-    height: calc(100% - 80px);
+    background: var(--sheet-paper);
+    border-radius: 14px;
+    box-shadow: 0 6px 16px var(--sheet-shadow);
+    padding: 10px;
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
   }
 
   .sheet-body {
+    background: var(--sheet-card);
+    border-radius: 12px;
+    padding: 8px;
+    flex: 1 1 auto;
+    overflow-y: auto;
+    min-height: 0;
 
     .tab,
     .sheet-tab {
       height: 100%;
+      overflow-y: auto;
+    }
+  }
+
+  @media (max-width: 1200px) {
+    .content-wrapper {
+      flex-direction: column;
+    }
+
+    .sheet-look,
+    .sheet-main {
+      flex: 1 1 auto;
+    }
+
+    .sheet-look.closed {
+      display: none;
     }
   }
 }

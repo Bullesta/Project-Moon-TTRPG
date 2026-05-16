@@ -1,0 +1,138 @@
+<form class="{{cssClass}} item-form flexcol" autocomplete="off">
+  <div class="sheet-wrapper flexcol">
+    <header class="sheet-header flexrow">
+      <div class="cell cell--image">
+        <img class="profile-img" src="{{item.img}}" data-edit="img" title="{{item.name}}"/>
+      </div>
+      <div class="header-fields">
+          <h1><input name="name" type="text" value="{{item.name}}" placeholder="{{localize "PMTTRPG.Common.Name"}}"/></h1>
+      </div>
+    </header>
+
+    {{!-- Sheet Tab Navigation --}}
+    <nav class="sheet-tabs tabs" data-group="primary">
+        <a class="item" data-tab="description">{{localize "PMTTRPG.Common.Description"}}</a>
+        <a class="item" data-tab="properties">{{localize "PMTTRPG.Weapon"}}</a>
+        <a class="item" data-tab="effects">{{localize "PMTTRPG.Effects"}}</a>
+        <a class="item" data-tab="advanced">{{localize "PMTTRPG.Advanced"}}</a>
+    </nav>
+
+    {{!-- Sheet Body --}}
+    <section class="sheet-body">
+
+        {{!-- Description Tab --}}
+        <div class="tab" data-group="primary" data-tab="description">
+            {{editor system.descriptionEnriched target="system.description" button=true owner=owner editable=editable}}
+        </div>
+
+        {{!-- Properties Tab --}}
+        <div class="tab" data-group="primary" data-tab="properties">
+          <div class="resource-group">
+            <div class="resource">
+              <label>{{localize "PMTTRPG.WeaponType"}}</label>
+              <select name="system.weaponType" data-dtype="String">
+                {{selectOptions selects.weaponTypes selected=system.weaponType localize=true}}
+              </select>
+            </div>
+            <div class="resource">
+              <label>{{localize "PMTTRPG.OffensiveDice"}}</label>
+              <input class="disabled" type="text" value="{{system.offensiveDiceComputed}}" placeholder="1d10" readonly/>
+            </div>
+            <div class="resource">
+              <label>{{localize "PMTTRPG.DiceMaxBonus"}}</label>
+              <input class="disabled" type="text" value="{{system.diceMaxBonus}}" readonly/>
+            </div>
+            <div class="resource">
+              <label>{{localize "PMTTRPG.DicePowerFromHand"}}</label>
+              <input class="disabled" type="text" value="{{system.dicePowerFromHand}}" readonly/>
+            </div>
+            <div class="resource">
+              <label>{{localize "PMTTRPG.DicePowerFromAttack"}}</label>
+              <input class="disabled" type="text" value="{{system.dicePowerFromAttack}}" readonly/>
+            </div>
+            <div class="resource">
+              <label>{{localize "PMTTRPG.DicePowerTotal"}}</label>
+              <input class="disabled" type="text" value="{{system.dicePowerTotal}}" readonly/>
+            </div>
+            <div class="resource">
+              <label>{{localize "PMTTRPG.WeaponRank"}}</label>
+              <input type="text" name="system.rank" value="{{system.rank}}" data-dtype="Number"/>
+            </div>
+            <div class="resource">
+              <label>{{localize "PMTTRPG.EP"}}</label>
+              <input class="disabled" type="text" value="{{system.epMax}}" readonly/>
+            </div>
+            <div class="resource">
+              <label>{{localize "PMTTRPG.FormProperty"}}</label>
+              {{#if (eq system.weaponType "ranged")}}
+                <select name="system.formProperty" data-dtype="String">
+                  {{selectOptions selects.formPropertiesRanged selected=system.formProperty localize=true}}
+                </select>
+              {{else}}
+                <select name="system.formProperty" data-dtype="String">
+                  {{selectOptions selects.formPropertiesMelee selected=system.formProperty localize=true}}
+                </select>
+              {{/if}}
+            </div>
+            <div class="resource">
+              <label>{{localize "PMTTRPG.HandProperty"}}</label>
+              {{#if (eq system.weaponType "ranged")}}
+                <select name="system.handProperty" data-dtype="String">
+                  {{selectOptions selects.handPropertiesRanged selected=system.handProperty localize=true}}
+                </select>
+              {{else}}
+                <select name="system.handProperty" data-dtype="String">
+                  {{selectOptions selects.handPropertiesMelee selected=system.handProperty localize=true}}
+                </select>
+              {{/if}}
+            </div>
+
+            {{#if (eq system.weaponType "ranged")}}
+            <div class="resource">
+              <label>{{localize "PMTTRPG.FixedDamageType"}}</label>
+              <input type="checkbox" name="system.damageTypeFixed" {{checked system.damageTypeFixed}}/>
+            </div>
+            {{/if}}
+
+            {{#ifEquals system.weaponType "melee"}}
+              <div class="resource">
+                <label>{{localize "PMTTRPG.DamageType"}}</label>
+                <select name="system.damageType" data-dtype="String">
+                  {{selectOptions selects.damageTypes selected=system.damageType localize=true}}
+                </select>
+              </div>
+            {{else}}
+              {{#if system.damageTypeFixed}}
+                <div class="resource">
+                  <label>{{localize "PMTTRPG.DamageType"}}</label>
+                  <select name="system.damageType" data-dtype="String">
+                    {{selectOptions selects.damageTypes selected=system.damageType localize=true}}
+                  </select>
+                </div>
+              {{/if}}
+            {{/ifEquals}}
+          </div>
+        </div>
+
+        {{!-- Effects Tab --}}
+        <div class="tab" data-group="primary" data-tab="effects">
+          <div class="resource-group">
+            <div class="resource">
+              <label>{{localize "PMTTRPG.Effects"}}</label>
+              <div class="help-text"><p>{{localize "PMTTRPG.WeaponEffectsComingSoon"}}</p></div>
+            </div>
+          </div>
+        </div>
+
+        {{!-- Advanced Tab --}}
+        <div class="tab" data-group="primary" data-tab="advanced">
+          <div class="resource-group">
+            <div class="resource">
+              <label>{{localize "PMTTRPG.CustomNotes"}}</label>
+              <textarea name="system.customNotes" rows="5" data-dtype="String">{{system.customNotes}}</textarea>
+            </div>
+          </div>
+        </div>
+    </section>
+  </div>
+</form>

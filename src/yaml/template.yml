@@ -8,6 +8,8 @@ Actor:
         hp:
           value: 10
           min: 0
+          maxBase: 10
+          maxMisc: 0
           max: 10
         ac:
           value: 0
@@ -48,6 +50,51 @@ Actor:
         label: Custom Resource
         value: 0
         max: 0
+      statPoints:
+        value: 0
+        min: 0
+      st:
+        value: 0
+        min: 0
+        maxBase: 0
+        maxMisc: 0
+        max: 0
+      sp:
+        value: 0
+        min: 0
+        maxBase: 0
+        maxMisc: 0
+        max: 0
+      light:
+        value: 0
+        min: 0
+        maxBase: 0
+        maxMisc: 0
+        max: 0
+      ep:
+        value: 0
+        min: 0
+        maxBase: 0
+        maxMisc: 0
+        max: 0
+      attackModifier:
+        value: 0
+        min: 0
+      evadeModifier:
+        value: 0
+        min: 0
+      blockModifier:
+        value: 0
+        min: 0
+      equipmentRankLimit:
+        value: 0
+        min: 0
+      toolSlots:
+        value: 4
+        min: 0
+      speed:
+        dice: "1d6"
+        bonus: 0
     abilities:
       for:
         value: 0
@@ -91,76 +138,64 @@ Actor:
     tagsString: ''
 Item:
   types:
-    - move
-    - npcMove
-    - equipment
+    - weapon
+    - outfit
+    - ammunition
     - attack
     - skill
     - effect
     - misc
+    - status
   templates:
     base:
       name: ''
       description: ''
-    move:
-      choices: ''
-      moveType: null
-      rollFormula: ''
-      moveResults:
-        failure:
-          value: ''
-        partial:
-          value: ''
-        success:
-          value: ''
-  move:
+  weapon:
     templates:
       - base
-      - move
-    class: null
-    rollType: ''
-    rollMod: 0
-    requiresLevel: 0
-    requiresMove: ''
-    moveType:
-    moveGroup: ''
-  npcMove:
-    templates:
-      - base
-      - move
-  equipment:
-    templates:
-      - base
-    class: null
-    quantity: 1
+    weaponType: melee
+    damageType: slash
+    damageTypeFixed: false
+    formProperty: null
+    handProperty: null
+    offensiveDice: 1d10+0
+    rank: 1
+    effects: []
     equipped: false
+    customNotes: ''
+  outfit:
+    templates:
+      - base
+    outfitProperty: none
+    rank: 0
+    blockDice: 1d10+0
+    evadeDice: 1d12+0
+    blockDiceComputed: 1d10+0
+    evadeDiceComputed: 1d12+0
+    blockDicePower: 0
+    evadeDicePower: 0
+    bonusLight: 0
+    bonusEP: 0
+    resistances:
+      hp:
+        slash: normal
+        pierce: normal
+        blunt: normal
+      st:
+        slash: normal
+        pierce: normal
+        blunt: normal
+    equipped: false
+    customNotes: ''
+  ammunition:
+    templates:
+      - base
+    ammoType: standard
+    damageType: null
+    quantity: 1
     weight: 0
     price: 0
-    uses: 0
-    tags: '[]'
-    tagsString: ''
-    magic: false
-    itemType: null
-    attributes: {}
-  spell:
+  status:
     templates:
       - base
-    spellLevel: 0
-    rollFormula: ''
-    prepared: false
-    class: null
-  bond:
-    templates:
-      - base
-  tag:
-    templates:
-      - base
-  class:
-    templates:
-      - base
-    races: {}
-    alignments: {}
-    equipment: {}
-    hp: 10
-    load: 6
-    damage: d6
+    customNotes: ''

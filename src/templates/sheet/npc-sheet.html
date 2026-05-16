@@ -37,6 +37,26 @@
           </div>
         </div>
 
+        <div class="cell cell--abilities">
+          <label class="cell__title">Stats</label>
+          <ol class="abilities-list">
+            {{#each system.abilities as |ability key|}}
+              <li class="ability flexrow" data-ability="{{key}}">
+                <label class="cell__title">{{localize ability.label}}</label>
+                <input class="ability-value" type="text" name="system.abilities.{{key}}.value" value="{{ability.value}}" data-dtype="Number"/>
+                <span class="ability-mod">{{ability.mod}}</span>
+              </li>
+            {{/each}}
+          </ol>
+        </div>
+
+        <div class="cell cell--derived">
+          <label class="cell__title">Derived</label>
+          <div>ST: <input class="disabled" type="text" name="system.attributes.st.value" value="{{system.attributes.st.value}}" readonly/></div>
+          <div>SP: <input class="disabled" type="text" name="system.attributes.sp.value" value="{{system.attributes.sp.value}}" readonly/></div>
+          <div>Light: <input class="disabled" type="text" name="system.attributes.light.value" value="{{system.attributes.light.value}}" readonly/></div>
+        </div>
+
         <div class="cell cell--tags">
           <label for="tag" class="control-label">{{localize "TTRPG.Tags"}}</label>
           <div class="help-text"><p>{{localize "TTRPG.TagsHelp" }}</p></div>

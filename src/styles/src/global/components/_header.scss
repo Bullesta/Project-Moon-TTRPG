@@ -1,12 +1,14 @@
 .sheet-header {
-  background: $c-navy;
-  color: $c-white;
+  background: linear-gradient(120deg, var(--sheet-brown-dark) 0%, var(--sheet-brown) 100%);
+  color: var(--sheet-paper);
+  border-radius: 14px;
+  padding: 6px 10px;
+  box-shadow: 0 8px 20px var(--sheet-shadow);
 
   h1,
   input {
-    color: $c-white;
+    color: var(--sheet-ink);
     flex: 1;
-    border: 0;
   }
 
   h1 {
@@ -14,18 +16,21 @@
   }
 
   input {
-    color: $c-white;
-    border-bottom: 2px solid $c-navy-up;
+    color: var(--sheet-ink);
     margin: 0 10px;
-    font-size: 14px;
-    height: 32px;
-    line-height: 32px;
+    font-size: 15px;
+    height: 34px;
+    line-height: 34px;
     flex: 100px 2;
+    background: rgba(255, 255, 255, 0.08);
+    border-radius: 6px 6px 0 0;
+    padding: 4px 8px;
+    box-shadow: inset 0 -2px 0 rgba(244, 201, 111, 0.45);
 
     &:hover,
     &:focus {
-      background: $c-navy-up;
-      box-shadow: 0 0 8px $c-navy-up;
+      background: rgba(255, 255, 255, 0.12);
+      box-shadow: 0 0 10px rgba(244, 201, 111, 0.25);
     }
   }
 
@@ -45,13 +50,13 @@
 
     label {
       flex: 1;
-      font-size: 18px;
+      font-size: 16px;
+      color: var(--sheet-ink);
     }
 
     input {
-      color: $c-navy;
-      background: $c-white;
-      border: 0;
+      color: var(--sheet-brown-dark);
+      background: var(--sheet-border);
       position: absolute;
       width: 36px;
       height: 36px;
@@ -64,11 +69,12 @@
       font-family: $font-stack-secondary;
       font-size: 16px;
       line-height: 18px;
+      box-shadow: inset 0 0 0 1px rgba(111, 82, 56, 0.18);
 
       &:hover,
       &:focus {
-        box-shadow: 0 0 12px $c-navy-up;
-        border: 2px solid $c-navy-up;
+        box-shadow: 0 0 12px rgba(214, 162, 74, 0.45);
+        background: var(--sheet-gold);
       }
     }
 
@@ -76,7 +82,7 @@
       position: relative;
 
       input {
-        border: 2px solid $c-navy-up;
+        box-shadow: inset 0 0 0 1px rgba(214, 162, 74, 0.55);
       }
 
       .progress-ring {
@@ -85,7 +91,7 @@
         pointer-events: none;
 
         circle {
-          stroke: $c-green;
+          stroke: var(--sheet-success);
         }
       }
     }
@@ -110,7 +116,7 @@
       padding: 0;
 
       a {
-        color: $c-white;
+        color: var(--sheet-ink);
 
         &.disabled-level-up {
           cursor: inherit;
@@ -120,7 +126,7 @@
         }
 
         &:hover {
-          text-shadow: 0 0 12px $c-navy-up;
+          text-shadow: 0 0 12px rgba(244, 201, 111, 0.55);
         }
       }
 
@@ -137,4 +143,24 @@
   flex-direction: row;
   flex-wrap: nowrap;
   align-items: center;
+  gap: 10px;
+
+  .clickable-class-viewer {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 34px;
+    height: 34px;
+    border-radius: 10px;
+    background: rgba(255, 255, 255, 0.1);
+    color: var(--sheet-ink);
+    transition: all 0.2s ease-in-out;
+    box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.08);
+
+    &:hover,
+    &:focus {
+      background: rgba(255, 255, 255, 0.18);
+      box-shadow: 0 0 10px rgba(244, 201, 111, 0.35);
+    }
+  }
 }

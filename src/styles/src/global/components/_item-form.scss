@@ -1,11 +1,14 @@
 .item-form {
+  background: var(--sheet-paper);
 
   .cell--image {
     flex: 0 0 50px;
     width: 50px;
     height: 50px;
     overflow: hidden;
-    background: rgba(255, 255, 255, 0.25);
+    background: var(--sheet-card);
+    border-radius: 10px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.12);
 
     img {
       width: 100%;
@@ -15,19 +18,74 @@
     }
   }
 
-  .sheet-header,
-  .sheet-navigation {
-    flex: 0 0 30px;
-    border-top: 0;
-  }
-
   .sheet-header {
-    margin-bottom: 10px;
+    background: linear-gradient(120deg, var(--sheet-brown-dark) 0%, var(--sheet-brown) 100%);
+    border-radius: 12px;
+    padding: 8px 10px;
+    margin-bottom: 12px;
+    gap: 10px;
+    box-shadow: 0 8px 20px var(--sheet-shadow);
+
+    h1 {
+      flex: 1;
+      margin: 0;
+      font-size: 18px;
+      color: var(--sheet-ink);
+    }
+
+    input {
+      background: rgba(255, 255, 255, 0.08);
+      color: var(--sheet-ink);
+      border-radius: 6px 6px 0 0;
+      padding: 4px 8px;
+      height: 28px;
+      font-size: 14px;
+      transition: all 0.2s ease;
+      box-shadow: inset 0 -2px 0 rgba(244, 201, 111, 0.45);
+
+      &:hover,
+      &:focus {
+        background: rgba(255, 255, 255, 0.12);
+        box-shadow: 0 0 10px rgba(244, 201, 111, 0.25);
+      }
+    }
   }
 
-  .tab,
-  .editor {
-    height: 100%;
+  .sheet-tabs {
+    background: transparent;
+    margin-bottom: 12px;
+    padding: 0;
+    gap: 0;
+    box-shadow: inset 0 -1px 0 rgba(111, 82, 56, 0.18);
+
+    .item {
+      background: transparent;
+      color: var(--sheet-ink-muted);
+      padding: 8px 12px;
+      margin: 0;
+      transition: all 0.2s ease;
+
+      &:hover {
+        color: var(--sheet-ink);
+      }
+
+      &.active {
+        background: linear-gradient(120deg, var(--sheet-gold) 0%, var(--sheet-gold-bright) 100%);
+        color: var(--sheet-brown-dark);
+        box-shadow: inset 0 -2px 0 rgba(214, 162, 74, 0.7);
+      }
+    }
+  }
+
+  .sheet-body {
+    background: transparent;
+    padding: 0;
+  }
+
+  .tab {
+    background: transparent;
+    padding: 0;
+    min-height: auto;
   }
 
   .tab.active[data-tab="description"] {
@@ -35,19 +93,193 @@
     flex-direction: column;
   }
 
-  .editor,
-  .resource {
-    flex: 0 auto;
-    min-height: 60px;
-  }
-
   .editor {
-    min-height: 170px;
+    color: #fff;
+    background: var(--sheet-card);
+    border-radius: 10px;
+    padding: 10px;
+    margin-bottom: 12px;
+    min-height: 150px;
+    box-shadow: 0 6px 14px var(--sheet-shadow);
+
+    .editor-edit {
+      background: rgba(255, 255, 255, 0.08);
+      border-radius: 8px;
+      padding: 8px;
+      color: var(--sheet-ink);
+      box-shadow: inset 0 0 0 1px rgba(111, 82, 56, 0.1);
+
+      &:hover {
+        background: rgba(255, 255, 255, 0.12);
+      }
+    }
+  }
+
+  .resource-group {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
   }
 
   .resource {
-    padding: 10px 0;
-    border-bottom: 1px solid rgba(0, 0, 0, 0.2);
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 10px;
+    padding: 10px;
+    background: var(--sheet-card);
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.12);
+    transition: background 0.2s ease;
+
+    &:hover {
+      background: rgba(52, 36, 21, 0.8);
+    }
+
+    label {
+      flex: 0 0 auto;
+      min-width: 120px;
+      color: var(--sheet-ink);
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      font-weight: 500;
+    }
+
+    input,
+    select,
+    textarea {
+      flex: 1;
+      background-color: var(--sheet-paper-alt);
+      color: var(--sheet-ink);
+      border-radius: 6px;
+      padding: 6px 8px;
+      font-size: 13px;
+      transition: all 0.2s ease;
+      height: max-content;
+      box-shadow: inset 0 0 0 1px rgba(111, 82, 56, 0.1);
+
+      &:hover,
+      &:focus {
+        background: var(--sheet-paper);
+        box-shadow: 0 0 0 2px rgba(214, 162, 74, 0.2);
+      }
+    }
+
+    select {
+      appearance: none;
+      -webkit-appearance: none;
+      -moz-appearance: none;
+      background-color: var(--sheet-paper-alt);
+      color: var(--sheet-ink);
+      background-image: linear-gradient(45deg, transparent 50%, var(--sheet-gold) 50%), linear-gradient(135deg, var(--sheet-gold) 50%, transparent 50%);
+      background-position: calc(100% - 18px) calc(50% - 2px), calc(100% - 12px) calc(50% - 2px);
+      background-size: 6px 6px, 6px 6px;
+      background-repeat: no-repeat;
+      padding-right: 32px;
+
+      option {
+        background: var(--sheet-paper-alt);
+        color: var(--sheet-ink);
+      }
+    }
+
+    input[type="checkbox"] {
+      flex: 0 0 auto;
+      width: 18px;
+      height: 18px;
+      cursor: pointer;
+      accent-color: var(--sheet-gold);
+    }
+
+    textarea {
+      min-height: 100px;
+      resize: vertical;
+    }
+  }
+
+  .help-text {
     flex: 1;
+    color: var(--sheet-ink-muted);
+    font-size: 12px;
+    font-style: italic;
+    padding: 8px 0;
+
+    p {
+      margin: 0;
+    }
+  }
+
+  .tab[data-tab="defenses"],
+  .tab[data-tab="resistances"],
+  .tab[data-tab="advanced"] {
+    > .resource-group,
+    > .resource-grid {
+      background: linear-gradient(180deg, rgba(61, 42, 31, 0.55) 0%, rgba(42, 31, 20, 0.78) 100%);
+      border-radius: 14px;
+      padding: 0.75rem;
+      box-shadow: 0 10px 22px rgba(0, 0, 0, 0.18);
+    }
+  }
+
+  .tab[data-tab="resistances"] {
+    .resource-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 0.75rem;
+      margin-top: 0.75rem;
+    }
+
+    .resource-group--resistance {
+      background: rgba(42, 31, 20, 0.45);
+      border-radius: 12px;
+      padding: 0.75rem;
+      box-shadow: inset 0 0 0 1px rgba(214, 162, 74, 0.12);
+
+      h3 {
+        margin: 0 0 0.6rem;
+        color: var(--sheet-ink);
+        font-size: 13px;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+      }
+    }
+
+    .resource-group--hp {
+      background: linear-gradient(180deg, rgba(67, 28, 22, 0.62) 0%, rgba(42, 31, 20, 0.48) 100%);
+
+      h3::before {
+        content: 'HP';
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-width: 2.2rem;
+        margin-right: 0.5rem;
+        padding: 0.1rem 0.4rem;
+        border-radius: 999px;
+        background: rgba(224, 120, 86, 0.2);
+        color: var(--sheet-danger);
+        font-size: 11px;
+        letter-spacing: 0.08em;
+      }
+    }
+
+    .resource-group--st {
+      background: linear-gradient(180deg, rgba(61, 42, 31, 0.62) 0%, rgba(42, 31, 20, 0.48) 100%);
+
+      h3::before {
+        content: 'ST';
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-width: 2.2rem;
+        margin-right: 0.5rem;
+        padding: 0.1rem 0.4rem;
+        border-radius: 999px;
+        background: rgba(214, 162, 74, 0.18);
+        color: var(--sheet-gold-bright);
+        font-size: 11px;
+        letter-spacing: 0.08em;
+      }
+    }
   }
 }

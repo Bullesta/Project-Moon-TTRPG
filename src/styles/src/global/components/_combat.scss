@@ -40,12 +40,12 @@
     padding: 0;
 
     .directory-item {
-      border-bottom: 1px solid rgba($c-black, 0.25);
       line-height: 1;
       transition: all ease-in-out 0.25s;
       position: relative;
       padding-left: 5px;
       padding-right: 5px;
+      box-shadow: inset 0 -1px 0 rgba($c-black, 0.12);
 
       &::after {
         content: '';
@@ -110,7 +110,6 @@
       background: $c-navy-up;
       color: $c-white;
       font-family: $font-stack-base;
-      border: 0;
 
       &:hover {
         text-shadow: none;
@@ -126,7 +125,7 @@
       min-width: 0;
       color: $c-white;
       text-align: center;
-      border: 1px solid rgba($c-white, 0.25);
+        box-shadow: inset 0 0 0 1px rgba($c-white, 0.12);
     }
   }
 

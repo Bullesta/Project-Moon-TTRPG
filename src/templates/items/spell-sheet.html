@@ -5,12 +5,12 @@
         <img class="profile-img" src="{{item.img}}" data-edit="img" title="{{item.name}}"/>
       </div>
       <div class="header-fields">
-          <h1 class="charname"><input name="name" type="text" value="{{item.name}}" placeholder="{{localize "TTRPG.Common.Name"}}"/></h1>
+          <h1><input name="name" type="text" value="{{item.name}}" placeholder="{{localize "TTRPG.Common.Name"}}"/></h1>
       </div>
     </header>
 
     {{!-- Sheet Tab Navigation --}}
-    <nav class="sheet-navigation sheet-tabs tabs" data-group="primary">
+    <nav class="sheet-tabs tabs" data-group="primary">
         <a class="item" data-tab="description">{{localize "TTRPG.Common.Description" }}</a>
         <a class="item" data-tab="details">{{localize "TTRPG.Common.Details" }}</a>
     </nav>
@@ -25,6 +25,7 @@
 
         {{!-- Details Tab --}}
         <div class="tab" data-group="primary" data-tab="details">
+          <div class="resource-group">
           <div class="resource">
             <label>{{localize "TTRPG.Class"}}</label>
             <select name="system.class">
@@ -45,6 +46,7 @@
           <div class="resource">
             <label>{{localize "TTRPG.SpellRollFormula"}}</label>
               <input type="text" name="system.rollFormula" value="{{system.rollFormula}}" placeholder="e.g. 1d4+3" data-dtype="String"/>
+          </div>
           </div>
         </div>
     </section>

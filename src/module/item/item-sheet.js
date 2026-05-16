@@ -1,4 +1,3 @@
-import { PMTTRPGClassList } from "../config.js";
 import { PMTTRPGUtility } from "../utility.js";
 
 const { TextEditor } = foundry.applications.ux;
@@ -86,8 +85,6 @@ export class PMTTRPGItemSheet extends foundry.appv1.sheets.ItemSheet {
     actor = this.object?.parent;
 
     context.dtypes = ["String", "Number", "Boolean"];
-    // Add classlist.
-    context.system.classlist = await PMTTRPGClassList.getClasses();
 
     // Prepare enrichment options.
     const enrichmentOptions = {
@@ -158,12 +155,6 @@ export class PMTTRPGItemSheet extends foundry.appv1.sheets.ItemSheet {
         hoard: 'PMTTRPG.Hoard',
       };
     }
-    if (itemData.type == 'spell' || itemData.type == 'move') {
-      context.selects.classes = {};
-      for (let k of context.system.classlist) {
-        context.selects.classes[k] = k;
-      }
-    }
     if (itemData.type == 'npcMove') {
       context.selects.moveTypes = {
         basic: 'PMTTRPG.MoveBasic',
@@ -179,12 +170,12 @@ export class PMTTRPGItemSheet extends foundry.appv1.sheets.ItemSheet {
       };
 
       context.selects.rollTypes = {
-        STR: 'PMTTRPG.STR',
-        DEX: 'PMTTRPG.DEX',
-        CON: 'PMTTRPG.CON',
-        INT: 'PMTTRPG.INT',
-        WIS: 'PMTTRPG.WIS',
+        FOR: 'PMTTRPG.FOR',
+        PRU: 'PMTTRPG.PRU',
+        JUS: 'PMTTRPG.JUS',
         CHA: 'PMTTRPG.CHA',
+        INS: 'PMTTRPG.INS',
+        TEM: 'PMTTRPG.TEM',
         ASK: 'PMTTRPG.ASK',
         BOND: 'PMTTRPG.Modifier',
         FORMULA: 'PMTTRPG.FORMULA',

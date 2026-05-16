@@ -7,8 +7,8 @@ compatibility:
   verified: "13.350"
   maximum: "13"
 authors:
-  - name: 'Asacolips'
-    discord: 'asacolips'
+  - name: 'Leetram'
+    discord: 'leetram'
 esmodules:
   - module/projectmoonttrpg.js
 styles:
@@ -24,227 +24,11 @@ styles:
 scripts:
   - scripts/lib/tagify.min.js
 packs:
-  - name: classes
-    label: Classes
-    system: projectmoonttrpg
-    path: "./packs/classes.db"
-    type: Item
-  - name: basic-moves
-    label: Basic Moves
-    system: projectmoonttrpg
-    path: "./packs/basic-moves.db"
-    type: Item
-  - name: the-barbarian-moves
-    label: The Barbarian Moves
-    system: projectmoonttrpg
-    path: "./packs/the-barbarian-moves.db"
-    type: Item
-  - name: the-bard-moves
-    label: The Bard Moves
-    system: projectmoonttrpg
-    path: "./packs/the-bard-moves.db"
-    type: Item
-  - name: the-cleric-moves
-    label: The Cleric Moves
-    system: projectmoonttrpg
-    path: "./packs/the-cleric-moves.db"
-    type: Item
-  - name: the-cleric-spells
-    label: The Cleric Spells
-    system: projectmoonttrpg
-    path: "./packs/the-cleric-spells.db"
-    type: Item
-  - name: the-druid-moves
-    label: The Druid Moves
-    system: projectmoonttrpg
-    path: "./packs/the-druid-moves.db"
-    type: Item
-  - name: the-fighter-moves
-    label: The Fighter Moves
-    system: projectmoonttrpg
-    path: "./packs/the-fighter-moves.db"
-    type: Item
-  - name: the-immolator-moves
-    label: The Immolator Moves
-    system: projectmoonttrpg
-    path: "./packs/the-immolator-moves.db"
-    type: Item
-  - name: the-paladin-moves
-    label: The Paladin Moves
-    system: projectmoonttrpg
-    path: "./packs/the-paladin-moves.db"
-    type: Item
-  - name: the-ranger-moves
-    label: The Ranger Moves
-    system: projectmoonttrpg
-    path: "./packs/the-ranger-moves.db"
-    type: Item
-  - name: the-thief-moves
-    label: The Thief Moves
-    system: projectmoonttrpg
-    path: "./packs/the-thief-moves.db"
-    type: Item
-  - name: the-wizard-moves
-    label: The Wizard Moves
-    system: projectmoonttrpg
-    path: "./packs/the-wizard-moves.db"
-    type: Item
-  - name: the-wizard-spells
-    label: The Wizard Spells
-    system: projectmoonttrpg
-    path: "./packs/the-wizard-spells.db"
-    type: Item
-  - name: tags
-    label: Tags
-    system: projectmoonttrpg
-    path: "./packs/tags.db"
-    type: Item
-  - name: equipment-armor
-    label: Equipment (Armor)
-    system: projectmoonttrpg
-    path: "./packs/equipment-armor.db"
-    type: Item
-  - name: equipment-class
-    label: Equipment (Class)
-    system: projectmoonttrpg
-    path: "./packs/equipment-class.db"
-    type: Item
-  - name: equipment-gear
-    label: Equipment (Gear)
-    system: projectmoonttrpg
-    path: "./packs/equipment-gear.db"
-    type: Item
-  - name: equipment-magic
-    label: Equipment (Magic)
-    system: projectmoonttrpg
-    path: "./packs/equipment-magic.db"
-    type: Item
-  - name: equipment-poisons
-    label: Equipment (Poisons)
-    system: projectmoonttrpg
-    path: "./packs/equipment-poisons.db"
-    type: Item
-  - name: equipment-weapons
-    label: Equipment (Weapons)
-    system: projectmoonttrpg
-    path: "./packs/equipment-weapons.db"
-    type: Item
-  - label: Rollable Tables
-    type: RollTable
-    name: rollable-tables
-    path: packs/rollable-tables.db
-    system: projectmoonttrpg
-    package: world
-    absPath: "./packs/rollable-tables.db"
-  - label: GM Moves/Principals
-    type: JournalEntry
-    name: gm-movesprincipals
-    path: packs/gm-movesprincipals.db
-    system: projectmoonttrpg
-    package: world
-    absPath: "./packs/gm-movesprincipals.db"
-  - label: Charts
-    type: JournalEntry
-    name: charts
-    path: packs/charts.db
-    system: projectmoonttrpg
-    package: world
-    absPath: "./packs/charts.db"
-  - label: Monsters - 01 Cavern Dwellers
-    type: Actor
-    name: monsters-01-cavern-dwellers
-    path: packs/monsters-01-cavern-dwellers.db
-    system: projectmoonttrpg
-    package: world
-    absPath: "./packs/monsters-01-cavern-dwellers.db"
-  - label: Monsters - 02 Swamp Denizens
-    type: Actor
-    name: monsters-02-swamp-denizens
-    path: packs/monsters-02-swamp-denizens.db
-    system: projectmoonttrpg
-    package: world
-    absPath: "./packs/monsters-02-swamp-denizens.db"
-  - label: Monsters - 03 Undead Legions
-    type: Actor
-    name: monsters-03-undead-legions
-    path: packs/monsters-03-undead-legions.db
-    system: projectmoonttrpg
-    package: world
-    absPath: "./packs/monsters-03-undead-legions.db"
-  - label: Monsters - 04 Dark Woods
-    type: Actor
-    name: monsters-04-dark-woods
-    path: packs/monsters-04-dark-woods.db
-    system: projectmoonttrpg
-    package: world
-    absPath: "./packs/monsters-04-dark-woods.db"
-  - label: Monsters - 05 Ravenous Hordes
-    type: Actor
-    name: monsters-05-ravenous-hordes
-    path: packs/monsters-05-ravenous-hordes.db
-    system: projectmoonttrpg
-    package: world
-    absPath: "./packs/monsters-05-ravenous-hordes.db"
-  - label: Monsters - 06 Twisted Experiments
-    type: Actor
-    name: monsters-06-twisted-experiments
-    path: packs/monsters-06-twisted-experiments.db
-    system: projectmoonttrpg
-    package: world
-    absPath: "./packs/monsters-06-twisted-experiments.db"
-  - label: Monsters - 07 Lower Depths
-    type: Actor
-    name: monsters-07-lower-depths
-    path: packs/monsters-07-lower-depths.db
-    system: projectmoonttrpg
-    package: world
-    absPath: "./packs/monsters-07-lower-depths.db"
-  - label: Monsters - 08 Planar Powers
-    type: Actor
-    name: monsters-08-planar-powers
-    path: packs/monsters-08-planar-powers.db
-    system: projectmoonttrpg
-    package: world
-    absPath: "./packs/monsters-08-planar-powers.db"
-  - label: Monsters - 09 Folk of the Realm
-    type: Actor
-    name: monsters-09-folk-of-the-realm
-    path: packs/monsters-09-folk-of-the-realm.db
-    system: projectmoonttrpg
-    package: world
-    absPath: "./packs/monsters-09-folk-of-the-realm.db"
-  - name: gm-screen
-    label: GM Screen
-    system: projectmoonttrpg
-    path: "./packs/gm-screen.db"
-    type: JournalEntry
-  - name: tables
-    label: Tables
-    system: projectmoonttrpg
-    path: "./packs/tables.db"
-    type: RollTable
+  
 languages:
   - lang: en
     name: English
     path: lang/en.json
-  - lang: es
-    name: Español
-    path: lang/es.json
-  - lang: fr
-    name: Français
-    path: lang/fr.json
-  - lang: de
-    name: Deutsch
-    path: lang/de.json
-  - lang: sv
-    name: Svenska
-    path: lang/sv.json
-  - lang: uk
-    name: Українська (Ukrainian)
-    path: lang/uk.json
-  - lang: it
-    name: Italiano
-    path: lang/it.json
 grid:
   distance: 5
   units: ft
@@ -252,8 +36,8 @@ primaryTokenAttribute: attributes.hp
 secondaryTokenAttribute: attributes.xp
 initiative: 1d20
 socket: true
-url: https://gitlab.com/asacolips-projects/foundry-mods/projectmoonttrpg
-manifest: https://asacolips-artifacts.s3.amazonaws.com/projectmoonttrpg/latest/system.json
-download: https://asacolips-artifacts.s3.amazonaws.com/projectmoonttrpg/1.9.0/projectmoonttrpg.zip
-changelog: https://github.com/asacolips-projects/projectmoonttrpg/blob/main/CHANGELOG.md
-bugs: https://github.com/asacolips-projects/projectmoonttrpg/issues
+url: https://gitlab.com/leetram-projects/foundry-mods/projectmoonttrpg
+manifest: https://leetram-artifacts.s3.amazonaws.com/projectmoonttrpg/latest/system.json
+download: https://leetram-artifacts.s3.amazonaws.com/projectmoonttrpg/1.9.0/projectmoonttrpg.zip
+changelog: https://github.com/leetram-projects/projectmoonttrpg/blob/main/CHANGELOG.md
+bugs: https://github.com/leetram-projects/projectmoonttrpg/issues

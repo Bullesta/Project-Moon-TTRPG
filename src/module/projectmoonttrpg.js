@@ -6,18 +6,18 @@
 
 // Import Modules
 import { PMTTRPG } from "./config.js";
-import { PMTTRPGClassList } from "./config.js";
 import { ActorPMTTRPG } from "./actor/actor.js";
 import { ItemPMTTRPG } from "./item/item.js";
 import { PMTTRPGItemSheet } from "./item/item-sheet.js";
+import { PMTTRPGWeaponItemSheet } from "./item/weapon-item-sheet.js";
+import { PMTTRPGOutfitItemSheet } from "./item/outfit-item-sheet.js";
+import { PMTTRPGAmmunitionItemSheet } from "./item/ammunition-item-sheet.js";
 import { PMTTRPGActorSheet } from "./actor/actor-sheet.js";
 import { PMTTRPGActorNpcSheet } from "./actor/actor-npc-sheet.js";
-import { PMTTRPGClassItemSheet } from "./item/class-item-sheet.js";
 import { PMTTRPGRegisterHelpers } from "./handlebars.js";
 import { preloadHandlebarsTemplates } from "./templates.js";
 import { PMTTRPGUtility } from "./utility.js";
 import { CombatSidebarPMTTRPG } from "./combat/combat.js";
-import { MigratePMTTRPG } from "./migrate/migrate.js";
 
 import * as chat from "./chat.js";
 
@@ -37,7 +37,6 @@ Hooks.once("init", async function() {
     ItemPMTTRPG,
     rollItemMacro,
     PMTTRPGUtility,
-    MigratePMTTRPG,
   };
 
   // TODO: Extend the combat class.
@@ -46,6 +45,9 @@ Hooks.once("init", async function() {
   CONFIG.PMTTRPG = PMTTRPG;
   CONFIG.Actor.documentClass = ActorPMTTRPG;
   CONFIG.Item.documentClass = ItemPMTTRPG;
+  CONFIG.Item.typeLabels = foundry.utils.mergeObject(CONFIG.Item.typeLabels ?? {}, {
+    status: game.i18n.localize("TYPES.Item.status")
+  });
 
   // Register sheet application classes
   Actors.unregisterSheet("core", ActorSheet);
@@ -59,8 +61,16 @@ Hooks.once("init", async function() {
   });
   Items.unregisterSheet("core", ItemSheet);
   Items.registerSheet("projectmoonttrpg", PMTTRPGItemSheet, { makeDefault: false });
-  Items.registerSheet("projectmoonttrpg", PMTTRPGClassItemSheet, {
-    types: ['class'],
+  Items.registerSheet("projectmoonttrpg", PMTTRPGWeaponItemSheet, {
+    types: ['weapon'],
+    makeDefault: true
+  });
+  Items.registerSheet("projectmoonttrpg", PMTTRPGOutfitItemSheet, {
+    types: ['outfit'],
+    makeDefault: true
+  });
+  Items.registerSheet("projectmoonttrpg", PMTTRPGAmmunitionItemSheet, {
+    types: ['ammunition'],
     makeDefault: true
   });
 
@@ -141,15 +151,11 @@ Hooks.once("ready", async function() {
     }
   });
 
-  PMTTRPG.classlist = await PMTTRPGClassList.getClasses();
   CONFIG.PMTTRPG = PMTTRPG;
 
   // Add a lang class to the body.
   const lang = game.settings.get('core', 'language');
   $('html').addClass(`lang-${lang}`);
-
-  // Run migrations.
-  MigratePMTTRPG.runMigration();
 
   // Update config.
   for (let [k,v] of Object.entries(CONFIG.PMTTRPG.rollResults)) {
@@ -392,28 +398,6 @@ Hooks.on('renderDialog', (dialog, html, options) => {
             valueCounts[val] = 1
           }
         })
-        // Loop over the options in the select.
-        $self.find('option').each((opt_index, opt_item) => {
-          let $opt = $(opt_item);
-          let val = parseInt($opt.attr('value'));
-          const noAbilityScores = game.settings.get('projectmoonttrpg', 'noAbilityScores');
-          if (!isNaN(val)) {
-            if (noAbilityScores) {
-              const alreadySelected = scores.filter(v => v == val) || [];
-              if (alreadySelected.length >= valueCounts[val]) {
-                $opt.attr('disabled', true);
-              } else {
-                $opt.attr('disabled', false);
-              }
-            } else {
-              if (scores.includes(val) && $self.val() != val) {
-                $opt.attr('disabled', true);
-              } else {
-                $opt.attr('disabled', false);
-              }
-            }
-          }
-        });
       });
     })
   }

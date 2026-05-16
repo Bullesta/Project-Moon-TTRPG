@@ -26,19 +26,108 @@ export class ActorPMTTRPG extends Actor {
   _prepareCharacterData(actorData) {
     const data = actorData.system;
 
-    const noAbilityScores = game.settings.get('projectmoonttrpg', 'noAbilityScores');
-
-    // Ability Scores
+    // Ability Scores - keep value and compute a 'mod' for use in rolls.
     for (let [a, abl] of Object.entries(data.abilities)) {
-      // TODO: This is a possible formula, but would require limits on the
-      // upper and lower ends.
-      // abl.mod = Math.floor(abl.value * 0.4 - (abl.value < 11 ? 3.4 : 4.2));
-
-      abl.value = abl.mod = PMTTRPGUtility.getAbilityScore(abl.value, true);
+      // Ensure a numeric value exists
+      abl.value = Number(abl.value) || 0;
+      // For the new system the stat value itself is used as the modifier.
+      abl.mod = PMTTRPGUtility.getAbilityMod(abl.value, true);
 
       // Add labels.
       abl.label = CONFIG.PMTTRPG.abilities[a];
     }
+
+    // Derived Attributes based on Stats and Rank
+    const rank = Number(data.attributes.level?.value) || 0;
+    const fort = Number(data.abilities.for?.value) || 0;
+    const pru = Number(data.abilities.pru?.value) || 0;
+    const jus = Number(data.abilities.jus?.value) || 0;
+    const cha = Number(data.abilities.cha?.value) || 0;
+    const ins = Number(data.abilities.ins?.value) || 0;
+    const tem = Number(data.abilities.tem?.value) || 0;
+
+    // Health Points: 64 + (Fortitude*8) + (Rank*32)
+    const hpMaxBase = 64 + (fort * 8) + (rank * 32);
+    if (!data.attributes.hp) data.attributes.hp = {};
+    data.attributes.hp.maxBase = hpMaxBase;
+    data.attributes.hp.maxMisc = Number(data.attributes.hp.maxMisc) || 0;
+    data.attributes.hp.max = hpMaxBase + data.attributes.hp.maxMisc;
+    if (!data.attributes.hp.value) data.attributes.hp.value = data.attributes.hp.max;
+    else {
+      data.attributes.hp.value = Math.clamp(Number(data.attributes.hp.value) || 0, 0, data.attributes.hp.max);
+    }
+
+    // Stagger Threshold (ST): 20 + (Charm*4) + (Rank*4)
+    const stMaxBase = 20 + (cha * 4) + (rank * 4);
+    data.attributes.st = data.attributes.st || {};
+    data.attributes.st.maxBase = stMaxBase;
+    data.attributes.st.maxMisc = Number(data.attributes.st.maxMisc) || 0;
+    data.attributes.st.max = stMaxBase + data.attributes.st.maxMisc;
+    if (data.attributes.st.value === undefined || data.attributes.st.value === null) {
+      data.attributes.st.value = data.attributes.st.max;
+    } else {
+      data.attributes.st.value = Math.clamp(Number(data.attributes.st.value) || 0, 0, data.attributes.st.max);
+    }
+
+    // Sanity Points (SP): 15 + (Prudence*3)
+    const spMaxBase = 15 + (pru * 3);
+    data.attributes.sp = data.attributes.sp || {};
+    data.attributes.sp.maxBase = spMaxBase;
+    data.attributes.sp.maxMisc = Number(data.attributes.sp.maxMisc) || 0;
+    data.attributes.sp.max = spMaxBase + data.attributes.sp.maxMisc;
+    if (data.attributes.sp.value === undefined || data.attributes.sp.value === null) {
+      data.attributes.sp.value = data.attributes.sp.max;
+    } else {
+      data.attributes.sp.value = Math.clamp(Number(data.attributes.sp.value) || 0, 0, data.attributes.sp.max);
+    }
+
+    // Light: 3 + Rank
+    const lightMaxBase = 3 + rank;
+    data.attributes.light = data.attributes.light || {};
+    data.attributes.light.maxBase = lightMaxBase;
+    data.attributes.light.maxMisc = Number(data.attributes.light.maxMisc) || 0;
+    data.attributes.light.max = lightMaxBase + data.attributes.light.maxMisc;
+    if (data.attributes.light.value === undefined || data.attributes.light.value === null) {
+      data.attributes.light.value = data.attributes.light.max;
+    } else {
+      data.attributes.light.value = Math.clamp(Number(data.attributes.light.value) || 0, 0, data.attributes.light.max);
+    }
+
+    // Equipped outfit bonuses.
+    let outfitBlockBonus = 0;
+    let outfitEvadeBonus = 0;
+    let outfitLightBonus = 0;
+    let outfitEpBonus = 0;
+    for (let item of actorData.items || []) {
+      if (item.type != 'outfit' || !item.system?.equipped) continue;
+      outfitBlockBonus += Number(item.system?.blockDicePower ?? 0);
+      outfitEvadeBonus += Number(item.system?.evadeDicePower ?? 0);
+      outfitLightBonus += Number(item.system?.bonusLight ?? 0);
+      outfitEpBonus += Number(item.system?.bonusEP ?? 0);
+    }
+
+    // Combat modifiers
+    data.attributes.attackModifier = data.attributes.attackModifier || {};
+    data.attributes.attackModifier.value = rank;
+    data.attributes.evadeModifier = data.attributes.evadeModifier || {};
+    data.attributes.evadeModifier.value = ins + outfitEvadeBonus;
+    data.attributes.blockModifier = data.attributes.blockModifier || {};
+    data.attributes.blockModifier.value = tem + outfitBlockBonus;
+
+    data.attributes.light.maxMisc += outfitLightBonus;
+    data.attributes.light.max = data.attributes.light.maxBase + data.attributes.light.maxMisc;
+    data.attributes.light.value = Math.clamp(Number(data.attributes.light.value) || 0, 0, data.attributes.light.max);
+
+    // Equipment rank limit and tool slots
+    data.attributes.equipmentRankLimit = data.attributes.equipmentRankLimit || {};
+    data.attributes.equipmentRankLimit.value = rank + 1;
+    data.attributes.toolSlots = data.attributes.toolSlots || {};
+    data.attributes.toolSlots.value = 4;
+
+    // Speed: base dice + Justice bonus
+    data.attributes.speed = data.attributes.speed || {};
+    data.attributes.speed.dice = data.attributes.speed.dice || '1d6';
+    data.attributes.speed.bonus = jus;
 
     // Add base flags.
     if (!actorData.flags.projectmoonttrpg) actorData.flags.projectmoonttrpg = {};
@@ -153,15 +242,8 @@ export class ActorPMTTRPG extends Actor {
     if (roll) {
       // Roll can be either a formula like `2d6+3` or a raw stat like `str`.
       let formula = '';
-      // Handle bond (user input).
-      if (roll == 'BOND') {
-        formula = form.bond.value ? `2d6+${form.bond.value}` : '2d6';
-        if (dataset.mod && dataset.mod != 0) {
-          formula += `+${dataset.mod}`;
-        }
-      }
       // Handle ability scores (no input).
-      else if (roll.match(/(\d*)d\d+/g)) {
+      if (roll.match(/(\d*)d\d+/g)) {
         formula = roll;
       }
       // Handle moves.

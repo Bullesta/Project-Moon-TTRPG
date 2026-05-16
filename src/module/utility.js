@@ -46,20 +46,10 @@ export class PMTTRPGUtility {
   }
 
   static getAbilityMod(abilityScore, force=false) {
-    const noAbilityScores = game.settings.get('projectmoonttrpg', 'noAbilityScores');
-    if (noAbilityScores && !force) {
-      return abilityScore;
-    }
-
     return abilityScore;
   }
 
   static getAbilityScore(abilityMod, force=false) {
-    const noAbilityScores = game.settings.get('projectmoonttrpg', 'noAbilityScores');
-    if (noAbilityScores && !force) {
-      return abilityScore;
-    }
-
     return abilityMod;
   }
 

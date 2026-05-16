@@ -20,15 +20,21 @@
       </div>
     {{/if}}
     {{!-- Roll results, color coded to match the result type label. --}}
-    {{#if rollDw}}
+    {{#if rollPMTTRPG}}
+      <div class="roll{{#if result}} {{result}}{{/if}}">{{{rollPMTTRPG}}}</div>
+      {{#if roll}}
+        <div class="roll-total">
+          <strong>Total:</strong> {{roll.total}}
+        </div>
+      {{/if}}
+      {{#if resultLabel}}{{else}}
+        {{> "systems/projectmoonttrpg/templates/parts/chat-buttons.html" }}
+      {{/if}}
+    {{else if rollDw}}
       <div class="roll{{#if result}} {{result}}{{/if}}">{{{rollDw}}}</div>
       {{#if resultLabel}}{{else}}
         {{> "systems/projectmoonttrpg/templates/parts/chat-buttons.html" }}
       {{/if}}
-    {{/if}}
-    {{!-- XP --}}
-    {{#if xp}}
-      <div class="row xp"><button class="button xp-button" type="button" data-action="xp" actor="{{actor._id}}">{{localize "TTRPG.MarkXp"}}</button></div>
     {{/if}}
     {{!-- Tags --}}
     {{#if tags}}

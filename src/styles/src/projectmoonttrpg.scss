@@ -16,31 +16,41 @@
 
 .projectmoonttrpg {
   @import 'global/application/window';
+  @import 'global/components/dialogs';
 
   font-family: $font-stack-base;
+  color: var(--sheet-ink);
+
+  --sheet-paper: #2a1f14;
+  --sheet-paper-alt: #3d2a1f;
+  --sheet-card: #342415;
+  --sheet-ink: #f4ead2;
+  --sheet-ink-muted: #d4c4a8;
+  --sheet-brown: #5c3d28;
+  --sheet-brown-dark: #2d1f14;
+  --sheet-gold: #d6a24a;
+  --sheet-gold-bright: #f4c96f;
+  --sheet-border: #6f5238;
+  --sheet-accent: #d4a360;
+  --sheet-shadow: rgba(0, 0, 0, 0.4);
+  --sheet-danger: #e07856;
+  --sheet-warning: #d7a34b;
+  --sheet-success: #7ec97f;
 
   textarea {
     resize: vertical;
   }
 
   .window-content {
-    background: $c-white;
+    background: var(--sheet-paper);
   }
 
   &.actor {
     .window-content {
       position: relative;
-      background: $c-white;
-      background-image:
-        linear-gradient(#dedede, #dedede),
-        url('../../assets/heath-alseike-vector-edge.svg');
-      background-repeat: no-repeat;
-      background-size:
-        100% 264px,
-        100%;
-      background-position:
-        0 0,
-        0 262px;
+      background:
+        radial-gradient(120% 90% at 10% 0%, rgba(93, 61, 40, 0.3) 0%, rgba(93, 61, 40, 0) 55%),
+        linear-gradient(180deg, var(--sheet-paper) 0%, var(--sheet-paper-alt) 100%);
       background-attachment: local;
 
       form {
@@ -51,12 +61,9 @@
 
     &.npc {
       .window-content {
-        background-size:
-          100% 230px,
-          100%;
-        background-position:
-          0 0,
-          0 228px;
+        background:
+          radial-gradient(120% 90% at 10% 0%, rgba(93, 61, 40, 0.25) 0%, rgba(93, 61, 40, 0) 55%),
+          linear-gradient(180deg, var(--sheet-paper) 0%, var(--sheet-paper-alt) 100%);
       }
     }
   }
@@ -79,7 +86,7 @@
     @import 'global/components/moves';
     @import 'global/components/look';
     @import 'global/components/npc';
-    @import 'global/components/TTRPG-level-up';
+    @import 'global/components/pmttrpg-level-up';
     @import 'global/components/class';
   }
 }

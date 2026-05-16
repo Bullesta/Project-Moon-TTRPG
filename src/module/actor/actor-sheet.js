@@ -1,4 +1,4 @@
-import { PMTTRPGClassList } from "../config.js";
+
 import { PMTTRPGUtility } from "../utility.js";
 import { PMTTRPGRolls } from "../rolls.js";
 
@@ -22,9 +22,9 @@ export class PMTTRPGActorSheet extends foundry.appv1.sheets.ActorSheet {
   static get defaultOptions() {
     let options = foundry.utils.mergeObject(super.defaultOptions, {
       classes: ["projectmoonttrpg", "sheet", "actor"],
-      width: 840,
+      width: 1280,
       height: 780,
-      tabs: [{ navSelector: ".sheet-tabs", contentSelector: ".sheet-body", initial: "moves" }]
+      tabs: [{ navSelector: ".sheet-tabs", contentSelector: ".sheet-body", initial: "weapons-attacks" }]
     });
 
     if (PMTTRPGUtility.nightmode) {
@@ -107,14 +107,13 @@ export class PMTTRPGActorSheet extends foundry.appv1.sheets.ActorSheet {
     // Prepare items.
     await this._prepareCharacterItems(context);
     await this._prepareNpcItems(context);
+    context.statuses = this._prepareStatusItems(context.items);
+    this._logInventoryState('getData', context.items, context.statuses);
 
     // Enrich the bio field.
     context.system.details.biographyEnriched = await TextEditor.enrichHTML(context.system.details.biography, context.enrichmentOptions);
 
-    // Add classlist.
     if (this.actor.type == 'character') {
-      context.system.classlist = await PMTTRPGClassList.getClasses();
-
       let xpSvg = {
         radius: 16,
         circumference: 100,
@@ -123,8 +122,6 @@ export class PMTTRPGActorSheet extends foundry.appv1.sheets.ActorSheet {
 
       // Handle enriched fields.
       context.system.details.lookEnriched = await TextEditor.enrichHTML(context.system.details.look, context.enrichmentOptions);
-      context.system.details.alignment.enriched = await TextEditor.enrichHTML(context.system.details.alignment.description, context.enrichmentOptions);
-      context.system.details.race.enriched = await TextEditor.enrichHTML(context.system.details.race.description, context.enrichmentOptions);
 
       // Set a warning for tokens.
       context.system.isToken = this.actor.token != null;
@@ -144,7 +141,7 @@ export class PMTTRPGActorSheet extends foundry.appv1.sheets.ActorSheet {
         }
 
         // Set the template variable.
-        context.system.levelup = levelup && context.system.classlist.includes(context.system.details.class);
+        context.system.levelup = levelup;
 
         // Calculate xp bar length.
         let currentXp = Number(context.system.attributes.xp.value);
@@ -168,23 +165,54 @@ export class PMTTRPGActorSheet extends foundry.appv1.sheets.ActorSheet {
       'tem': 'PMTTRPG.TEM'
     };
 
-    // Add item icon setting.
-    context.system.itemIcons = game.settings.get('projectmoonttrpg', 'itemIcons');
-
-    // Check if ability scores are disabled
-    context.system.noAbilityScores = game.settings.get('projectmoonttrpg', 'noAbilityScores');
-
     // Setup select options.
     context.selects = {};
-    if (this.actor.type == 'character') {
-      context.selects.damages = {
-        d4: 'd4',
-        d6: 'd6',
-        d8: 'd8',
-        d10: 'd10',
-        d12: 'd12',
-      };
-    }
+    context.selects.weaponTypes = {
+      melee: 'PMTTRPG.WeaponTypeMelee',
+      ranged: 'PMTTRPG.WeaponTypeRanged'
+    };
+    context.selects.outfitProperties = {
+      none: 'PMTTRPG.OutfitPropertyNone',
+      armored: 'PMTTRPG.OutfitPropertyArmored',
+      swift: 'PMTTRPG.OutfitPropertySwift',
+      balanced: 'PMTTRPG.OutfitPropertyBalanced'
+    };
+    context.selects.damageTypes = {
+      slash: 'PMTTRPG.DamageTypeSlash',
+      pierce: 'PMTTRPG.DamageTypePierce',
+      blunt: 'PMTTRPG.DamageTypeBlunt'
+    };
+    context.selects.formPropertiesMelee = {
+      small: 'PMTTRPG.FormPropertySmall',
+      medium: 'PMTTRPG.FormPropertyMedium',
+      long: 'PMTTRPG.FormPropertyLong',
+      sturdy: 'PMTTRPG.FormPropertySturdy',
+      hybrid: 'PMTTRPG.FormPropertyHybridMelee',
+      versatile: 'PMTTRPG.FormPropertyVersatile',
+      innate: 'PMTTRPG.FormPropertyInnateMelee'
+    };
+    context.selects.formPropertiesRanged = {
+      lowCaliber: 'PMTTRPG.FormPropertyLowCaliber',
+      highCaliber: 'PMTTRPG.FormPropertyHighCaliber',
+      reactive: 'PMTTRPG.FormPropertyReactive',
+      hybrid: 'PMTTRPG.FormPropertyHybridRanged',
+      recoil: 'PMTTRPG.FormPropertyRecoil',
+      innate: 'PMTTRPG.FormPropertyInnateRanged'
+    };
+    context.selects.handPropertiesMelee = {
+      off1h: 'PMTTRPG.HandPropertyOff1H',
+      off2h: 'PMTTRPG.HandPropertyOff2H',
+      def1h: 'PMTTRPG.HandPropertyDef1H',
+      def2h: 'PMTTRPG.HandPropertyDef2H'
+    };
+    context.selects.handPropertiesRanged = {
+      off1h: 'PMTTRPG.HandPropertyOff1H',
+      off2h: 'PMTTRPG.HandPropertyOff2H'
+    };
+    context.selects.ammoTypes = {
+      standard: 'PMTTRPG.AmmoStandard',
+      specialized: 'PMTTRPG.AmmoSpecialized'
+    };
 
     // Return data to the sheet
     let returnData = {
@@ -199,8 +227,12 @@ export class PMTTRPGActorSheet extends foundry.appv1.sheets.ActorSheet {
       startingMoves: context.startingMoves,
       specialMoves: context.specialMoves,
       equipment: context.equipment,
+      weapons: context.weapons,
+      outfits: context.outfits,
+      ammunition: context.ammunition,
+      ammoSlotsUsed: context.ammoSlotsUsed,
       spells: context.spells,
-      bonds: context.bonds,
+      statuses: context.statuses,
       effects: effects,
       items: items,
       flags: this.object?.flags,
@@ -243,7 +275,13 @@ export class PMTTRPGActorSheet extends foundry.appv1.sheets.ActorSheet {
     const advancedMoves = [];
     const specialMoves = [];
     const equipment = [];
-    const bonds = [];
+    const weapons = {
+      melee: [],
+      ranged: []
+    };
+    const outfits = [];
+    const ammunition = [];
+    let specializedAmmoCount = 0;
     const spells = {
       0: [],
       1: [],
@@ -298,13 +336,26 @@ export class PMTTRPGActorSheet extends foundry.appv1.sheets.ActorSheet {
           spells[i.system.spellLevel].push(i);
         }
       }
+      else if (i.type === 'weapon') {
+        if (i.system.weaponType === 'ranged') {
+          weapons.ranged.push(i);
+        }
+        else {
+          weapons.melee.push(i);
+        }
+      }
+      else if (i.type === 'outfit') {
+        outfits.push(i);
+      }
+      else if (i.type === 'ammunition') {
+        ammunition.push(i);
+        if (i.system.ammoType === 'specialized') {
+          specializedAmmoCount += Number(i.system.quantity ?? 0);
+        }
+      }
       // If this is equipment, we currently lump it together.
       else if (i.type === 'equipment') {
         equipment.push(i);
-      }
-      else if (i.type === 'bond') {
-        i.nameEnriched = await TextEditor.enrichHTML(i.name, enrichmentOptions);
-        bonds.push(i);
       }
     }
 
@@ -318,8 +369,10 @@ export class PMTTRPGActorSheet extends foundry.appv1.sheets.ActorSheet {
     sheetData.spells = spells;
     // Equipment
     sheetData.equipment = equipment;
-    // Bonds
-    sheetData.bonds = bonds;
+    sheetData.weapons = weapons;
+    sheetData.outfits = outfits;
+    sheetData.ammunition = ammunition;
+    sheetData.ammoSlotsUsed = specializedAmmoCount > 0 ? Math.ceil(specializedAmmoCount / 5) : 0;
   }
 
   /**
@@ -429,18 +482,26 @@ export class PMTTRPGActorSheet extends foundry.appv1.sheets.ActorSheet {
     // Adjust quantity/uses.
     html.find('.counter').on('click', event => this._onCounterClick(event, 'increase'));
     html.find('.counter').on('contextmenu', event => this._onCounterClick(event, 'decrease'));
+    html.find('.counter--increase').on('click', event => this._onCounterClick(event, 'increase'));
+    html.find('.counter--decrease').on('click', event => this._onCounterClick(event, 'decrease'));
+
+    // Status stacks.
+    html.find('.status-control').on('click', this._onStatusControl.bind(this));
 
     // Resources.
     html.find('.resource-control').click(this._onResouceControl.bind(this));
 
     // Adjust weight.
-    this._adjustWeight(html);
+    // Weight handling removed from the character sheet.
 
     // Character builder dialog.
     html.find('.clickable-level-up').on('click', this._onLevelUp.bind(this));
 
     //class viewer
     html.find('.clickable-class-viewer').on('click', this._onClassView.bind(this));
+
+    html.on('dragover', event => event.preventDefault());
+    html.on('drop', this._onDrop.bind(this));
 
     let isOwner = this.document.isOwner;
     if (isOwner) {
@@ -449,7 +510,6 @@ export class PMTTRPGActorSheet extends foundry.appv1.sheets.ActorSheet {
       var handler;
       handler = ev => this._onDragStart(ev);
       html.find('li.item').each((i, li) => {
-        if (li.classList.contains("inventory-header")) return;
         li.setAttribute("draggable", true);
         li.addEventListener("dragstart", handler, false);
       });
@@ -458,30 +518,7 @@ export class PMTTRPGActorSheet extends foundry.appv1.sheets.ActorSheet {
 
   /* -------------------------------------------- */
 
-  _adjustWeight(html) {
-    // Adjust weight.
-    let $weight = html.find('[name="system.attributes.weight.value"]');
-    let $weight_cell = html.find('.cell--weight');
-    if ($weight.length > 0) {
-      let weight = {
-        current: Number($weight.val()),
-        max: Number(html.find('[name="system.attributes.weight.max"]').val())
-      };
-      if (weight.current > weight.max) {
-        $weight_cell.addClass('encumbered');
-
-        if (weight.current > weight.max + 2) {
-          $weight_cell.addClass('overencumbered');
-        }
-        else {
-          $weight_cell.removeClass('overencumbered');
-        }
-      }
-      else {
-        $weight.removeClass('encumbered');
-      }
-    }
-  }
+  // _adjustWeight removed as weight is not part of the new definition.
 
   _onResouceControl(event) {
     event.preventDefault();
@@ -534,8 +571,6 @@ export class PMTTRPGActorSheet extends foundry.appv1.sheets.ActorSheet {
     const actorData = this.actor.system;
     let orig_class_name = actorData.details.class;
     let char_class_name = orig_class_name.trim();
-    let class_list = await PMTTRPGClassList.getClasses();
-    let class_list_items = await PMTTRPGClassList.getClasses(false);
 
     let char_class = PMTTRPGUtility.cleanClass(char_class_name);
     let char_level = Number(actorData.attributes.level.value);
@@ -616,12 +651,6 @@ export class PMTTRPGActorSheet extends foundry.appv1.sheets.ActorSheet {
       }
     }
 
-    // Get ability scores.
-    const noAbilityScores = game.settings.get('projectmoonttrpg', 'noAbilityScores');
-    let ability_scores = [16, 15, 13, 12, 9, 8];
-    if (noAbilityScores) {
-      ability_scores = [2, 1, 1, 0, 0, -1];
-    }
     let ability_labels = Object.entries(CONFIG.PMTTRPG.abilities).map(a => {
       return {
         short: a[0],
@@ -807,8 +836,8 @@ export class PMTTRPGActorSheet extends foundry.appv1.sheets.ActorSheet {
       races: races.length > 0 ? races : null,
       alignments: alignments.length > 0 ? alignments : null,
       equipment: equipment ? equipment : null,
-      ability_scores: actorData.attributes.xp.value == 0 ? ability_scores : null,
-      ability_mods_only: noAbilityScores,
+      ability_scores: null,
+      ability_mods_only: true,
       ability_labels: ability_labels ? ability_labels : null,
       starting_moves: starting_moves.length > 0 ? starting_moves : null,
       starting_move_groups: starting_move_groups,
@@ -980,22 +1009,6 @@ export class PMTTRPGActorSheet extends foundry.appv1.sheets.ActorSheet {
       system['attributes.level.value'] = Number(actor.system.attributes.level.value) + 1;
     }
 
-    //Set Level 1 bonds
-    if (Number(actor.system.attributes.xp.value) == 0) {
-      let theclass = PMTTRPGUtility.cleanClass(actor.system.details.class);
-      let newbonds = [];
-
-      for (let i = 1; i < 7; i++) {
-        if (game.i18n.localize("PMTTRPG." + theclass + ".Bond" + i ) != "PMTTRPG." + theclass + ".Bond" + i ) {
-          newbonds.push({name: game.i18n.localize("PMTTRPG." + theclass + ".Bond" + i), type: 'bond', system: ''});
-        }
-      }
-
-      if (newbonds.length > 0) {
-        await actor.createEmbeddedDocuments('Item', newbonds);
-      }
-    }
-
     // Adjust hp.
     if (itemData.class_item.system.hp) {
       const noConstitutionToHP = game.settings.get('projectmoonttrpg', 'noConstitutionToHP');
@@ -1056,8 +1069,6 @@ export class PMTTRPGActorSheet extends foundry.appv1.sheets.ActorSheet {
     const actorData = this.actor.system;
     let orig_class_name = actorData.details.class;
     let char_class_name = orig_class_name.trim();
-    let class_list = await PMTTRPGClassList.getClasses();
-    let class_list_items = await PMTTRPGClassList.getClasses(false);
 
     let char_class = PMTTRPGUtility.cleanClass(char_class_name);
 
@@ -1125,12 +1136,6 @@ export class PMTTRPGActorSheet extends foundry.appv1.sheets.ActorSheet {
         equipment = foundry.utils.duplicate(class_item.system.equipment);
       }
 
-    // Get ability scores.
-    const noAbilityScores = game.settings.get('projectmoonttrpg', 'noAbilityScores');
-    let ability_scores = [16, 15, 13, 12, 9, 8];
-    if (noAbilityScores) {
-      ability_scores = [2, 1, 1, 0, 0, -1];
-    }
     let ability_labels = Object.entries(CONFIG.PMTTRPG.abilities).map(a => {
       return {
         short: a[0],
@@ -1298,8 +1303,8 @@ export class PMTTRPGActorSheet extends foundry.appv1.sheets.ActorSheet {
       races: races.length > 0 ? races : null,
       alignments: alignments.length > 0 ? alignments : null,
       equipment: equipment ? equipment : null,
-      ability_scores: actorData.attributes.xp.value == 0 ? ability_scores : null,
-      ability_mods_only: noAbilityScores,
+      ability_scores: null,
+      ability_mods_only: true,
       ability_labels: ability_labels ? ability_labels : null,
       starting_moves: starting_moves.length > 0 ? starting_moves : null,
       starting_move_groups: starting_move_groups,
@@ -1414,12 +1419,12 @@ export class PMTTRPGActorSheet extends foundry.appv1.sheets.ActorSheet {
     switch (dataset.action) {
     case 'uses':
       let uses = item.system?.uses ?? 0;
-      update['system.uses'] = Number(uses) + offset;
+      update['system.uses'] = Math.max(0, Number(uses) + offset);
       break;
 
     case 'quantity':
       let quantity = item.system?.quantity ?? 0;
-      update['system.quantity'] = Number(quantity) + offset;
+      update['system.quantity'] = Math.max(0, Number(quantity) + offset);
       break;
 
     default:
@@ -1454,16 +1459,55 @@ export class PMTTRPGActorSheet extends foundry.appv1.sheets.ActorSheet {
     if ($(a).hasClass('ability-rollable') && data.roll) {
       formula = data.roll;
       flavorText = data.label;
-      if (data.debility) {
-        flavorText += ` (${data.debility})`;
-      }
 
       templateData = {
         title: flavorText
       };
 
-      // this.rollMove(formula, actorData, data, templateData);
-      PMTTRPGRolls.rollMove({actor: this.actor, data: null, formula: formula, templateData: templateData});
+      // Show stat roll dialog
+      let dialogData = {
+        abilityLabel: flavorText,
+        rollMode: this.actor.flags?.projectmoonttrpg?.rollMode ?? 'def'
+      };
+      
+      const html = await renderTemplate('systems/projectmoonttrpg/templates/dialog/stat-roll-dialog.html', dialogData);
+      const dlgOptions = {
+        classes: ['projectmoonttrpg', 'PMTTRPG-dialog']
+      };
+      
+      if (PMTTRPGUtility.nightmode) dlgOptions.classes.push('nightmode');
+      
+      return new Promise(resolve => {
+        new Dialog({
+          title: game.i18n.format('PMTTRPG.Dialog.statRollTitle', { ability: flavorText }),
+          content: html,
+          buttons: {
+            roll: {
+              label: game.i18n.localize('PMTTRPG.Dialog.roll'),
+              callback: html => {
+                const form = html[0].querySelector("form");
+                const selectedMode = form.advantage.value;
+                const modifier = Number(form.modifier.value) || 0;
+                
+                // Set the roll mode temporarily
+                this.actor.setFlag('projectmoonttrpg', 'rollMode', selectedMode);
+                
+                // Call the roll with the modifier info
+                PMTTRPGRolls.rollMove({
+                  actor: this.actor, 
+                  data: null, 
+                  formula: formula, 
+                  templateData: templateData,
+                  statModifier: modifier
+                });
+              }
+            },
+            cancel: {
+              label: game.i18n.localize('PMTTRPG.Dialog.cancel')
+            }
+          }
+        }, dlgOptions).render(true);
+      });
     }
     else if ($(a).hasClass('damage-rollable') && data.roll) {
       formula = data.roll;
@@ -1476,6 +1520,13 @@ export class PMTTRPGActorSheet extends foundry.appv1.sheets.ActorSheet {
       };
 
       PMTTRPGRolls.rollMove({actor: this.actor, data: null, formula: formula, templateData: templateData});
+    }
+    else if (item?.type === 'outfit' && data.roll) {
+      await item.roll({ mode: data.rollType || 'block' });
+    }
+    else if (item?.type === 'weapon' && data.ammoId) {
+      const ammo = this.actor.items.get(data.ammoId);
+      await item.roll({ ammo });
     }
     else if (itemId != undefined) {
       await item.roll();
@@ -1512,14 +1563,160 @@ export class PMTTRPGActorSheet extends foundry.appv1.sheets.ActorSheet {
     const data = foundry.utils.duplicate(header.dataset);
     data.moveType = data.movetype;
     data.spellLevel = data.level;
-    const name = type == 'bond' ? game.i18n.localize("PMTTRPG.BondDefault") : `New ${type.capitalize()}`;
+    const itemName = data.name || game.i18n.localize(`TYPES.Item.${type}`) || type;
     const itemData = {
-      name: name,
+      name: itemName,
       type: type,
       system: data
     };
     delete itemData.system["type"];
     await this.actor.createEmbeddedDocuments('Item', [itemData], {});
+  }
+
+  /**
+   * Handle dropping a status item onto the actor sheet.
+   * @param {DragEvent} event The originating drop event.
+   * @private
+   */
+  async _onDrop(event) {
+    const rawData = event.originalEvent?.dataTransfer?.getData('text/plain');
+    if (!rawData) return false;
+
+    let dropData = null;
+    try {
+      dropData = JSON.parse(rawData);
+    } catch (err) {
+      return false;
+    }
+
+    if (dropData?.type !== 'Item') return false;
+
+    const droppedItem = await Item.fromDropData(dropData);
+    if (!droppedItem || droppedItem.type !== 'status') return false;
+    if (droppedItem.parent?.id === this.actor.id) return false;
+
+    event.preventDefault();
+
+    const itemData = foundry.utils.duplicate(droppedItem.toObject());
+    delete itemData._id;
+    delete itemData.id;
+    delete itemData.uuid;
+    itemData.system = foundry.utils.duplicate(itemData.system ?? {});
+
+    await this.actor.createEmbeddedDocuments('Item', [itemData], {});
+    this._logInventoryState('drop-status', this.actor.items, this._prepareStatusItems(this.actor.items));
+    return false;
+  }
+
+  /**
+   * Adjust or remove a status stack count.
+   * @param {Event} event The originating click event.
+   * @private
+   */
+  async _onStatusControl(event) {
+    event.preventDefault();
+    event.stopPropagation();
+    const button = event.currentTarget;
+    const li = button.closest('.item');
+    const action = button.dataset.action;
+    const statusKey = li?.dataset?.statusKey;
+    const statusItems = this.actor.items.filter(item => item.type === 'status' && this._statusKey(item) === statusKey);
+    const item = statusItems[0];
+
+    if (!item) return;
+
+    if (action === 'increase') {
+      const itemData = foundry.utils.duplicate(item.toObject());
+      delete itemData._id;
+      delete itemData.id;
+      delete itemData.uuid;
+      await this.actor.createEmbeddedDocuments('Item', [itemData], {});
+    }
+    else if (action === 'decrease') {
+      if (statusItems.length <= 1) {
+        await item.delete();
+      }
+      else {
+        await statusItems[statusItems.length - 1].delete();
+      }
+    }
+    else if (action === 'remove') {
+      await this.actor.deleteEmbeddedDocuments('Item', statusItems.map(statusItem => statusItem.id));
+    }
+
+    this._logInventoryState(`status-${action}`, this.actor.items, this._prepareStatusItems(this.actor.items));
+  }
+
+  /**
+   * Return a normalized key for comparing status copies.
+   * @param {Item} item The item to inspect.
+   * @returns {string}
+   * @private
+   */
+  _statusKey(item) {
+    return `${item?.name ?? ''}`.trim().toLowerCase();
+  }
+
+  /**
+   * Group owned status copies so the sheet can show one row per status with a count.
+   * @param {Array} items The items to group.
+   * @returns {Array}
+   * @private
+   */
+  _prepareStatusItems(items = []) {
+    const grouped = new Map();
+
+    for (const item of items) {
+      if (item.type !== 'status') continue;
+
+      const key = this._statusKey(item) || item.id;
+      if (!grouped.has(key)) {
+        grouped.set(key, {
+          key,
+          name: item.name,
+          img: item.img,
+          count: 0,
+          items: [],
+          representative: item,
+          system: foundry.utils.duplicate(item.system),
+        });
+      }
+
+      const group = grouped.get(key);
+      group.count += 1;
+      group.items.push(item);
+      group.representative = group.representative ?? item;
+      group.img = group.img || item.img;
+      group.system.descriptionEnriched = group.system.descriptionEnriched || item.system?.descriptionEnriched || '';
+    }
+
+    return Array.from(grouped.values()).sort((left, right) => left.name.localeCompare(right.name));
+  }
+
+  /**
+   * Log the actor inventory and grouped statuses for debugging.
+   * @param {string} label Debug label for the current snapshot.
+   * @param {Array} items Items to log.
+   * @param {Array} statuses Grouped statuses to log.
+   * @private
+   */
+  _logInventoryState(label, items = [], statuses = []) {
+    const inventory = items.map(item => ({
+      id: item.id,
+      type: item.type,
+      name: item.name,
+      img: item.img,
+      stacks: item.system?.stacks ?? null,
+    }));
+    const statusSummary = statuses.map(status => ({
+      key: status.key,
+      name: status.name,
+      count: status.count,
+      ids: status.items.map(item => item.id),
+    }));
+
+    console.log(`[PMTTRPG][Inventory][${label}]`, inventory);
+    console.log(`[PMTTRPG][Statuses][${label}]`, statusSummary);
   }
 
   /* -------------------------------------------- */
