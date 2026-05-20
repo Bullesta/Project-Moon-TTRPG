@@ -161,6 +161,14 @@ export class PMTTRPGItemSheet extends foundry.appv1.sheets.ItemSheet {
         special: 'PMTTRPG.MoveSpecial',
       };
     }
+    if (itemData.type == 'skill') {
+      context.selects.skillTypes = {
+        attack: 'PMTTRPG.SkillTypeAttack',
+        block: 'PMTTRPG.SkillTypeBlock',
+        evade: 'PMTTRPG.SkillTypeEvade',
+        stat: 'PMTTRPG.SkillTypeStatUse'
+      };
+    }
     if (itemData.type == 'move') {
       context.selects.moveTypes = {
         basic: 'PMTTRPG.MoveBasic',

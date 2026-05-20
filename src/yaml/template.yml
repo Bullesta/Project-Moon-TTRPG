@@ -6,23 +6,27 @@ Actor:
     base:
       attributes:
         hp:
-          value: 10
+          value: 96
           min: 0
-          maxBase: 10
+          maxBase: 96
           maxMisc: 0
-          max: 10
-        ac:
-          value: 0
-          base: 0
+          max: 96
+        st:
+          value: 24
           min: 0
-        damage:
-          value: d6
-          misc: ''
-          piercing: ''
+          maxBase: 24
+          maxMisc: 0
+          max: 24
+        sp:
+          value: 15
+          min: 0
+          maxBase: 15
+          maxMisc: 0
+          max: 15
         level:
           value: 1
           min: 0
-          max: 10
+          max: 21
         xp:
           value: 0
           min: 0
@@ -195,7 +199,26 @@ Item:
     quantity: 1
     weight: 0
     price: 0
+  skill:
+    templates:
+      - base
+    skillType: attack
+    rank: 1
+    lightCost: 1
+    innate: false
+    stat: for
+    customNotes: ''
   status:
     templates:
       - base
+    proc:
+      endOfRound: false
+      actionOrReaction: false
+      attackerBurst: false
+      onHitWhenActorHas: false
+      onHitWhenTargetHas: false
+      alwaysActive: false
+      skillEffect: false
+    macro:
+      uuid: ''
     customNotes: ''

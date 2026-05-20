@@ -11,7 +11,7 @@
 
     <nav class="sheet-tabs tabs" data-group="primary">
         <a class="item" data-tab="description">{{localize "PMTTRPG.Common.Description"}}</a>
-        <a class="item" data-tab="status">{{localize "PMTTRPG.Status"}}</a>
+      <a class="item" data-tab="status">{{localize "PMTTRPG.Status"}}</a>
         <a class="item" data-tab="advanced">{{localize "PMTTRPG.Advanced"}}</a>
     </nav>
 
@@ -25,6 +25,27 @@
             <div class="resource">
               <label>{{localize "PMTTRPG.Status"}}</label>
               <div class="help-text"><p>{{localize "PMTTRPG.StatusSheetHint"}}</p></div>
+            </div>
+
+            <div class="resource">
+              <label>{{localize "PMTTRPG.StatusProcActivities"}}</label>
+              <div class="status-proc-grid">
+                <label class="status-proc-grid__item"><input type="checkbox" name="system.proc.endOfRound" {{checked system.proc.endOfRound}}/> {{localize "PMTTRPG.StatusProcEndOfRound"}}</label>
+                <label class="status-proc-grid__item"><input type="checkbox" name="system.proc.actionOrReaction" {{checked system.proc.actionOrReaction}}/> {{localize "PMTTRPG.StatusProcActionOrReaction"}}</label>
+                <label class="status-proc-grid__item"><input type="checkbox" name="system.proc.attackerBurst" {{checked system.proc.attackerBurst}}/> {{localize "PMTTRPG.StatusProcAttackerBurst"}}</label>
+                <label class="status-proc-grid__item"><input type="checkbox" name="system.proc.onHitWhenActorHas" {{checked system.proc.onHitWhenActorHas}}/> {{localize "PMTTRPG.StatusProcOnHitWhenActorHas"}}</label>
+                <label class="status-proc-grid__item"><input type="checkbox" name="system.proc.onHitWhenTargetHas" {{checked system.proc.onHitWhenTargetHas}}/> {{localize "PMTTRPG.StatusProcOnHitWhenTargetHas"}}</label>
+                <label class="status-proc-grid__item"><input type="checkbox" name="system.proc.alwaysActive" {{checked system.proc.alwaysActive}}/> {{localize "PMTTRPG.StatusProcAlwaysActive"}}</label>
+                <label class="status-proc-grid__item"><input type="checkbox" name="system.proc.skillEffect" {{checked system.proc.skillEffect}}/> {{localize "PMTTRPG.StatusProcSkillEffect"}}</label>
+              </div>
+            </div>
+
+            <div class="resource">
+              <label>{{localize "PMTTRPG.StatusMacroSlot"}}</label>
+              <div class="status-macro-slot">
+                <input type="text" name="system.macro.uuid" value="{{system.macro.uuid}}" data-dtype="String" placeholder="{{localize "PMTTRPG.StatusMacroUUID"}}"/>
+              </div>
+              <div class="help-text"><p>{{localize "PMTTRPG.StatusMacroSlotHint"}}</p></div>
             </div>
           </div>
         </div>

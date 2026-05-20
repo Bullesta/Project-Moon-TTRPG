@@ -46,7 +46,8 @@ Hooks.once("init", async function() {
   CONFIG.Actor.documentClass = ActorPMTTRPG;
   CONFIG.Item.documentClass = ItemPMTTRPG;
   CONFIG.Item.typeLabels = foundry.utils.mergeObject(CONFIG.Item.typeLabels ?? {}, {
-    status: game.i18n.localize("TYPES.Item.status")
+    status: game.i18n.localize("TYPES.Item.status"),
+    skill: game.i18n.localize("TYPES.Item.skill")
   });
 
   // Register sheet application classes

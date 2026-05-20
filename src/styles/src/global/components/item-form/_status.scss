@@ -1,0 +1,38 @@
+.item-form {
+  .status-proc-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.5rem 0.75rem;
+    flex: 1;
+    padding: 0.15rem 0;
+  }
+
+  .status-proc-grid__item {
+    display: flex;
+    align-items: center;
+    gap: 0.45rem;
+    color: var(--sheet-ink);
+    font-size: 12px;
+    line-height: 1.2;
+    text-transform: none;
+
+    input[type="checkbox"] {
+      width: 16px;
+      height: 16px;
+      flex: 0 0 auto;
+      accent-color: var(--sheet-gold);
+    }
+  }
+
+  .status-macro-slot {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    flex: 1;
+
+    select,
+    input {
+      width: 100%;
+    }
+  }
+}

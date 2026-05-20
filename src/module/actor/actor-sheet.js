@@ -213,6 +213,21 @@ export class PMTTRPGActorSheet extends foundry.appv1.sheets.ActorSheet {
       standard: 'PMTTRPG.AmmoStandard',
       specialized: 'PMTTRPG.AmmoSpecialized'
     };
+    context.selects.skillTypes = {
+      attack: 'PMTTRPG.SkillTypeAttack',
+      block: 'PMTTRPG.SkillTypeBlock',
+      evade: 'PMTTRPG.SkillTypeEvade',
+      stat: 'PMTTRPG.SkillTypeStatUse'
+    };
+    // Ability/stat choices for stat-use skills
+    context.selects.abilities = {
+      for: 'PMTTRPG.AbilityFor',
+      pru: 'PMTTRPG.AbilityPru',
+      jus: 'PMTTRPG.AbilityJus',
+      cha: 'PMTTRPG.AbilityCha',
+      ins: 'PMTTRPG.AbilityIns',
+      tem: 'PMTTRPG.AbilityTem'
+    };
 
     // Return data to the sheet
     let returnData = {
@@ -230,6 +245,7 @@ export class PMTTRPGActorSheet extends foundry.appv1.sheets.ActorSheet {
       weapons: context.weapons,
       outfits: context.outfits,
       ammunition: context.ammunition,
+      skills: context.skills,
       ammoSlotsUsed: context.ammoSlotsUsed,
       spells: context.spells,
       statuses: context.statuses,
@@ -281,6 +297,7 @@ export class PMTTRPGActorSheet extends foundry.appv1.sheets.ActorSheet {
     };
     const outfits = [];
     const ammunition = [];
+    const skills = [];
     let specializedAmmoCount = 0;
     const spells = {
       0: [],
@@ -353,6 +370,9 @@ export class PMTTRPGActorSheet extends foundry.appv1.sheets.ActorSheet {
           specializedAmmoCount += Number(i.system.quantity ?? 0);
         }
       }
+      else if (i.type === 'skill') {
+        skills.push(i);
+      }
       // If this is equipment, we currently lump it together.
       else if (i.type === 'equipment') {
         equipment.push(i);
@@ -372,7 +392,21 @@ export class PMTTRPGActorSheet extends foundry.appv1.sheets.ActorSheet {
     sheetData.weapons = weapons;
     sheetData.outfits = outfits;
     sheetData.ammunition = ammunition;
+    sheetData.skills = skills;
     sheetData.ammoSlotsUsed = specializedAmmoCount > 0 ? Math.ceil(specializedAmmoCount / 5) : 0;
+
+    // Compute equipped weapon/outfit baseline info to expose for skill rendering
+    const equippedWeapon = this.actor.items.find(i => i.type === 'weapon' && i.system?.equipped) || this.actor.items.find(i => i.type === 'weapon');
+    const equippedOutfit = this.actor.items.find(i => i.type === 'outfit' && i.system?.equipped) || this.actor.items.find(i => i.type === 'outfit');
+
+    for (let s of sheetData.skills) {
+      s.equippedWeaponDamageType = equippedWeapon?.system?.damageType || null;
+      s.equippedWeaponOffensiveDiceComputed = equippedWeapon?.system?.offensiveDiceComputed || null;
+      s.equippedOutfitBlockDiceComputed = equippedOutfit?.system?.blockDiceComputed || null;
+      s.equippedOutfitEvadeDiceComputed = equippedOutfit?.system?.evadeDiceComputed || null;
+      // Ensure a stat key exists for stat-use skills
+      s.system.stat = s.system.stat || 'for';
+    }
   }
 
   /**

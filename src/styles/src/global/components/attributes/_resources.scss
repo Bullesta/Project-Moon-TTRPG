@@ -1,0 +1,120 @@
+.sheet-attributes,
+.sheet-resources {
+  .cell__counter {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+
+    span {
+      flex: 0 0 auto;
+      font-size: 14px;
+      color: var(--sheet-ink);
+    }
+  }
+
+  .cell__wrapper {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .hp--max {
+    width: 45%;
+  }
+
+  .resource--max-base {
+    text-align: center;
+    font-size: 16px;
+    font-weight: 500;
+    color: var(--sheet-ink-muted);
+    cursor: not-allowed;
+    position: relative;
+    background:
+      repeating-linear-gradient(
+        45deg,
+        var(--sheet-paper-alt),
+        var(--sheet-paper-alt) 8px,
+        rgba(0, 0, 0, 0.15) 8px,
+        rgba(0, 0, 0, 0.15) 16px
+      );
+    border-radius: 6px;
+    box-shadow: inset 0 0 0 1px rgba(212, 196, 168, 0.18);
+
+    &:hover {
+      background:
+        repeating-linear-gradient(
+          45deg,
+          var(--sheet-paper-alt),
+          var(--sheet-paper-alt) 8px,
+          rgba(0, 0, 0, 0.2) 8px,
+          rgba(0, 0, 0, 0.2) 16px
+        );
+    }
+  }
+
+  .resource--misc {
+    text-align: center;
+    font-size: 14px;
+    background: var(--sheet-paper-alt);
+    color: var(--sheet-ink);
+    border-radius: 6px;
+    padding: 2px 4px;
+    height: 28px;
+    transition: all 0.2s ease;
+    box-shadow: inset 0 0 0 1px rgba(111, 82, 56, 0.1);
+
+    &:focus {
+      background: var(--sheet-paper);
+      box-shadow: 0 0 0 2px rgba(214, 162, 74, 0.3);
+    }
+
+    &:hover {
+      box-shadow: 0 0 0 2px rgba(214, 162, 74, 0.16);
+    }
+  }
+
+  .misc-separator {
+    flex: 0 0 auto;
+    font-weight: 600;
+    color: var(--sheet-gold);
+    margin: 0 2px;
+  }
+
+  .cell--hp,
+  .cell--st,
+  .cell--sp,
+  .cell--light,
+  .cell--attack,
+  .cell--def,
+  .cell--evade {
+    input {
+      background-color: var(--sheet-paper-alt);
+      margin: 0;
+    }
+  }
+
+  .encumbered {
+    .cell__title {
+      background: linear-gradient(120deg, var(--sheet-warning) 0%, var(--sheet-accent) 100%);
+      color: var(--sheet-brown-dark);
+    }
+
+    input[name="data.attributes.weight.value"] {
+      color: var(--sheet-warning);
+    }
+  }
+
+  .overencumbered {
+    .cell__title {
+      background: linear-gradient(120deg, var(--sheet-danger) 0%, var(--sheet-brown) 100%);
+    }
+
+    input[name="data.attributes.weight.value"] {
+      color: var(--sheet-danger);
+    }
+  }
+}

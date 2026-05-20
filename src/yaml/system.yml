@@ -33,11 +33,11 @@ grid:
   distance: 5
   units: ft
 primaryTokenAttribute: attributes.hp
-secondaryTokenAttribute: attributes.xp
+secondaryTokenAttribute: attributes.st
 initiative: 1d20
 socket: true
-url: https://gitlab.com/leetram-projects/foundry-mods/projectmoonttrpg
-manifest: https://leetram-artifacts.s3.amazonaws.com/projectmoonttrpg/latest/system.json
-download: https://leetram-artifacts.s3.amazonaws.com/projectmoonttrpg/1.9.0/projectmoonttrpg.zip
-changelog: https://github.com/leetram-projects/projectmoonttrpg/blob/main/CHANGELOG.md
-bugs: https://github.com/leetram-projects/projectmoonttrpg/issues
+url: https://github.com/Leetram519/Project-Moon-TTRPG
+manifest: https://storage.googleapis.com/pmttrpg_zip/0.0.1/system.json
+download: https://storage.googleapis.com/pmttrpg_zip/0.0.1/projectmoonttrpg.zip
+changelog: https://github.com/Leetram519/Project-Moon-TTRPG/blob/main/CHANGELOG.md
+bugs: https://github.com/Leetram519/Project-Moon-TTRPG/issues
