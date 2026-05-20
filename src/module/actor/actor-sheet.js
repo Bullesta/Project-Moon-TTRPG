@@ -1491,56 +1491,16 @@ export class PMTTRPGActorSheet extends foundry.appv1.sheets.ActorSheet {
 
     // Handle rolls coming directly from the ability score.
     if ($(a).hasClass('ability-rollable') && data.roll) {
-      formula = data.roll;
       flavorText = data.label;
-
       templateData = {
         title: flavorText
       };
 
-      // Show stat roll dialog
-      let dialogData = {
-        abilityLabel: flavorText,
-        rollMode: this.actor.flags?.projectmoonttrpg?.rollMode ?? 'def'
-      };
-      
-      const html = await renderTemplate('systems/projectmoonttrpg/templates/dialog/stat-roll-dialog.html', dialogData);
-      const dlgOptions = {
-        classes: ['projectmoonttrpg', 'PMTTRPG-dialog']
-      };
-      
-      if (PMTTRPGUtility.nightmode) dlgOptions.classes.push('nightmode');
-      
-      return new Promise(resolve => {
-        new Dialog({
-          title: game.i18n.format('PMTTRPG.Dialog.statRollTitle', { ability: flavorText }),
-          content: html,
-          buttons: {
-            roll: {
-              label: game.i18n.localize('PMTTRPG.Dialog.roll'),
-              callback: html => {
-                const form = html[0].querySelector("form");
-                const selectedMode = form.advantage.value;
-                const modifier = Number(form.modifier.value) || 0;
-                
-                // Set the roll mode temporarily
-                this.actor.setFlag('projectmoonttrpg', 'rollMode', selectedMode);
-                
-                // Call the roll with the modifier info
-                PMTTRPGRolls.rollMove({
-                  actor: this.actor, 
-                  data: null, 
-                  formula: formula, 
-                  templateData: templateData,
-                  statModifier: modifier
-                });
-              }
-            },
-            cancel: {
-              label: game.i18n.localize('PMTTRPG.Dialog.cancel')
-            }
-          }
-        }, dlgOptions).render(true);
+      return PMTTRPGRolls.doStatRoll({
+        actor: this.actor,
+        stat: data.roll,
+        label: flavorText,
+        templateData
       });
     }
     else if ($(a).hasClass('damage-rollable') && data.roll) {

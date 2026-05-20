@@ -306,6 +306,13 @@ PMTTRPG.Dialog.cancel: 'Cancel'
 PMTTRPG.Dialog.chooseAmmunition: 'Choose ammunition'
 PMTTRPG.Dialog.consumeAmmunition: 'Consume ammunition'
 PMTTRPG.Dialog.noAvailableAmmunition: 'No ammunition available'
+PMTTRPG.Dialog.skillRollTitle: 'Use {skill}'
+PMTTRPG.Dialog.consumeLight: 'Consume Light'
+PMTTRPG.Dialog.usingSkillWith: 'Using {item}'
+PMTTRPG.Dialog.noSkillOptions: 'No valid equipment is available for this skill.'
+
+PMTTRPG.Notifications.noWeaponWarning: 'No weapon is available to use this skill.'
+PMTTRPG.Notifications.noOutfitWarning: 'No outfit is available to use this skill.'
 
 PMTTRPG.Notifications.noClassWarning: 'You must choose a valid class before you can level up.'
 

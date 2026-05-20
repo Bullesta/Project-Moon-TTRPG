@@ -23,6 +23,225 @@ export class PMTTRPGRolls {
     return result;
   }
 
+  static getSkillTypeLabel(skillType) {
+    switch (skillType) {
+    case 'attack':
+      return game.i18n.localize('PMTTRPG.SkillTypeAttack');
+    case 'block':
+      return game.i18n.localize('PMTTRPG.SkillTypeBlock');
+    case 'evade':
+      return game.i18n.localize('PMTTRPG.SkillTypeEvade');
+    case 'stat':
+      return game.i18n.localize('PMTTRPG.SkillTypeStatUse');
+    default:
+      return skillType;
+    }
+  }
+
+  static getSkillOptions(actor, skillType) {
+    if (!actor) return [];
+
+    const items = actor.items.filter(item => skillType === 'attack' ? item.type === 'weapon' : item.type === 'outfit') ?? [];
+    const isAttack = skillType === 'attack';
+
+    return items
+      .map(item => {
+        const isEquipped = !!item.system?.equipped;
+        const formula = isAttack
+          ? (item.system?.offensiveDiceComputed || '1d10')
+          : (skillType === 'block'
+            ? (item.system?.blockDiceComputed || '1d10')
+            : (item.system?.evadeDiceComputed || '1d12'));
+
+        return {
+          id: item.id,
+          name: item.name,
+          img: item.img,
+          formula,
+          damageType: isAttack ? (item.system?.damageType ?? null) : null,
+          typeLabel: isAttack ? game.i18n.localize('PMTTRPG.Weapon') : game.i18n.localize('PMTTRPG.Outfits'),
+          isEquipped,
+          isDefault: isEquipped,
+        };
+      })
+      .sort((left, right) => {
+        if (left.isDefault === right.isDefault) return left.name.localeCompare(right.name);
+        return left.isDefault ? -1 : 1;
+      });
+  }
+
+  static async promptSkillRoll({ actor, skill, skillType, options = [] } = {}) {
+    if (!actor || !skill) return null;
+
+    const defaultOption = options.find(option => option.isDefault) ?? options[0] ?? null;
+    const dialogData = {
+      skill: {
+        name: skill.name,
+        img: skill.img,
+        typeLabel: this.getSkillTypeLabel(skillType),
+        lightCost: Number(skill.system?.lightCost ?? 0),
+        description: skill.system?.description ?? '',
+      },
+      options,
+      selectedOption: defaultOption,
+      consumeLight: true,
+    };
+
+    const html = await renderTemplate('systems/projectmoonttrpg/templates/dialog/skill-roll-dialog.html', dialogData);
+    const dlgOptions = {
+      classes: ['projectmoonttrpg', 'PMTTRPG-dialog']
+    };
+
+    if (PMTTRPGUtility.nightmode) dlgOptions.classes.push('nightmode');
+
+    return new Promise(resolve => {
+      new Dialog({
+        title: game.i18n.format('PMTTRPG.Dialog.skillRollTitle', { skill: skill.name }),
+        content: html,
+        buttons: {
+          roll: {
+            label: game.i18n.localize('PMTTRPG.Dialog.roll'),
+            callback: html => {
+              const form = html[0].querySelector('form');
+              resolve({
+                itemId: form.itemId?.value ?? defaultOption?.id ?? null,
+                consumeLight: !!form.consumeLight?.checked,
+              });
+            }
+          },
+          cancel: {
+            label: game.i18n.localize('PMTTRPG.Dialog.cancel'),
+            callback: () => resolve(null)
+          }
+        },
+        close: () => resolve(null)
+      }, dlgOptions).render(true);
+    });
+  }
+
+  static async doSkillRoll({ actor, skill, templateData = {} } = {}) {
+    if (!actor || !skill) return false;
+
+    this.actor = actor;
+    this.actorData = actor.system ?? {};
+    this.item = null;
+
+    const skillType = skill.system?.skillType ?? 'attack';
+    if (skillType === 'stat') {
+      const statKey = skill.system?.stat || 'for';
+      const statLabel = game.i18n.localize(`PMTTRPG.Ability${statKey[0].toUpperCase()}${statKey.slice(1)}`);
+      return this.doStatRoll({
+        actor,
+        stat: statKey,
+        label: statLabel,
+        templateData: foundry.utils.mergeObject(templateData, {
+          image: skill.img,
+          title: skill.name,
+          details: skill.system?.description ?? ''
+        }, { inplace: false })
+      });
+    }
+
+    const options = this.getSkillOptions(actor, skillType);
+    if (!options.length) {
+      ui.notifications.warn(game.i18n.localize(skillType === 'attack' ? 'PMTTRPG.Notifications.noWeaponWarning' : 'PMTTRPG.Notifications.noOutfitWarning'));
+      return false;
+    }
+
+    const promptResult = await this.promptSkillRoll({ actor, skill, skillType, options });
+    if (!promptResult) return false;
+
+    const selectedOption = options.find(option => option.id === promptResult.itemId) ?? options[0];
+    if (!selectedOption) return false;
+
+    const lightCost = Math.max(0, Number(skill.system?.lightCost ?? 0));
+    if (promptResult.consumeLight && lightCost > 0) {
+      const currentLight = Number(actor.system?.attributes?.light?.value ?? 0);
+      await actor.update({
+        'system.attributes.light.value': Math.max(0, currentLight - lightCost)
+      });
+    }
+
+    const isAttack = skillType === 'attack';
+    const flavor = game.i18n.format('PMTTRPG.Dialog.usingSkillWith', { item: selectedOption.name });
+    const rollType = isAttack ? 'damage' : 'defense';
+
+    return this.rollMove({
+      actor,
+      formula: selectedOption.formula,
+      templateData: foundry.utils.mergeObject(templateData, {
+        image: skill.img,
+        title: skill.name,
+        flavor,
+        details: skill.system?.description ?? '',
+        rollType,
+        defenseType: isAttack ? null : skillType,
+        damageType: selectedOption.damageType,
+        skillName: skill.name,
+        skillUseName: selectedOption.name,
+        skillUseFormula: selectedOption.formula,
+      }, { inplace: false })
+    });
+  }
+
+  static async promptStatRoll(abilityLabel, rollMode = 'def') {
+    let dialogData = {
+      abilityLabel,
+      rollMode
+    };
+    const html = await renderTemplate('systems/projectmoonttrpg/templates/dialog/stat-roll-dialog.html', dialogData);
+    const dlgOptions = {
+      classes: ['projectmoonttrpg', 'PMTTRPG-dialog']
+    };
+
+    if (PMTTRPGUtility.nightmode) dlgOptions.classes.push('nightmode');
+
+    return new Promise(resolve => {
+      new Dialog({
+        title: game.i18n.format('PMTTRPG.Dialog.statRollTitle', { ability: abilityLabel }),
+        content: html,
+        buttons: {
+          roll: {
+            label: game.i18n.localize('PMTTRPG.Dialog.roll'),
+            callback: html => {
+              const form = html[0].querySelector('form');
+              resolve({
+                rollMode: form.advantage.value,
+                modifier: Number(form.modifier.value) || 0
+              });
+            }
+          },
+          cancel: {
+            label: game.i18n.localize('PMTTRPG.Dialog.cancel'),
+            callback: () => resolve(null)
+          }
+        },
+        close: () => resolve(null)
+      }, dlgOptions).render(true);
+    });
+  }
+
+  static async doStatRoll({ actor, stat, label = null, templateData = {}, statModifier = 0 } = {}) {
+    if (!actor || !stat) return false;
+
+    this.actor = actor;
+    this.actorData = actor.system ?? {};
+    this.item = null;
+
+    const abilityLabel = label ?? game.i18n.localize(`PMTTRPG.${stat.toUpperCase()}`);
+    const rollDialog = await this.promptStatRoll(abilityLabel, actor.flags?.projectmoonttrpg?.rollMode ?? 'def');
+    if (!rollDialog) return false;
+
+    await this.actor.setFlag('projectmoonttrpg', 'rollMode', rollDialog.rollMode);
+
+    return this.rollMove({
+      actor,
+      formula: stat,
+      templateData,
+      statModifier: Number(statModifier) + rollDialog.modifier
+    });
+  }
+
   static async rollMove(options = {}) {
     let dice = this.getRollFormula('2d6');
 

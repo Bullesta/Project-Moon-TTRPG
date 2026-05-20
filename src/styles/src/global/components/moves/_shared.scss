@@ -119,12 +119,12 @@
   }
 
   .item-avatar--small {
-    flex: 0 0 24px;
-    width: 24px;
-    height: 24px;
-    min-width: 24px;
-    min-height: 24px;
-    border-radius: 6px;
+    flex: 0 0 96px;
+    width: 96px;
+    height: 96px;
+    min-width: 96px;
+    min-height: 96px;
+    border-radius: 10px;
 
     .rollable {
       font-size: 0.75rem;
@@ -220,7 +220,9 @@
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    padding: 0.35rem 0.5rem;
+    width: 96px;
+    height: 96px;
+    padding: 0;
     background: var(--sheet-paper-alt);
     border: 1px solid rgba(111, 82, 56, 0.2);
     border-radius: 6px;
@@ -241,17 +243,23 @@
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    width: 1.2em;
-    height: 1.2em;
-    font-size: 0.85rem;
+    width: 78px;
+    height: 78px;
+    font-size: 2.4rem;
 
     .category-icon {
       width: 100%;
       height: 100%;
     }
 
+    img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+    }
+
     i {
-      font-size: 0.9rem;
+      font-size: 2.2rem;
     }
     .ability-icon {
       width: 100%;
@@ -275,7 +283,20 @@
 
     .item-name {
       flex: 1 1 100%;
-      margin-bottom: 0.35rem;
+      margin-bottom: 0.5rem;
+      align-items: center;
+      gap: 0.65rem;
+
+      .item-label {
+        flex: 1 1 auto;
+        margin-top: 0;
+        padding-left: 0;
+      }
+
+      .skill-roll {
+        margin-left: auto;
+        flex: 0 0 auto;
+      }
     }
 
     .item-meta {
@@ -299,11 +320,7 @@
     .item-controls {
       flex: 1 1 100%;
       margin-top: 0.35rem;
-      justify-content: flex-start;
-
-      .skill-roll {
-        margin-right: 0.35rem;
-      }
+      justify-content: flex-end;
     }
 
     &.open .item-description {
@@ -326,6 +343,25 @@
     .item-controls {
       width: 100%;
       justify-content: flex-start;
+    }
+
+    .item--skill .item-controls {
+      justify-content: flex-end;
+    }
+
+    .item--skill {
+      .item-avatar--small,
+      .skill-roll {
+        width: 84px;
+        height: 84px;
+        min-width: 84px;
+        min-height: 84px;
+      }
+
+      .skill-roll-icon {
+        width: 68px;
+        height: 68px;
+      }
     }
   }
 }

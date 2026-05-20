@@ -168,6 +168,14 @@ export class PMTTRPGItemSheet extends foundry.appv1.sheets.ItemSheet {
         evade: 'PMTTRPG.SkillTypeEvade',
         stat: 'PMTTRPG.SkillTypeStatUse'
       };
+      context.selects.abilities = {
+        for: 'PMTTRPG.AbilityFor',
+        pru: 'PMTTRPG.AbilityPru',
+        jus: 'PMTTRPG.AbilityJus',
+        cha: 'PMTTRPG.AbilityCha',
+        ins: 'PMTTRPG.AbilityIns',
+        tem: 'PMTTRPG.AbilityTem'
+      };
     }
     if (itemData.type == 'move') {
       context.selects.moveTypes = {

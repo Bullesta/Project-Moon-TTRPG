@@ -219,63 +219,18 @@ export class ItemPMTTRPG extends Item {
    * @return {Promise}
    */
   async roll({ configureDialog = true, mode = 'block', ammo = null, consumeAmmo = true } = {}) {
-    // Skill-specific rolling: use equipped weapon/outfit as baseline
     if (this.type == 'skill') {
-      const skillType = this.system?.skillType ?? 'attack';
-      // Attack skills use equipped weapon offensive dice
-      if (skillType === 'attack') {
-        const equippedWeapon = this.actor?.items.find(i => i.type === 'weapon' && i.system?.equipped) || this.actor?.items.find(i => i.type === 'weapon');
-        const formula = equippedWeapon?.system?.offensiveDiceComputed || '1d10';
-        PMTTRPGRolls.rollMove({
-          actor: this.actor,
-          formula: formula,
-          templateData: {
-            image: this.img,
-            title: this.name,
-            details: this.system.description,
-            rollType: 'damage',
-            damageType: equippedWeapon?.system?.damageType ?? null
-          }
-        });
-        return;
-      }
-
-      // Block/Evade skills use equipped outfit block/evade dice
-      if (skillType === 'block' || skillType === 'evade') {
-        const equippedOutfit = this.actor?.items.find(i => i.type === 'outfit' && i.system?.equipped) || this.actor?.items.find(i => i.type === 'outfit');
-        const formula = skillType === 'block' ? (equippedOutfit?.system?.blockDiceComputed || '1d10') : (equippedOutfit?.system?.evadeDiceComputed || '1d12');
-        const flavor = skillType === 'block' ? 'PMTTRPG.Def' : 'PMTTRPG.Evd';
-        PMTTRPGRolls.rollMove({
-          actor: this.actor,
-          formula: formula,
-          templateData: {
-            image: this.img,
-            title: this.name,
-            flavor: game.i18n.localize(flavor),
-            rollType: 'defense',
-            defenseType: skillType
-          }
-        });
-        return;
-      }
-
-      // Stat-use skills: roll 2d6 with the chosen stat modifier
-      if (skillType === 'stat') {
-        const statKey = this.system?.stat || 'for';
-        const statMod = Number(this.actor?.system?.abilities?.[statKey]?.mod ?? 0);
-        PMTTRPGRolls.rollMove({
-          actor: this.actor,
-          formula: '2d6',
-          templateData: {
-            image: this.img,
-            title: this.name,
-            flavor: game.i18n.localize(`PMTTRPG.Ability${statKey[0].toUpperCase()}${statKey.slice(1)}`)
-          },
-          statModifier: statMod
-        });
-        return;
-      }
+      return PMTTRPGRolls.doSkillRoll({
+        actor: this.actor,
+        skill: this,
+        templateData: {
+          image: this.img,
+          title: this.name,
+          details: this.system.description,
+        }
+      });
     }
+
     if (this.type == 'outfit') {
       const formula = mode == 'evade' ? this.system.evadeDiceComputed : this.system.blockDiceComputed;
       const flavor = mode == 'evade' ? 'PMTTRPG.Evade' : 'PMTTRPG.Def';
