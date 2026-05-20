@@ -245,18 +245,19 @@
                   <ol class="items-list">
                   {{#each weapons.melee as |item id|}}
                     <li class="item item--weapon" data-item-id="{{item._id}}" draggable="true">
+                      <h4 class="item-name">{{item.name}}</h4>
                       <div class="item-header">
                         <div class="item-avatar item-avatar--large">
-                          <span class="rollable item-rollable" data-roll="{{item.system.offensiveDiceComputed}}">
-                            {{#if item.system.offensiveDiceComputed}}
-                              <i class="fas fa-dice-d20"></i>
-                            {{else}}
-                              <i class="fas fa-book"></i>
-                            {{/if}}
-                          </span>
                           <img class="item-icon" src="{{item.img}}" title="{{item.name}}"/>
                         </div>
-                        <h4 class="item-name">{{item.name}}</h4>
+                        {{#if item.system.offensiveDiceComputed}}
+                          {{#if (lookup ../selects.damageTypes item.system.damageType)}}
+                            <div class="item-category item-dice rollable" data-roll="{{item.system.offensiveDiceComputed}}">
+                              <div class="category-icon" data-damage="{{item.system.damageType}}"></div>
+                              <div class="category-label">{{item.system.offensiveDiceComputed}}</div>
+                            </div>
+                          {{/if}}
+                        {{/if}}
                       </div>
                       <div class="item-tags">
                         {{#if item.system.equipped}}<span class="tag equipped" data-action="equipped">{{localize "PMTTRPG.Equipped"}}</span>{{/if}}
@@ -273,15 +274,6 @@
                           <span class="tag">{{localize "PMTTRPG.WeaponRank"}}: {{item.system.rank}}</span>
                         {{/if}}
                       </div>
-                      {{#if item.system.offensiveDiceComputed}}
-                      <div class="item-category item-dice">
-                        {{#if (lookup ../selects.damageTypes item.system.damageType)}}
-                          <div class="category-icon" data-damage="{{item.system.damageType}}"></div>
-                        {{/if}}
-                        <div class="category-icon"><i class="fas fa-dice-d20"></i></div>
-                        <div class="category-label">{{item.system.offensiveDiceComputed}}</div>
-                      </div>
-                      {{/if}}
                       <div class="item-description">
                         <div class="description">
                           {{#if item.system.epMax}}<p><strong>{{localize "PMTTRPG.EP"}}:</strong> {{item.system.epMax}}</p>{{/if}}

@@ -1,3 +1,4 @@
+```scss
 .tab.weapons-attacks {
   .sheet-tab {
     display: flex;
@@ -197,12 +198,19 @@
         box-shadow: 0 6px 14px var(--sheet-shadow);
       }
 
+      .item-title-row {
+        display: flex;
+        align-items: baseline;
+        gap: 0.5rem;
+      }
+
       .item-header {
         display: flex;
-        flex-direction: column;
+        flex-direction: row;
         align-items: center;
-        gap: 0.5rem;
-        text-align: center;
+        justify-content: flex-start;
+        gap: 2rem;
+        text-align: left;
       }
 
       .item-avatar--large {
@@ -214,29 +222,6 @@
         overflow: hidden;
         background: var(--sheet-paper-alt);
         box-shadow: inset 0 0 0 1px rgba(111, 82, 56, 0.12);
-
-        .rollable {
-          display: flex;
-          position: absolute;
-          top: 0;
-          left: 0;
-          width: 100%;
-          height: 100%;
-          align-items: center;
-          justify-content: center;
-          padding: 0;
-          transition: all ease-in-out 0.25s;
-          text-align: center;
-          background: rgba(47, 32, 20, 0.9);
-          color: var(--sheet-ink);
-          opacity: 0;
-          font-size: 1.8rem;
-
-          &:hover {
-            opacity: 1;
-            color: var(--sheet-ink);
-          }
-        }
 
         .item-icon {
           width: 100%;
@@ -258,7 +243,7 @@
         display: flex;
         flex-direction: row;
         flex-wrap: wrap;
-        justify-content: center;
+        justify-content: flex-start;
         gap: 0.5rem;
 
         .tag {
@@ -284,6 +269,16 @@
         padding: 0.75rem 1rem;
         background: rgba(42, 31, 20, 0.55);
         border-radius: 10px;
+
+        &.rollable {
+          cursor: pointer;
+
+          &:hover,
+          &:focus {
+            color: var(--sheet-gold);
+            box-shadow: 0 0 0 2px rgba(214, 162, 74, 0.18);
+          }
+        }
 
         .category-icon {
           width: 4rem;
@@ -456,3 +451,4 @@
     }
   }
 }
+```
