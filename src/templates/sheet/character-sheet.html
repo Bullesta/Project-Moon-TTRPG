@@ -223,7 +223,7 @@
         {{!-- Sheet Body --}}
         <section class="sheet-body">
 
-            {{!-- Weapons & Attacks Tab --}}
+            {{!-- Weapons & Ammunitions Tab --}}
             <div class="tab weapons-attacks active" data-group="primary" data-tab="weapons-attacks">
               <section class="sheet-tab">
 
@@ -235,7 +235,7 @@
 
                 <div class="cell cell--weapons">
                   <h2 class="cell__title">
-                    <label>{{localize "PMTTRPG.MeleeWeapons"}}</label>
+                    <label>{{localize "PMTTRPG.Weapons"}}</label>
                     <div class="item-controls">
                       <button type="button" class="item-control item-create" title='{{localize "PMTTRPG.AddWeapon"}}' data-type="weapon" data-weapon-type="melee">
                         <i class="fas fa-plus"></i>
@@ -243,62 +243,75 @@
                     </div>
                   </h2>
                   <ol class="items-list">
-                  {{#each weapons.melee as |item id|}}
+                  {{#each allWeapons as |item id|}}
                     <li class="item item--weapon" data-item-id="{{item._id}}" draggable="true">
-                      <h4 class="item-name">{{item.name}}</h4>
-                      <div class="item-header">
-                        <div class="item-avatar item-avatar--large">
-                          <img class="item-icon" src="{{item.img}}" title="{{item.name}}"/>
+                      <div class="item-title-row">
+                        <h4 class="item-name">{{item.name}}</h4>
+                        <div class="item-controls">
+                          <a class="item-control item-sort" title="Drag to Sort"><i class="fas fa-grip-lines"></i></a>
+                          <a class="item-control item-equip" title="Equip Item"><i class="fa-solid fa-shirt"></i></a>
+                          <a class="item-control item-edit" title="Edit Item"><i class="fas fa-edit"></i></a>
+                          <a class="item-control item-delete" title="Delete Item"><i class="fas fa-trash"></i></a>
+                          <a class="item-control item-toggle-details" title="Show/Hide Details"><i class="fas fa-chevron-down"></i></a>
                         </div>
-                        {{#if item.system.offensiveDiceComputed}}
+                      </div>
+                      <div class="item-details">
+                        <div class="item-header">
+                          <div class="item-avatar item-avatar--large">
+                            <img class="item-icon" src="{{item.img}}" title="{{item.name}}"/>
+                          </div>
+                          {{#if item.system.offensiveDiceComputed}}
+                            {{#if (lookup ../selects.damageTypes item.system.damageType)}}
+                              <div class="item-category item-dice rollable" data-roll="{{item.system.offensiveDiceComputed}}">
+                                <div class="category-icon" data-damage="{{item.system.damageType}}"></div>
+                                <div class="category-label">{{item.system.offensiveDiceComputed}}</div>
+                              </div>
+                            {{/if}}
+                          {{/if}}
+                        </div>
+                        <div class="item-tags">
+                          {{#if item.system.equipped}}<span class="tag equipped" data-action="equipped">{{localize "PMTTRPG.Equipped"}}</span>{{/if}}
+                          {{#if (lookup ../selects.weaponTypes item.system.weaponType)}}
+                            <span class="tag">{{localize (lookup ../selects.weaponTypes item.system.weaponType)}}</span>
+                            {{#if (eq item.system.weaponType "melee")}}
+                              {{#if (lookup ../selects.formPropertiesMelee item.system.formProperty)}}
+                                <span class="tag">{{localize (lookup ../selects.formPropertiesMelee item.system.formProperty)}}</span>
+                              {{/if}}
+                              {{#if (lookup ../selects.handPropertiesMelee item.system.handProperty)}}
+                                <span class="tag">{{localize (lookup ../selects.handPropertiesMelee item.system.handProperty)}}</span>
+                              {{/if}}
+                            {{/if}}
+                            {{#if (eq item.system.weaponType "ranged")}}
+                              {{#if (lookup ../selects.formPropertiesRanged item.system.formProperty)}}
+                                <span class="tag">{{localize (lookup ../selects.formPropertiesRanged item.system.formProperty)}}</span>
+                              {{/if}}
+                              {{#if (lookup ../selects.handPropertiesRanged item.system.handProperty)}}
+                                <span class="tag">{{localize (lookup ../selects.handPropertiesRanged item.system.handProperty)}}</span>
+                              {{/if}}
+                            {{/if}}
+                          {{/if}}
+                          {{#if item.system.rank}}
+                            <span class="tag">{{localize "PMTTRPG.WeaponRank"}}: {{item.system.rank}}</span>
+                          {{/if}}
+                        </div>
+                        {{#if item.system.damageTypeFixed}}
                           {{#if (lookup ../selects.damageTypes item.system.damageType)}}
-                            <div class="item-category item-dice rollable" data-roll="{{item.system.offensiveDiceComputed}}">
-                              <div class="category-icon" data-damage="{{item.system.damageType}}"></div>
-                              <div class="category-label">{{item.system.offensiveDiceComputed}}</div>
-                            </div>
+                          <div class="item-category item-damage">
+                            <div class="category-icon" data-damage="{{item.system.damageType}}"></div>
+                            <div class="category-label">{{localize (lookup ../selects.damageTypes item.system.damageType)}}</div>
+                          </div>
                           {{/if}}
                         {{/if}}
-                      </div>
-                      <div class="item-tags">
-                        {{#if item.system.equipped}}<span class="tag equipped" data-action="equipped">{{localize "PMTTRPG.Equipped"}}</span>{{/if}}
-                        {{#if (lookup ../selects.weaponTypes item.system.weaponType)}}
-                          <span class="tag">{{localize (lookup ../selects.weaponTypes item.system.weaponType)}}</span>
-                        {{/if}}
-                        {{#if (lookup ../selects.formPropertiesMelee item.system.formProperty)}}
-                          <span class="tag">{{localize (lookup ../selects.formPropertiesMelee item.system.formProperty)}}</span>
-                        {{/if}}
-                        {{#if (lookup ../selects.handPropertiesMelee item.system.handProperty)}}
-                          <span class="tag">{{localize (lookup ../selects.handPropertiesMelee item.system.handProperty)}}</span>
-                        {{/if}}
-                        {{#if item.system.rank}}
-                          <span class="tag">{{localize "PMTTRPG.WeaponRank"}}: {{item.system.rank}}</span>
-                        {{/if}}
-                      </div>
-                      <div class="item-description">
-                        <div class="description">
-                          {{#if item.system.epMax}}<p><strong>{{localize "PMTTRPG.EP"}}:</strong> {{item.system.epMax}}</p>{{/if}}
-                          {{{item.system.descriptionEnriched}}}
+                        <div class="item-description">
+                          <div class="description">
+                            {{#if item.system.epMax}}<p><strong>{{localize "PMTTRPG.EP"}}:</strong> {{item.system.epMax}}</p>{{/if}}
+                            {{{item.system.descriptionEnriched}}}
+                          </div>
                         </div>
-                      </div>
-                      <div class="item-controls">
-                        <a class="item-control item-equip" title="Equip Item"><i class="fa-solid fa-shirt"></i></a>
-                        <a class="item-control item-edit" title="Edit Item"><i class="fas fa-edit"></i></a>
-                        <a class="item-control item-delete" title="Delete Item"><i class="fas fa-trash"></i></a>
                       </div>
                     </li>
                   {{/each}}
                   </ol>
-                </div>
-
-                <div class="cell cell--weapons">
-                  <h2 class="cell__title">
-                    <label>{{localize "PMTTRPG.RangedWeapons"}}</label>
-                    <div class="item-controls">
-                      <button type="button" class="item-control item-create" title='{{localize "PMTTRPG.AddWeapon"}}' data-type="weapon" data-weapon-type="ranged">
-                        <i class="fas fa-plus"></i>
-                      </button>
-                    </div>
-                  </h2>
                   <section class="ammo-summary">
                     <h3 class="cell__title small-text">
                       <span>{{localize "PMTTRPG.Ammunition"}}</span>
@@ -354,57 +367,6 @@
                       <div class="ammo-summary__empty">{{localize "PMTTRPG.NoAmmunition"}}</div>
                     {{/if}}
                   </section>
-                  <ol class="items-list">
-                  {{#each weapons.ranged as |item id|}}
-                    <li class="item item--weapon" data-item-id="{{item._id}}" draggable="true">
-                      <div class="item-header">
-                        <div class="item-avatar item-avatar--large">
-                          <img class="item-icon" src="{{item.img}}" title="{{item.name}}"/>
-                        </div>
-                        <h4 class="item-name">{{item.name}}</h4>
-                      </div>
-                      <div class="item-tags">
-                        {{#if item.system.equipped}}<span class="tag equipped" data-action="equipped">{{localize "PMTTRPG.Equipped"}}</span>{{/if}}
-                        {{#if (lookup ../selects.weaponTypes item.system.weaponType)}}
-                          <span class="tag">{{localize (lookup ../selects.weaponTypes item.system.weaponType)}}</span>
-                        {{/if}}
-                        {{#if (lookup ../selects.formPropertiesRanged item.system.formProperty)}}
-                          <span class="tag">{{localize (lookup ../selects.formPropertiesRanged item.system.formProperty)}}</span>
-                        {{/if}}
-                        {{#if (lookup ../selects.handPropertiesRanged item.system.handProperty)}}
-                          <span class="tag">{{localize (lookup ../selects.handPropertiesRanged item.system.handProperty)}}</span>
-                        {{/if}}
-                        {{#if item.system.rank}}
-                          <span class="tag">{{localize "PMTTRPG.WeaponRank"}}: {{item.system.rank}}</span>
-                        {{/if}}
-                      </div>
-                      {{#if item.system.damageTypeFixed}}
-                        {{#if (lookup ../selects.damageTypes item.system.damageType)}}
-                        <div class="item-category item-damage">
-                          <div class="category-icon" data-damage="{{item.system.damageType}}"></div>
-                          <div class="category-label">{{localize (lookup ../selects.damageTypes item.system.damageType)}}</div>
-                        </div>
-                        {{/if}}
-                      {{/if}}
-                      <div class="item-category item-dice item-dice--weapon">
-                        <button type="button" class="rollable item-rollable weapon-roll" title="{{item.system.offensiveDiceComputed}}">
-                          <span class="weapon-roll__formula">{{item.system.offensiveDiceComputed}}</span>
-                        </button>
-                      </div>
-                      <div class="item-description">
-                          <div class="description">
-                            {{#if item.system.epMax}}<p><strong>{{localize "PMTTRPG.EP"}}:</strong> {{item.system.epMax}}</p>{{/if}}
-                            {{{item.system.descriptionEnriched}}}
-                          </div>
-                      </div>
-                      <div class="item-controls">
-                        <a class="item-control item-equip" title="Equip Item"><i class="fa-solid fa-shirt"></i></a>
-                        <a class="item-control item-edit" title="Edit Item"><i class="fas fa-edit"></i></a>
-                        <a class="item-control item-delete" title="Delete Item"><i class="fas fa-trash"></i></a>
-                      </div>
-                    </li>
-                  {{/each}}
-                  </ol>
                 </div>
 
                   </section>
