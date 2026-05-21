@@ -319,9 +319,10 @@ PMTTRPG.Notifications.noClassWarning: 'You must choose a valid class before you 
 PMTTRPG.Scrolling.armorReduced: '{reduced} Armor applied'
 PMTTRPG.Scrolling.armorPiercing: '{piercing} Armor ignored'
 
-PMTTRPG.WeaponsAttacks: "Weapons & Attacks"
+PMTTRPG.WeaponsAttacks: "Weapons & Ammunitions"
 PMTTRPG.WeaponsNotLinkedWarning: "Weapons cannot be rearranged while this token is not linked to an actor."
 PMTTRPG.AddWeapon: "Add Weapon"
+PMTTRPG.Weapons: "Weapons"
 PMTTRPG.MeleeWeapons: "Melee Weapons"
 PMTTRPG.RangedWeapons: "Ranged Weapons"
 PMTTRPG.Ammunition: "Ammunition"

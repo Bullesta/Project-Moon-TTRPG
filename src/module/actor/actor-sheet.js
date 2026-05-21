@@ -107,6 +107,7 @@ export class PMTTRPGActorSheet extends foundry.appv1.sheets.ActorSheet {
     // Prepare items.
     await this._prepareCharacterItems(context);
     await this._prepareNpcItems(context);
+    context.allWeapons = context.items.filter(item => item.type === 'weapon').sort((a, b) => (a.sort || 0) - (b.sort || 0));
     context.statuses = this._prepareStatusItems(context.items);
     this._logInventoryState('getData', context.items, context.statuses);
 
@@ -243,6 +244,7 @@ export class PMTTRPGActorSheet extends foundry.appv1.sheets.ActorSheet {
       specialMoves: context.specialMoves,
       equipment: context.equipment,
       weapons: context.weapons,
+      allWeapons: context.allWeapons,
       outfits: context.outfits,
       ammunition: context.ammunition,
       skills: context.skills,
@@ -540,14 +542,31 @@ export class PMTTRPGActorSheet extends foundry.appv1.sheets.ActorSheet {
     let isOwner = this.document.isOwner;
     if (isOwner) {
       /* Item Dragging */
-      // Core handlers from foundry.js
       var handler;
       handler = ev => this._onDragStart(ev);
       html.find('li.item').each((i, li) => {
-        li.setAttribute("draggable", true);
+        li.setAttribute("draggable", false);
         li.addEventListener("dragstart", handler, false);
       });
+      html.find(".item-sort").on("mousedown", event => {
+        event.stopPropagation();
+
+        const itemElement = event.currentTarget.closest("li.item");
+        itemElement?.setAttribute("draggable", true);
+      });
+
+      html.find(".item-sort").on("mouseup", event => {
+        const itemElement = event.currentTarget.closest("li.item");
+        itemElement?.setAttribute("draggable", false);
+      });
+      html.find(".item--weapon").on("drop", this._onWeaponSortDrop.bind(this));
     }
+    
+    html.find(".item-toggle-details").on(
+      "click", event => {event.preventDefault();
+      const itemElement = event.currentTarget.closest(".item");
+      itemElement.classList.toggle("collapsed");
+    });
   }
 
   /* -------------------------------------------- */
@@ -1572,6 +1591,56 @@ export class PMTTRPGActorSheet extends foundry.appv1.sheets.ActorSheet {
    * @param {DragEvent} event The originating drop event.
    * @private
    */
+  async _onWeaponSortDrop(event) {
+    event.preventDefault();
+    event.stopPropagation();
+
+    const rawData = event.originalEvent?.dataTransfer?.getData('text/plain');
+    if (!rawData) return false;
+
+    let dropData = null;
+
+    try {
+      dropData = JSON.parse(rawData);
+    } catch (err) {
+      return false;
+    }
+
+    if (dropData?.type !== 'Item') return false;
+
+    const draggedItem = await Item.fromDropData(dropData);
+
+    const targetElement = event.currentTarget;
+    const targetItemId = targetElement?.dataset?.itemId;
+    const targetItem = this.actor.items.get(targetItemId);
+
+    if (!draggedItem || !targetItem) return false;
+    if (draggedItem.parent?.id !== this.actor.id) return false;
+    if (draggedItem.type !== 'weapon') return false;
+    if (targetItem.type !== 'weapon') return false;
+    if (draggedItem.id === targetItem.id) return false;
+
+    const weapons = this.actor.items
+      .filter(item => item.type === 'weapon')
+      .sort((a, b) => (a.sort || 0) - (b.sort || 0));
+
+    const draggedIndex = weapons.findIndex(item => item.id === draggedItem.id);
+    const targetIndex = weapons.findIndex(item => item.id === targetItem.id);
+
+    if (draggedIndex === -1 || targetIndex === -1) return false;
+
+    weapons.splice(draggedIndex, 1);
+    weapons.splice(targetIndex, 0, draggedItem);
+
+    const updates = weapons.map((item, index) => ({
+      _id: item.id,
+      sort: index * 100000
+    }));
+
+    await this.actor.updateEmbeddedDocuments('Item', updates);
+
+    return false;
+  }
   async _onDrop(event) {
     const rawData = event.originalEvent?.dataTransfer?.getData('text/plain');
     if (!rawData) return false;
