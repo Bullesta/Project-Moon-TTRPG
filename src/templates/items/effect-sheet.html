@@ -1,0 +1,96 @@
+<form class="{{cssClass}} item-form flexcol" autocomplete="off">
+  <div class="sheet-wrapper flexcol">
+    <header class="sheet-header flexrow">
+      <div class="cell cell--image">
+        <img class="profile-img" src="{{item.img}}" data-edit="img" title="{{item.name}}"/>
+      </div>
+      <div class="header-fields">
+        <h1><input name="name" type="text" value="{{item.name}}" placeholder="{{localize "PMTTRPG.Common.Name"}}"/></h1>
+      </div>
+    </header>
+
+    <nav class="sheet-tabs tabs" data-group="primary">
+      <a class="item" data-tab="description">{{localize "PMTTRPG.Common.Description"}}</a>
+      <a class="item" data-tab="effect">{{localize "PMTTRPG.Effect"}}</a>
+      <a class="item" data-tab="advanced">{{localize "PMTTRPG.Advanced"}}</a>
+    </nav>
+
+    <section class="sheet-body">
+      <div class="tab" data-group="primary" data-tab="description">
+        {{editor system.descriptionEnriched target="system.description" button=true owner=owner editable=editable}}
+      </div>
+
+      <div class="tab" data-group="primary" data-tab="effect">
+        <div class="resource-group">
+          <div class="resource">
+            <label>{{localize "PMTTRPG.EffectSheetHint"}}</label>
+            <div class="help-text"><p>{{localize "PMTTRPG.EffectSheetHintText"}}</p></div>
+          </div>
+          <div class="resource">
+            <label>{{localize "PMTTRPG.EffectCost"}}</label>
+            <input type="text" name="system.cost" value="{{system.cost}}" data-dtype="Number"/>
+          </div>
+          <div class="resource">
+            <label>{{localize "PMTTRPG.EffectAppliesTo"}}</label>
+            <select name="system.appliesTo" data-dtype="String">
+              {{selectOptions selects.effectAppliesTo selected=system.appliesTo localize=true}}
+            </select>
+          </div>
+          <div class="resource resource--flags">
+            <label>{{localize "PMTTRPG.EffectAvailability"}}</label>
+            <label class="status-proc-grid__item"><input type="checkbox" name="system.canPositive" data-dtype="Boolean" {{checked system.canPositive}}/> {{localize "PMTTRPG.EffectCanPositive"}}</label>
+            <label class="status-proc-grid__item"><input type="checkbox" name="system.canNegative" data-dtype="Boolean" {{checked system.canNegative}}/> {{localize "PMTTRPG.EffectCanNegative"}}</label>
+          </div>
+          <div class="resource">
+            <label>{{localize "PMTTRPG.EffectProcOn"}}</label>
+            <select name="system.procOn" data-dtype="String">
+              {{selectOptions selects.effectProcOn selected=system.procOn localize=true}}
+            </select>
+          </div>
+          {{#if system.showProcDice}}
+          <div class="resource">
+            <label>{{localize "PMTTRPG.EffectProcDice"}}</label>
+            <select name="system.procDice" data-dtype="String">
+              {{selectOptions selects.effectProcDice selected=system.procDice localize=true}}
+            </select>
+          </div>
+          {{/if}}
+          {{#if system.showProcAction}}
+          <div class="resource">
+            <label>{{localize "PMTTRPG.EffectProcAction"}}</label>
+            <select name="system.procAction" data-dtype="String">
+              {{selectOptions selects.effectProcAction selected=system.procAction localize=true}}
+            </select>
+          </div>
+          {{/if}}
+          <div class="resource">
+            <label>{{localize "PMTTRPG.EffectProcCondition"}}</label>
+            <input type="text" name="system.procCondition" value="{{system.procCondition}}" data-dtype="String"/>
+          </div>
+          <div class="resource">
+            <label>{{localize "PMTTRPG.EffectPositive"}}</label>
+            <textarea name="system.positive" rows="4" data-dtype="String">{{system.positive}}</textarea>
+          </div>
+          <div class="resource">
+            <label>{{localize "PMTTRPG.EffectNegative"}}</label>
+            <textarea name="system.negative" rows="4" data-dtype="String">{{system.negative}}</textarea>
+          </div>
+          <div class="resource">
+            <label>{{localize "PMTTRPG.EffectMacroSlot"}}</label>
+            <input type="text" name="system.macro.uuid" value="{{system.macro.uuid}}" data-dtype="String" placeholder="{{localize "PMTTRPG.EffectMacroUUID"}}"/>
+            <div class="help-text"><p>{{localize "PMTTRPG.EffectMacroSlotHint"}}</p></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="tab" data-group="primary" data-tab="advanced">
+        <div class="resource-group">
+          <div class="resource">
+            <label>{{localize "PMTTRPG.CustomNotes"}}</label>
+            <textarea name="system.customNotes" rows="5" data-dtype="String">{{system.customNotes}}</textarea>
+          </div>
+        </div>
+      </div>
+    </section>
+  </div>
+</form>

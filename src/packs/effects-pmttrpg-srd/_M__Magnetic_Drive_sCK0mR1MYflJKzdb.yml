@@ -1,0 +1,45 @@
+folder: FnGk3RdTykbJ3fn3
+name: '[M] Magnetic Drive'
+type: effect
+img: systems/projectmoonttrpg/assets/icons/Statuses/Charge.webp
+system:
+  name: ''
+  description: ''
+  cost: 4
+  allowMultiple: false
+  procOn: onClash
+  procResult: none
+  procStat: any
+  procDice: any
+  procAction: any
+  procCondition: ''
+  positive: >-
+    You can choose to push the target by 1 SQR. This forced movement can deal
+    Force Damage per unspent SQR. Consume 6 Charge per attack made this way. If
+    you spend 1 Overcharge instead, this effect is doubled.
+  negative: ''
+  macro:
+    uuid: ''
+  customNotes: ''
+  appliesTo: weapon
+  canPositive: true
+  canNegative: false
+effects: []
+sort: 0
+ownership:
+  default: 0
+  yWsvx4DXrmYcZsue: 3
+flags: {}
+_stats:
+  compendiumSource: null
+  duplicateSource: Item.8zErLlYNkUsqabtp
+  exportSource: null
+  coreVersion: '13.351'
+  systemId: projectmoonttrpg
+  systemVersion: 0.0.1
+  createdTime: 1779651087474
+  modifiedTime: 1779651087474
+  lastModifiedBy: yWsvx4DXrmYcZsue
+_id: sCK0mR1MYflJKzdb
+_key: '!items!sCK0mR1MYflJKzdb'
+

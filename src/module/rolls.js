@@ -386,6 +386,9 @@ export class PMTTRPGRolls {
         data.roll = this.item.system.offensiveDiceComputed;
         this.rollMoveExecute(data.roll, data, templateData);
       }
+      else if (this.item.type == 'outfit') {
+        this.rollMoveExecute(formula, data, templateData);
+      }
     }
     // Handle formula-only rolls.
     else {

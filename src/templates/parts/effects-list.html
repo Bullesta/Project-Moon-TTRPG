@@ -1,0 +1,86 @@
+<div class="resource-group effect-picker-panel">
+  <div class="resource">
+    <label>{{localize "PMTTRPG.EffectSearch"}}</label>
+    <input class="effect-picker" type="text" list="effect-picker-options-{{item.id}}" placeholder="{{system.effectSearchPlaceholder}}" autocomplete="off"/>
+    <datalist id="effect-picker-options-{{item.id}}">
+      {{#each effectChoices as |choice|}}
+        <option value="{{choice.label}}"></option>
+      {{/each}}
+    </datalist>
+    <div class="help-text"><p>{{localize "PMTTRPG.EffectSearchHint"}}</p></div>
+  </div>
+</div>
+
+<div class="resource-group effect-summary-panel">
+  <div class="resource">
+    <label>{{localize "PMTTRPG.EffectSummary"}}</label>
+    <div class="help-text">
+      <p>{{localize "PMTTRPG.EffectEPMax"}}: {{system.effectsSummary.epMax}}</p>
+      <p>{{localize "PMTTRPG.EffectEPPositive"}}: {{system.effectsSummary.positiveSpent}}</p>
+      <p>{{localize "PMTTRPG.EffectEPNegative"}}: {{system.effectsSummary.negativeSpent}}</p>
+      <p>{{localize "PMTTRPG.EffectEPRemaining"}}: {{system.effectsSummary.remaining}}</p>
+      {{#if system.effectsSummary.hasWarnings}}
+        {{#if system.effectsSummary.overPositive}}<p>{{localize "PMTTRPG.EffectWarningOverPositive"}}</p>{{/if}}
+        {{#if system.effectsSummary.overNegative}}<p>{{localize "PMTTRPG.EffectWarningOverNegative"}}</p>{{/if}}
+        {{#if system.effectsSummary.hasDuplicates}}<p>{{localize "PMTTRPG.EffectWarningDuplicate"}}</p>{{/if}}
+      {{/if}}
+    </div>
+  </div>
+
+  {{#if system.effectSummaryGroups.length}}
+    {{#with (lookup system.effectSummaryGroups 0) as |group|}}
+      <div class="resource effect-summary-group">
+        <h4>{{group.heading}}</h4>
+        <div class="effect-summary-group__text">{{{group.summaryText}}}</div>
+      </div>
+    {{/with}}
+  {{/if}}
+</div>
+
+<div class="resource-group effect-list-panel">
+  {{#if system.effects.length}}
+    {{#each system.effects as |effect idx|}}
+      <div class="resource effect-row" data-index="{{idx}}">
+        <input type="hidden" name="system.effects.{{idx}}.effectUuid" value="{{effect.effectUuid}}"/>
+        <input type="hidden" name="system.effects.{{idx}}.mode" value="{{effect.mode}}"/>
+        <input type="hidden" name="system.effects.{{idx}}.procOn" value="{{effect.procOn}}"/>
+        <input type="hidden" name="system.effects.{{idx}}.procCondition" value="{{effect.procCondition}}"/>
+        <input type="hidden" name="system.effects.{{idx}}.appliesTo" value="{{effect.appliesTo}}"/>
+        <input type="hidden" name="system.effects.{{idx}}.canPositive" value="{{effect.canPositive}}"/>
+        <input type="hidden" name="system.effects.{{idx}}.canNegative" value="{{effect.canNegative}}"/>
+        <input type="hidden" name="system.effects.{{idx}}.macro.uuid" value="{{effect.macro.uuid}}"/>
+
+        <div class="effect-row__header">
+          <input class="effect-row__name" type="text" value="{{effect.name}}" readonly/>
+          <span class="effect-row__cost">{{effect.displayCost}} EP</span>
+          <span class="effect-row__multiplier">x</span>
+          <input class="effect-row__stack" type="number" value="{{effect.stack}}" min="1" max="5" data-dtype="Number"/>
+          <span class="effect-row__total">={{effect.totalCost}} EP</span>
+          {{#if effect.showProcResult}}
+            <select class="effect-row__proc-result-select" data-dtype="String">
+              {{selectOptions ../selects.effectProcResult selected=effect.procResult localize=true}}
+            </select>
+          {{/if}}
+          {{#if effect.showProcStat}}
+            <select class="effect-row__proc-stat-select" data-dtype="String">
+              {{selectOptions ../selects.effectProcStat selected=effect.procStat localize=true}}
+            </select>
+          {{/if}}
+          {{#if effect.showProcAction}}
+            <select class="effect-row__proc-action-select" data-dtype="String">
+              {{selectOptions ../selects.effectProcAction selected=effect.procAction localize=true}}
+            </select>
+          {{/if}}
+          {{#if effect.allowModeToggle}}
+            <select class="effect-row__mode-select" data-dtype="String">
+              {{selectOptions ../selects.effectModes selected=effect.mode localize=true}}
+            </select>
+          {{else}}
+            <span class="effect-row__mode">{{effect.modeLabel}}</span>
+          {{/if}}
+          <button type="button" class="effect-control" data-action="delete">{{localize "PMTTRPG.EffectDelete"}}</button>
+        </div>
+      </div>
+    {{/each}}
+  {{/if}}
+</div>

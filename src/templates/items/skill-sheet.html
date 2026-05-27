@@ -12,6 +12,7 @@
     <nav class="sheet-tabs tabs" data-group="primary">
       <a class="item" data-tab="description">{{localize "PMTTRPG.Common.Description"}}</a>
       <a class="item" data-tab="properties">{{localize "PMTTRPG.Skill"}}</a>
+      <a class="item" data-tab="effects">{{localize "PMTTRPG.Effects"}}</a>
       <a class="item" data-tab="advanced">{{localize "PMTTRPG.Advanced"}}</a>
     </nav>
 
@@ -50,6 +51,10 @@
             <input class="disabled" type="text" value="{{system.epMax}}" readonly/>
           </div>
         </div>
+      </div>
+
+      <div class="tab" data-group="primary" data-tab="effects">
+        {{> "systems/projectmoonttrpg/templates/parts/effects-list.html"}}
       </div>
 
       <div class="tab" data-group="primary" data-tab="advanced">

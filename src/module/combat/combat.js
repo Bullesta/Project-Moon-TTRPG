@@ -1,6 +1,8 @@
 import { PMTTRPGUtility } from "../utility.js";
 const { renderTemplate } = foundry.applications.handlebars;
 
+const combatTurnSnapshots = new Map();
+
 /**
  * Helper class to handle rendering the custom combat tracker.
  */
@@ -204,6 +206,51 @@ export class CombatSidebarPMTTRPG {
     // Re-render combat when actors are modified.
     Hooks.on('updateActor', (actor, data, options, id) => {
       ui.combat.render();
+    });
+
+    Hooks.on('preUpdateCombat', (combat, updateData) => {
+      if (updateData.turn === undefined && updateData.round === undefined) return;
+      combatTurnSnapshots.set(combat.id, {
+        turn: combat.turn,
+        round: combat.round,
+        combatantId: combat.combatant?.id ?? null,
+      });
+    });
+
+    Hooks.on('updateCombat', async (combat, updateData, options, userId) => {
+      const snapshot = combatTurnSnapshots.get(combat.id);
+      if (!snapshot) return;
+      combatTurnSnapshots.delete(combat.id);
+
+      if (snapshot.turn === combat.turn && snapshot.round === combat.round) return;
+
+      const statusMacros = game.projectmoonttrpg?.statusMacros;
+      if (!statusMacros) return;
+
+      const previousCombatant = snapshot.combatantId ? combat.combatants.get(snapshot.combatantId) : null;
+      const currentCombatant = combat.combatant ?? null;
+
+      if (previousCombatant?.actor) {
+        await statusMacros.emitTurnEnd({
+          actor: previousCombatant.actor,
+          actorId: previousCombatant.actor.id,
+          combat,
+          combatant: previousCombatant,
+          previous: snapshot,
+          current: { turn: combat.turn, round: combat.round },
+        });
+      }
+
+      if (currentCombatant?.actor) {
+        await statusMacros.emitTurnStart({
+          actor: currentCombatant.actor,
+          actorId: currentCombatant.actor.id,
+          combat,
+          combatant: currentCombatant,
+          previous: snapshot,
+          current: { turn: combat.turn, round: combat.round },
+        });
+      }
     });
 
     Hooks.on('updateToken', (scene, token, data, options, id) => {

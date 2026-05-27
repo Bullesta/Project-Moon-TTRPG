@@ -1,0 +1,54 @@
+folder: null
+name: Sinking
+type: status
+img: systems/projectmoonttrpg/assets/icons/Statuses/Sinking.webp
+system:
+  name: ''
+  description: >-
+    <p dir="ltr">When hit by an Attack, the attacker may choose to proc this
+    status. Take SP Damage equal to the number of Sinking stacks, then remove
+    all Sinking. This is considered a Sinking Burst for effects that refer to
+    it. If this Sinking Burst results in the target&rsquo;s Panic, the attacker
+    can choose what Panic type the target enters.</p>
+
+    <p><strong>&nbsp;</strong></p>
+
+    <p dir="ltr">If you do not have SP (this does not count for characters at 0
+    SP), take HP Damage instead during a Sinking Burst.</p>
+
+    <p><strong>&nbsp;</strong></p>
+
+    <p dir="ltr">At the end of Round, remove all Sinking.</p>
+
+    <p>&nbsp;</p>
+  proc:
+    turnStart: false
+    endOfRound: false
+    actionOrReaction: false
+    attackerBurst: false
+    onHitWhenActorHas: false
+    onHitWhenTargetHas: false
+    alwaysActive: false
+    skillEffect: false
+  macro:
+    uuid: ''
+  customNotes: ''
+effects: []
+ownership:
+  default: 0
+  yWsvx4DXrmYcZsue: 3
+flags: {}
+_stats:
+  compendiumSource: null
+  duplicateSource: null
+  exportSource: null
+  coreVersion: '13.351'
+  systemId: projectmoonttrpg
+  systemVersion: 0.0.1
+  createdTime: 1779621129486
+  modifiedTime: 1779621129486
+  lastModifiedBy: yWsvx4DXrmYcZsue
+_id: rxh17elwJWwlzJmB
+sort: 0
+_key: '!items!rxh17elwJWwlzJmB'
+

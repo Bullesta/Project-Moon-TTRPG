@@ -1,0 +1,50 @@
+folder: null
+name: Poise
+type: status
+img: systems/projectmoonttrpg/assets/icons/Statuses/Poise.webp
+system:
+  name: ''
+  description: >-
+    <p dir="ltr">On Hit when you have Poise (before Clash Results Effects are
+    applied) roll a D10. If the D10 rolls Equal to or Lower than your Poise
+    Number, deal a Critical Hit and lose all Poise.&nbsp;</p>
+
+    <p><strong>&nbsp;</strong></p>
+
+    <p dir="ltr">If you have 0 Poise and gain Poise your Critical becomes 1, if
+    your Poise becomes 0 your Critical is 0. If you would gain Poise and
+    Critical in the same action, the Poise is applied first, then the Critical
+    is increased on top of the now present 1 Critical.</p>
+
+    <p>&nbsp;</p>
+  proc:
+    turnStart: false
+    endOfRound: false
+    actionOrReaction: false
+    attackerBurst: false
+    onHitWhenActorHas: false
+    onHitWhenTargetHas: false
+    alwaysActive: false
+    skillEffect: false
+  macro:
+    uuid: ''
+  customNotes: ''
+effects: []
+ownership:
+  default: 0
+  yWsvx4DXrmYcZsue: 3
+flags: {}
+_stats:
+  compendiumSource: null
+  duplicateSource: null
+  exportSource: null
+  coreVersion: '13.351'
+  systemId: projectmoonttrpg
+  systemVersion: 0.0.1
+  createdTime: 1779621123777
+  modifiedTime: 1779621127824
+  lastModifiedBy: yWsvx4DXrmYcZsue
+_id: ydPGqz7mrTUDuduT
+sort: 100000
+_key: '!items!ydPGqz7mrTUDuduT'
+

@@ -1,0 +1,47 @@
+folder: null
+name: Devastation
+type: status
+img: systems/projectmoonttrpg/assets/icons/Statuses/Devastation.webp
+system:
+  name: ''
+  description: >-
+    <p dir="ltr">You inflict Devastation on your target as a part of Ruin and
+    other skills. When you trigger a Devastating Hit deal 1D8 extra HP Damage
+    per Devastation the target has, then they lose all Devastation.&nbsp;</p>
+
+    <p><strong>&nbsp;</strong></p>
+
+    <p dir="ltr">If you gain Devastation, but have no Ruin, gain 1 Ruin.</p>
+
+    <p>&nbsp;</p>
+  proc:
+    turnStart: false
+    endOfRound: false
+    actionOrReaction: false
+    attackerBurst: false
+    onHitWhenActorHas: false
+    onHitWhenTargetHas: false
+    alwaysActive: false
+    skillEffect: false
+  macro:
+    uuid: ''
+  customNotes: ''
+effects: []
+ownership:
+  default: 0
+  yWsvx4DXrmYcZsue: 3
+flags: {}
+_stats:
+  compendiumSource: null
+  duplicateSource: null
+  exportSource: null
+  coreVersion: '13.351'
+  systemId: projectmoonttrpg
+  systemVersion: 0.0.1
+  createdTime: 1779621119816
+  modifiedTime: 1779621127824
+  lastModifiedBy: yWsvx4DXrmYcZsue
+_id: hY1hZ4lGV0HaZpma
+sort: 400000
+_key: '!items!hY1hZ4lGV0HaZpma'
+

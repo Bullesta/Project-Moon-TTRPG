@@ -24,7 +24,26 @@ styles:
 scripts:
   - scripts/lib/tagify.min.js
 packs:
-  
+  - name: status-pmttrpg-srd
+    label: Status SRD
+    path: packs/status-pmttrpg-srd
+    type: Item
+    private: false
+  - name: effects-pmttrpg-srd
+    label: Effects SRD
+    path: packs/effects-pmttrpg-srd
+    type: Item
+    private: false
+  - name: items-pmttrpg-srd
+    label: Items SRD
+    path: packs/items-pmttrpg-srd
+    type: Item
+    private: false
+  - name: macro-pmttrpg-srd
+    label: Macros SRD
+    path: packs/macro-pmttrpg-srd
+    type: Macro
+    private: false
 languages:
   - lang: en
     name: English

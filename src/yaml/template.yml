@@ -180,6 +180,7 @@ Item:
     evadeDicePower: 0
     bonusLight: 0
     bonusEP: 0
+    effects: []
     resistances:
       hp:
         slash: normal
@@ -207,11 +208,31 @@ Item:
     lightCost: 1
     innate: false
     stat: for
+    effects: []
+    customNotes: ''
+  effect:
+    templates:
+      - base
+    cost: 1
+    appliesTo: weapon
+    canPositive: true
+    canNegative: true
+    procOn: alwaysActive
+    procResult: none
+    procStat: any
+    procDice: any
+    procAction: any
+    procCondition: ''
+    positive: ''
+    negative: ''
+    macro:
+      uuid: ''
     customNotes: ''
   status:
     templates:
       - base
     proc:
+      turnStart: false
       endOfRound: false
       actionOrReaction: false
       attackerBurst: false

@@ -1,0 +1,41 @@
+folder: null
+name: Burn
+type: status
+img: systems/projectmoonttrpg/assets/icons/Statuses/Burn.webp
+system:
+  name: ''
+  description: >-
+    <p><strong id="docs-internal-guid-1f65252e-7fff-a74a-e24f-9db7bd983729">At
+    the end of the round, take HP Damage equal to the number of Burn stacks,
+    then reduce the Burn stack by half. (Rounded down)</strong></p>
+  proc:
+    turnStart: false
+    endOfRound: false
+    actionOrReaction: false
+    attackerBurst: false
+    onHitWhenActorHas: false
+    onHitWhenTargetHas: false
+    alwaysActive: false
+    skillEffect: false
+  macro:
+    uuid: ''
+  customNotes: ''
+effects: []
+ownership:
+  default: 0
+  yWsvx4DXrmYcZsue: 3
+flags: {}
+_stats:
+  compendiumSource: null
+  duplicateSource: null
+  exportSource: null
+  coreVersion: '13.351'
+  systemId: projectmoonttrpg
+  systemVersion: 0.0.1
+  createdTime: 1779621115906
+  modifiedTime: 1779621127824
+  lastModifiedBy: yWsvx4DXrmYcZsue
+_id: PuY2zpgfovSryU6R
+sort: 900000
+_key: '!items!PuY2zpgfovSryU6R'
+

@@ -9,7 +9,8 @@
   const templatePaths = [
     "systems/projectmoonttrpg/templates/parts/chat-buttons.html",
     "systems/projectmoonttrpg/templates/parts/sheet-moves.html",
-    "systems/projectmoonttrpg/templates/parts/sheet-level-up-move.html"
+    "systems/projectmoonttrpg/templates/parts/sheet-level-up-move.html",
+    "systems/projectmoonttrpg/templates/parts/effects-list.html"
   ];
 
   // Load the template parts

@@ -1,0 +1,42 @@
+folder: UQRwcMIC5vZ4s2fR
+name: Inflict Bleed
+type: effect
+img: systems/projectmoonttrpg/assets/icons/Statuses/Bleed.webp
+system:
+  name: ''
+  description: ''
+  cost: 2
+  allowMultiple: false
+  procOn: onClash
+  procResult: none
+  procStat: any
+  procDice: any
+  procAction: any
+  procCondition: ''
+  positive: Apply [N] Bleed to the target
+  negative: Apply [N] Bleed to the character
+  macro:
+    uuid: ''
+  customNotes: ''
+  appliesTo: weapon
+  canPositive: true
+  canNegative: true
+effects: []
+sort: 0
+ownership:
+  default: 0
+  yWsvx4DXrmYcZsue: 3
+flags: {}
+_stats:
+  compendiumSource: null
+  duplicateSource: Item.AlB3xMyfQBZamS0Q
+  exportSource: null
+  coreVersion: '13.351'
+  systemId: projectmoonttrpg
+  systemVersion: 0.0.1
+  createdTime: 1779651087474
+  modifiedTime: 1779651087474
+  lastModifiedBy: yWsvx4DXrmYcZsue
+_id: CyL151WiDM9quAzm
+_key: '!items!CyL151WiDM9quAzm'
+

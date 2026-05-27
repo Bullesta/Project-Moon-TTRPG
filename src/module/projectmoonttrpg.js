@@ -12,12 +12,14 @@ import { PMTTRPGItemSheet } from "./item/item-sheet.js";
 import { PMTTRPGWeaponItemSheet } from "./item/weapon-item-sheet.js";
 import { PMTTRPGOutfitItemSheet } from "./item/outfit-item-sheet.js";
 import { PMTTRPGAmmunitionItemSheet } from "./item/ammunition-item-sheet.js";
+import { PMTTRPGEffectItemSheet } from "./item/effect-item-sheet.js";
 import { PMTTRPGActorSheet } from "./actor/actor-sheet.js";
 import { PMTTRPGActorNpcSheet } from "./actor/actor-npc-sheet.js";
 import { PMTTRPGRegisterHelpers } from "./handlebars.js";
 import { preloadHandlebarsTemplates } from "./templates.js";
 import { PMTTRPGUtility } from "./utility.js";
 import { CombatSidebarPMTTRPG } from "./combat/combat.js";
+import { PMTTRPGStatusMacroAPI } from "./status-macro-api.js";
 
 import * as chat from "./chat.js";
 
@@ -37,6 +39,7 @@ Hooks.once("init", async function() {
     ItemPMTTRPG,
     rollItemMacro,
     PMTTRPGUtility,
+    statusMacros: PMTTRPGStatusMacroAPI,
   };
 
   // TODO: Extend the combat class.
@@ -47,7 +50,8 @@ Hooks.once("init", async function() {
   CONFIG.Item.documentClass = ItemPMTTRPG;
   CONFIG.Item.typeLabels = foundry.utils.mergeObject(CONFIG.Item.typeLabels ?? {}, {
     status: game.i18n.localize("TYPES.Item.status"),
-    skill: game.i18n.localize("TYPES.Item.skill")
+    skill: game.i18n.localize("TYPES.Item.skill"),
+    effect: game.i18n.localize("TYPES.Item.effect")
   });
 
   // Register sheet application classes
@@ -72,6 +76,10 @@ Hooks.once("init", async function() {
   });
   Items.registerSheet("projectmoonttrpg", PMTTRPGAmmunitionItemSheet, {
     types: ['ammunition'],
+    makeDefault: true
+  });
+  Items.registerSheet("projectmoonttrpg", PMTTRPGEffectItemSheet, {
+    types: ['effect'],
     makeDefault: true
   });
 
@@ -140,6 +148,19 @@ Hooks.once("init", async function() {
 });
 
 Hooks.once("ready", async function() {
+  const clearEffectCatalogCache = (item) => {
+    if (item?.type !== 'effect') return;
+    if (PMTTRPGEffectItemSheet && PMTTRPGEffectItemSheet._effectCatalogCache) {
+      delete PMTTRPGEffectItemSheet._effectCatalogCache.weapon;
+      delete PMTTRPGEffectItemSheet._effectCatalogCache.outfit;
+      delete PMTTRPGEffectItemSheet._effectCatalogCache.skill;
+    }
+  };
+
+  Hooks.on('createItem', clearEffectCatalogCache);
+  Hooks.on('updateItem', clearEffectCatalogCache);
+  Hooks.on('deleteItem', clearEffectCatalogCache);
+
   // Wait to register hotbar drop hook on ready so that modules could register earlier if they want to
   Hooks.on("hotbarDrop", (bar, data, slot) => {
     //overwrite the default drop-to-hotbar behaviour for items

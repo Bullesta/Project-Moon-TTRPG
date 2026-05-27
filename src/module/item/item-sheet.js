@@ -3,6 +3,53 @@ import { PMTTRPGUtility } from "../utility.js";
 const { TextEditor } = foundry.applications.ux;
 const { renderTemplate } = foundry.applications.handlebars;
 
+function computeEffectSummary(entries = [], epMax = 0) {
+  let positiveSpent = 0;
+  let negativeSpent = 0;
+  const signatureCounts = new Map();
+
+  for (const entry of entries ?? []) {
+    const cost = Math.abs(Number(entry?.cost ?? 0));
+    const stack = Math.max(1, Number(entry?.stack ?? entry?.count ?? 1));
+    const signature = [
+      entry?.effectUuid ?? '',
+      entry?.procOn ?? '',
+      entry?.procResult ?? '',
+      entry?.procStat ?? '',
+      entry?.procDice ?? '',
+      entry?.procAction ?? '',
+      entry?.procCondition ?? '',
+      entry?.mode ?? ''
+    ].join('|').toLowerCase();
+
+    signatureCounts.set(signature, (signatureCounts.get(signature) ?? 0) + 1);
+
+    if (entry?.mode === 'negative') {
+      negativeSpent += cost * stack;
+    }
+    else {
+      positiveSpent += cost * stack;
+    }
+  }
+
+  const cap = Number.isFinite(Number(epMax)) ? Number(epMax) : 0;
+  const remaining = (cap + negativeSpent) - positiveSpent;
+  const overPositive = positiveSpent > (cap + negativeSpent);
+  const overNegative = negativeSpent > cap;
+  const hasDuplicates = Array.from(signatureCounts.values()).some(count => count > 1);
+
+  return {
+    epMax: cap,
+    positiveSpent,
+    negativeSpent,
+    remaining,
+    overPositive,
+    overNegative,
+    hasDuplicates,
+    hasWarnings: overPositive || overNegative || hasDuplicates
+  };
+}
+
 /**
  * Extend the basic ItemSheet with some very simple modifications
  * @extends {ItemSheet}
@@ -155,6 +202,14 @@ export class PMTTRPGItemSheet extends foundry.appv1.sheets.ItemSheet {
         hoard: 'PMTTRPG.Hoard',
       };
     }
+
+    if (itemData.type == 'effect') {
+      context.selects.effectAppliesTo = {
+        weapon: 'TYPES.Item.weapon',
+        outfit: 'TYPES.Item.outfit',
+        skill: 'TYPES.Item.skill'
+      };
+    }
     if (itemData.type == 'npcMove') {
       context.selects.moveTypes = {
         basic: 'PMTTRPG.MoveBasic',
@@ -211,6 +266,45 @@ export class PMTTRPGItemSheet extends foundry.appv1.sheets.ItemSheet {
       };
     }
 
+    context.selects.effectModes = {
+      positive: 'PMTTRPG.EffectModePositive',
+      negative: 'PMTTRPG.EffectModeNegative'
+    };
+    context.selects.effectProcOn = {
+      alwaysActive: 'PMTTRPG.EffectProcAlwaysActive',
+      onClash: 'PMTTRPG.EffectProcOnClash',
+      onCondition: 'PMTTRPG.EffectProcOnCondition',
+      onUse: 'PMTTRPG.EffectProcOnUse',
+      onBurst: 'PMTTRPG.EffectProcOnBurst',
+      onCritical: 'PMTTRPG.EffectProcOnCritical',
+      onDevastating: 'PMTTRPG.EffectProcOnDevastating',
+      onAction: 'PMTTRPG.EffectProcOnAction'
+    };
+    context.selects.effectProcResult = {
+      none: 'PMTTRPG.EffectProcResultNone',
+      win: 'PMTTRPG.EffectProcResultWin',
+      lose: 'PMTTRPG.EffectProcResultLose'
+    };
+    context.selects.effectProcStat = {
+      any: 'PMTTRPG.EffectProcStatAny',
+      for: 'PMTTRPG.AbilityFor',
+      pru: 'PMTTRPG.AbilityPru',
+      jus: 'PMTTRPG.AbilityJus',
+      cha: 'PMTTRPG.AbilityCha',
+      ins: 'PMTTRPG.AbilityIns',
+      tem: 'PMTTRPG.AbilityTem'
+    };
+    context.selects.effectProcDice = {
+      any: 'PMTTRPG.EffectProcDiceAny',
+      offensive: 'PMTTRPG.EffectProcDiceOffensive',
+      defensive: 'PMTTRPG.EffectProcDiceDefensive'
+    };
+    context.selects.effectProcAction = {
+      any: 'PMTTRPG.EffectProcActionAny',
+      action: 'PMTTRPG.EffectProcActionAction',
+      reaction: 'PMTTRPG.EffectProcActionReaction'
+    };
+
     let returnData = {
       item: this.object,
       cssClass: isEditable ? "editable" : "locked",
@@ -218,11 +312,21 @@ export class PMTTRPGItemSheet extends foundry.appv1.sheets.ItemSheet {
       system: context.system,
       effects: effects,
       selects: context.selects,
+      effectChoices: [],
       limited: this.object.limited,
       options: this.options,
       owner: isOwner,
       title: context.name
     };
+
+    if (this.object.type === 'weapon' || this.object.type === 'outfit' || this.object.type === 'skill') {
+      const effectContext = await this._prepareEffectHostContext();
+      returnData.effectChoices = effectContext.effectChoices;
+      returnData.system.effects = effectContext.effects;
+      returnData.system.effectSummaryGroups = effectContext.effectSummaryGroups;
+      returnData.system.effectSummary = effectContext.effectSummary;
+      returnData.system.effectSearchPlaceholder = effectContext.effectSearchPlaceholder;
+    }
 
     return returnData;
   }
@@ -243,9 +347,220 @@ export class PMTTRPGItemSheet extends foundry.appv1.sheets.ItemSheet {
     // Add or Remove Attribute
     html.find(".class-fields").on("click", ".class-control", this._onClickClassControl.bind(this));
 
+    html.find('.status-macro-trigger').on('click', this._onStatusMacroTrigger.bind(this));
+
+    if (this._supportsEffects()) {
+      html.find('.effect-control').on('click', this._onEffectControl.bind(this));
+      html.find('.effect-picker').on('change', this._onEffectPickerChange.bind(this));
+      html.find('.effect-picker').on('keydown', this._onEffectPickerKeydown.bind(this));
+      html.find('.effect-row__stack').on('change', this._onEffectStackChange.bind(this));
+      html.find('.effect-row__proc-result-select').on('change', this._onEffectProcResultChange.bind(this));
+      html.find('.effect-row__proc-stat-select').on('change', this._onEffectProcStatChange.bind(this));
+      html.find('.effect-row__proc-action-select').on('change', this._onEffectProcActionChange.bind(this));
+      html.find('.effect-row__mode-select').on('change', this._onEffectModeChange.bind(this));
+      html.on('dragover', this._onEffectDragOver.bind(this));
+      html.on('drop', this._onDrop.bind(this));
+    }
+
     // TODO: Create tags that don't already exist on focus out. This is a
     // nice-to-have, but it's high risk due to how easy it will make it to
     // create extra tags unintentionally.
+  }
+
+  async _onStatusMacroTrigger(event) {
+    event.preventDefault();
+    if (this.object.type !== 'status') return;
+
+    await game.projectmoonttrpg?.statusMacros?.emitManualButton(this.object, {
+      actorId: this.object.parent?.id ?? null,
+      source: 'status-sheet'
+    });
+  }
+
+  _supportsEffects() {
+    return ['weapon', 'outfit', 'skill'].includes(this.object.type);
+  }
+
+  _effectHostType() {
+    return this.object.type;
+  }
+
+  _effectLabel(effect) {
+    return PMTTRPGUtility.formatEffectProcLabel(effect);
+  }
+
+  _effectSignature(effect) {
+    return [
+      effect?.effectUuid ?? '',
+      effect?.procOn ?? '',
+      effect?.procResult ?? '',
+      effect?.procStat ?? '',
+      effect?.procDice ?? '',
+      effect?.procAction ?? '',
+      effect?.procCondition ?? '',
+      effect?.mode ?? ''
+    ].join('|').toLowerCase();
+  }
+
+  _getEffectStack(effect) {
+    const stackRaw = Number(effect?.stack ?? effect?.count ?? 1);
+    return Math.max(1, Math.min(5, Number.isFinite(stackRaw) ? stackRaw : 1));
+  }
+
+  _createHostEffectEntry(effectItem, { mode = null } = {}) {
+    const system = effectItem?.system ?? {};
+    const resolvedMode = mode ?? (Number(system.cost ?? 0) < 0 || (system.canPositive === false && system.canNegative !== false) ? 'negative' : 'positive');
+
+    return {
+      effectUuid: effectItem?.uuid ?? '',
+      name: effectItem?.name ?? '',
+      cost: Math.abs(Number(system.cost ?? 0) || 0),
+      stack: 1,
+      count: 1,
+      mode: resolvedMode,
+      appliesTo: system.appliesTo ?? effectItem?.type ?? this._effectHostType(),
+      canPositive: system.canPositive !== false,
+      canNegative: system.canNegative !== false,
+      allowModeToggle: (system.canPositive !== false) && (system.canNegative !== false),
+      procOn: system.procOn ?? 'alwaysActive',
+      procResult: system.procResult ?? 'none',
+      procStat: system.procStat ?? 'any',
+      procDice: system.procDice ?? 'any',
+      procAction: system.procAction ?? 'any',
+      procCondition: system.procCondition ?? '',
+      positive: system.positive ?? '',
+      negative: system.negative ?? '',
+      macro: {
+        uuid: system?.macro?.uuid ?? ''
+      }
+    };
+  }
+
+  _mergeHostEffectEntries(existingEffects = [], incomingEffect) {
+    const effects = foundry.utils.duplicate(existingEffects ?? []);
+    const signature = this._effectSignature(incomingEffect);
+    const existingIndex = effects.findIndex(effect => this._effectSignature(effect) === signature);
+
+    if (existingIndex >= 0) {
+      const current = effects[existingIndex];
+      current.stack = this._getEffectStack(current) + this._getEffectStack(incomingEffect);
+      current.count = current.stack;
+      return effects;
+    }
+
+    effects.push(incomingEffect);
+    return effects;
+  }
+
+  _buildEffectSummaryGroups(effects = []) {
+    const blocks = [];
+
+    for (const effect of effects ?? []) {
+      const heading = foundry.utils.escapeHTML(this._effectLabel(effect) || game.i18n.localize('PMTTRPG.Effects'));
+      const stack = this._getEffectStack(effect);
+      const textSource = effect.mode === 'negative' ? (effect.negative || effect.positive || '') : (effect.positive || effect.negative || '');
+      const text = PMTTRPGUtility.expandEffectText(textSource, stack).trim();
+      const lineText = foundry.utils.escapeHTML(text || game.i18n.localize('PMTTRPG.EffectNoSummaryText'));
+      blocks.push(`<div class="effect-summary-block"><strong>${heading}</strong><br><span class="effect-summary-line">- ${lineText}</span></div>`);
+    }
+
+    return [{
+      key: 'combined',
+      heading: game.i18n.localize('PMTTRPG.Effects'),
+      summaryText: blocks.join('<br><br>')
+    }];
+  }
+
+  async _getEffectCatalog() {
+    const hostType = this._effectHostType();
+    PMTTRPGItemSheet._effectCatalogCache = PMTTRPGItemSheet._effectCatalogCache || {};
+    if (PMTTRPGItemSheet._effectCatalogCache[hostType]) {
+      return PMTTRPGItemSheet._effectCatalogCache[hostType];
+    }
+
+    const catalog = [];
+    const packs = Array.from(game.packs ?? []).filter(pack => pack.documentName === 'Item');
+
+    for (const effect of game.items.filter(item => item.type === 'effect')) {
+      const appliesTo = effect.system?.appliesTo ?? hostType;
+      if (appliesTo !== hostType) continue;
+      catalog.push({
+        uuid: effect.uuid,
+        name: effect.name,
+        label: `${effect.name} [${game.i18n.localize(`TYPES.Item.${appliesTo}`)}]`,
+        appliesTo,
+        canPositive: effect.system?.canPositive !== false,
+        canNegative: effect.system?.canNegative !== false,
+        effect: {
+          ...effect.toObject(),
+          uuid: effect.uuid
+        }
+      });
+    }
+
+    for (const pack of packs) {
+      let docs = [];
+      try {
+        docs = await pack.getDocuments();
+      }
+      catch (error) {
+        continue;
+      }
+
+      for (const effect of docs.filter(doc => doc.type === 'effect')) {
+        const appliesTo = effect.system?.appliesTo ?? hostType;
+        if (appliesTo !== hostType) continue;
+
+        catalog.push({
+          uuid: effect.uuid,
+          name: effect.name,
+          label: `${effect.name} [${game.i18n.localize(`TYPES.Item.${appliesTo}`)}]`,
+          appliesTo,
+          canPositive: effect.system?.canPositive !== false,
+          canNegative: effect.system?.canNegative !== false,
+          effect: {
+            ...effect.toObject(),
+            uuid: effect.uuid
+          }
+        });
+      }
+    }
+
+    catalog.sort((left, right) => left.label.localeCompare(right.label));
+    PMTTRPGItemSheet._effectCatalogCache = PMTTRPGItemSheet._effectCatalogCache || {};
+    PMTTRPGItemSheet._effectCatalogCache[this._effectHostType()] = catalog;
+    return catalog;
+  }
+
+  async _prepareEffectHostContext() {
+    const catalog = await this._getEffectCatalog();
+    const effects = foundry.utils.duplicate(this.object.system.effects ?? []).map(effect => {
+      const stack = this._getEffectStack(effect);
+      const showProcResult = ['onClash', 'onClashResult', 'onEitherClashResult'].includes(effect.procOn);
+      const showProcStat = ['onUse', 'onAction'].includes(effect.procOn);
+      const showProcAction = ['onUse', 'onAction'].includes(effect.procOn);
+      return {
+        ...effect,
+        stack,
+        count: stack,
+        signedCost: (effect.mode === 'negative' ? -1 : 1) * Math.abs(Number(effect.cost ?? 0)),
+        displayCost: (effect.mode === 'negative' ? -1 : 1) * Math.abs(Number(effect.cost ?? 0)),
+        totalCost: ((effect.mode === 'negative' ? -1 : 1) * Math.abs(Number(effect.cost ?? 0))) * stack,
+        allowModeToggle: effect.canPositive !== false && effect.canNegative !== false,
+        showProcResult,
+        showProcStat,
+        showProcAction,
+        modeLabel: effect.mode === 'negative' ? game.i18n.localize('PMTTRPG.EffectModeNegative') : game.i18n.localize('PMTTRPG.EffectModePositive')
+      };
+    });
+
+    return {
+      effectChoices: catalog,
+      effects,
+      effectSummary: computeEffectSummary(effects, Number(this.object.system?.epMax ?? 0)),
+      effectSummaryGroups: this._buildEffectSummaryGroups(effects),
+      effectSearchPlaceholder: game.i18n.localize('PMTTRPG.EffectSearchPlaceholder')
+    };
   }
 
   /**
@@ -418,6 +733,188 @@ export class PMTTRPGItemSheet extends foundry.appv1.sheets.ItemSheet {
         await this._onSubmit(event);
       }
     }
+  }
+
+  /* -------------------------------------------- */
+
+  async _onEffectControl(event) {
+    event.preventDefault();
+    if (!this._supportsEffects()) return;
+
+    const button = event.currentTarget;
+    const action = button.dataset.action;
+    const row = button.closest('.effect-row');
+    const index = row ? Number(row.dataset.index ?? -1) : -1;
+    const effects = foundry.utils.duplicate(this.object.system.effects ?? []);
+
+    if (action === 'delete' && index >= 0) {
+      effects.splice(index, 1);
+    }
+    else {
+      return;
+    }
+
+    await this.object.update({ 'system.effects': effects });
+  }
+
+  async _onEffectPickerChange(event) {
+    event.preventDefault();
+    event.stopPropagation();
+    const value = `${event.currentTarget?.value ?? ''}`.trim();
+    if (!value) return;
+
+    const choice = (await this._getEffectCatalog()).find(entry => entry.label === value || entry.name === value);
+    if (!choice) return;
+
+    await this._addEffectToHost(choice);
+    event.currentTarget.value = '';
+  }
+
+  async _onEffectPickerKeydown(event) {
+    if (event.key !== 'Enter') return;
+    event.preventDefault();
+    await this._onEffectPickerChange(event);
+  }
+
+  async _onEffectStackChange(event) {
+    event.preventDefault();
+    event.stopPropagation();
+    if (!this._supportsEffects()) return;
+
+    const row = event.currentTarget.closest('.effect-row');
+    const index = Number(row?.dataset?.index ?? -1);
+    if (index < 0) return;
+
+    const stackRaw = Number(event.currentTarget.value ?? 1);
+    const stack = Math.max(1, Math.min(5, Number.isFinite(stackRaw) ? stackRaw : 1));
+    const effects = foundry.utils.duplicate(this.object.system.effects ?? []);
+    if (!effects[index]) return;
+
+    effects[index].stack = stack;
+    effects[index].count = stack;
+    await this.object.update({ 'system.effects': effects });
+  }
+
+  async _onEffectProcResultChange(event) {
+    event.preventDefault();
+    event.stopPropagation();
+    if (!this._supportsEffects()) return;
+
+    const row = event.currentTarget.closest('.effect-row');
+    const index = Number(row?.dataset?.index ?? -1);
+    if (index < 0) return;
+
+    const effects = foundry.utils.duplicate(this.object.system.effects ?? []);
+    if (!effects[index]) return;
+
+    effects[index].procResult = `${event.currentTarget.value ?? 'none'}`;
+    await this.object.update({ 'system.effects': effects });
+  }
+
+  async _onEffectProcStatChange(event) {
+    event.preventDefault();
+    event.stopPropagation();
+    if (!this._supportsEffects()) return;
+
+    const row = event.currentTarget.closest('.effect-row');
+    const index = Number(row?.dataset?.index ?? -1);
+    if (index < 0) return;
+
+    const effects = foundry.utils.duplicate(this.object.system.effects ?? []);
+    if (!effects[index]) return;
+
+    effects[index].procStat = `${event.currentTarget.value ?? 'any'}`;
+    await this.object.update({ 'system.effects': effects });
+  }
+
+  async _onEffectProcActionChange(event) {
+    event.preventDefault();
+    event.stopPropagation();
+    if (!this._supportsEffects()) return;
+
+    const row = event.currentTarget.closest('.effect-row');
+    const index = Number(row?.dataset?.index ?? -1);
+    if (index < 0) return;
+
+    const effects = foundry.utils.duplicate(this.object.system.effects ?? []);
+    if (!effects[index]) return;
+
+    effects[index].procAction = `${event.currentTarget.value ?? 'any'}`;
+    await this.object.update({ 'system.effects': effects });
+  }
+
+  async _onEffectModeChange(event) {
+    event.preventDefault();
+    event.stopPropagation();
+    if (!this._supportsEffects()) return;
+
+    const row = event.currentTarget.closest('.effect-row');
+    const index = Number(row?.dataset?.index ?? -1);
+    if (index < 0) return;
+
+    const effects = foundry.utils.duplicate(this.object.system.effects ?? []);
+    if (!effects[index]) return;
+
+    effects[index].mode = `${event.currentTarget.value ?? 'positive'}`;
+    await this.object.update({ 'system.effects': effects });
+  }
+
+  _onEffectDragOver(event) {
+    if (!this._supportsEffects()) return;
+    event.preventDefault();
+  }
+
+  async _addEffectToHost(effectChoice) {
+    const effectData = effectChoice?.effect;
+    if (!effectData || effectData.type !== 'effect') return;
+    if ((effectData.system?.appliesTo ?? this._effectHostType()) !== this._effectHostType()) return;
+
+    const incoming = this._createHostEffectEntry(effectData, {
+      mode: effectData.system?.cost < 0 || effectData.system?.canPositive === false ? 'negative' : 'positive'
+    });
+
+    const effects = this._mergeHostEffectEntries(this.object.system.effects ?? [], incoming);
+    await this.object.update({ 'system.effects': effects });
+  }
+
+  /* -------------------------------------------- */
+
+  /** @override */
+  async _onDrop(event) {
+    const rawData = event.originalEvent?.dataTransfer?.getData('text/plain')
+      ?? event.dataTransfer?.getData('text/plain');
+
+    if (!rawData) {
+      return super._onDrop ? super._onDrop(event) : false;
+    }
+
+    let dropData = null;
+    try {
+      dropData = JSON.parse(rawData);
+    }
+    catch (err) {
+      return super._onDrop ? super._onDrop(event) : false;
+    }
+
+    if (dropData?.type !== 'Item' || !this._supportsEffects()) {
+      return super._onDrop ? super._onDrop(event) : false;
+    }
+
+    const droppedItem = await Item.fromDropData(dropData);
+    if (!droppedItem || droppedItem.type !== 'effect') {
+      return super._onDrop ? super._onDrop(event) : false;
+    }
+
+    if ((droppedItem.system?.appliesTo ?? this._effectHostType()) !== this._effectHostType()) {
+      return false;
+    }
+
+    const effects = this._mergeHostEffectEntries(this.object.system.effects ?? [], this._createHostEffectEntry(droppedItem, {
+      mode: droppedItem.system?.cost < 0 || droppedItem.system?.canPositive === false ? 'negative' : 'positive'
+    }));
+    await this.object.update({ 'system.effects': effects });
+
+    return false;
   }
 
   /* -------------------------------------------- */

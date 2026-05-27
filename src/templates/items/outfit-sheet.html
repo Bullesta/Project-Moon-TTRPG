@@ -13,6 +13,7 @@
       <a class="item" data-tab="description">{{localize "PMTTRPG.Common.Description"}}</a>
       <a class="item" data-tab="defenses">{{localize "PMTTRPG.OutfitDefenses"}}</a>
       <a class="item" data-tab="resistances">{{localize "PMTTRPG.Resistances"}}</a>
+      <a class="item" data-tab="effects">{{localize "PMTTRPG.Effects"}}</a>
       <a class="item" data-tab="advanced">{{localize "PMTTRPG.Advanced"}}</a>
     </nav>
 
@@ -103,6 +104,10 @@
             </div>
           </div>
         </div>
+      </div>
+
+      <div class="tab" data-group="primary" data-tab="effects">
+        {{> "systems/projectmoonttrpg/templates/parts/effects-list.html"}}
       </div>
 
       <div class="tab" data-group="primary" data-tab="advanced">

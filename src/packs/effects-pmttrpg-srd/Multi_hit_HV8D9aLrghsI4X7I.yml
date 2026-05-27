@@ -1,0 +1,54 @@
+folder: rg22bomYXahhpqEN
+name: Multi-hit
+type: effect
+_id: HV8D9aLrghsI4X7I
+img: systems/projectmoonttrpg/assets/icons/Statuses/Combo.webp
+system:
+  name: ''
+  description: ''
+  cost: 8
+  allowMultiple: true
+  procOn: onUse
+  procResult: none
+  procStat: any
+  procDice: any
+  procAction: any
+  procCondition: ''
+  positive: >-
+    The Attack is replaced with [N+1] Attacks with a -2 penalty to all Dice
+    Power of the attacks. 
+
+    This stacks with any effects of the same name, to a max of 2 overall. Cannot
+    be stacked with any other attack replacement.
+
+    Clash [Result] effects only activate once based on the outcome of the First
+    Clash. On Use effects only activate one time.
+
+    Any User Dice Modification to these attacks is based on the conditions of
+    the first Attack, regardless of effects present after the first clash (e.g.
+    Bonus/Vigor activation)
+  negative: Cannot be negative.
+  macro:
+    uuid: ''
+  customNotes: ''
+  appliesTo: weapon
+  canPositive: true
+  canNegative: true
+effects: []
+sort: 0
+ownership:
+  default: 0
+  yWsvx4DXrmYcZsue: 3
+flags: {}
+_stats:
+  compendiumSource: null
+  duplicateSource: null
+  exportSource: null
+  coreVersion: '13.351'
+  systemId: projectmoonttrpg
+  systemVersion: 0.0.1
+  createdTime: 1779651087474
+  modifiedTime: 1779651087474
+  lastModifiedBy: yWsvx4DXrmYcZsue
+_key: '!items!HV8D9aLrghsI4X7I'
+

@@ -2,6 +2,89 @@ import { PMTTRPGUtility } from "../utility.js";
 import { PMTTRPGRolls } from "../rolls.js";
 const { renderTemplate } = foundry.applications.handlebars;
 
+function normalizeEffectEntries(rawEffects = []) {
+  if (!Array.isArray(rawEffects)) return [];
+
+  return rawEffects.map((entry) => {
+    const stackRaw = Number(entry?.stack ?? entry?.count ?? 1);
+    const stack = Math.max(1, Math.min(5, Number.isFinite(stackRaw) ? stackRaw : 1));
+    const costRaw = Number(entry?.cost ?? 0);
+    const cost = Number.isFinite(costRaw) ? costRaw : 0;
+    const mode = entry?.mode === 'negative' ? 'negative' : 'positive';
+
+    return {
+      effectUuid: entry?.effectUuid ?? '',
+      name: entry?.name ?? '',
+      cost,
+      stack,
+      count: stack,
+      mode,
+      appliesTo: entry?.appliesTo ?? '',
+      canPositive: entry?.canPositive !== false,
+      canNegative: entry?.canNegative !== false,
+      procOn: entry?.procOn ?? 'alwaysActive',
+      procResult: entry?.procResult ?? 'none',
+      procStat: entry?.procStat ?? 'any',
+      procDice: entry?.procDice ?? 'any',
+      procAction: entry?.procAction ?? 'any',
+      procCondition: entry?.procCondition ?? '',
+      positive: entry?.positive ?? '',
+      negative: entry?.negative ?? '',
+      macro: foundry.utils.mergeObject({ uuid: '' }, entry?.macro ?? {}, { inplace: false })
+    };
+  });
+}
+
+function getEffectSignature(entry) {
+  return [
+    entry?.effectUuid || entry?.name || '',
+    entry?.procOn || '',
+    entry?.procResult || '',
+    entry?.procStat || '',
+    entry?.procDice || '',
+    entry?.procAction || '',
+    entry?.procCondition || '',
+    entry?.mode || ''
+  ].join('|').toLowerCase();
+}
+
+function computeEffectSummary(entries = [], epMax = 0) {
+  let positiveSpent = 0;
+  let negativeSpent = 0;
+  const signatureCounts = new Map();
+
+  for (const entry of entries) {
+    const cost = Math.abs(Number(entry?.cost ?? 0));
+    const count = Math.max(1, Number(entry?.stack ?? entry?.count ?? 1));
+    const signature = getEffectSignature(entry);
+    signatureCounts.set(signature, (signatureCounts.get(signature) ?? 0) + 1);
+
+    if (entry?.mode === 'negative') {
+      negativeSpent += cost * count;
+    }
+    else {
+      positiveSpent += cost * count;
+    }
+  }
+
+  const cap = Number.isFinite(epMax) ? epMax : 0;
+  const remaining = (cap + negativeSpent) - positiveSpent;
+  const overPositive = positiveSpent > (cap + negativeSpent);
+  const overNegative = negativeSpent > cap;
+  const hasDuplicates = Array.from(signatureCounts.values()).some(count => count > 1);
+
+  return {
+    epMax: cap,
+    positiveSpent,
+    negativeSpent,
+    remaining,
+    overPositive,
+    overNegative,
+    hasDuplicates,
+    hasWarnings: overPositive || overNegative || hasDuplicates
+  };
+}
+
 export class ItemPMTTRPG extends Item {
   /**
    * Augment the basic Item data model with additional dynamic data.
@@ -13,6 +96,7 @@ export class ItemPMTTRPG extends Item {
     const itemData = this;
     const actorData = this.actor ? this.actor : {};
     const data = itemData.system;
+    const effectProcOn = data.procOn ?? 'alwaysActive';
 
     // Clean up broken groups.
     if (itemData.type == 'class') {
@@ -81,6 +165,9 @@ export class ItemPMTTRPG extends Item {
       data.epBase = weaponEpBase;
       data.epBonusFromHands = epBonusFromHands;
       data.epMax = weaponEpBase + epBonusFromHands + (Number(data.bonusEP) || 0);
+      const normalizedEffects = normalizeEffectEntries(data.effects);
+      data.effects = normalizedEffects;
+      data.effectsSummary = computeEffectSummary(normalizedEffects, Number(data.epMax ?? 0));
     }
 
     if (itemData.type == 'outfit') {
@@ -138,6 +225,9 @@ export class ItemPMTTRPG extends Item {
       const outfitEpBase = orank < 0 ? 0 : (orank * 2) + 2;
       data.epBase = outfitEpBase;
       data.epMax = outfitEpBase + (Number(data.bonusEP) || 0);
+      const normalizedEffects = normalizeEffectEntries(data.effects);
+      data.effects = normalizedEffects;
+      data.effectsSummary = computeEffectSummary(normalizedEffects, Number(data.epMax ?? 0));
       // Compute human-readable multiplier strings for template display, e.g. "2x", "1.5x", "0.25x", "0x"
       data.resistancesDisplay = { hp: {}, st: {} };
       const formatMultiplier = (m) => {
@@ -168,12 +258,16 @@ export class ItemPMTTRPG extends Item {
       const skillEpMax = skillEpBase + ((lightCost - 1) * rank) + (innate ? 2 : 0);
       data.epBase = skillEpBase;
       data.epMax = skillEpMax;
+      const normalizedEffects = normalizeEffectEntries(data.effects);
+      data.effects = normalizedEffects;
+      data.effectsSummary = computeEffectSummary(normalizedEffects, Number(data.epMax ?? 0));
       data.lightCostMax = actorLightMax > 0 ? actorLightMax : null;
     }
 
     if (itemData.type == 'status') {
       data.isStatus = true;
       data.proc = foundry.utils.mergeObject({
+        turnStart: false,
         endOfRound: false,
         actionOrReaction: false,
         attackerBurst: false,
@@ -185,6 +279,28 @@ export class ItemPMTTRPG extends Item {
       data.macro = foundry.utils.mergeObject({
         uuid: '',
       }, data.macro ?? {}, { inplace: false });
+    }
+
+    if (itemData.type == 'effect') {
+      const effectProcOn = data.procOn ?? 'alwaysActive';
+      data.appliesTo = data.appliesTo ?? 'weapon';
+      data.canPositive = data.canPositive !== false;
+      data.canNegative = data.canNegative !== false;
+      data.procOn = data.procOn ?? 'alwaysActive';
+      data.procResult = data.procResult ?? 'none';
+      data.procStat = data.procStat ?? 'any';
+      data.procDice = data.procDice ?? 'any';
+      data.procAction = data.procAction ?? 'any';
+      data.procCondition = data.procCondition ?? '';
+      data.positive = data.positive ?? '';
+      data.negative = data.negative ?? '';
+      data.macro = foundry.utils.mergeObject({
+        uuid: '',
+      }, data.macro ?? {}, { inplace: false });
+      data.showProcResult = ['onClashResult', 'onEitherClashResult'].includes(effectProcOn);
+      data.showProcStat = ['onCondition', 'onUse', 'onAction'].includes(effectProcOn);
+      data.showProcDice = ['onClash', 'onClashResult', 'onEitherClashResult', 'onBurst', 'onCritical', 'onDevastating'].includes(effectProcOn);
+      data.showProcAction = ['onUse', 'onAction'].includes(effectProcOn);
     }
   }
 

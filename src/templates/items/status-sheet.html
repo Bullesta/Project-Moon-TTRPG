@@ -30,6 +30,7 @@
             <div class="resource">
               <label>{{localize "PMTTRPG.StatusProcActivities"}}</label>
               <div class="status-proc-grid">
+                <label class="status-proc-grid__item"><input type="checkbox" name="system.proc.turnStart" {{checked system.proc.turnStart}}/> {{localize "PMTTRPG.StatusProcTurnStart"}}</label>
                 <label class="status-proc-grid__item"><input type="checkbox" name="system.proc.endOfRound" {{checked system.proc.endOfRound}}/> {{localize "PMTTRPG.StatusProcEndOfRound"}}</label>
                 <label class="status-proc-grid__item"><input type="checkbox" name="system.proc.actionOrReaction" {{checked system.proc.actionOrReaction}}/> {{localize "PMTTRPG.StatusProcActionOrReaction"}}</label>
                 <label class="status-proc-grid__item"><input type="checkbox" name="system.proc.attackerBurst" {{checked system.proc.attackerBurst}}/> {{localize "PMTTRPG.StatusProcAttackerBurst"}}</label>
@@ -44,6 +45,7 @@
               <label>{{localize "PMTTRPG.StatusMacroSlot"}}</label>
               <div class="status-macro-slot">
                 <input type="text" name="system.macro.uuid" value="{{system.macro.uuid}}" data-dtype="String" placeholder="{{localize "PMTTRPG.StatusMacroUUID"}}"/>
+                <button type="button" class="status-macro-trigger">{{localize "PMTTRPG.StatusMacroTrigger"}}</button>
               </div>
               <div class="help-text"><p>{{localize "PMTTRPG.StatusMacroSlotHint"}}</p></div>
             </div>
