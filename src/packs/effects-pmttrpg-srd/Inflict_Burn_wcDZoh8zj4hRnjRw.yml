@@ -7,7 +7,7 @@ system:
   name: ''
   description: ''
   cost: 2
-  allowMultiple: false
+  allowMultiple: true
   procOn: onClash
   procResult: none
   procStat: any
@@ -22,6 +22,8 @@ system:
   appliesTo: weapon
   canPositive: true
   canNegative: true
+  stackMax: 5
+  procResultLocked: false
 effects: []
 sort: 0
 ownership:

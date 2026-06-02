@@ -213,6 +213,66 @@
 
         </section>
 
+        {{#if augment}}
+        <section class="sheet-augment sheet-augment--featured">
+          <div class="cell cell--augment">
+            <div class="sheet-augment__header">
+              <div class="sheet-augment__identity">
+                <div class="item-avatar item-avatar--large item-avatar--augment">
+                  <img class="item-icon" src="{{augment.img}}" title="{{augment.name}}" alt="{{augment.name}}"/>
+                </div>
+                <div class="sheet-augment__titles">
+                  <h2 class="sheet-augment__name">{{augment.name}}</h2>
+                  <div class="item-tags">
+                    {{#if augment.system.rank}}
+                      <span class="tag">{{localize "PMTTRPG.AugmentRank"}}: {{augment.system.rank}}</span>
+                    {{/if}}
+                  </div>
+                </div>
+              </div>
+              <div class="item-controls sheet-augment__controls">
+                <a class="item-control item-edit" title="Edit Item" data-item-id="{{augment._id}}"><i class="fas fa-edit"></i></a>
+                <a class="item-control item-delete" title="Delete Item" data-item-id="{{augment._id}}"><i class="fas fa-trash"></i></a>
+              </div>
+            </div>
+
+            <div class="sheet-augment__body">
+              <div class="description">
+                {{{augment.system.descriptionEnriched}}}
+              </div>
+
+              {{#if augment.system.effectSummaryGroups.length}}
+              <div class="sheet-augment__effects">
+                {{#with (lookup augment.system.effectSummaryGroups 0) as |group|}}
+                  <h3 class="cell__title small-text">{{group.heading}}</h3>
+                  <div class="sheet-augment__effect-summary">
+                    {{{group.summaryText}}}
+                  </div>
+                {{/with}}
+              </div>
+              {{/if}}
+            </div>
+          </div>
+        </section>
+        {{else}}
+        <section class="sheet-augment sheet-augment--featured sheet-augment--empty">
+          <div class="cell cell--augment">
+            <div class="sheet-augment__header">
+              <div class="sheet-augment__identity">
+                <div class="sheet-augment__titles">
+                  <h2 class="sheet-augment__name">{{localize "PMTTRPG.NoAugments"}}</h2>
+                </div>
+              </div>
+              <div class="item-controls sheet-augment__controls">
+                <button type="button" class="item-control item-create" title='{{localize "PMTTRPG.AddAugment"}}' data-type="augment">
+                  <i class="fas fa-plus"></i>
+                </button>
+              </div>
+            </div>
+          </div>
+        </section>
+        {{/if}}
+
         {{!-- Sheet Tab Navigation --}}
         <nav class="sheet-tabs tabs" data-group="primary">
             <a class="item" data-tab="weapons-attacks">{{localize "PMTTRPG.WeaponsAttacks"}}</a>
@@ -304,10 +364,17 @@
                         {{/if}}
                         <div class="item-description">
                           <div class="description">
-                            {{#if item.system.epMax}}<p><strong>{{localize "PMTTRPG.EP"}}:</strong> {{item.system.epMax}}</p>{{/if}}
                             {{{item.system.descriptionEnriched}}}
                           </div>
                         </div>
+                        {{#if item.system.effectSummaryGroups.length}}
+                        {{#with (lookup item.system.effectSummaryGroups 0) as |group|}}
+                          <div class="item-effect-summary">
+                            <h4 class="cell__title small-text">{{group.heading}}</h4>
+                            <div class="effect-summary-block">{{{group.summaryText}}}</div>
+                          </div>
+                        {{/with}}
+                        {{/if}}
                       </div>
                     </li>
                   {{/each}}
@@ -442,11 +509,17 @@
                           <div class="item-description">
                             <div class="description">
                               {{#if item.system.bonusLight}}<p><strong>{{localize "PMTTRPG.BonusLight"}}:</strong> +{{item.system.bonusLight}}</p>{{/if}}
-                              {{#if item.system.bonusEP}}<p><strong>{{localize "PMTTRPG.BonusEP"}}:</strong> +{{item.system.bonusEP}}</p>{{/if}}
-                              {{#if item.system.epMax}}<p><strong>{{localize "PMTTRPG.EP"}}:</strong> {{item.system.epMax}}</p>{{/if}}
                               {{{item.system.descriptionEnriched}}}
                             </div>
                           </div>
+                          {{#if item.system.effectSummaryGroups.length}}
+                            {{#with (lookup item.system.effectSummaryGroups 0) as |group|}}
+                              <div class="item-effect-summary">
+                                <h4 class="cell__title small-text">{{group.heading}}</h4>
+                                <div class="effect-summary-block">{{{group.summaryText}}}</div>
+                              </div>
+                            {{/with}}
+                          {{/if}}
                           <div class="item-controls">
                             <a class="item-control item-equip" title="{{localize "PMTTRPG.Equipped"}}"><i class="fa-solid fa-shirt"></i></a>
                             <a class="item-control item-edit" title="Edit Item"><i class="fas fa-edit"></i></a>
@@ -520,9 +593,7 @@
                             {{#if item.system.rank}}
                               <span class="tag">{{localize "PMTTRPG.SkillRank"}}: {{item.system.rank}}</span>
                             {{/if}}
-                            {{#if item.system.epMax}}
-                              <span class="tag">{{localize "PMTTRPG.EP"}}: {{item.system.epMax}}</span>
-                            {{/if}}
+                            {{!-- EP removed from character sheet --}}
                           </div>
                           <div class="item-controls">
                             <a class="item-control item-edit" title="Edit Item"><i class="fas fa-edit"></i></a>

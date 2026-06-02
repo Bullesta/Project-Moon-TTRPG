@@ -27,7 +27,8 @@ export class PMTTRPGEffectItemSheet extends PMTTRPGItemSheet {
     context.selects.effectAppliesTo = {
       weapon: 'TYPES.Item.weapon',
       outfit: 'TYPES.Item.outfit',
-      skill: 'TYPES.Item.skill'
+      skill: 'TYPES.Item.skill',
+      augment: 'TYPES.Item.augment'
     };
 
     return context;

@@ -1,0 +1,43 @@
+folder: 3tXrLHnpxiZ3FWqV
+name: Charged Hull
+type: effect
+img: systems/projectmoonttrpg/assets/icons/Statuses/Charge.webp
+system:
+  name: ''
+  description: ''
+  cost: 4
+  stackMax: 1
+  appliesTo: outfit
+  canPositive: true
+  canNegative: false
+  procOn: alwaysActive
+  procResult: none
+  procResultLocked: false
+  procStat: any
+  procDice: any
+  procAction: any
+  procCondition: ''
+  positive: When hit by an Attack, you may consume 1 Overcharge to reduce incoming HP/ST damage by 3 each, before Resistances.
+  negative: ''
+  macro:
+    uuid: ''
+  customNotes: ''
+  allowMultiple: false
+effects: []
+sort: 0
+ownership:
+  default: 0
+  yWsvx4DXrmYcZsue: 3
+flags: {}
+_stats:
+  compendiumSource: null
+  duplicateSource: Item.GXsm3eW8QoIsnGQU
+  exportSource: null
+  coreVersion: '13.351'
+  systemId: projectmoonttrpg
+  systemVersion: 0.0.1
+  createdTime: 1780308622217
+  modifiedTime: 1780308622217
+  lastModifiedBy: yWsvx4DXrmYcZsue
+_id: gyevrmYkEB38uIdJ
+_key: '!items!gyevrmYkEB38uIdJ'

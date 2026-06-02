@@ -1,6 +1,7 @@
 
 import { PMTTRPGUtility } from "../utility.js";
 import { PMTTRPGRolls } from "../rolls.js";
+import { buildEffectSummaryGroups } from "../effects/effect-summary.js";
 
 const { TextEditor } = foundry.applications.ux;
 const { renderTemplate } = foundry.applications.handlebars;
@@ -108,8 +109,37 @@ export class PMTTRPGActorSheet extends foundry.appv1.sheets.ActorSheet {
     await this._prepareCharacterItems(context);
     await this._prepareNpcItems(context);
     context.allWeapons = context.items.filter(item => item.type === 'weapon').sort((a, b) => (a.sort || 0) - (b.sort || 0));
+    context.augments = context.items.filter(item => item.type === 'augment').map((augment) => {
+      const augmentDocument = this.actor.items.get(augment._id);
+      if (augmentDocument) {
+        augment.system = foundry.utils.mergeObject(
+          foundry.utils.duplicate(augment.system ?? {}),
+          foundry.utils.duplicate(augmentDocument.system ?? {}),
+          { inplace: false }
+        );
+      }
+
+      // Ensure effect summary groups are present for actor-sheet rendering.
+      try {
+        augment.system = augment.system || {};
+        augment.system.effectSummaryGroups = buildEffectSummaryGroups(augment.system?.effects ?? []);
+      }
+      catch (err) {
+        // Fail silently - effect summary is optional for display.
+      }
+
+      return augment;
+    }).sort((a, b) => (a.sort || 0) - (b.sort || 0));
+    context.augment = context.augments[0] ?? null;
     context.statuses = this._prepareStatusItems(context.items);
     this._logInventoryState('getData', context.items, context.statuses);
+    this._logActorSheetEvent('getData-ready', {
+      itemCount: context.items.length,
+      weaponCount: context.allWeapons.length,
+      skillCount: context.skills?.length ?? 0,
+      outfitCount: context.outfits?.length ?? 0,
+      augmentCount: context.augments?.length ?? 0
+    });
 
     // Enrich the bio field.
     context.system.details.biographyEnriched = await TextEditor.enrichHTML(context.system.details.biography, context.enrichmentOptions);
@@ -246,6 +276,8 @@ export class PMTTRPGActorSheet extends foundry.appv1.sheets.ActorSheet {
       weapons: context.weapons,
       allWeapons: context.allWeapons,
       outfits: context.outfits,
+      augment: context.augment,
+      augments: context.augments,
       ammunition: context.ammunition,
       skills: context.skills,
       ammoSlotsUsed: context.ammoSlotsUsed,
@@ -396,6 +428,24 @@ export class PMTTRPGActorSheet extends foundry.appv1.sheets.ActorSheet {
     sheetData.ammunition = ammunition;
     sheetData.skills = skills;
     sheetData.ammoSlotsUsed = specializedAmmoCount > 0 ? Math.ceil(specializedAmmoCount / 5) : 0;
+
+    // Compute grouped effect summaries for weapons and outfits so the actor sheet
+    // can render a compact auto-generated summary (same style as item sheets).
+    const buildGroupsFor = (item) => {
+      try {
+        item.system = item.system || {};
+        item.system.effectSummaryGroups = buildEffectSummaryGroups(item.system?.effects ?? []);
+      }
+      catch (err) {
+        // ignore
+      }
+    };
+
+    // Attach groups for melee and ranged weapons
+    for (const w of sheetData.weapons.melee ?? []) buildGroupsFor(w);
+    for (const w of sheetData.weapons.ranged ?? []) buildGroupsFor(w);
+    // Attach groups for outfits
+    for (const o of sheetData.outfits ?? []) buildGroupsFor(o);
 
     // Compute equipped weapon/outfit baseline info to expose for skill rendering
     const equippedWeapon = this.actor.items.find(i => i.type === 'weapon' && i.system?.equipped) || this.actor.items.find(i => i.type === 'weapon');
@@ -1446,6 +1496,13 @@ export class PMTTRPGActorSheet extends foundry.appv1.sheets.ActorSheet {
 
       let update =
       { "system.equipped": !item.system.equipped };
+      this._logActorSheetEvent('item-equip-toggle', {
+        itemId: item.id,
+        itemName: item.name,
+        itemType: item.type,
+        previous: !!item.system.equipped,
+        next: !item.system.equipped
+      });
       await item.update(update, {});
 
       this.render();
@@ -1485,6 +1542,14 @@ export class PMTTRPGActorSheet extends foundry.appv1.sheets.ActorSheet {
     }
 
     await item.update(update, {});
+    this._logActorSheetEvent('item-counter-update', {
+      itemId: item.id,
+      itemName: item.name,
+      itemType: item.type,
+      changeType,
+      action: dataset.action,
+      appliedUpdate: update
+    });
 
     this.render();
   }
@@ -1573,6 +1638,12 @@ export class PMTTRPGActorSheet extends foundry.appv1.sheets.ActorSheet {
     event.preventDefault();
     const header = event.currentTarget;
     const type = header.dataset.type;
+
+    if (type === 'augment' && this.actor.items.some(item => item.type === 'augment')) {
+      ui.notifications.warn(game.i18n.localize('PMTTRPG.AugmentOnlyOne'));
+      return;
+    }
+
     const data = foundry.utils.duplicate(header.dataset);
     data.moveType = data.movetype;
     data.spellLevel = data.level;
@@ -1583,6 +1654,11 @@ export class PMTTRPGActorSheet extends foundry.appv1.sheets.ActorSheet {
       system: data
     };
     delete itemData.system["type"];
+    this._logActorSheetEvent('item-create', {
+      itemType: type,
+      itemName,
+      seedSystem: itemData.system
+    });
     await this.actor.createEmbeddedDocuments('Item', [itemData], {});
   }
 
@@ -1655,8 +1731,12 @@ export class PMTTRPGActorSheet extends foundry.appv1.sheets.ActorSheet {
     if (dropData?.type !== 'Item') return false;
 
     const droppedItem = await Item.fromDropData(dropData);
-    if (!droppedItem || droppedItem.type !== 'status') return false;
+    if (!droppedItem || (droppedItem.type !== 'status' && droppedItem.type !== 'augment')) return false;
     if (droppedItem.parent?.id === this.actor.id) return false;
+    if (droppedItem.type === 'augment' && this.actor.items.some(item => item.type === 'augment')) {
+      ui.notifications.warn(game.i18n.localize('PMTTRPG.AugmentOnlyOne'));
+      return false;
+    }
 
     event.preventDefault();
 
@@ -1666,8 +1746,16 @@ export class PMTTRPGActorSheet extends foundry.appv1.sheets.ActorSheet {
     delete itemData.uuid;
     itemData.system = foundry.utils.duplicate(itemData.system ?? {});
 
+    this._logActorSheetEvent('item-drop-import', {
+      droppedType: droppedItem.type,
+      droppedName: droppedItem.name,
+      droppedUuid: droppedItem.uuid,
+      sourceActorId: droppedItem.parent?.id ?? null,
+      targetActorId: this.actor.id
+    });
+
     await this.actor.createEmbeddedDocuments('Item', [itemData], {});
-    this._logInventoryState('drop-status', this.actor.items, this._prepareStatusItems(this.actor.items));
+    this._logInventoryState(`drop-${droppedItem.type}`, this.actor.items, this._prepareStatusItems(this.actor.items));
     return false;
   }
 
@@ -1770,6 +1858,10 @@ export class PMTTRPGActorSheet extends foundry.appv1.sheets.ActorSheet {
       name: item.name,
       img: item.img,
       stacks: item.system?.stacks ?? null,
+      effectsCount: Array.isArray(item.system?.effects) ? item.system.effects.length : 0,
+      effectUuids: Array.isArray(item.system?.effects)
+        ? item.system.effects.map(effect => effect?.effectUuid ?? effect?.uuid ?? '').filter(Boolean)
+        : []
     }));
     const statusSummary = statuses.map(status => ({
       key: status.key,
@@ -1782,6 +1874,18 @@ export class PMTTRPGActorSheet extends foundry.appv1.sheets.ActorSheet {
     console.log(`[PMTTRPG][Statuses][${label}]`, statusSummary);
   }
 
+  /**
+   * Structured log helper for actor sheet lifecycle and interactions.
+   * @param {string} label Event label.
+   * @param {Object} details Additional debug context.
+   * @private
+   */
+  _logActorSheetEvent(label, details = {}) {
+    const actorName = this.actor?.name ?? this.object?.name ?? 'UnknownActor';
+    const actorId = this.actor?.id ?? this.object?.id ?? 'unknown';
+    console.log(`[PMTTRPG][ActorSheet][${actorName}][${actorId}][${label}]`, details);
+  }
+
   /* -------------------------------------------- */
 
   /**
@@ -1791,8 +1895,15 @@ export class PMTTRPGActorSheet extends foundry.appv1.sheets.ActorSheet {
    */
   _onItemEdit(event) {
     event.preventDefault();
-    const li = event.currentTarget.closest(".item");
-    const item = this.actor.items.get(li.dataset.itemId);
+    const itemId = event.currentTarget.dataset.itemId ?? event.currentTarget.closest(".item")?.dataset?.itemId;
+    if (!itemId) return;
+    const item = this.actor.items.get(itemId);
+    if (!item) return;
+    this._logActorSheetEvent('item-edit-open', {
+      itemId: item.id,
+      itemName: item.name,
+      itemType: item.type
+    });
     item.sheet.render(true);
   }
 
@@ -1803,11 +1914,21 @@ export class PMTTRPGActorSheet extends foundry.appv1.sheets.ActorSheet {
    * @param {Event} event   The originating click event
    * @private
    */
-  _onItemDelete(event) {
+  async _onItemDelete(event) {
     event.preventDefault();
-    const li = event.currentTarget.closest(".item");
-    let item = this.actor.items.get(li.dataset.itemId);
-    item.delete();
+    const itemId = event.currentTarget.dataset.itemId ?? event.currentTarget.closest(".item")?.dataset?.itemId;
+    if (!itemId) return;
+    let item = this.actor.items.get(itemId);
+    if (!item) return;
+    this._logActorSheetEvent('item-delete-before', {
+      itemId: item.id,
+      itemName: item.name,
+      itemType: item.type
+    });
+    await item.delete();
+    this._logActorSheetEvent('item-delete-after', {
+      deletedItemId: itemId
+    });
   }
 
   /* -------------------------------------------- */

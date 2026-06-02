@@ -1,0 +1,43 @@
+folder: vcDme9VjNqOAfGsi
+name: Burn Resistance
+type: effect
+_id: a8k9pi33OM2CxUEM
+img: systems/projectmoonttrpg/assets/icons/Statuses/Burn.webp
+system:
+  name: ''
+  description: ''
+  cost: 2
+  stackMax: 5
+  appliesTo: outfit
+  canPositive: true
+  canNegative: true
+  procOn: alwaysActive
+  procResult: none
+  procResultLocked: false
+  procStat: any
+  procDice: any
+  procAction: any
+  procCondition: ''
+  positive: Reduce HP Damage taken from Burn by [N]
+  negative: Increase HP Damage taken from Burn by [N]
+  macro:
+    uuid: ''
+  customNotes: ''
+  allowMultiple: true
+effects: []
+sort: 0
+ownership:
+  default: 0
+  yWsvx4DXrmYcZsue: 3
+flags: {}
+_stats:
+  compendiumSource: null
+  duplicateSource: null
+  exportSource: null
+  coreVersion: '13.351'
+  systemId: projectmoonttrpg
+  systemVersion: 0.0.1
+  createdTime: 1780308634956
+  modifiedTime: 1780308634956
+  lastModifiedBy: yWsvx4DXrmYcZsue
+_key: '!items!a8k9pi33OM2CxUEM'

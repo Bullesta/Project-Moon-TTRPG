@@ -8,7 +8,7 @@ system:
   cost: 4
   allowMultiple: false
   procOn: onClash
-  procResult: none
+  procResult: win
   procStat: any
   procDice: any
   procAction: any
@@ -24,6 +24,8 @@ system:
   appliesTo: weapon
   canPositive: true
   canNegative: false
+  stackMax: 1
+  procResultLocked: true
 effects: []
 sort: 0
 ownership:

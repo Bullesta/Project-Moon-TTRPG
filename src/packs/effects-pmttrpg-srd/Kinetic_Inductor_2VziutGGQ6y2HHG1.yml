@@ -1,0 +1,43 @@
+folder: 3tXrLHnpxiZ3FWqV
+name: Kinetic Inductor
+type: effect
+img: systems/projectmoonttrpg/assets/icons/Statuses/Charge.webp
+system:
+  name: ''
+  description: ''
+  cost: 1
+  stackMax: 6
+  appliesTo: outfit
+  canPositive: true
+  canNegative: true
+  procOn: alwaysActive
+  procResult: none
+  procResultLocked: false
+  procStat: any
+  procDice: any
+  procAction: any
+  procCondition: ''
+  positive: When hit by an Attack, gain [N] Charge
+  negative: When hit by an Attack, consume [N] Charge. If the character doesn't have Charge, deal [N*2] After Resistance HP Damage to the character for every missing Charge.
+  macro:
+    uuid: ''
+  customNotes: ''
+  allowMultiple: true
+effects: []
+sort: 0
+ownership:
+  default: 0
+  yWsvx4DXrmYcZsue: 3
+flags: {}
+_stats:
+  compendiumSource: null
+  duplicateSource: Item.D8z3BVjE79O0ElAs
+  exportSource: null
+  coreVersion: '13.351'
+  systemId: projectmoonttrpg
+  systemVersion: 0.0.1
+  createdTime: 1780308622217
+  modifiedTime: 1780308622217
+  lastModifiedBy: yWsvx4DXrmYcZsue
+_id: 2VziutGGQ6y2HHG1
+_key: '!items!2VziutGGQ6y2HHG1'

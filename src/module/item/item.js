@@ -7,15 +7,18 @@ function normalizeEffectEntries(rawEffects = []) {
 
   return rawEffects.map((entry) => {
     const stackRaw = Number(entry?.stack ?? entry?.count ?? 1);
-    const stack = Math.max(1, Math.min(5, Number.isFinite(stackRaw) ? stackRaw : 1));
+    const stackMaxRaw = Number(entry?.stackMax ?? (entry?.allowMultiple === false ? 1 : 5));
+    const stackMax = Math.max(1, Number.isFinite(stackMaxRaw) ? stackMaxRaw : 5);
+    const stack = Math.max(1, Math.min(stackMax, Number.isFinite(stackRaw) ? stackRaw : 1));
     const costRaw = Number(entry?.cost ?? 0);
     const cost = Number.isFinite(costRaw) ? costRaw : 0;
     const mode = entry?.mode === 'negative' ? 'negative' : 'positive';
 
     return {
-      effectUuid: entry?.effectUuid ?? '',
+      effectUuid: entry?.effectUuid ?? entry?.uuid ?? '',
       name: entry?.name ?? '',
       cost,
+      stackMax,
       stack,
       count: stack,
       mode,
@@ -24,6 +27,7 @@ function normalizeEffectEntries(rawEffects = []) {
       canNegative: entry?.canNegative !== false,
       procOn: entry?.procOn ?? 'alwaysActive',
       procResult: entry?.procResult ?? 'none',
+      procResultLocked: entry?.procResultLocked ?? false,
       procStat: entry?.procStat ?? 'any',
       procDice: entry?.procDice ?? 'any',
       procAction: entry?.procAction ?? 'any',
@@ -264,6 +268,17 @@ export class ItemPMTTRPG extends Item {
       data.lightCostMax = actorLightMax > 0 ? actorLightMax : null;
     }
 
+    if (itemData.type == 'augment') {
+      const rank = Math.max(0, Number(actorData?.system?.attributes?.level?.value ?? data.rank ?? 0));
+      data.rank = rank;
+      const augmentEpBase = rank < 0 ? 0 : rank * 4;
+      data.epBase = augmentEpBase;
+      data.epMax = augmentEpBase;
+      const normalizedEffects = normalizeEffectEntries(data.effects);
+      data.effects = normalizedEffects;
+      data.effectsSummary = computeEffectSummary(normalizedEffects, Number(data.epMax ?? 0));
+    }
+
     if (itemData.type == 'status') {
       data.isStatus = true;
       data.proc = foundry.utils.mergeObject({
@@ -286,8 +301,10 @@ export class ItemPMTTRPG extends Item {
       data.appliesTo = data.appliesTo ?? 'weapon';
       data.canPositive = data.canPositive !== false;
       data.canNegative = data.canNegative !== false;
+      data.stackMax = Math.max(1, Number(data.stackMax ?? (data.allowMultiple === false ? 1 : 5)) || 5);
       data.procOn = data.procOn ?? 'alwaysActive';
       data.procResult = data.procResult ?? 'none';
+      data.procResultLocked = data.procResultLocked ?? (['onClash', 'onClashResult', 'onEitherClashResult'].includes(effectProcOn) && data.procResult !== 'none');
       data.procStat = data.procStat ?? 'any';
       data.procDice = data.procDice ?? 'any';
       data.procAction = data.procAction ?? 'any';

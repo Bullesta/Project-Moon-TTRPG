@@ -13,6 +13,7 @@ import { PMTTRPGWeaponItemSheet } from "./item/weapon-item-sheet.js";
 import { PMTTRPGOutfitItemSheet } from "./item/outfit-item-sheet.js";
 import { PMTTRPGAmmunitionItemSheet } from "./item/ammunition-item-sheet.js";
 import { PMTTRPGEffectItemSheet } from "./item/effect-item-sheet.js";
+import { PMTTRPGAugmentItemSheet } from "./item/augment-item-sheet.js";
 import { PMTTRPGActorSheet } from "./actor/actor-sheet.js";
 import { PMTTRPGActorNpcSheet } from "./actor/actor-npc-sheet.js";
 import { PMTTRPGRegisterHelpers } from "./handlebars.js";
@@ -51,7 +52,8 @@ Hooks.once("init", async function() {
   CONFIG.Item.typeLabels = foundry.utils.mergeObject(CONFIG.Item.typeLabels ?? {}, {
     status: game.i18n.localize("TYPES.Item.status"),
     skill: game.i18n.localize("TYPES.Item.skill"),
-    effect: game.i18n.localize("TYPES.Item.effect")
+    effect: game.i18n.localize("TYPES.Item.effect"),
+    augment: game.i18n.localize("TYPES.Item.augment")
   });
 
   // Register sheet application classes
@@ -80,6 +82,10 @@ Hooks.once("init", async function() {
   });
   Items.registerSheet("projectmoonttrpg", PMTTRPGEffectItemSheet, {
     types: ['effect'],
+    makeDefault: true
+  });
+  Items.registerSheet("projectmoonttrpg", PMTTRPGAugmentItemSheet, {
+    types: ['augment'],
     makeDefault: true
   });
 
@@ -154,6 +160,7 @@ Hooks.once("ready", async function() {
       delete PMTTRPGEffectItemSheet._effectCatalogCache.weapon;
       delete PMTTRPGEffectItemSheet._effectCatalogCache.outfit;
       delete PMTTRPGEffectItemSheet._effectCatalogCache.skill;
+      delete PMTTRPGEffectItemSheet._effectCatalogCache.augment;
     }
   };
 

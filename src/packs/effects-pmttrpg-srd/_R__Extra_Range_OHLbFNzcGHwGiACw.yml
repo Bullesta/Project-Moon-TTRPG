@@ -7,7 +7,7 @@ system:
   name: ''
   description: ''
   cost: 1
-  allowMultiple: false
+  allowMultiple: true
   procOn: alwaysActive
   procResult: none
   procStat: any
@@ -22,6 +22,8 @@ system:
   appliesTo: weapon
   canPositive: true
   canNegative: true
+  stackMax: 4
+  procResultLocked: false
 effects: []
 sort: 0
 ownership:
@@ -39,4 +41,3 @@ _stats:
   modifiedTime: 1779651087474
   lastModifiedBy: yWsvx4DXrmYcZsue
 _key: '!items!OHLbFNzcGHwGiACw'
-

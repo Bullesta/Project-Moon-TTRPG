@@ -6,14 +6,14 @@ system:
   name: ''
   description: ''
   cost: 1
-  allowMultiple: false
+  allowMultiple: true
   procOn: onClash
   procResult: none
   procStat: any
   procDice: any
   procAction: any
   procCondition: ''
-  positive: Apply [N] Rupture to the target
+  positive: Apply [N] Rupture to the target next round
   negative: Apply [N] Rupture to the character next round
   macro:
     uuid: ''
@@ -21,6 +21,8 @@ system:
   appliesTo: weapon
   canPositive: true
   canNegative: true
+  stackMax: 6
+  procResultLocked: false
 effects: []
 sort: 0
 ownership:

@@ -1,0 +1,43 @@
+folder: HgeENWG6ft89uL2A
+name: Gain Poise
+type: effect
+img: systems/projectmoonttrpg/assets/icons/Statuses/Poise.webp
+system:
+  name: ''
+  description: ''
+  cost: 2
+  stackMax: 5
+  appliesTo: outfit
+  canPositive: true
+  canNegative: true
+  procOn: onClash
+  procResult: none
+  procResultLocked: false
+  procStat: any
+  procDice: any
+  procAction: any
+  procCondition: ''
+  positive: Apply [N] Poise to the character
+  negative: Apply [N] Poise to the target
+  macro:
+    uuid: ''
+  customNotes: ''
+  allowMultiple: true
+effects: []
+sort: 0
+ownership:
+  default: 0
+  yWsvx4DXrmYcZsue: 3
+flags: {}
+_stats:
+  compendiumSource: null
+  duplicateSource: Item.OwciCfdBmwNlC0LI
+  exportSource: null
+  coreVersion: '13.351'
+  systemId: projectmoonttrpg
+  systemVersion: 0.0.1
+  createdTime: 1780308631139
+  modifiedTime: 1780308631139
+  lastModifiedBy: yWsvx4DXrmYcZsue
+_id: CXpSbx19tOjM9N2I
+_key: '!items!CXpSbx19tOjM9N2I'

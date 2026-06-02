@@ -15,10 +15,16 @@ const shell = require('gulp-shell')
 const mergeStream = require("merge-stream");
 const path = require("path");
 const clean = require("gulp-clean");
+const { effectPackMigrations, migrateYamlDirectory } = require('./tools/migrate-pack-files.js');
 
 // Constants.
 const PACK_SRC = "src/packs";
 const PACK_DEST = "dist/packs";
+function migrateEffectPacks() {
+  const effectPackRoot = path.join(PACK_SRC, 'effects-pmttrpg-srd');
+  migrateYamlDirectory(effectPackRoot, effectPackMigrations);
+  return Promise.resolve();
+}
 
 /* ----------------------------------------- */
 /*  Compile Compendia
@@ -271,6 +277,7 @@ exports.yaml = yamlTask;
 exports.cleanPacks = gulp.series(cleanPacks);
 exports.compilePacks = gulp.series(cleanPacks, compilePacks);
 exports.extractPacks = gulp.series(extractPacks);
+exports.migrateEffectPacks = gulp.series(migrateEffectPacks);
 
 /**
  * Bumping version number and tagging the repository with it.

@@ -40,42 +40,64 @@
 <div class="resource-group effect-list-panel">
   {{#if system.effects.length}}
     {{#each system.effects as |effect idx|}}
-      <div class="resource effect-row" data-index="{{idx}}">
+      <div class="resource effect-row" data-index="{{idx}}" data-stack-max="{{effect.stackMax}}">
         <input type="hidden" name="system.effects.{{idx}}.effectUuid" value="{{effect.effectUuid}}"/>
-        <input type="hidden" name="system.effects.{{idx}}.mode" value="{{effect.mode}}"/>
+        <input type="hidden" name="system.effects.{{idx}}.name" value="{{effect.name}}"/>
+        <input type="hidden" name="system.effects.{{idx}}.cost" value="{{effect.cost}}" data-dtype="Number"/>
+        <input type="hidden" name="system.effects.{{idx}}.count" value="{{effect.count}}" data-dtype="Number"/>
+        <input type="hidden" name="system.effects.{{idx}}.stackMax" value="{{effect.stackMax}}" data-dtype="Number"/>
+        <input type="hidden" name="system.effects.{{idx}}.procResultLocked" value="{{effect.procResultLocked}}" data-dtype="Boolean"/>
+        <input type="hidden" name="system.effects.{{idx}}.allowModeToggle" value="{{effect.allowModeToggle}}" data-dtype="Boolean"/>
         <input type="hidden" name="system.effects.{{idx}}.procOn" value="{{effect.procOn}}"/>
+        {{#if effect.showProcResult}}
+          {{#if effect.procResultLocked}}
+            <input type="hidden" name="system.effects.{{idx}}.procResult" value="{{effect.procResult}}"/>
+          {{/if}}
+        {{else}}
+          <input type="hidden" name="system.effects.{{idx}}.procResult" value="{{effect.procResult}}"/>
+        {{/if}}
+        {{#unless effect.showProcStat}}
+          <input type="hidden" name="system.effects.{{idx}}.procStat" value="{{effect.procStat}}"/>
+        {{/unless}}
+        <input type="hidden" name="system.effects.{{idx}}.procDice" value="{{effect.procDice}}"/>
+        {{#unless effect.showProcAction}}
+          <input type="hidden" name="system.effects.{{idx}}.procAction" value="{{effect.procAction}}"/>
+        {{/unless}}
         <input type="hidden" name="system.effects.{{idx}}.procCondition" value="{{effect.procCondition}}"/>
         <input type="hidden" name="system.effects.{{idx}}.appliesTo" value="{{effect.appliesTo}}"/>
         <input type="hidden" name="system.effects.{{idx}}.canPositive" value="{{effect.canPositive}}"/>
         <input type="hidden" name="system.effects.{{idx}}.canNegative" value="{{effect.canNegative}}"/>
+        <input type="hidden" name="system.effects.{{idx}}.positive" value="{{effect.positive}}"/>
+        <input type="hidden" name="system.effects.{{idx}}.negative" value="{{effect.negative}}"/>
         <input type="hidden" name="system.effects.{{idx}}.macro.uuid" value="{{effect.macro.uuid}}"/>
 
         <div class="effect-row__header">
           <input class="effect-row__name" type="text" value="{{effect.name}}" readonly/>
           <span class="effect-row__cost">{{effect.displayCost}} EP</span>
           <span class="effect-row__multiplier">x</span>
-          <input class="effect-row__stack" type="number" value="{{effect.stack}}" min="1" max="5" data-dtype="Number"/>
+          <input name="system.effects.{{idx}}.stack" class="effect-row__stack" type="number" value="{{effect.stack}}" min="1" max="{{effect.stackMax}}" data-dtype="Number"/>
           <span class="effect-row__total">={{effect.totalCost}} EP</span>
           {{#if effect.showProcResult}}
-            <select class="effect-row__proc-result-select" data-dtype="String">
+            <select name="system.effects.{{idx}}.procResult" class="effect-row__proc-result-select" data-dtype="String" {{#if effect.procResultLocked}}disabled{{/if}}>
               {{selectOptions ../selects.effectProcResult selected=effect.procResult localize=true}}
             </select>
           {{/if}}
           {{#if effect.showProcStat}}
-            <select class="effect-row__proc-stat-select" data-dtype="String">
+            <select name="system.effects.{{idx}}.procStat" class="effect-row__proc-stat-select" data-dtype="String">
               {{selectOptions ../selects.effectProcStat selected=effect.procStat localize=true}}
             </select>
           {{/if}}
           {{#if effect.showProcAction}}
-            <select class="effect-row__proc-action-select" data-dtype="String">
+            <select name="system.effects.{{idx}}.procAction" class="effect-row__proc-action-select" data-dtype="String">
               {{selectOptions ../selects.effectProcAction selected=effect.procAction localize=true}}
             </select>
           {{/if}}
           {{#if effect.allowModeToggle}}
-            <select class="effect-row__mode-select" data-dtype="String">
+            <select name="system.effects.{{idx}}.mode" class="effect-row__mode-select" data-dtype="String">
               {{selectOptions ../selects.effectModes selected=effect.mode localize=true}}
             </select>
           {{else}}
+            <input type="hidden" name="system.effects.{{idx}}.mode" value="{{effect.mode}}"/>
             <span class="effect-row__mode">{{effect.modeLabel}}</span>
           {{/if}}
           <button type="button" class="effect-control" data-action="delete">{{localize "PMTTRPG.EffectDelete"}}</button>

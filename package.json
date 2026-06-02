@@ -8,6 +8,7 @@
     "watch": "gulp",
     "gulp": "gulp",
     "yaml": "gulp yaml",
+    "migrateEffectPacks": "gulp migrateEffectPacks",
     "compilePacks": "gulp compilePacks",
     "extractPacks": "gulp extractPacks",
     "patch": "gulp patch",

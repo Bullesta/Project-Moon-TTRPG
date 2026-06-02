@@ -1,4 +1,5 @@
 import { PMTTRPGUtility } from "../utility.js";
+import { buildEffectSummaryGroups } from "../effects/effect-summary.js";
 
 const { TextEditor } = foundry.applications.ux;
 const { renderTemplate } = foundry.applications.handlebars;
@@ -144,6 +145,10 @@ export class PMTTRPGItemSheet extends foundry.appv1.sheets.ItemSheet {
 
     // Handle enriched fields.
     context.system.descriptionEnriched = await TextEditor.enrichHTML(context.system.description, enrichmentOptions);
+    if (itemData.type == 'effect') {
+      context.system.positiveEnriched = await TextEditor.enrichHTML(context.system.positive ?? '', enrichmentOptions);
+      context.system.negativeEnriched = await TextEditor.enrichHTML(context.system.negative ?? '', enrichmentOptions);
+    }
 
     // Handle preprocessing for tagify data.
     if (itemData.type == 'equipment') {
@@ -207,7 +212,8 @@ export class PMTTRPGItemSheet extends foundry.appv1.sheets.ItemSheet {
       context.selects.effectAppliesTo = {
         weapon: 'TYPES.Item.weapon',
         outfit: 'TYPES.Item.outfit',
-        skill: 'TYPES.Item.skill'
+        skill: 'TYPES.Item.skill',
+        augment: 'TYPES.Item.augment'
       };
     }
     if (itemData.type == 'npcMove') {
@@ -273,6 +279,8 @@ export class PMTTRPGItemSheet extends foundry.appv1.sheets.ItemSheet {
     context.selects.effectProcOn = {
       alwaysActive: 'PMTTRPG.EffectProcAlwaysActive',
       onClash: 'PMTTRPG.EffectProcOnClash',
+      onClashResult: 'PMTTRPG.EffectProcOnClashResult',
+      onEitherClashResult: 'PMTTRPG.EffectProcOnEitherClashResult',
       onCondition: 'PMTTRPG.EffectProcOnCondition',
       onUse: 'PMTTRPG.EffectProcOnUse',
       onBurst: 'PMTTRPG.EffectProcOnBurst',
@@ -319,7 +327,7 @@ export class PMTTRPGItemSheet extends foundry.appv1.sheets.ItemSheet {
       title: context.name
     };
 
-    if (this.object.type === 'weapon' || this.object.type === 'outfit' || this.object.type === 'skill') {
+    if (this.object.type === 'weapon' || this.object.type === 'outfit' || this.object.type === 'skill' || this.object.type === 'augment') {
       const effectContext = await this._prepareEffectHostContext();
       returnData.effectChoices = effectContext.effectChoices;
       returnData.system.effects = effectContext.effects;
@@ -378,7 +386,7 @@ export class PMTTRPGItemSheet extends foundry.appv1.sheets.ItemSheet {
   }
 
   _supportsEffects() {
-    return ['weapon', 'outfit', 'skill'].includes(this.object.type);
+    return ['weapon', 'outfit', 'skill', 'augment'].includes(this.object.type);
   }
 
   _effectHostType() {
@@ -404,7 +412,9 @@ export class PMTTRPGItemSheet extends foundry.appv1.sheets.ItemSheet {
 
   _getEffectStack(effect) {
     const stackRaw = Number(effect?.stack ?? effect?.count ?? 1);
-    return Math.max(1, Math.min(5, Number.isFinite(stackRaw) ? stackRaw : 1));
+    const stackMaxRaw = Number(effect?.stackMax ?? 5);
+    const stackMax = Math.max(1, Number.isFinite(stackMaxRaw) ? stackMaxRaw : 5);
+    return Math.max(1, Math.min(stackMax, Number.isFinite(stackRaw) ? stackRaw : 1));
   }
 
   _createHostEffectEntry(effectItem, { mode = null } = {}) {
@@ -424,10 +434,12 @@ export class PMTTRPGItemSheet extends foundry.appv1.sheets.ItemSheet {
       allowModeToggle: (system.canPositive !== false) && (system.canNegative !== false),
       procOn: system.procOn ?? 'alwaysActive',
       procResult: system.procResult ?? 'none',
+      procResultLocked: system.procResultLocked ?? (['onClash', 'onClashResult', 'onEitherClashResult'].includes(system.procOn) && system.procResult !== 'none'),
       procStat: system.procStat ?? 'any',
       procDice: system.procDice ?? 'any',
       procAction: system.procAction ?? 'any',
       procCondition: system.procCondition ?? '',
+      stackMax: Math.max(1, Number(system.stackMax ?? (system.allowMultiple === false ? 1 : 5)) || 5),
       positive: system.positive ?? '',
       negative: system.negative ?? '',
       macro: {
@@ -443,7 +455,10 @@ export class PMTTRPGItemSheet extends foundry.appv1.sheets.ItemSheet {
 
     if (existingIndex >= 0) {
       const current = effects[existingIndex];
-      current.stack = this._getEffectStack(current) + this._getEffectStack(incomingEffect);
+      const currentMax = Math.max(1, Number(current.stackMax ?? incomingEffect.stackMax ?? 5) || 5);
+      const incomingMax = Math.max(1, Number(incomingEffect.stackMax ?? currentMax) || currentMax);
+      current.stackMax = Math.min(currentMax, incomingMax);
+      current.stack = Math.max(1, Math.min(current.stackMax, this._getEffectStack(current) + this._getEffectStack(incomingEffect)));
       current.count = current.stack;
       return effects;
     }
@@ -453,22 +468,7 @@ export class PMTTRPGItemSheet extends foundry.appv1.sheets.ItemSheet {
   }
 
   _buildEffectSummaryGroups(effects = []) {
-    const blocks = [];
-
-    for (const effect of effects ?? []) {
-      const heading = foundry.utils.escapeHTML(this._effectLabel(effect) || game.i18n.localize('PMTTRPG.Effects'));
-      const stack = this._getEffectStack(effect);
-      const textSource = effect.mode === 'negative' ? (effect.negative || effect.positive || '') : (effect.positive || effect.negative || '');
-      const text = PMTTRPGUtility.expandEffectText(textSource, stack).trim();
-      const lineText = foundry.utils.escapeHTML(text || game.i18n.localize('PMTTRPG.EffectNoSummaryText'));
-      blocks.push(`<div class="effect-summary-block"><strong>${heading}</strong><br><span class="effect-summary-line">- ${lineText}</span></div>`);
-    }
-
-    return [{
-      key: 'combined',
-      heading: game.i18n.localize('PMTTRPG.Effects'),
-      summaryText: blocks.join('<br><br>')
-    }];
+    return buildEffectSummaryGroups(effects);
   }
 
   async _getEffectCatalog() {
@@ -543,6 +543,7 @@ export class PMTTRPGItemSheet extends foundry.appv1.sheets.ItemSheet {
         ...effect,
         stack,
         count: stack,
+        stackMax: Math.max(1, Number(effect.stackMax ?? 5) || 5),
         signedCost: (effect.mode === 'negative' ? -1 : 1) * Math.abs(Number(effect.cost ?? 0)),
         displayCost: (effect.mode === 'negative' ? -1 : 1) * Math.abs(Number(effect.cost ?? 0)),
         totalCost: ((effect.mode === 'negative' ? -1 : 1) * Math.abs(Number(effect.cost ?? 0))) * stack,
@@ -550,6 +551,7 @@ export class PMTTRPGItemSheet extends foundry.appv1.sheets.ItemSheet {
         showProcResult,
         showProcStat,
         showProcAction,
+        procResultLocked: effect.procResultLocked ?? (['onClash', 'onClashResult', 'onEitherClashResult'].includes(effect.procOn) && effect.procResult !== 'none'),
         modeLabel: effect.mode === 'negative' ? game.i18n.localize('PMTTRPG.EffectModeNegative') : game.i18n.localize('PMTTRPG.EffectModePositive')
       };
     });
@@ -786,7 +788,8 @@ export class PMTTRPGItemSheet extends foundry.appv1.sheets.ItemSheet {
     if (index < 0) return;
 
     const stackRaw = Number(event.currentTarget.value ?? 1);
-    const stack = Math.max(1, Math.min(5, Number.isFinite(stackRaw) ? stackRaw : 1));
+    const stackMax = Math.max(1, Number(row?.dataset?.stackMax ?? 5) || 5);
+    const stack = Math.max(1, Math.min(stackMax, Number.isFinite(stackRaw) ? stackRaw : 1));
     const effects = foundry.utils.duplicate(this.object.system.effects ?? []);
     if (!effects[index]) return;
 
@@ -806,6 +809,8 @@ export class PMTTRPGItemSheet extends foundry.appv1.sheets.ItemSheet {
 
     const effects = foundry.utils.duplicate(this.object.system.effects ?? []);
     if (!effects[index]) return;
+
+    if (effects[index].procResultLocked) return;
 
     effects[index].procResult = `${event.currentTarget.value ?? 'none'}`;
     await this.object.update({ 'system.effects': effects });
@@ -862,6 +867,40 @@ export class PMTTRPGItemSheet extends foundry.appv1.sheets.ItemSheet {
   _onEffectDragOver(event) {
     if (!this._supportsEffects()) return;
     event.preventDefault();
+  }
+
+  _normalizeSubmittedEffects(submittedEffects = [], currentEffects = []) {
+    const submitted = Array.isArray(submittedEffects)
+      ? submittedEffects
+      : (submittedEffects && typeof submittedEffects === 'object')
+        ? Object.keys(submittedEffects)
+          .sort((a, b) => Number(a) - Number(b))
+          .map(key => submittedEffects[key])
+          .filter(entry => entry != null)
+        : [];
+
+    if (!submitted.length) {
+      return foundry.utils.duplicate(currentEffects ?? []);
+    }
+
+    return submitted.map((entry, index) => {
+      const merged = foundry.utils.mergeObject(currentEffects[index] ?? {}, entry ?? {}, {
+        inplace: false,
+        overwrite: true
+      });
+
+      const stackMaxRaw = Number(merged?.stackMax ?? (merged?.allowMultiple === false ? 1 : 5));
+      const stackMax = Math.max(1, Number.isFinite(stackMaxRaw) ? stackMaxRaw : 5);
+      const stackRaw = Number(merged?.stack ?? merged?.count ?? 1);
+      const stack = Math.max(1, Math.min(stackMax, Number.isFinite(stackRaw) ? stackRaw : 1));
+
+      merged.effectUuid = merged?.effectUuid ?? merged?.uuid ?? '';
+      merged.stackMax = stackMax;
+      merged.stack = stack;
+      merged.count = stack;
+
+      return merged;
+    });
   }
 
   async _addEffectToHost(effectChoice) {
@@ -924,7 +963,18 @@ export class PMTTRPGItemSheet extends foundry.appv1.sheets.ItemSheet {
 
     // Exit early for other item types.
     if (this.object.type != 'class') {
-      return this.object.update(formData);
+      if (!this._supportsEffects()) {
+        return this.object.update(formData);
+      }
+
+      const expanded = foundry.utils.expandObject(formData);
+      expanded.system = expanded.system || {};
+
+      const currentEffects = foundry.utils.duplicate(this.object.system.effects ?? []);
+      expanded.system.effects = this._normalizeSubmittedEffects(expanded.system.effects, currentEffects);
+
+      const flattened = foundry.utils.flattenObject(expanded);
+      return this.object.update(flattened);
     }
 
     // Handle the freeform lists on classes.

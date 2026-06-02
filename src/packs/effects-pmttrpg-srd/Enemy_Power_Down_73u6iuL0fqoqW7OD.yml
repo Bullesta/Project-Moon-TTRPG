@@ -1,0 +1,43 @@
+folder: qEdDHwSOguiyi5mt
+name: Enemy Power Down
+type: effect
+img: systems/projectmoonttrpg/assets/icons/Statuses/Feeble.webp
+system:
+  name: ''
+  description: ''
+  cost: 8
+  stackMax: 5
+  appliesTo: outfit
+  canPositive: true
+  canNegative: true
+  procOn: onClash
+  procResult: none
+  procResultLocked: false
+  procStat: any
+  procDice: any
+  procAction: any
+  procCondition: ''
+  positive: Decrease the target's Dice Power by [N]
+  negative: Increase the target's Dice Power by [N]
+  macro:
+    uuid: ''
+  customNotes: ''
+  allowMultiple: true
+effects: []
+sort: 0
+ownership:
+  default: 0
+  yWsvx4DXrmYcZsue: 3
+flags: {}
+_stats:
+  compendiumSource: null
+  duplicateSource: Item.z90Jgus0spFWFggd
+  exportSource: null
+  coreVersion: '13.351'
+  systemId: projectmoonttrpg
+  systemVersion: 0.0.1
+  createdTime: 1780308624814
+  modifiedTime: 1780308624814
+  lastModifiedBy: yWsvx4DXrmYcZsue
+_id: 73u6iuL0fqoqW7OD
+_key: '!items!73u6iuL0fqoqW7OD'

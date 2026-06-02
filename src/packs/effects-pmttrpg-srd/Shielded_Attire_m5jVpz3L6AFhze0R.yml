@@ -1,0 +1,43 @@
+folder: 3tXrLHnpxiZ3FWqV
+name: Shielded Attire
+type: effect
+img: systems/projectmoonttrpg/assets/icons/Statuses/Charge%20Barrier.webp
+system:
+  name: ''
+  description: ''
+  cost: 4
+  stackMax: 5
+  appliesTo: outfit
+  canPositive: true
+  canNegative: false
+  procOn: alwaysActive
+  procResult: none
+  procResultLocked: false
+  procStat: any
+  procDice: any
+  procAction: any
+  procCondition: ''
+  positive: Increase Temporary HP earned through Charge Barrier to [N+3]
+  negative: ''
+  macro:
+    uuid: ''
+  customNotes: ''
+  allowMultiple: true
+effects: []
+sort: 0
+ownership:
+  default: 0
+  yWsvx4DXrmYcZsue: 3
+flags: {}
+_stats:
+  compendiumSource: null
+  duplicateSource: Item.D8z3BVjE79O0ElAs
+  exportSource: null
+  coreVersion: '13.351'
+  systemId: projectmoonttrpg
+  systemVersion: 0.0.1
+  createdTime: 1780308622217
+  modifiedTime: 1780308622217
+  lastModifiedBy: yWsvx4DXrmYcZsue
+_id: m5jVpz3L6AFhze0R
+_key: '!items!m5jVpz3L6AFhze0R'

@@ -1,0 +1,43 @@
+folder: 3tXrLHnpxiZ3FWqV
+name: Galvanic Pulse
+type: effect
+img: systems/projectmoonttrpg/assets/icons/Statuses/Shock.webp
+system:
+  name: ''
+  description: ''
+  cost: 4
+  stackMax: 1
+  appliesTo: outfit
+  canPositive: true
+  canNegative: false
+  procOn: onClash
+  procResult: none
+  procResultLocked: false
+  procStat: any
+  procDice: any
+  procAction: any
+  procCondition: ''
+  positive: You can choose to consume 10 Charge to inflict 1 Feeble or Disarm to the target next round, chosen on use. If you spend 1 Overcharge instead, apply both.
+  negative: ''
+  macro:
+    uuid: ''
+  customNotes: ''
+  allowMultiple: false
+effects: []
+sort: 0
+ownership:
+  default: 0
+  yWsvx4DXrmYcZsue: 3
+flags: {}
+_stats:
+  compendiumSource: null
+  duplicateSource: Item.m5jVpz3L6AFhze0R
+  exportSource: null
+  coreVersion: '13.351'
+  systemId: projectmoonttrpg
+  systemVersion: 0.0.1
+  createdTime: 1780308622217
+  modifiedTime: 1780308622217
+  lastModifiedBy: yWsvx4DXrmYcZsue
+_id: o4nOy5iWS3SdEuVr
+_key: '!items!o4nOy5iWS3SdEuVr'

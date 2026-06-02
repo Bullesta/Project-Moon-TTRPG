@@ -170,6 +170,86 @@
     }
   }
 
+  .effect-summary-tag {
+    display: inline-flex;
+    align-items: center;
+    min-height: 1.45rem;
+    padding: 0.1rem 0.55rem;
+    border-radius: 999px;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+    background: rgba(212, 163, 96, 0.18);
+    color: var(--sheet-gold-bright);
+    border: 1px solid rgba(212, 163, 96, 0.28);
+    box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.12);
+
+    &.effect-summary-tag--sub {
+      min-height: 1.25rem;
+      font-size: 10px;
+      background: rgba(111, 82, 56, 0.28);
+      color: var(--sheet-ink-muted);
+      border-color: rgba(214, 162, 74, 0.16);
+    }
+  }
+
+  .effect-summary-tag[class*="alwaysactive"] {
+    background: rgba(126, 201, 127, 0.18);
+    color: #b9f0ba;
+    border-color: rgba(126, 201, 127, 0.36);
+  }
+
+  .effect-summary-tag[class*="oncondition"] {
+    background: rgba(214, 162, 74, 0.22);
+    color: #f5d99e;
+    border-color: rgba(214, 162, 74, 0.35);
+  }
+
+  .effect-summary-tag[class*="onclash-win"],
+  .effect-summary-tag[class*="onclashresult-win"],
+  .effect-summary-tag[class*="oneitherclashresult-win"] {
+    background: rgba(126, 201, 127, 0.22);
+    color: #b8f3ba;
+    border-color: rgba(126, 201, 127, 0.42);
+  }
+
+  .effect-summary-tag[class*="onclash-lose"],
+  .effect-summary-tag[class*="onclashresult-lose"],
+  .effect-summary-tag[class*="oneitherclashresult-lose"] {
+    background: rgba(224, 120, 86, 0.22);
+    color: #ffc1ae;
+    border-color: rgba(224, 120, 86, 0.42);
+  }
+
+  .effect-summary-tag[class*="onuse"],
+  .effect-summary-tag[class*="onaction"] {
+    background: rgba(110, 168, 255, 0.2);
+    color: #bfd9ff;
+    border-color: rgba(110, 168, 255, 0.38);
+  }
+
+  .effect-summary-tag[class*="onburst"],
+  .effect-summary-tag[class*="oncritical"],
+  .effect-summary-tag[class*="ondevastating"] {
+    background: rgba(188, 111, 255, 0.2);
+    color: #e2c7ff;
+    border-color: rgba(188, 111, 255, 0.38);
+  }
+
+  .effect-summary-block {
+    margin-top: 0.35rem;
+  }
+
+  .effect-summary-subgroup {
+    margin-top: 0.35rem;
+    padding-left: 0.45rem;
+    border-left: 1px dashed rgba(214, 162, 74, 0.18);
+  }
+
+  .effect-summary-line {
+    color: var(--sheet-ink-muted);
+  }
+
   @media (max-width: 1200px) {
     .content-wrapper {
       flex-direction: column;

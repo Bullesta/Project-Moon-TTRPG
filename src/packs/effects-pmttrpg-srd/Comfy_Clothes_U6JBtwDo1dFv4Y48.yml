@@ -1,0 +1,43 @@
+folder: zkHNW9zipwM1SJxv
+name: Comfy Clothes
+type: effect
+img: systems/projectmoonttrpg/assets/icons/Statuses/Endurance.webp
+system:
+  name: ''
+  description: ''
+  cost: 2
+  stackMax: 5
+  appliesTo: outfit
+  canPositive: true
+  canNegative: true
+  procOn: alwaysActive
+  procResult: none
+  procResultLocked: false
+  procStat: any
+  procDice: any
+  procAction: any
+  procCondition: ''
+  positive: Gain +[N] to your Initiative Roll
+  negative: Lose [N] on your Initiative Roll
+  macro:
+    uuid: ''
+  customNotes: ''
+  allowMultiple: true
+effects: []
+sort: 0
+ownership:
+  default: 0
+  yWsvx4DXrmYcZsue: 3
+flags: {}
+_stats:
+  compendiumSource: null
+  duplicateSource: Item.dYnFrDX2sf5IpEhN
+  exportSource: null
+  coreVersion: '13.351'
+  systemId: projectmoonttrpg
+  systemVersion: 0.0.1
+  createdTime: 1780308620214
+  modifiedTime: 1780308620214
+  lastModifiedBy: yWsvx4DXrmYcZsue
+_id: U6JBtwDo1dFv4Y48
+_key: '!items!U6JBtwDo1dFv4Y48'

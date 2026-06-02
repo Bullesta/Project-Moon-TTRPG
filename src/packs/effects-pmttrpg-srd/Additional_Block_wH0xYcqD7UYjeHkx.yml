@@ -1,0 +1,43 @@
+folder: 3h6fm5GqLVh14MPK
+name: Additional Block
+type: effect
+_id: wH0xYcqD7UYjeHkx
+img: systems/projectmoonttrpg/assets/icons/Statuses/Protection.webp
+system:
+  name: ''
+  description: ''
+  cost: 6
+  stackMax: 1
+  appliesTo: weapon
+  canPositive: true
+  canNegative: false
+  procOn: alwaysActive
+  procResult: none
+  procResultLocked: false
+  procStat: any
+  procDice: any
+  procAction: any
+  procCondition: ''
+  positive: Give the character one extra Block Reaction
+  negative: ''
+  macro:
+    uuid: ''
+  customNotes: ''
+  allowMultiple: false
+effects: []
+sort: 0
+ownership:
+  default: 0
+  yWsvx4DXrmYcZsue: 3
+flags: {}
+_stats:
+  compendiumSource: null
+  duplicateSource: null
+  exportSource: null
+  coreVersion: '13.351'
+  systemId: projectmoonttrpg
+  systemVersion: 0.0.1
+  createdTime: 1780308629122
+  modifiedTime: 1780308629122
+  lastModifiedBy: yWsvx4DXrmYcZsue
+_key: '!items!wH0xYcqD7UYjeHkx'

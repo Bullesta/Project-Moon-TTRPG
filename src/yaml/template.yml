@@ -145,15 +145,37 @@ Item:
     - weapon
     - outfit
     - ammunition
-    - attack
     - skill
+    - augment
     - effect
-    - misc
     - status
   templates:
     base:
       name: ''
       description: ''
+    effectEntry:
+      effectUuid: ''
+      name: ''
+      cost: 0
+      stack: 1
+      count: 1
+      stackMax: 5
+      mode: positive
+      appliesTo: ''
+      canPositive: true
+      canNegative: true
+      allowModeToggle: true
+      procOn: alwaysActive
+      procResult: none
+      procResultLocked: false
+      procStat: any
+      procDice: any
+      procAction: any
+      procCondition: ''
+      positive: ''
+      negative: ''
+      macro:
+        uuid: ''
   weapon:
     templates:
       - base
@@ -210,15 +232,23 @@ Item:
     stat: for
     effects: []
     customNotes: ''
+  augment:
+    templates:
+      - base
+    rank: 1
+    effects: []
+    customNotes: ''
   effect:
     templates:
       - base
     cost: 1
+    stackMax: 5
     appliesTo: weapon
     canPositive: true
     canNegative: true
     procOn: alwaysActive
     procResult: none
+    procResultLocked: false
     procStat: any
     procDice: any
     procAction: any

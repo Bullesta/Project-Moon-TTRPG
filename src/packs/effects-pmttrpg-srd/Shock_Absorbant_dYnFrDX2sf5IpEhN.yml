@@ -1,0 +1,43 @@
+folder: zkHNW9zipwM1SJxv
+name: Shock Absorbant
+type: effect
+img: systems/projectmoonttrpg/assets/icons/Statuses/Endurance.webp
+system:
+  name: ''
+  description: ''
+  cost: 2
+  stackMax: 5
+  appliesTo: outfit
+  canPositive: true
+  canNegative: true
+  procOn: alwaysActive
+  procResult: none
+  procResultLocked: false
+  procStat: any
+  procDice: any
+  procAction: any
+  procCondition: ''
+  positive: When Combat begins, gain [N*3] Temporary ST
+  negative: When Combat begins, take [N*3] ST Damage.
+  macro:
+    uuid: ''
+  customNotes: ''
+  allowMultiple: true
+effects: []
+sort: 0
+ownership:
+  default: 0
+  yWsvx4DXrmYcZsue: 3
+flags: {}
+_stats:
+  compendiumSource: null
+  duplicateSource: Item.j98Uq1YqY1CTsjgc
+  exportSource: null
+  coreVersion: '13.351'
+  systemId: projectmoonttrpg
+  systemVersion: 0.0.1
+  createdTime: 1780308620214
+  modifiedTime: 1780308620214
+  lastModifiedBy: yWsvx4DXrmYcZsue
+_id: dYnFrDX2sf5IpEhN
+_key: '!items!dYnFrDX2sf5IpEhN'

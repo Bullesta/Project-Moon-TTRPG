@@ -1,0 +1,43 @@
+folder: HgeENWG6ft89uL2A
+name: Inflict Smoke
+type: effect
+img: systems/projectmoonttrpg/assets/icons/Statuses/Smoke.webp
+system:
+  name: ''
+  description: ''
+  cost: 2
+  stackMax: 5
+  appliesTo: outfit
+  canPositive: true
+  canNegative: true
+  procOn: onClash
+  procResult: none
+  procResultLocked: false
+  procStat: any
+  procDice: any
+  procAction: any
+  procCondition: ''
+  positive: Apply [N] Smoke to the target
+  negative: Apply [N] Smoke to the character
+  macro:
+    uuid: ''
+  customNotes: ''
+  allowMultiple: true
+effects: []
+sort: 0
+ownership:
+  default: 0
+  yWsvx4DXrmYcZsue: 3
+flags: {}
+_stats:
+  compendiumSource: null
+  duplicateSource: Item.F3sKYXOtpDn7ak2y
+  exportSource: null
+  coreVersion: '13.351'
+  systemId: projectmoonttrpg
+  systemVersion: 0.0.1
+  createdTime: 1780308631139
+  modifiedTime: 1780308631139
+  lastModifiedBy: yWsvx4DXrmYcZsue
+_id: i9wpx8HbRwEysBws
+_key: '!items!i9wpx8HbRwEysBws'

@@ -31,6 +31,10 @@
             <input type="text" name="system.cost" value="{{system.cost}}" data-dtype="Number"/>
           </div>
           <div class="resource">
+            <label>{{localize "PMTTRPG.EffectStackMax"}}</label>
+            <input type="text" name="system.stackMax" value="{{system.stackMax}}" data-dtype="Number" min="1"/>
+          </div>
+          <div class="resource">
             <label>{{localize "PMTTRPG.EffectAppliesTo"}}</label>
             <select name="system.appliesTo" data-dtype="String">
               {{selectOptions selects.effectAppliesTo selected=system.appliesTo localize=true}}
@@ -69,11 +73,11 @@
           </div>
           <div class="resource">
             <label>{{localize "PMTTRPG.EffectPositive"}}</label>
-            <textarea name="system.positive" rows="4" data-dtype="String">{{system.positive}}</textarea>
+            {{editor system.positiveEnriched target="system.positive" button=true owner=owner editable=editable}}
           </div>
           <div class="resource">
             <label>{{localize "PMTTRPG.EffectNegative"}}</label>
-            <textarea name="system.negative" rows="4" data-dtype="String">{{system.negative}}</textarea>
+            {{editor system.negativeEnriched target="system.negative" button=true owner=owner editable=editable}}
           </div>
           <div class="resource">
             <label>{{localize "PMTTRPG.EffectMacroSlot"}}</label>

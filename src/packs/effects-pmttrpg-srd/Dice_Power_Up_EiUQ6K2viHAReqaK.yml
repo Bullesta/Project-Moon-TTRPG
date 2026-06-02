@@ -19,6 +19,8 @@ system:
   macro:
     uuid: ''
   customNotes: ''
+  stackMax: 5
+  procResultLocked: false
 effects: []
 sort: 0
 ownership:

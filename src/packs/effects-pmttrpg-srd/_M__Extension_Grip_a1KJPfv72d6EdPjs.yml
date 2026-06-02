@@ -24,6 +24,8 @@ system:
   appliesTo: weapon
   canPositive: true
   canNegative: false
+  stackMax: 1
+  procResultLocked: false
 effects: []
 sort: 0
 ownership:
