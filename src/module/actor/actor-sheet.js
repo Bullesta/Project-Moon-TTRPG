@@ -610,6 +610,7 @@ export class PMTTRPGActorSheet extends foundry.appv1.sheets.ActorSheet {
         itemElement?.setAttribute("draggable", false);
       });
       html.find(".item--weapon").on("drop", this._onWeaponSortDrop.bind(this));
+      html.find(".item--outfit").on("drop", this._onOutfitSortDrop.bind(this));
     }
     
     html.find(".item-toggle-details").on(
@@ -1717,6 +1718,58 @@ export class PMTTRPGActorSheet extends foundry.appv1.sheets.ActorSheet {
 
     return false;
   }
+
+  async _onOutfitSortDrop(event) {
+    event.preventDefault();
+    event.stopPropagation();
+
+    const rawData = event.originalEvent?.dataTransfer?.getData('text/plain');
+    if (!rawData) return false;
+
+    let dropData = null;
+
+    try {
+      dropData = JSON.parse(rawData);
+    } catch (err) {
+      return false;
+    }
+
+    if (dropData?.type !== 'Item') return false;
+
+    const draggedItem = await Item.fromDropData(dropData);
+
+    const targetElement = event.currentTarget;
+    const targetItemId = targetElement?.dataset?.itemId;
+    const targetItem = this.actor.items.get(targetItemId);
+
+    if (!draggedItem || !targetItem) return false;
+    if (draggedItem.parent?.id !== this.actor.id) return false;
+    if (draggedItem.type !== 'outfit') return false;
+    if (targetItem.type !== 'outfit') return false;
+    if (draggedItem.id === targetItem.id) return false;
+
+    const outfits = this.actor.items
+      .filter(item => item.type === 'outfit')
+      .sort((a, b) => (a.sort || 0) - (b.sort || 0));
+
+    const draggedIndex = outfits.findIndex(item => item.id === draggedItem.id);
+    const targetIndex = outfits.findIndex(item => item.id === targetItem.id);
+
+    if (draggedIndex === -1 || targetIndex === -1) return false;
+
+    outfits.splice(draggedIndex, 1);
+    outfits.splice(targetIndex, 0, draggedItem);
+
+    const updates = outfits.map((item, index) => ({
+      _id: item.id,
+      sort: index * 100000
+    }));
+
+    await this.actor.updateEmbeddedDocuments('Item', updates);
+
+    return false;
+  }
+
   async _onDrop(event) {
     const rawData = event.originalEvent?.dataTransfer?.getData('text/plain');
     if (!rawData) return false;
