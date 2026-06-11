@@ -1,0 +1,236 @@
+.sidebar-tab {
+  font-family: $font-stack-base;
+
+  #combat-round {
+    h3 {
+      font-family: $font-stack-secondary;
+    }
+  }
+
+  .directory-item--group,
+  .combat-control[data-control="endCombat"],
+  .combat-control[data-control="startCombat"] {
+    font-family: $font-stack-secondary;
+  }
+
+  .directory-item--group {
+    background: $c-navy-up;
+    padding: 4px 10px;
+    justify-content: center;
+
+    &.npc {
+      background: $c-blood;
+    }
+  }
+
+  .directory-list {
+    .directory-item {
+      .ct-item--img {
+
+        img {
+          width: 100%;
+          height: auto;
+          margin: auto;
+        }
+      }
+    }
+  }
+
+  .directory-list--TTRPG {
+    padding: 0;
+
+    .directory-item {
+      line-height: 1;
+      transition: all ease-in-out 0.25s;
+      position: relative;
+      padding-left: 5px;
+      padding-right: 5px;
+      box-shadow: inset 0 -1px 0 rgba($c-black, 0.12);
+
+      &::after {
+        content: '';
+        display: block;
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        margin: auto;
+        height: 5px;
+        width: 0px;
+        background: rgba($c-white, 0.75);
+        transition: all ease-in-out 0.25s;
+        pointer-events: none;
+      }
+
+      &.hidden {
+        opacity: 0.5;
+      }
+    }
+
+    .drop-hover {
+      &::after {
+        width: 100%;
+      }
+    }
+  }
+
+  .ct-label {
+    text-align: center;
+  }
+
+  .ct-label--moves {
+    flex: 0 0 14%;
+  }
+
+  .ct-item {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+
+    > span,
+    > button {
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    button {
+      background: $c-navy-up;
+      color: $c-white;
+      font-family: $font-stack-base;
+
+      &:hover {
+        text-shadow: none;
+        box-shadow: none;
+        background: $c-navy-hover;
+      }
+    }
+
+    input[type="text"] {
+      width: auto;
+      height: auto;
+      line-height: 1;
+      min-width: 0;
+      color: $c-white;
+      text-align: center;
+        box-shadow: inset 0 0 0 1px rgba($c-white, 0.12);
+    }
+  }
+
+  .npc {
+    .ct-item {
+      button {
+        background: $c-blood;
+
+        &:hover {
+          background: $c-blood-hover;
+        }
+      }
+    }
+  }
+
+  .ct-item--name {
+    flex: 1;
+    padding: 0 4px;
+
+    &, & > * {
+      justify-content: flex-start;
+      text-align: left;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+  }
+
+  .ct-item--hp,
+  .ct-item--armor {
+    flex: 0 0 32px;
+  }
+
+  .ct-item--img {
+    .image-wrapper {
+      position: relative;
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      overflow: hidden;
+    }
+
+    .progress-ring {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: calc(100% - (var(--ring-inset, 0px)));
+      height: calc(100% - (var(--ring-inset, 0px)));
+      transform: translate(-50%, -50%);
+      border-radius: 50%;
+      pointer-events: none;
+
+      &:nth-of-type(1) {
+        --ring-inset: 0px;
+      }
+
+      &:nth-of-type(2) {
+        --ring-inset: 4px;
+      }
+
+      &:nth-of-type(3) {
+        --ring-inset: 8px;
+      }
+    }
+  }
+
+  .actor-elem {
+    .ct-item--moves {
+      font-family: $font-stack-secondary;
+      font-size: 14px;
+    }
+  }
+
+  .directory-item--labels {
+    font-size: 12px;
+    background: rgba($c-navy-up, 0.25);
+    text-transform: uppercase;
+    font-weight: bold;
+    margin: 0;
+    padding: 4px 0;
+
+    &.npc {
+      background: rgba($c-blood, 0.25);
+    }
+  }
+
+}
+
+// Hide unused controls.
+.combat-control[data-control="resetAll"],
+.combat-settings[data-control="trackerSettings"],
+.combat-control[data-control="rollNPC"],
+.combat-control[data-control="rollAll"],
+.combat-control[data-control="previousTurn"],
+.combat-control[data-control="nextTurn"] {
+  display: none;
+}
+
+// Resize the popout.
+#combat-popout {
+  width: 600px !important;
+  height: auto !important;
+
+  .ct-item--img {
+    .image-wrapper {
+      width: 62px;
+      height: 62px;
+    }
+
+    .progress-ring {
+      box-shadow: inset 0 0 5px 9px rgba(0,0,0,0.65);
+    }
+  }
+}
+
+#combat {
+  #combat-tracker {
+    background: rgba($c-black, 0.25);
+  }
+}

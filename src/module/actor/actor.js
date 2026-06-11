@@ -132,6 +132,9 @@ export class ActorPMTTRPG extends Actor {
     // Add base flags.
     if (!actorData.flags.projectmoonttrpg) actorData.flags.projectmoonttrpg = {};
     if (!actorData.flags.projectmoonttrpg.sheetDisplay) actorData.flags.projectmoonttrpg.sheetDisplay = {};
+    if (!actorData.flags.projectmoonttrpg.initiative) actorData.flags.projectmoonttrpg.initiative = {};
+    actorData.flags.projectmoonttrpg.initiative.manualMisc = Number(actorData.flags.projectmoonttrpg.initiative.manualMisc) || 0;
+    actorData.flags.projectmoonttrpg.initiative.macroMisc = Number(actorData.flags.projectmoonttrpg.initiative.macroMisc) || 0;
 
     // Handle max XP.
     let rollData = this.getRollData();

@@ -1,6 +1,7 @@
 
 import { PMTTRPGUtility } from "../utility.js";
 import { PMTTRPGRolls } from "../rolls.js";
+import { PMTTRPGTargetingAPI } from "../targeting.js";
 import { buildEffectSummaryGroups } from "../effects/effect-summary.js";
 
 const { TextEditor } = foundry.applications.ux;
@@ -549,6 +550,7 @@ export class PMTTRPGActorSheet extends foundry.appv1.sheets.ActorSheet {
 
     // Rollables.
     html.find('.rollable').on('click', this._onRollable.bind(this));
+    html.find('.initiative-roll').on('click', this._onInitiativeRoll.bind(this));
 
     // Toggle look.
     html.find('.toggle--look').on('click', this._toggleLook.bind(this, html));
@@ -1609,6 +1611,14 @@ export class PMTTRPGActorSheet extends foundry.appv1.sheets.ActorSheet {
     else if (itemId != undefined) {
       await item.roll();
     }
+  }
+
+  async _onInitiativeRoll(event) {
+    event.preventDefault();
+    const form = event.currentTarget.closest('form');
+    const macroMisc = Number(form?.querySelector('input[name="flags.projectmoonttrpg.initiative.macroMisc"]')?.value ?? 0) || 0;
+    const manualMisc = Number(form?.querySelector('input[name="flags.projectmoonttrpg.initiative.manualMisc"]')?.value ?? 0) || 0;
+    await PMTTRPGTargetingAPI.rollInitiative(this.actor, { macroMisc, manualMisc });
   }
 
   /**

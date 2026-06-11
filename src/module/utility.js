@@ -140,14 +140,15 @@ export class PMTTRPGUtility {
     return heading;
   }
 
-  static getProgressCircle({ current = 100, max = 100, radius = 16 }) {
+  static getProgressCircle({ current = 100, max = 100, radius = 16, _sector = 'full', _strokeWidth = 4, _color = 'red' }) {
     let circumference = radius * 2 * Math.PI;
     let percent = current < max ? current / max : 1;
     let percentNumber = percent * 100;
     let offset = circumference - (percent * circumference);
-    let strokeWidth = 4;
+    let strokeWidth = _strokeWidth;
     let diameter = (radius * 2) + strokeWidth;
     let colorClass = Math.round((percent * 100) / 10) * 10;
+    let color = _color;
 
     return {
       radius: radius,
@@ -156,7 +157,7 @@ export class PMTTRPGUtility {
       circumference: circumference,
       offset: offset,
       position: diameter / 2,
-      color: 'red',
+      color: color,
       class: colorClass,
     };
   }

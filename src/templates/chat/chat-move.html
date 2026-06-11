@@ -1,5 +1,5 @@
 <section class="TTRPG-chat-card">
-  <div class="cell cell--chat TTRPG chat-card move-card" {{#if roll}}data-roll-total="{{roll.total}}"{{/if}} data-actor-id="{{actor._id}}" {{#if tokenId}}data-token-id="{{tokenId}}"{{/if}}>
+  <div class="cell cell--chat TTRPG chat-card move-card" {{#if roll}}data-roll-total="{{roll.total}}"{{/if}} data-actor-id="{{actor._id}}" {{#if tokenId}}data-token-id="{{tokenId}}"{{/if}} {{#if target}}data-target-actor-id="{{target.actorId}}" data-target-combatant-id="{{target.combatantId}}"{{/if}}>
     <div class="chat-title row flexrow">
       {{#if image}}<img class="item-icon" src="{{image}}" alt="{{title}}"/>{{/if}}
       <h2 class="cell__title">{{localize title}}</h2>
@@ -7,6 +7,21 @@
     {{#if flavor}}<div class="row"><em>{{flavor}}</em></div>{{/if}}
     {{#if trigger}}<div class="row"><strong>Trigger:</strong> {{trigger}}</div>{{/if}}
     {{#if details}}<div class="row">{{{details}}}</div>{{/if}}
+    {{#if target}}
+      <div class="row target-summary">
+        <img class="target-summary__icon" src="{{target.img}}" alt="{{target.name}}"/>
+        <div class="target-summary__body">
+          <div class="target-summary__header">
+            <span class="tag target-summary__tag">Target</span>
+            <strong class="target-summary__name">{{target.name}}</strong>
+            {{#if target.initiativeLabel}}<span class="tag target-summary__initiative">{{target.initiativeLabel}}</span>{{/if}}
+          </div>
+          {{#if target.isCurrent}}
+            <div class="target-summary__meta">{{localize "PMTTRPG.Dialog.currentTurn"}}</div>
+          {{/if}}
+        </div>
+      </div>
+    {{/if}}
     {{!-- Result type label. --}}
     {{#if resultLabel}}
       <div class="row result{{#if result}} {{result}}{{/if}}">

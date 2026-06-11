@@ -1,3 +1,5 @@
+import { PMTTRPGTargetingAPI } from "./targeting.js";
+
 const STATUS_EVENTS = {
   onTurnStart: {
     hook: 'projectmoonttrpg.onTurnStart',
@@ -112,6 +114,7 @@ async function runLinkedMacro(statusItem, context = {}) {
     actor: statusItem.parent ?? null,
     context,
     api: PMTTRPGStatusMacroAPI,
+    targeting: PMTTRPGTargetingAPI,
   });
 }
 
@@ -187,6 +190,7 @@ export const PMTTRPGStatusMacroAPI = {
   EVENTS: STATUS_EVENTS,
   STATUS_TRIGGER_HOOK,
   STATUS_MANUAL_BUTTON_HOOK,
+  targeting: PMTTRPGTargetingAPI,
 
   getStatusItems,
   resolveStatus,

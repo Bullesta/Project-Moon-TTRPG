@@ -8,25 +8,19 @@
       {{/ifEquals}}
     </li>
     {{!-- Render the column labels. --}}
-    <li class="combatant directory-item grid {{#ifEquals group "character"}}grid-6col{{else}}grid-5col{{/ifEquals}} directory-item--labels {{group}}">
+    <li class="combatant directory-item grid directory-item--labels {{group}}">
       <div class="ct-item ct-item--img"></div>
-      <div class="ct-item ct-item--name">{{localize "TTRPG.Common.Name"}}</div>
-      <div class="ct-item ct-item--hp">{{localize "TTRPG.HP"}}</div>
-      <div class="ct-item ct-item--ac">{{localize "TTRPG.Armor"}}</div>
-      <div class="ct-item ct-item--damage">{{localize "TTRPG.Dmg"}}</div>
-      {{#ifEquals group "character"}}
-      <div class="ct-item ct-item--moves">{{localize "TTRPG.Moves"}}</div>
-      {{/ifEquals}}
+      <div class="ct-item ct-item--name">{{localize "PMTTRPG.Common.Name"}}</div>
+      <div class="ct-item ct-item--hp">{{localize "PMTTRPG.HP"}}</div>
     </li>
     {{!-- Render the combatants for this actor type. --}}
     <ol class="directory-list--TTRPG {{group}}">
       {{#each combatantGroup as |c index|}}
-        <li class="combatant directory-item actor-elem {{#if c.token.hidden}}hidden{{/if}} grid {{#ifEquals group "character"}}grid-6col{{else}}grid-5col{{/ifEquals}}" data-actor-id="{{c.actor.id}}" data-token-id="{{c.token.id}}" data-combatant-id="{{c.id}}" data-actor-type="{{c.actor.type}}">
+        <li class="combatant directory-item actor-elem {{#if c.token.hidden}}hidden{{/if}}" data-actor-id="{{c.actor.id}}" data-token-id="{{c.token.id}}" data-combatant-id="{{c.id}}" data-actor-type="{{c.actor.type}}">
           {{!-- Token image with a progress circle. --}}
           <div class="ct-item ct-item--img">
             <div class="image-wrapper">
               <img src="{{c.img}}" alt="Thumbnail image for {{c.name}}">
-              {{#if c.displayHealth}}{{{progressCircle c.healthSvg}}}{{/if}}
             </div>
           </div>
           {{!-- Name. --}}
@@ -41,14 +35,26 @@
               {{/if}}
             {{else}}???{{/if}}
           </div>
-          {{!-- Armor. --}}
-          <div class="ct-item ct-item--ac">{{#if c.displayHealth}}{{c.actor.system.attributes.ac.value}}{{else}}???{{/if}}</div>
-          {{!-- Damage, rolable. --}}
-          <div class="ct-item ct-item--damage"><button type="button" class="TTRPG-rollable damage-rollable" data-roll="{{c.actor.system.attributes.damage.value}}" data-label="{{localize "TTRPG.DamageRoll"}}" title="{{c.actor.system.attributes.damage.value}}">{{c.actor.system.attributes.damage.value}}</button></div>
-          {{!-- Move count, if this is a player character. --}}
-          {{#ifEquals group "character"}}
-          <div class="ct-item ct-item--moves">{{#if c.flags.projectmoonttrpg}}{{c.flags.projectmoonttrpg.moveCount}}{{/if}}</div>
-          {{/ifEquals}}
+        </li>
+          <div class="ct-item ct-item--st">
+            {{#if c.displayStagger}}
+              {{#if c.editable}}
+                <input type="text" name="system.attributes.st.value" value="{{c.actor.system.attributes.st.value}}" data-dtype="Number">
+              {{else}}
+                <span>{{c.actor.system.attributes.st.value}}</span>
+              {{/if}}
+            {{else}}???{{/if}}
+          </div>
+        </li>
+          <div class="ct-item ct-item--sp">
+            {{#if c.displaySanity}}
+              {{#if c.editable}}
+                <input type="text" name="system.attributes.sp.value" value="{{c.actor.system.attributes.sp.value}}" data-dtype="Number">
+              {{else}}
+                <span>{{c.actor.system.attributes.sp.value}}</span>
+              {{/if}}
+            {{else}}???{{/if}}
+          </div>
         </li>
       {{/each}}
     </ol>

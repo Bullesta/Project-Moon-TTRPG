@@ -11,7 +11,7 @@
 .vtt {
   @import 'global/application/chat';
   @import 'global/application/sidebar';
-  @import 'global/components/combat';
+  @import 'global/combat/index';
 }
 
 .app {
@@ -23,6 +23,8 @@
 .projectmoonttrpg {
   @import 'global/application/window';
   @import 'global/components/dialogs';
+  @import 'global/components/targeting';
+  @import 'global/components/initiative';
 
   font-family: $font-stack-base;
   color: var(--sheet-ink);

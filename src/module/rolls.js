@@ -1,4 +1,5 @@
 import { PMTTRPGUtility } from "./utility.js";
+import { PMTTRPGTargetingAPI } from "./targeting.js";
 const { renderTemplate } = foundry.applications.handlebars;
 
 export class PMTTRPGRolls {
@@ -154,6 +155,19 @@ export class PMTTRPGRolls {
     const selectedOption = options.find(option => option.id === promptResult.itemId) ?? options[0];
     if (!selectedOption) return false;
 
+    let targetSelection = null;
+    if (skillType === 'attack') {
+      targetSelection = await PMTTRPGTargetingAPI.promptTargetSelection({
+        actor,
+        title: skill.name,
+        sourceName: selectedOption.name,
+        sourceImg: skill.img,
+        preferredCombatantId: game.combat?.combatant?.id ?? null,
+      });
+
+      if (targetSelection === null) return false;
+    }
+
     const lightCost = Math.max(0, Number(skill.system?.lightCost ?? 0));
     if (promptResult.consumeLight && lightCost > 0) {
       const currentLight = Number(actor.system?.attributes?.light?.value ?? 0);
@@ -169,6 +183,7 @@ export class PMTTRPGRolls {
     return this.rollMove({
       actor,
       formula: selectedOption.formula,
+      targetSelection,
       templateData: foundry.utils.mergeObject(templateData, {
         image: skill.img,
         title: skill.name,
@@ -180,6 +195,7 @@ export class PMTTRPGRolls {
         skillName: skill.name,
         skillUseName: selectedOption.name,
         skillUseFormula: selectedOption.formula,
+        attackRoll: skillType === 'attack',
       }, { inplace: false })
     });
   }
@@ -263,6 +279,7 @@ export class PMTTRPGRolls {
 
     // Grab the item data, if any.
     this.item = options?.data;
+    const targetSelection = options?.targetSelection ?? null;
 
     // Grab the formula, if any.
     let formula = options.formula ?? null;
@@ -274,6 +291,11 @@ export class PMTTRPGRolls {
     // Prepare template data for the roll.
     let templateData = options.templateData ? foundry.utils.duplicate(options.templateData): {};
     let data = {};
+
+    if (targetSelection) {
+      templateData.target = targetSelection;
+      templateData.attackRoll = true;
+    }
 
     let dlgOptions = {
       classes: ['projectmoonttrpg', 'PMTTRPG-dialog']
@@ -592,9 +614,25 @@ export class PMTTRPGRolls {
         }
         // Render it.
         templateData.actor = this.actor;
-        roll.render().then(r => {
+        roll.render().then(async r => {
           templateData.rollPMTTRPG = r;
           templateData.roll = roll;
+          if (templateData?.attackRoll && templateData?.target) {
+            try {
+              await game.projectmoonttrpg?.statusMacros?.emitAttackRoll(
+                PMTTRPGTargetingAPI.buildAttackContextPayload({
+                  actor: this.actor,
+                  item: this.item,
+                  roll,
+                  templateData,
+                  target: templateData.target,
+                })
+              );
+            }
+            catch (error) {
+              console.warn('[PMTTRPG] Attack roll hook failed', error);
+            }
+          }
           renderTemplate(template, templateData).then(content => {
             chatData.content = content;
             if (game.dice3d) {

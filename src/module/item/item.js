@@ -351,7 +351,7 @@ export class ItemPMTTRPG extends Item {
    * Roll the item to Chat, creating a chat card which contains follow up attack or damage roll options
    * @return {Promise}
    */
-  async roll({ configureDialog = true, mode = 'block', ammo = null, consumeAmmo = true } = {}) {
+  async roll({ configureDialog = true, mode = 'block', ammo = null, consumeAmmo = true, targetSelection = null } = {}) {
     if (this.type == 'skill') {
       return PMTTRPGRolls.doSkillRoll({
         actor: this.actor,
@@ -393,6 +393,7 @@ export class ItemPMTTRPG extends Item {
       PMTTRPGRolls.rollMove({
         actor: this.actor,
         data: this,
+        targetSelection,
         templateData: {
           image: this.img,
           title: `${this.name} - ${ammo.name}`,
@@ -448,7 +449,7 @@ export class ItemPMTTRPG extends Item {
           buttons: {
             shoot: {
               label: game.i18n.localize('PMTTRPG.Dialog.roll'),
-              callback: html => {
+              callback: async html => {
                 const form = html[0].querySelector('form');
                 const ammoId = form.ammoId.value;
                 const consume = form.consumeAmmo.checked;
@@ -456,10 +457,22 @@ export class ItemPMTTRPG extends Item {
 
                 if (!chosenAmmo) return;
 
+                const targeting = game.projectmoonttrpg?.targeting;
+                const chosenTarget = targeting ? await targeting.promptTargetSelection({
+                  actor: this.actor,
+                  title: this.name,
+                  sourceName: this.name,
+                  sourceImg: this.img,
+                  preferredCombatantId: game.combat?.combatant?.id ?? null,
+                }) : undefined;
+
+                if (chosenTarget === null) return;
+
                 this.roll({
                   configureDialog: false,
                   ammo: chosenAmmo,
-                  consumeAmmo: consume
+                  consumeAmmo: consume,
+                  targetSelection: chosenTarget
                 });
               }
             },
@@ -470,6 +483,21 @@ export class ItemPMTTRPG extends Item {
         }, dlgOptions).render(true);
         return;
       }
+    }
+
+    if (this.type == 'weapon') {
+      const targeting = game.projectmoonttrpg?.targeting;
+      const chosenTarget = targeting ? await targeting.promptTargetSelection({
+        actor: this.actor,
+        title: this.name,
+        sourceName: this.name,
+        sourceImg: this.img,
+        preferredCombatantId: game.combat?.combatant?.id ?? null,
+      }) : undefined;
+
+      if (chosenTarget === null) return;
+
+      return PMTTRPGRolls.rollMove({actor: this.actor, data: this, targetSelection: chosenTarget});
     }
 
     PMTTRPGRolls.rollMove({actor: this.actor, data: this});

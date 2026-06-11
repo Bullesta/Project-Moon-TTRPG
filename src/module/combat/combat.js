@@ -365,6 +365,8 @@ export class CombatSidebarPMTTRPG {
         let displayBarsMode = Object.entries(CONST.TOKEN_DISPLAY_MODES).find(i => i[1] == combatant.token.displayBars)[0];
         // Assume player characters should always show their health bar.
         let displayHealth = group == 'character' ? true : false;
+        let displayStagger = group == 'character' ? true : false;
+        let displaySanity = group == 'character' ? true : false;
 
         // If this is a group other than character (such as NPC), we need to
         // evaluate whether or not this player can see its health bar.
@@ -374,16 +376,22 @@ export class CombatSidebarPMTTRPG {
           if (displayBarsMode.includes("OWNER")) {
             if (combatant.isOwner || game.user.isGM) {
               displayHealth = true;
+              displayStagger = true;
+              displaySanity = true;
             }
           }
           // For other modes, always show it.
           else if (displayBarsMode != "NONE") {
             displayHealth = true;
+            displayStagger = true;
+            displaySanity = true;
           }
           // If it's set to the none mode, hide it from players, but allow
           // the GM to see it.
           else {
             displayHealth = game.user.isGM ? true : false;
+            displayStagger = game.user.isGM ? true : false;
+            displaySanity = game.user.isGM ? true : false;
           }
 
           // If the updateInitiative flag was set to true, recalculate the
@@ -396,6 +404,8 @@ export class CombatSidebarPMTTRPG {
 
         // Set a property based on the health mode earlier.
         combatant.displayHealth = displayHealth;
+        combatant.displayStagger = displayStagger;
+        combatant.displaySanity = displaySanity;
         // Set a property for whether or not this is editable. This controls
         // whether editabel fields like HP will be shown as an input or a div
         // in the combat tracker HTML template.
@@ -405,7 +415,25 @@ export class CombatSidebarPMTTRPG {
         combatant.healthSvg = PMTTRPGUtility.getProgressCircle({
           current: combatant.actor.system.attributes.hp.value,
           max: combatant.actor.system.attributes.hp.max,
-          radius: 16
+          radius: 16,
+          _strokeWidth: 4,
+          _color: 'red',
+        });
+
+        combatant.staggerSvg = PMTTRPGUtility.getProgressCircle({
+          current: combatant.actor.system.attributes.st.value,
+          max: combatant.actor.system.attributes.st.max,
+          radius: 20,
+          _strokeWidth: 4,
+          _color: 'yellow',
+        });
+
+        combatant.sanitySvg = PMTTRPGUtility.getProgressCircle({
+          current: combatant.actor.system.attributes.sp.value,
+          max: combatant.actor.system.attributes.sp.max,
+          radius: 24,
+          _strokeWidth: 4,
+          _color: 'purple'
         });
 
         // If this is the GM or the owner, push to the combatants list.

@@ -41,6 +41,22 @@
         <div class="cell cell--aesthetics">
           <div class="cell cell--image">
             <img class="profile-img" src="{{actor.img}}" data-edit="img" title="{{actor.name}}" height="100" width="100"/>
+            <div class="initiative-panel">
+              <button type="button" class="initiative-roll" title='{{localize "PMTTRPG.InitiativeButtonHint"}}'>
+                <i class="fas fa-dice-d6"></i>
+                <span>{{localize "PMTTRPG.InitiativeRoll"}}</span>
+              </button>
+              <div class="initiative-panel__mics">
+                <label class="initiative-panel__field">
+                  <span>{{localize "PMTTRPG.InitiativeMacroMisc"}}</span>
+                  <input type="text" class="resource--misc" name="flags.projectmoonttrpg.initiative.macroMisc" value="{{flags.projectmoonttrpg.initiative.macroMisc}}" data-dtype="Number" title='{{localize "PMTTRPG.InitiativeMacroMiscHint"}}' readonly/>
+                </label>
+                <label class="initiative-panel__field">
+                  <span>{{localize "PMTTRPG.InitiativeManualMisc"}}</span>
+                  <input type="text" class="resource--misc" name="flags.projectmoonttrpg.initiative.manualMisc" value="{{flags.projectmoonttrpg.initiative.manualMisc}}" data-dtype="Number" title='{{localize "PMTTRPG.InitiativeManualMiscHint"}}'/>
+                </label>
+              </div>
+            </div>
           </div>
 
           <div class="cell cell--look">

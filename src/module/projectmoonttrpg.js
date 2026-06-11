@@ -19,6 +19,7 @@ import { PMTTRPGActorNpcSheet } from "./actor/actor-npc-sheet.js";
 import { PMTTRPGRegisterHelpers } from "./handlebars.js";
 import { preloadHandlebarsTemplates } from "./templates.js";
 import { PMTTRPGUtility } from "./utility.js";
+import { PMTTRPGTargetingAPI } from "./targeting.js";
 import { CombatSidebarPMTTRPG } from "./combat/combat.js";
 import { PMTTRPGStatusMacroAPI } from "./status-macro-api.js";
 
@@ -40,6 +41,7 @@ Hooks.once("init", async function() {
     ItemPMTTRPG,
     rollItemMacro,
     PMTTRPGUtility,
+    targeting: PMTTRPGTargetingAPI,
     statusMacros: PMTTRPGStatusMacroAPI,
   };
 

@@ -63,6 +63,16 @@ PMTTRPG.AugmentOnlyOne: "A character can only have one augment."
 PMTTRPG.Att: "Attack"
 PMTTRPG.Def: "Defense"
 PMTTRPG.Evd: "Evade"
+PMTTRPG.Initiative: "Initiative"
+PMTTRPG.InitiativeRoll: "Roll Initiative"
+PMTTRPG.InitiativeFormula: "Initiative Formula: {formula}"
+PMTTRPG.InitiativeRollHint: "Rolls 1d6 + Justice + Macro Misc + Manual Misc."
+PMTTRPG.InitiativeButtonHint: "Roll initiative for this character."
+PMTTRPG.InitiativeMacroMisc: "Macro Misc"
+PMTTRPG.InitiativeMacroMiscHint: "Bonus or penalty applied by effects and macros."
+PMTTRPG.InitiativeManualMisc: "Manual Misc"
+PMTTRPG.InitiativeManualMiscHint: "Bonus or penalty entered directly on the sheet."
+PMTTRPG.InitiativeCurrentTurn: "Current turn"
 
 PMTTRPG.Misc: "e.g. d4+2"
 PMTTRPG.Look: "Look"
@@ -323,6 +333,14 @@ PMTTRPG.Dialog.skillRollTitle: 'Use {skill}'
 PMTTRPG.Dialog.consumeLight: 'Consume Light'
 PMTTRPG.Dialog.usingSkillWith: 'Using {item}'
 PMTTRPG.Dialog.noSkillOptions: 'No valid equipment is available for this skill.'
+PMTTRPG.Dialog.targetingTitle: 'Choose target'
+PMTTRPG.Dialog.chooseTargetHint: 'Choose a target from the initiative order.'
+PMTTRPG.Dialog.selectTarget: 'Select target'
+PMTTRPG.Dialog.noTarget: 'No target'
+PMTTRPG.Dialog.noCombatantsToTarget: 'No combatants are available to target.'
+PMTTRPG.Dialog.target: 'Target'
+PMTTRPG.Dialog.selfTarget: 'Self'
+PMTTRPG.Dialog.currentTurn: 'Current turn'
 
 PMTTRPG.Notifications.noWeaponWarning: 'No weapon is available to use this skill.'
 PMTTRPG.Notifications.noOutfitWarning: 'No outfit is available to use this skill.'
