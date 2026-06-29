@@ -75,7 +75,6 @@ export class PMTTRPGRegisterHelpers {
       else {
         return game.i18n.localize(i18nKey) ?? '';
       }
-      return '';
     });
   }
 }

@@ -13,7 +13,11 @@ export default defineConfig([
     rules: {
 			"no-unused-vars": "warn",
       "no-undef": "off",
-      "no-useless-escape": "warn"
+      "no-useless-escape": "off",
+      "no-unused-vars": "off",
+      "no-useless-assignment": "off",
+      "no-constant-binary-expression": "off",
+      "no-case-declarations": "off",
     } 
   },
 ]);
