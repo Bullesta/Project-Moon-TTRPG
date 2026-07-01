@@ -97,6 +97,7 @@ export class PMTTRPGRolls {
 
     return foundry.applications.api.DialogV2.wait({
       window: { title: game.i18n.format('PMTTRPG.Dialog.skillRollTitle', { skill: skill.name }) },
+      position: { width: 440 },
       classes: dlgOptions.classes,
       content: html,
       buttons: [{

@@ -12,17 +12,21 @@
   .sheet-body {
     background: transparent;
     padding: 0;
+
+    .tab {
+      display: none;
+
+      &.active {
+        display: flex;
+        flex-direction: column;
+      }
+    }
   }
 
   .tab {
     background: transparent;
     padding: 0;
     min-height: auto;
-  }
-
-  .tab.active[data-tab="description"] {
-    display: flex;
-    flex-direction: column;
   }
 
   .editor {
