@@ -77,6 +77,8 @@ export class PMTTRPGItemSheet extends HandlebarsApplicationMixin(ItemSheetV2) {
     },
     actions: {
       tab: PMTTRPGItemSheet.prototype._onTabClick,
+      syncFromCompendium: PMTTRPGItemSheet.prototype._onSyncFromCompendium,
+      dismissOutdated: PMTTRPGItemSheet.prototype._onDismissOutdated,
     },
   };
 
@@ -312,6 +314,14 @@ export class PMTTRPGItemSheet extends HandlebarsApplicationMixin(ItemSheetV2) {
       context.system.effectSearchPlaceholder = effectContext.effectSearchPlaceholder;
     }
 
+    if (game.user.isGM && this.document.isLinkedToCompendium) {
+      const { outdated, sourceModifiedTime } = await this.document.checkOutdated();
+      context.isOutdated = outdated;
+      context.compendiumModifiedTime = sourceModifiedTime;
+    } else {
+      context.isOutdated = false;
+    }
+
     return context;
   }
 
@@ -481,6 +491,18 @@ export class PMTTRPGItemSheet extends HandlebarsApplicationMixin(ItemSheetV2) {
       });
 
     await this.document.update(flatData);
+  }
+
+  async _onSyncFromCompendium(event, target) {
+    event.preventDefault();
+    await this.document.syncFromCompendium();
+  }
+
+  async _onDismissOutdated(event, target) {
+    event.preventDefault();
+    const modifiedTime = Number(target.dataset.modifiedTime);
+    await this.document.dismissOutdatedWarning(modifiedTime);
+    this.render();
   }
 
   async _onStatusMacroTrigger(event) {

@@ -1,0 +1,23 @@
+import js from "@eslint/js";
+import globals from "globals";
+import { defineConfig } from "eslint/config";
+
+export default defineConfig([
+  { 
+    files: ["src/module/**/*.{js,mjs,cjs}"], 
+    plugins: { js }, 
+    extends: ["js/recommended"], 
+    languageOptions: { 
+      globals: globals.browser
+    },
+    rules: {
+			"no-unused-vars": "warn",
+      "no-undef": "off",
+      "no-useless-escape": "off",
+      "no-unused-vars": "off",
+      "no-useless-assignment": "off",
+      "no-constant-binary-expression": "off",
+      "no-case-declarations": "off",
+    } 
+  },
+]);

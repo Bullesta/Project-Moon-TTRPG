@@ -508,4 +508,134 @@ export class ItemPMTTRPG extends Item {
 
     PMTTRPGRolls.rollMove({actor: this.actor, data: this});
   }
+
+  get compendiumSourceUuid() {
+    return this._stats?.compendiumSource ?? this.getFlag('core', 'sourceId') ?? null;
+  }
+
+  get isLinkedToCompendium() {
+    return !!this.compendiumSourceUuid;
+  }
+
+  /**
+   * Compares the compendium source's modifiedTime against what the GM last
+   * acknowledged (either by syncing or by dismissing). Returns an object so
+   * the sheet has the modifiedTime on hand for the dismiss/sync calls.
+   */
+  async checkOutdated() {
+    if (!this.isLinkedToCompendium) return { outdated: false, sourceModifiedTime: null };
+
+    const source = await fromUuid(this.compendiumSourceUuid).catch(() => null);
+    const sourceModifiedTime = source?._stats?.modifiedTime ?? null;
+    if (!sourceModifiedTime) return { outdated: false, sourceModifiedTime: null };
+
+    // We track two timestamps: when the GM last synced, and when they last dismissed.
+    // Whichever is newer counts as "acknowledged for this version".
+    const lastSyncedAt   = this.getFlag('projectmoonttrpg', 'lastSyncedAt')   ?? 0;
+    const dismissedAt    = this.getFlag('projectmoonttrpg', 'syncDismissedAt') ?? 0;
+    const lastAcknowledged = Math.max(lastSyncedAt, dismissedAt);
+
+    return {
+      outdated: sourceModifiedTime > lastAcknowledged,
+      sourceModifiedTime
+    };
+  }
+
+  /**
+   * Permanently dismiss the banner for this exact compendium version.
+   * If the compendium item is updated later, the banner will reappear.
+   */
+  async dismissOutdatedWarning(sourceModifiedTime) {
+    return this.setFlag('projectmoonttrpg', 'syncDismissedAt', sourceModifiedTime);
+  }
+
+  /**
+   * Sync from compendium and record the timestamp so the banner won't
+   * show again until the compendium item is updated past this version.
+   */
+  async syncFromCompendium({ render = true } = {}) {
+    const uuid = this.compendiumSourceUuid;
+    if (!uuid) return null;
+
+    const source = await fromUuid(uuid).catch(() => null);
+    if (!source) {
+      console.warn(`PMTTRPG | Could not resolve compendium source ${uuid} for "${this.name}"`);
+      return null;
+    }
+
+    const fields = ItemPMTTRPG.SYNCED_FIELDS[this.type] ?? [];
+    if (!fields.length) return null;
+
+    const sourceData = source.toObject();
+    const update = {};
+    for (const path of fields) {
+      const value = foundry.utils.getProperty(sourceData, path);
+      if (value !== undefined) foundry.utils.setProperty(update, path, value);
+    }
+
+    if (update.system?.effects) {
+      update.system.effects = await this._resyncEffectEntries(update.system.effects);
+    }
+
+    // Record the sync so the banner stays hidden until the next compendium edit.
+    foundry.utils.setProperty(update, 'flags.projectmoonttrpg.lastSyncedAt',
+      source._stats?.modifiedTime ?? Date.now());
+
+    await this.update(update, { render: false });
+
+    if (render) this.sheet?.render();
+    return this;
+  }
+
+  static get SYNCED_FIELDS() {
+    return {
+      weapon:  ['name', 'img', 'system.description', 'system.formProperty', 'system.handProperty',
+                'system.weaponType', 'system.rank', 'system.bonusEP', 'system.effects'],
+      outfit:  ['name', 'img', 'system.description', 'system.outfitProperty', 'system.rank',
+                'system.bonusEP', 'system.bonusLight', 'system.resistances', 'system.effects'],
+      skill:   ['name', 'img', 'system.description', 'system.rank', 'system.lightCost',
+                'system.innate', 'system.effects'],
+      augment: ['name', 'img', 'system.description', 'system.effects'],
+      status:  ['name', 'img', 'system.description', 'system.proc', 'system.macro'],
+      effect:  ['name', 'img', 'system.description', 'system.appliesTo', 'system.canPositive',
+                'system.canNegative', 'system.stackMax', 'system.procOn', 'system.procResult',
+                'system.procStat', 'system.procDice', 'system.procAction', 'system.procCondition',
+                'system.positive', 'system.negative', 'system.macro']
+    };
+  }
+
+  async _resyncEffectEntries(effects = []) {
+    const byUuid = new Map((this.system.effects ?? []).map(e => [e.effectUuid, e]));
+
+    return Promise.all(effects.map(async (entry) => {
+      if (!entry.effectUuid) return entry;
+      const effectDoc = await fromUuid(entry.effectUuid).catch(() => null);
+      const merged = foundry.utils.mergeObject(entry, {}, { inplace: false });
+
+      if (effectDoc) {
+        merged.name          = effectDoc.name;
+        merged.cost          = effectDoc.system.cost          ?? merged.cost;
+        merged.stackMax      = effectDoc.system.stackMax      ?? merged.stackMax;
+        merged.procOn        = effectDoc.system.procOn        ?? merged.procOn;
+        merged.procResult    = effectDoc.system.procResult    ?? merged.procResult;
+        merged.procStat      = effectDoc.system.procStat      ?? merged.procStat;
+        merged.procDice      = effectDoc.system.procDice      ?? merged.procDice;
+        merged.procAction    = effectDoc.system.procAction    ?? merged.procAction;
+        merged.procCondition = effectDoc.system.procCondition ?? merged.procCondition;
+        merged.positive      = effectDoc.system.positive      ?? merged.positive;
+        merged.negative      = effectDoc.system.negative      ?? merged.negative;
+        merged.macro         = effectDoc.system.macro         ?? merged.macro;
+      }
+
+      // Preserve the player's own stack/mode choices.
+      const existing = byUuid.get(entry.effectUuid);
+      if (existing) {
+        merged.stack = existing.stack;
+        merged.count = existing.count;
+        merged.mode  = existing.mode;
+      }
+
+      return merged;
+    }));
+  }
 }

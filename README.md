@@ -1,87 +1,150 @@
-![Foundry v11.315](https://img.shields.io/badge/Foundry-v11.315-green)
+# Project Moon TTRPG — FoundryVTT System
 
-## Install
+A community-built FoundryVTT system for the **Project Moon TTRPG**, based on the community rulebook.
 
-You can find Project Moon TTRPG in the Foundry VTT package listing.
+![Foundry v13](https://img.shields.io/badge/Foundry-v13-green)
+![License: GPL](https://img.shields.io/badge/License-GPL-blue)
+![GitHub issues](https://img.shields.io/github/issues/Leetram519/Project-Moon-TTRPG)
+![GitHub pull requests](https://img.shields.io/github/issues-pr/Leetram519/Project-Moon-TTRPG)
 
-To install manually, use this manifest link:
-
-https://asacolips-artifacts.s3.amazonaws.com/projectmoonttrpg/latest/system.json
+---
 
 ## Features
 
-- Character sheets for characters and monsters/npcs
-- Rollable ability scores, moves, and spells
-- Various roll types for moves, including prompts to choose what ability score to use
-- Areas to track forward, hold, ongoing, and one custom resource
-- Max health and load calculations (can be overridden)
-- Weight tracking
-- Character builder for easily creating and leveling up characters
-- Macrobar support for moves and spells
-- Compendiums for the core book's basic moves, class moves, and class spells
-- Ability to override included moves or classes, and to create custom moves, classes, and tags
+- **Character sheets** for player characters and NPCs/enemies
+- **Derived attributes** — HP, ST, SP, and Light calculated automatically from stats and rank
+- **Rollable stats** — Fortitude, Prudence, Justice, Charm, Insight, Temperance
+- **Challenge rolls** — 2d6 + stat with success/partial/failure resolution
+- **Combat rolls** — Attack, Block, and Evade dice with modifiers
+- **Clash system** *(in development)* — full clash request and interaction support
+- **Equipment** — Weapon, Outfit, Skill, and Augment item sheets with EP budgets
+- **Status effects** — stackable statuses tracked as inventory items
+- **EasyEffects** *(in development)* — a lightweight scripting syntax for defining item effects without macros
+- **Compendium** *(in development)* — statuses, effects, weapons, outfits, tools, and enemies
 
-## Languages
+---
 
-- English (default)
-- French
-- German
-- Spanish
+## Manual Installation
 
-## Screenshots
+The system is not yet listed in the official Foundry VTT package browser. Install it manually using the steps below.
 
-### Character Sheet
-![character sheet](https://mattsmithin.nyc3.digitaloceanspaces.com/assets/TTRPG-0.3.0.png)
+### Option A — Install from release zip
 
-### Character Builder
-![character builder](https://mattsmithin.nyc3.digitaloceanspaces.com/assets/TTRPG-0.3.0-character-builder.png)
+1. Go to the [Releases page](https://github.com/Leetram519/Project-Moon-TTRPG/releases) and download the latest `system.zip`. If no releases are available currently, please check back later, or build it yourself from source.
+2. Extract the contents into your Foundry data directory:
+   ```
+   <foundryData>/Data/systems/projectmoonttrpg/
+   ```
+3. Restart Foundry VTT if it was already running.
+4. Create or open a World and select **Project Moon TTRPG** as the game system.
 
-### Level Up
-![level up](https://mattsmithin.nyc3.digitaloceanspaces.com/assets/TTRPG-0.3.0-level-up.png)
+### Option B - Install from manifest URL
 
-### Combat Tracker
-![combat tracker](https://gitlab.com/asacolips-projects/foundry-mods/projectmoonttrpg/uploads/e3ff32b9c9e94c0dd57aeffa7e679e28/image.png)
+This is not yet possible. We're working on it, and it'll come with the MVP 1.0.0 release.
 
-## Contributing
+---
 
-This project is accepting issue reports and code merge requests! See the [CONTRIBUTING.MD](https://gitlab.com/asacolips-projects/foundry-mods/projectmoonttrpg/-/blob/master/CONTRIBUTING.md) page for details.
+## Compatibility
 
-### Translations
+| Foundry Version | Status | Supported Until |
+|----------------|--------|---------------|
+| v13 | ✅ Supported | Until V14 Migration |
+| v14 | 🚧 Migration in progress | Until V16 release |
 
-If you would like to contribute translations directly to the system, they're written using YAML and are under `src/yaml/lang`, and the repo includes build tools to convert them back into JSON. If you prefer writing in JSON, you can convert from JSON to YAML at https://www.json2yaml.com/
+---
 
-### Building the system from source
+## Building from Source
 
-To build the system from source, you'll need to have node 12 or higher installed so that you can use npm and gulp. Changes made to either the `dist` directory or `system.json` in the root of this repo will be lost when building; you should instead edit the source files within `src`. Of particular note is that the system.json, template.json, and lang files are all originally written in Yaml format for an easier to read and work with syntax. You should make your changes there and build their json equivalents with npm.
+### Prerequisites
 
-### Running builds
+- [Node.js](https://nodejs.org/) v20 or higher
+- npm (comes with Node.js)
 
-To make a new dist build, run the following commands:
+### Steps
 
 ```bash
+# 1. Clone the repository
+git clone https://github.com/Leetram519/Project-Moon-TTRPG.git
+cd Project-Moon-TTRPG
+
+# 2. Install dependencies
 npm install
+
+# 3. Build the system (compiles SCSS → CSS and assembles output files)
 npm run build
 ```
 
-Once the build has been completed, you can either copy/paste the dist directory's contents into `<foundryData>/systems/projectmoonttrpg/` or you can symlink the dist directory to that location using your operating system's respective commands for it.
+Once built, copy or symlink the output directory into your Foundry data folder:
 
-In addition, there are other commands for individual tasks, such as `npm run yaml` for compiling the yaml > json assets only.
+```bash
+# Linux / macOS — symlink (recommended for active development)
+ln -s /path/to/Project-Moon-TTRPG/dist ~/.local/share/FoundryVTT/Data/systems/projectmoonttrpg
 
-### CSS
+# Windows — copy manually or use mklink in an Administrator terminal
+mklink /D "C:\Users\<you>\AppData\Local\FoundryVTT\Data\systems\projectmoonttrpg" "C:\path\to\Project-Moon-TTRPG\dist"
+```
 
-This project uses SCSS for generating its CSS. This can also be compiled via `npm run build`.
+Then restart Foundry VTT.
 
-## Hack Modules
+---
 
-- [Homebrew World](https://gitlab.com/mangofeet/homebrew-world-module)
+## Contributing
 
-## Licensing
+We welcome bug reports, feature requests, and pull requests from everyone.
 
-All HTML, CSS, and JS is licensed under the [MIT license](https://gitlab.com/asacolips-projects/foundry-mods/projectmoonttrpg/-/raw/master/LICENSE.txt).
+- **Issues** — use [GitHub Issues](https://github.com/Leetram519/Project-Moon-TTRPG/issues) to report bugs or request features. Please search existing issues before opening a new one.
+- **Pull Requests** — fork the repo, make your changes on a feature branch, and open a PR against `master`. Please read [CONTRIBUTING.md](./CONTRIBUTING.md) before submitting.
+- **Core team** — the project is maintained by a core team of five, under the Glasshat Studios umbrella; all PRs are reviewed before merging.
 
-Token artwork created by [Forgotten Adventures](https://www.forgotten-adventures.net/). Support them on [Patreon](https://www.patreon.com/forgottenadventures)!
+---
 
-Compendium content is licensed under the Creative Commons Attribution 3.0 Unported License. To view a copy of this license, visit http://creativecommons.org/licenses/by/3.0/ or send a letter to Creative Commons, 444 Castro Street, Suite 900, Mountain View, California, 94041, USA.
+## Source Code Structure
 
-In addition, the compendium content uses the OPEN GAME LICENSE Version 1.0a. See the [LICENSE-COMPENDIUM.txt](https://gitlab.com/asacolips-projects/foundry-mods/projectmoonttrpg/-/raw/master/LICENSE-COMPENDIUM.txt) file for additional details.
+```
+docs/           # Documentation for the project (currently empty)
+src/            # The actual source code
+├── assets/             # SCSS source files
+├── module/             # JS Files that define the system's logic
+│   ├── actor/                  # Actor classes and data preparation
+│   ├── combat/                 # Defines the Initiative Turn Order sidebar
+│   ├── item/                   # Item classes (weapon, outfit, skill, augment, status, tool)
+│   ├── easy-effects/           # EasyEffects scripting engine (lexer, parser, interpreter, registry)
+│   ├── effects/                # Some functions to help with Effects and auto-descriptions
+│   └── chat.js                 # Handles chat buttons
+│   ├── config.js               # Some constants
+│   ├── handlebars.js           # Some utilities accessible via HTML
+│   ├── projectmoonttrpg.js     # Main entrypoint file
+│   ├── rolls.js                # Handles anything rolling-related
+│   ├── status-macro-api.js     # Helper for status effects and hook points for them
+│   ├── targeting.js            # Helper for targeting
+│   ├── templates.js            # Registers HTML templates
+│   └── utility.js              # Miscellanous helper functions
+├── templates/          # HTML Templates
+│   ├── chat/                   # Templates for chat cards and chat buttons
+│   ├── combat/                 # Templates for the combat sidebar
+│   ├── dialog/                 # Templates for dialog popups
+│   ├── items/                  # Templates for item sheets
+│   ├── parts/                  # Template parts (buttons, dividers etc)
+│   └── sheet/                  # Templates for NPC and Player sheets
+├── packs/              # Compendium packs (YML, turns into JSON at compile)
+├── scripts/            # Useful scripts that are executed at compile time
+├── styles/             # SCSS source files
+└── yaml/               # Various YML files
+    ├── lang/                   # Localization files
+    ├── system.yml              # Defines the system info, compiles into system.json
+    └── template.yml            # Defines data types for players/items... in the system
+tools/          # Useful tools to help with development
+```
 
+---
+
+## License
+
+This project is licensed under the **GNU General Public License (GPL)**. See [LICENSE](./LICENSE) for details.
+
+---
+
+## Acknowledgements
+
+Built by the PMTTRPG West Marches (EN) community in collaboration with [Glasshat Studios](https://glasshat.fr/), based on the [Community Rulebook](https://docs.google.com/document/d/1B5mX63nfjJt36l7GlWmtnO2Gsvv9lCuKm30M-S0fzmw/edit?tab=t.0).  
+This system is a fan project and is not affiliated with or endorsed by Project Moon Co., Ltd., and is not owned by Glasshat Studios.

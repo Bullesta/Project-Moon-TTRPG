@@ -94,7 +94,7 @@ async function runLinkedMacro(statusItem, context = {}) {
   const macroUuid = statusItem?.system?.macro?.uuid;
   if (!macroUuid) return null;
 
-  let macro = null;
+  let macro;
   try {
     macro = await fromUuid(macroUuid);
   }
@@ -197,7 +197,6 @@ export const PMTTRPGStatusMacroAPI = {
   getStatusItemsForEvent,
   runLinkedMacro,
   emitStatusEvent,
-  emitManualButton,
   registerEventCallback,
   registerManualButtonCallback,
 
