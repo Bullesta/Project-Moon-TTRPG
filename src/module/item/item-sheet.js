@@ -77,6 +77,8 @@ export class PMTTRPGItemSheet extends HandlebarsApplicationMixin(ItemSheetV2) {
     },
     actions: {
       tab: PMTTRPGItemSheet.prototype._onTabClick,
+      "sync-from-compendium": PMTTRPGItemSheet.prototype._onSyncFromCompendium,
+      "dismiss-outdated": PMTTRPGItemSheet.prototype._onDismissOutdated,
       syncFromCompendium: PMTTRPGItemSheet.prototype._onSyncFromCompendium,
       dismissOutdated: PMTTRPGItemSheet.prototype._onDismissOutdated,
     },

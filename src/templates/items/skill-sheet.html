@@ -5,11 +5,11 @@
       {{#if isOutdated}}
       <div class="compendium-outdated-banner">
         <span>{{localize "PMTTRPG.OutdatedWarning"}}</span>
-        <button type="button" data-action="syncFromCompendium">
+        <button type="button" data-action="sync-from-compendium">
           {{localize "PMTTRPG.OutdatedUpdate"}}
         </button>
         <button type="button"
-                data-action="dismissOutdated"
+                data-action="dismiss-outdated"
                 data-modified-time="{{compendiumModifiedTime}}">
           {{localize "PMTTRPG.OutdatedDismiss"}}
         </button>
