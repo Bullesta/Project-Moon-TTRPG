@@ -336,6 +336,15 @@ export class PMTTRPGItemSheet extends foundry.appv1.sheets.ItemSheet {
       returnData.system.effectSearchPlaceholder = effectContext.effectSearchPlaceholder;
     }
 
+    // Only relevant for GM-owned items linked to a compendium.
+    if (game.user.isGM && this.item.isLinkedToCompendium) {
+      const { outdated, sourceModifiedTime } = await this.item.checkOutdated();
+      returnData.isOutdated          = outdated;
+      returnData.compendiumModifiedTime = sourceModifiedTime;
+    } else {
+      returnData.isOutdated = false;
+    }
+
     return returnData;
   }
 
@@ -369,6 +378,17 @@ export class PMTTRPGItemSheet extends foundry.appv1.sheets.ItemSheet {
       html.on('dragover', this._onEffectDragOver.bind(this));
       html.on('drop', this._onDrop.bind(this));
     }
+
+    html.find('[data-action="sync-from-compendium"]').click(async () => {
+      await this.item.syncFromCompendium();
+      // syncFromCompendium already calls render(), nothing else needed.
+    });
+
+    html.find('[data-action="dismiss-outdated"]').click(async ev => {
+      const modifiedTime = Number(ev.currentTarget.dataset.modifiedTime);
+      await this.item.dismissOutdatedWarning(modifiedTime);
+      this.render();
+    });
 
     // TODO: Create tags that don't already exist on focus out. This is a
     // nice-to-have, but it's high risk due to how easy it will make it to
