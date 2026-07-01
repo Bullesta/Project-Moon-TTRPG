@@ -353,7 +353,7 @@ export class PMTTRPGActorSheet extends foundry.appv1.sheets.ActorSheet {
         i.system.descriptionEnriched = await TextEditor.enrichHTML(i.system.description, enrichmentOptions);
       }
 
-      i.img = i.img || DEFAULT_TOKEN;
+      i.img = i.img || foundry.documents.BaseActor.DEFAULT_ICON;
       // If this is a move, sort into various arrays.
       if (i.type === 'move') {
         i.system.choicesEnriched = await TextEditor.enrichHTML(i.system.choices, enrichmentOptions);
@@ -511,7 +511,7 @@ export class PMTTRPGActorSheet extends foundry.appv1.sheets.ActorSheet {
         i.system.descriptionEnriched = await TextEditor.enrichHTML(i.system.description, enrichmentOptions);
       }
 
-      i.img = i.img || DEFAULT_TOKEN;
+      i.img = i.img || foundry.documents.BaseActor.DEFAULT_ICON;
       // If this is a move, sort into various arrays.
       if (i.type === 'npcMove') {
         switch (i.system.moveType) {

@@ -1,5 +1,17 @@
 // Dialog-specific styles extracted from _moves.scss
 
+&.PMTTRPG-dialog.dialog {
+  .standard-form .form-footer {
+    flex-direction: column;
+    flex-wrap: nowrap;
+  }
+
+  .standard-form .form-footer > button {
+    width: 100%;
+    margin: 0;
+  }
+}
+
 .weapon-ammo-dialog {
   .dialog-summary {
     margin-bottom: 0.9rem;
@@ -123,7 +135,7 @@
     font-size: 1.25rem;
   }
 
-  .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.65rem; }
+  .form-grid { display: grid; grid-template-columns: 1fr; gap: 0.65rem; }
   .modifier-input { display: flex; flex-direction: column; }
   .modifier-hint { font-size: 0.78rem; color: var(--sheet-ink-muted); }
 }

@@ -1,8 +1,20 @@
 &.npc {
+  .window-content {
+    height: 100%;
+    min-height: 0;
+    overflow: hidden;
+  }
+
   form {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    min-height: 0;
     overflow: hidden;
 
     .sheet-wrapper {
+      flex: 1 1 auto;
+      min-height: 0;
       overflow-y: auto;
     }
   }
@@ -35,7 +47,8 @@
       grid-column: span 1;
     }
 
-    .cell--tags {
+    .cell--tags,
+    .cell--abilities {
       grid-column: span 4;
     }
 

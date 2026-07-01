@@ -1,5 +1,5 @@
 .item-form {
-  .tab[data-tab="effects"] {
+  .tab.active[data-tab="effects"] {
     display: flex;
     flex-direction: column;
     gap: 0.8rem;

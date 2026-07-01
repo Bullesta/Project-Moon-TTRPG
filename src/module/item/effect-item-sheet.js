@@ -2,26 +2,21 @@ import { PMTTRPGItemSheet } from "./item-sheet.js";
 
 export class PMTTRPGEffectItemSheet extends PMTTRPGItemSheet {
 
-  /** @override */
-  static get defaultOptions() {
-    return foundry.utils.mergeObject(super.defaultOptions, {
+  static DEFAULT_OPTIONS = foundry.utils.mergeObject(
+    PMTTRPGItemSheet.DEFAULT_OPTIONS,
+    {
       classes: ["projectmoonttrpg", "sheet", "item", "effect"],
-      width: 560,
-      height: 620,
-      tabs: [{ navSelector: ".sheet-tabs", contentSelector: ".sheet-body", initial: "description" }],
-      submitOnChange: true,
-    });
-  }
+      position: { width: 560, height: 620 },
+    },
+    { inplace: false }
+  );
 
-  /** @override */
-  get template() {
-    const path = "systems/projectmoonttrpg/templates/items";
-    return `${path}/effect-sheet.html`;
-  }
+  static PARTS = {
+    body: { template: "systems/projectmoonttrpg/templates/items/effect-sheet.html", scrollable: [".sheet-body"] }
+  };
 
-  /** @override */
-  async getData() {
-    const context = await super.getData();
+  async _prepareContext(options) {
+    const context = await super._prepareContext(options);
     context.selects = context.selects || {};
 
     context.selects.effectAppliesTo = {

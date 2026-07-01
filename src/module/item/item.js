@@ -1,5 +1,6 @@
 import { PMTTRPGUtility } from "../utility.js";
 import { PMTTRPGRolls } from "../rolls.js";
+import { getRankFromLevel } from "../actor/progression.js";
 const { renderTemplate } = foundry.applications.handlebars;
 
 function normalizeEffectEntries(rawEffects = []) {
@@ -269,7 +270,9 @@ export class ItemPMTTRPG extends Item {
     }
 
     if (itemData.type == 'augment') {
-      const rank = Math.max(0, Number(actorData?.system?.attributes?.level?.value ?? data.rank ?? 0));
+      const rank = actorData?.system?.attributes
+        ? Math.max(0, getRankFromLevel(actorData.system.attributes.level?.value))
+        : Math.max(0, Number(data.rank ?? 0));
       data.rank = rank;
       const augmentEpBase = rank < 0 ? 0 : rank * 4;
       data.epBase = augmentEpBase;
@@ -443,44 +446,47 @@ export class ItemPMTTRPG extends Item {
 
         if (PMTTRPGUtility.nightmode) dlgOptions.classes.push('nightmode');
 
-        new Dialog({
-          title: game.i18n.localize('PMTTRPG.Dialog.chooseAmmunition'),
+        foundry.applications.api.DialogV2.wait({
+          window: { title: game.i18n.localize('PMTTRPG.Dialog.chooseAmmunition') },
+          classes: dlgOptions.classes,
           content: html,
-          buttons: {
-            shoot: {
-              label: game.i18n.localize('PMTTRPG.Dialog.roll'),
-              callback: async html => {
-                const form = html[0].querySelector('form');
-                const ammoId = form.ammoId.value;
-                const consume = form.consumeAmmo.checked;
-                const chosenAmmo = this.actor.items.get(ammoId);
+          buttons: [{
+            action: 'shoot',
+            label: game.i18n.localize('PMTTRPG.Dialog.roll'),
+            default: true,
+            callback: async (event, button, dialog) => {
+              const form = dialog.element.querySelector('form');
+              const ammoId = form.ammoId.value;
+              const consume = form.consumeAmmo.checked;
+              const chosenAmmo = this.actor.items.get(ammoId);
 
-                if (!chosenAmmo) return;
+              if (!chosenAmmo) return;
 
-                const targeting = game.projectmoonttrpg?.targeting;
-                const chosenTarget = targeting ? await targeting.promptTargetSelection({
-                  actor: this.actor,
-                  title: this.name,
-                  sourceName: this.name,
-                  sourceImg: this.img,
-                  preferredCombatantId: game.combat?.combatant?.id ?? null,
-                }) : undefined;
+              const targeting = game.projectmoonttrpg?.targeting;
+              const chosenTarget = targeting ? await targeting.promptTargetSelection({
+                actor: this.actor,
+                title: this.name,
+                sourceName: this.name,
+                sourceImg: this.img,
+                preferredCombatantId: game.combat?.combatant?.id ?? null,
+              }) : undefined;
 
-                if (chosenTarget === null) return;
+              if (chosenTarget === null) return;
 
-                this.roll({
-                  configureDialog: false,
-                  ammo: chosenAmmo,
-                  consumeAmmo: consume,
-                  targetSelection: chosenTarget
-                });
-              }
-            },
-            cancel: {
-              label: game.i18n.localize('PMTTRPG.Dialog.cancel')
+              this.roll({
+                configureDialog: false,
+                ammo: chosenAmmo,
+                consumeAmmo: consume,
+                targetSelection: chosenTarget
+              });
             }
-          }
-        }, dlgOptions).render(true);
+          }, {
+            action: 'cancel',
+            label: game.i18n.localize('PMTTRPG.Dialog.cancel'),
+            callback: () => null
+          }],
+          rejectClose: false
+        });
         return;
       }
     }

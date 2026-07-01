@@ -1,4 +1,4 @@
-<form class="{{cssClass}} item-form flexcol" autocomplete="off">
+<div class="{{cssClass}} item-form flexcol">
   <div class="sheet-wrapper flexcol">
     <header class="sheet-header flexrow">
       <div class="cell cell--image">
@@ -10,17 +10,17 @@
     </header>
 
     <nav class="sheet-tabs tabs" data-group="primary">
-        <a class="item" data-tab="description">{{localize "PMTTRPG.Common.Description"}}</a>
-      <a class="item" data-tab="status">{{localize "PMTTRPG.Status"}}</a>
-        <a class="item" data-tab="advanced">{{localize "PMTTRPG.Advanced"}}</a>
+        <a class="item{{#if (eq activeTab 'description')}} active{{/if}}" data-action="tab" data-group="primary" data-tab="description">{{localize "PMTTRPG.Common.Description"}}</a>
+      <a class="item{{#if (eq activeTab 'status')}} active{{/if}}" data-action="tab" data-group="primary" data-tab="status">{{localize "PMTTRPG.Status"}}</a>
+        <a class="item{{#if (eq activeTab 'advanced')}} active{{/if}}" data-action="tab" data-group="primary" data-tab="advanced">{{localize "PMTTRPG.Advanced"}}</a>
     </nav>
 
     <section class="sheet-body">
-        <div class="tab" data-group="primary" data-tab="description">
-            {{editor system.descriptionEnriched target="system.description" button=true owner=owner editable=editable}}
+        <div class="tab{{#if (eq activeTab 'description')}} active{{/if}}" data-group="primary" data-tab="description">
+            <prose-mirror name="system.description" value="{{system.description}}" toggled {{#unless editable}}disabled{{/unless}}>{{{system.descriptionEnriched}}}</prose-mirror>
         </div>
 
-        <div class="tab" data-group="primary" data-tab="status">
+        <div class="tab{{#if (eq activeTab 'status')}} active{{/if}}" data-group="primary" data-tab="status">
           <div class="resource-group">
             <div class="resource">
               <label>{{localize "PMTTRPG.Status"}}</label>
@@ -52,7 +52,7 @@
           </div>
         </div>
 
-        <div class="tab" data-group="primary" data-tab="advanced">
+        <div class="tab{{#if (eq activeTab 'advanced')}} active{{/if}}" data-group="primary" data-tab="advanced">
           <div class="resource-group">
             <div class="resource">
               <label>{{localize "PMTTRPG.CustomNotes"}}</label>
@@ -62,4 +62,4 @@
         </div>
     </section>
   </div>
-</form>
+</div>

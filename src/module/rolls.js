@@ -95,28 +95,27 @@ export class PMTTRPGRolls {
 
     if (PMTTRPGUtility.nightmode) dlgOptions.classes.push('nightmode');
 
-    return new Promise(resolve => {
-      new Dialog({
-        title: game.i18n.format('PMTTRPG.Dialog.skillRollTitle', { skill: skill.name }),
-        content: html,
-        buttons: {
-          roll: {
-            label: game.i18n.localize('PMTTRPG.Dialog.roll'),
-            callback: html => {
-              const form = html[0].querySelector('form');
-              resolve({
-                itemId: form.itemId?.value ?? defaultOption?.id ?? null,
-                consumeLight: !!form.consumeLight?.checked,
-              });
-            }
-          },
-          cancel: {
-            label: game.i18n.localize('PMTTRPG.Dialog.cancel'),
-            callback: () => resolve(null)
-          }
-        },
-        close: () => resolve(null)
-      }, dlgOptions).render(true);
+    return foundry.applications.api.DialogV2.wait({
+      window: { title: game.i18n.format('PMTTRPG.Dialog.skillRollTitle', { skill: skill.name }) },
+      classes: dlgOptions.classes,
+      content: html,
+      buttons: [{
+        action: 'roll',
+        label: game.i18n.localize('PMTTRPG.Dialog.roll'),
+        default: true,
+        callback: (event, button, dialog) => {
+          const form = dialog.element.querySelector('form');
+          return {
+            itemId: form.itemId?.value ?? defaultOption?.id ?? null,
+            consumeLight: !!form.consumeLight?.checked,
+          };
+        }
+      }, {
+        action: 'cancel',
+        label: game.i18n.localize('PMTTRPG.Dialog.cancel'),
+        callback: () => null
+      }],
+      rejectClose: false
     });
   }
 
@@ -212,28 +211,24 @@ export class PMTTRPGRolls {
 
     if (PMTTRPGUtility.nightmode) dlgOptions.classes.push('nightmode');
 
-    return new Promise(resolve => {
-      new Dialog({
-        title: game.i18n.format('PMTTRPG.Dialog.statRollTitle', { ability: abilityLabel }),
-        content: html,
-        buttons: {
-          roll: {
-            label: game.i18n.localize('PMTTRPG.Dialog.roll'),
-            callback: html => {
-              const form = html[0].querySelector('form');
-              resolve({
-                rollMode: form.advantage.value,
-                modifier: Number(form.modifier.value) || 0
-              });
-            }
-          },
-          cancel: {
-            label: game.i18n.localize('PMTTRPG.Dialog.cancel'),
-            callback: () => resolve(null)
-          }
-        },
-        close: () => resolve(null)
-      }, dlgOptions).render(true);
+    return foundry.applications.api.DialogV2.wait({
+      window: { title: game.i18n.format('PMTTRPG.Dialog.statRollTitle', { ability: abilityLabel }) },
+      classes: dlgOptions.classes,
+      content: html,
+      buttons: [{
+        action: 'roll',
+        label: game.i18n.localize('PMTTRPG.Dialog.roll'),
+        default: true,
+        callback: (event, button, dialog) => {
+          const form = dialog.element.querySelector('form');
+          return { rollMode: form.advantage.value, modifier: Number(form.modifier.value) || 0 };
+        }
+      }, {
+        action: 'cancel',
+        label: game.i18n.localize('PMTTRPG.Dialog.cancel'),
+        callback: () => null
+      }],
+      rejectClose: false
     });
   }
 
@@ -329,20 +324,18 @@ export class PMTTRPGRolls {
         // If this is an ASK roll, render a bond first to determine which
         // score to use.
         if (data.roll == 'ask') {
-          let stats = Object.keys(this.actorData.abilities);
-          let statButtons = {};
-
-          for (let stat of stats) {
-            statButtons[stat] = {
+          const stats = Object.keys(this.actorData.abilities);
+          await foundry.applications.api.DialogV2.wait({
+            window: { title: game.i18n.localize('PMTTRPG.Dialog.askTitle') },
+            classes: dlgOptions.classes,
+            content: `<p>${game.i18n.format('PMTTRPG.Dialog.askContent', {name: this.item.name})}`,
+            buttons: stats.map(stat => ({
+              action: stat,
               label: game.i18n.localize(`PMTTRPG.${stat.toUpperCase()}`),
               callback: () => this.rollMoveExecute(stat, data, templateData)
-            };
-          }
-          new Dialog({
-            title: game.i18n.localize('PMTTRPG.Dialog.askTitle'),
-            content: `<p>${game.i18n.format('PMTTRPG.Dialog.askContent', {name: this.item.name})}`,
-            buttons: statButtons
-          }, dlgOptions).render(true);
+            })),
+            rejectClose: false
+          });
         }
         // If this is a PROMPT roll, render a different bond to let the user
         // enter their bond value.
@@ -353,20 +346,20 @@ export class PMTTRPGRolls {
             bond: null
           };
           const html = await renderTemplate(template, dialogData);
-          return new Promise(resolve => {
-            new Dialog({
-              title: game.i18n.localize('PMTTRPG.Dialog.bondTitle'),
-              content: html,
-              buttons: {
-                submit: {
-                  label: 'Roll',
-                  callback: html => {
-                    this.rollMoveExecute('bond', data, templateData, html[0].querySelector("form"))
-                  }
-                }
+          return foundry.applications.api.DialogV2.wait({
+            window: { title: game.i18n.localize('PMTTRPG.Dialog.bondTitle') },
+            classes: dlgOptions.classes,
+            content: html,
+            buttons: [{
+              action: 'submit',
+              label: 'Roll',
+              default: true,
+              callback: (event, button, dialog) => {
+                this.rollMoveExecute('bond', data, templateData, dialog.element.querySelector('form'));
               }
-            }, dlgOptions).render(true);
-          })
+            }],
+            rejectClose: false
+          });
 
         }
         // Otherwise, grab the data from the move and pass it along.
@@ -428,13 +421,13 @@ export class PMTTRPGRolls {
     let rollData = this.actor.getRollData();
     // GM rolls.
     let chatData = {
-      user: game.user.id,
+      author: game.user.id,
       speaker: ChatMessage.getSpeaker({ actor: this.actor })
     };
-    let rollMode = game.settings.get("core", "rollMode");
-    if (["gmroll", "blindroll"].includes(rollMode)) chatData["whisper"] = ChatMessage.getWhisperRecipients("GM");
-    if (rollMode === "selfroll") chatData["whisper"] = [game.user.id];
-    if (rollMode === "blindroll") chatData["blind"] = true;
+    let rollMode = game.settings.get("core", "messageMode");
+    if (["gm", "blind"].includes(rollMode)) chatData["whisper"] = ChatMessage.getWhisperRecipients("GM");
+    if (rollMode === "self") chatData["whisper"] = [game.user.id];
+    if (rollMode === "blind") chatData["blind"] = true;
     // Define tags.
     let baseTags = this.item?.system?.tags ?? this.actor?.system?.tags;
     let tags = [];
