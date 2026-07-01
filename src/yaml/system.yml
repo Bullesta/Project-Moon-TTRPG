@@ -4,8 +4,26 @@ description: The Project Moon TTRPG system for FoundryVTT!
 version: "0.0.1"
 compatibility:
   minimum: "13"
-  verified: "13.350"
-  maximum: "13"
+  verified: "14"
+documentTypes:
+  Actor:
+    character: {}
+    npc: {}
+  Item:
+    weapon: {}
+    outfit: {}
+    ammunition: {}
+    skill: {}
+    effect: {}
+    augment: {}
+    status: {}
+    move: {}
+    npcMove: {}
+    spell: {}
+    equipment: {}
+    class: {}
+    tag: {}
+    bond: {}
 authors:
   - name: 'Leetram'
     discord: 'leetram'
