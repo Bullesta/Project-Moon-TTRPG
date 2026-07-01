@@ -571,12 +571,11 @@ export class ItemPMTTRPG extends Item {
       update.system.effects = await this._resyncEffectEntries(update.system.effects);
     }
 
-    if (!foundry.utils.isEmpty(update)) {
-      await this.update(update, { render: false });
-    }
-
     // Record the sync so the banner stays hidden until the next compendium edit.
-    await this.setFlag('projectmoonttrpg', 'lastSyncedAt', source._stats?.modifiedTime ?? Date.now());
+    foundry.utils.setProperty(update, 'flags.projectmoonttrpg.lastSyncedAt',
+      source._stats?.modifiedTime ?? Date.now());
+
+    await this.update(update, { render: false });
 
     if (render) this.sheet?.render();
     return this;
