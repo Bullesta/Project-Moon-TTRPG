@@ -1,0 +1,109 @@
+{{!-- Character sheet: Outfits tab --}}
+<div class="tab outfits {{lookup (lookup tabs "outfits") "cssClass"}}" data-group="primary" data-tab="outfits">
+  <section class="sheet-tab">
+
+    <section class="sheet-notifications sheet-notifications--outfits">
+      {{#if system.isToken}}
+      <div class="cell__title warning small-text">{{localize "PMTTRPG.OutfitsNotLinkedWarning"}}</div>
+      {{/if}}
+    </section>
+
+    <div class="cell cell--outfits">
+      <h2 class="cell__title">
+        <label>{{localize "PMTTRPG.Outfits"}}</label>
+        <div class="item-controls">
+          <button type="button" class="item-control item-create" data-action="itemCreate" title='{{localize "PMTTRPG.AddOutfit"}}' data-type="outfit">
+            <i class="fas fa-plus"></i>
+          </button>
+        </div>
+      </h2>
+      <ol class="items-list">
+      {{#each outfits as |item id|}}
+        <li class="item item--outfit" data-item-id="{{item._id}}">
+          <div class="item-title-row">
+            <h4 class="item-name">{{item.name}}</h4>
+            <div class="item-controls">
+              <span class="item-control item-sort" draggable="true" role="button" title="Drag to Sort"><i class="fas fa-grip-lines"></i></span>
+              <a class="item-control item-equip" data-action="itemEquip" title="Equip Item"><i class="fa-solid fa-shirt"></i></a>
+              <a class="item-control item-edit" data-action="itemEdit" title="Edit Item"><i class="fas fa-edit"></i></a>
+              <a class="item-control item-delete" data-action="itemDelete" title="Delete Item"><i class="fas fa-trash"></i></a>
+              <a class="item-control item-toggle-details" data-action="toggleDetails" title="Show/Hide Details"><i class="fas fa-chevron-down"></i></a>
+            </div>
+          </div>
+          <div class="item-details">
+            <div class="item-header">
+              <div class="item-avatar item-avatar--large">
+                <img class="item-icon" src="{{item.img}}" title="{{item.name}}"/>
+              </div>
+              <div class="item-rolls">
+                <div class="item-category item-dice outfit-roll outfit-roll--block rollable" data-action="rollable" data-roll="{{item.system.blockDiceComputed}}" data-roll-type="block">
+                  <div class="category-icon category-icon--block"></div>
+                  <div class="category-label">{{item.system.blockDiceComputed}}</div>
+                </div>
+                <div class="item-category item-dice outfit-roll outfit-roll--evade rollable" data-action="rollable" data-roll="{{item.system.evadeDiceComputed}}" data-roll-type="evade">
+                  <div class="category-icon category-icon--evade"></div>
+                  <div class="category-label">{{item.system.evadeDiceComputed}}</div>
+                </div>
+              </div>
+              <div class="item-resistances">
+                <div class="resistances-group resistances-group--hp">
+                  <div class="resistances-values">
+                    {{#if (lookup item.system.resistances.hp "slash")}}
+                      <span class="resistance resistance--slash" data-damage="slash" title="Slash">{{lookup item.system.resistancesDisplay.hp "slash"}}</span>
+                    {{/if}}
+                    {{#if (lookup item.system.resistances.hp "pierce")}}
+                      <span class="resistance resistance--pierce" data-damage="pierce" title="Pierce">{{lookup item.system.resistancesDisplay.hp "pierce"}}</span>
+                    {{/if}}
+                    {{#if (lookup item.system.resistances.hp "blunt")}}
+                      <span class="resistance resistance--blunt" data-damage="blunt" title="Blunt">{{lookup item.system.resistancesDisplay.hp "blunt"}}</span>
+                    {{/if}}
+                  </div>
+                </div>
+                <div class="resistances-group resistances-group--st">
+                  <div class="resistances-values">
+                    {{#if (lookup item.system.resistances.st "slash")}}
+                      <span class="resistance resistance--slash" data-damage="slash" title="Slash">{{lookup item.system.resistancesDisplay.st "slash"}}</span>
+                    {{/if}}
+                    {{#if (lookup item.system.resistances.st "pierce")}}
+                      <span class="resistance resistance--pierce" data-damage="pierce" title="Pierce">{{lookup item.system.resistancesDisplay.st "pierce"}}</span>
+                    {{/if}}
+                    {{#if (lookup item.system.resistances.st "blunt")}}
+                      <span class="resistance resistance--blunt" data-damage="blunt" title="Blunt">{{lookup item.system.resistancesDisplay.st "blunt"}}</span>
+                    {{/if}}
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="item-tags">
+              {{#if item.system.equipped}}<span class="tag equipped">{{localize "PMTTRPG.Equipped"}}</span>{{/if}}
+              {{#if (lookup ../selects.outfitProperties item.system.outfitProperty)}}
+                <span class="tag">{{localize (lookup ../selects.outfitProperties item.system.outfitProperty)}}</span>
+              {{/if}}
+              {{#if item.system.rank}}
+                <span class="tag">{{localize "PMTTRPG.OutfitRank"}}: {{item.system.rank}}</span>
+              {{/if}}
+            </div>
+            <div class="item-description">
+              <div class="description">
+                {{#if item.system.bonusLight}}<p><strong>{{localize "PMTTRPG.BonusLight"}}:</strong> +{{item.system.bonusLight}}</p>{{/if}}
+                {{#if item.system.bonusEP}}<p><strong>{{localize "PMTTRPG.BonusEP"}}:</strong> +{{item.system.bonusEP}}</p>{{/if}}
+                {{#if item.system.epMax}}<p><strong>{{localize "PMTTRPG.EP"}}:</strong> {{item.system.epMax}}</p>{{/if}}
+                {{{item.system.descriptionEnriched}}}
+              </div>
+            </div>
+            {{#if item.system.effectSummaryGroups.length}}
+              {{#with (lookup item.system.effectSummaryGroups 0) as |group|}}
+                <div class="item-effect-summary">
+                  <h4 class="cell__title small-text">{{group.heading}}</h4>
+                  <div class="effect-summary-block">{{{group.summaryText}}}</div>
+                </div>
+              {{/with}}
+            {{/if}}
+          </div>
+        </li>
+      {{/each}}
+      </ol>
+    </div>
+
+  </section>
+</div>

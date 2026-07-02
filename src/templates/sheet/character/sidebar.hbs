@@ -1,0 +1,71 @@
+{{!-- Character sheet: sidebar ("look" column — portrait, initiative, look, statuses) --}}
+<section class="sheet-look{{#if actor.flags.projectmoonttrpg.sheetDisplay.sidebarClosed}} closed{{/if}}">
+  <div class="cell cell--aesthetics">
+    <div class="cell cell--image">
+      <img class="profile-img" src="{{actor.img}}" data-action="editImage" data-edit="img" title="{{actor.name}}" height="100" width="100"/>
+      <div class="initiative-panel">
+        <button type="button" class="initiative-roll" data-action="initiativeRoll" title='{{localize "PMTTRPG.InitiativeButtonHint"}}'>
+          <i class="fas fa-dice-d6"></i>
+          <span>{{localize "PMTTRPG.InitiativeRoll"}}</span>
+        </button>
+        <div class="initiative-panel__mics">
+          <label class="initiative-panel__field">
+            <span>{{localize "PMTTRPG.InitiativeMacroMisc"}}</span>
+            <input type="text" class="resource--misc" name="flags.projectmoonttrpg.initiative.macroMisc" value="{{flags.projectmoonttrpg.initiative.macroMisc}}" data-dtype="Number" title='{{localize "PMTTRPG.InitiativeMacroMiscHint"}}' readonly/>
+          </label>
+          <label class="initiative-panel__field">
+            <span>{{localize "PMTTRPG.InitiativeManualMisc"}}</span>
+            <input type="text" class="resource--misc" name="flags.projectmoonttrpg.initiative.manualMisc" value="{{flags.projectmoonttrpg.initiative.manualMisc}}" data-dtype="Number" title='{{localize "PMTTRPG.InitiativeManualMiscHint"}}'/>
+          </label>
+        </div>
+      </div>
+    </div>
+
+    <div class="cell cell--look">
+      <label class="cell__title">{{localize "PMTTRPG.Look"}}</label>
+      <prose-mirror name="system.details.look" value="{{system.details.look}}" toggled {{#unless editable}}disabled{{/unless}}>{{{system.details.lookEnriched}}}</prose-mirror>
+    </div>
+
+    <section class="sheet-statuses sheet-statuses--sidebar">
+      <div class="cell cell--statuses">
+        <h2 class="cell__title">
+          <label>{{localize "PMTTRPG.ActiveStatuses"}}</label>
+        </h2>
+        {{#if statuses.length}}
+        <ol class="items-list status-list">
+          {{#each statuses as |status statusId|}}
+          <li class="item item--status" data-item-id="{{status.representative._id}}" data-status-key="{{status.key}}" draggable="true">
+            <div class="item-header" data-action="itemEdit" data-item-id="{{status.representative._id}}">
+              <div class="item-avatar item-avatar--large item-avatar--status">
+                <img class="item-icon" src="{{status.img}}" title="{{status.name}}"/>
+              </div>
+              <h4 class="item-name">{{status.name}}</h4>
+            </div>
+            <div class="item-tags">
+              <span class="tag status-stack">{{localize "PMTTRPG.StatusStacks"}}: {{status.count}}</span>
+            </div>
+            <div class="item-description">
+              <div class="description">
+                {{{status.system.descriptionEnriched}}}
+              </div>
+            </div>
+            <div class="item-controls">
+              <button type="button" class="status-control status-control--decrease" data-action="statusControl" data-control="decrease" title='{{localize "PMTTRPG.RemoveStack"}}'>
+                <i class="fas fa-minus"></i>
+              </button>
+              <button type="button" class="status-control status-control--increase" data-action="statusControl" data-control="increase" title='{{localize "PMTTRPG.AddStack"}}'>
+                <i class="fas fa-plus"></i>
+              </button>
+            </div>
+          </li>
+          {{/each}}
+        </ol>
+        {{else}}
+        <div class="status-list__empty">{{localize "PMTTRPG.NoStatuses"}}</div>
+        {{/if}}
+      </div>
+    </section>
+  </div>
+
+  <button type="button" class="toggle toggle--look{{#if actor.flags.projectmoonttrpg.sheetDisplay.sidebarClosed}} closed{{/if}}" data-action="toggleLook"><i class="fas fa-chevron-left"></i></button>
+</section>

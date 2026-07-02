@@ -1,8 +1,9 @@
 import { PMTTRPGUtility } from "../utility.js";
 import { buildEffectSummaryGroups } from "../effects/effect-summary.js";
 
-const { TextEditor } = foundry.applications.ux;
-const { renderTemplate } = foundry.applications.handlebars;
+const { ItemSheetV2 } = foundry.applications.sheets;
+const { HandlebarsApplicationMixin } = foundry.applications.api;
+const { TextEditor, FormDataExtended } = foundry.applications.ux;
 
 function computeEffectSummary(entries = [], epMax = 0) {
   let positiveSpent = 0;
@@ -53,147 +54,124 @@ function computeEffectSummary(entries = [], epMax = 0) {
 
 /**
  * Extend the basic ItemSheet with some very simple modifications
- * @extends {ItemSheet}
+ * @extends {ItemSheetV2}
  */
-export class PMTTRPGItemSheet extends foundry.appv1.sheets.ItemSheet {
+export class PMTTRPGItemSheet extends HandlebarsApplicationMixin(ItemSheetV2) {
 
-  /** @inheritdoc */
-  constructor(...args) {
-    super(...args);
-
+  constructor(options = {}) {
+    super(options);
     this.tagify = null;
     this.needsRender = false;
+    this._pendingChangeField = null;
   }
 
-  /** @override */
-  static get defaultOptions() {
-    let options = foundry.utils.mergeObject(super.defaultOptions, {
-      classes: ["projectmoonttrpg", "sheet", "item"],
-      width: 520,
-      height: 480,
-      tabs: [{ navSelector: ".sheet-tabs", contentSelector: ".sheet-body", initial: "description" }],
+  tabGroups = { primary: 'description' };
+
+  static DEFAULT_OPTIONS = {
+    classes: ["projectmoonttrpg", "sheet", "item"],
+    position: { width: 520, height: 480 },
+    window: { resizable: true },
+    form: {
       submitOnChange: true,
-    });
+      closeOnSubmit: false,
+    },
+    actions: {
+      tab: PMTTRPGItemSheet.prototype._onTabClick,
+      "sync-from-compendium": PMTTRPGItemSheet.prototype._onSyncFromCompendium,
+      "dismiss-outdated": PMTTRPGItemSheet.prototype._onDismissOutdated,
+      syncFromCompendium: PMTTRPGItemSheet.prototype._onSyncFromCompendium,
+      dismissOutdated: PMTTRPGItemSheet.prototype._onDismissOutdated,
+    },
+  };
 
-    if (PMTTRPGUtility.nightmode) {
-      options.classes.push('nightmode');
+  // No template here — _renderHTML resolves the path dynamically from item type.
+  // Subclasses override this with their own static PARTS.
+  static PARTS = {
+    body: {}
+  };
+
+  _initializeApplicationOptions(options) {
+    options = super._initializeApplicationOptions(options);
+    if (PMTTRPGUtility.nightmode && !options.classes.includes("nightmode")) {
+      options.classes.push("nightmode");
     }
-
     return options;
   }
 
-  /* -------------------------------------------- */
-
-  /** @override */
-  get template() {
-    const path = "systems/projectmoonttrpg/templates/items";
-    return `${path}/${this.item.type}-sheet.html`;
-  }
-
-  /* -------------------------------------------- */
-
-  /** @inheritdoc */
-  async close(options={}) {
-    await super.close(options);
-
-    if (this.tagify) {
-      // Destroy the tagify instance.
-      this.tagify.destroy();
-      // Re-render the parent actor.
-      if (this.needsRender && this.object?.parent) this.object.parent.render(true);
+  // Foundry's own template preloading (during _preFirstRender) and part rendering
+  // both read the part config through this hook, so resolving the per-type template
+  // here — rather than patching individual render methods — guarantees the mixin
+  // never sees an undefined/null template path for the base (type-less) sheet.
+  _configureRenderParts(options) {
+    const parts = foundry.utils.deepClone(super._configureRenderParts(options));
+    if (!parts.body?.template) {
+      parts.body ??= {};
+      parts.body.template = `systems/projectmoonttrpg/templates/items/${this.document.type}-sheet.html`;
     }
-
+    parts.body.scrollable ??= [".sheet-body"];
+    return parts;
   }
 
-  /* -------------------------------------------- */
+  async _prepareContext(options) {
+    const context = await super._prepareContext(options);
+    const itemData = this.document.toObject(false);
 
-  /** @override */
-  async getData() {
-    let isOwner = false;
-    let isEditable = this.isEditable;
-    const context = super.getData();
-    const itemData = this.item.toObject(false);
-    context.system = itemData.system;
-    // const data = foundry.utils.deepClone(this.object.data);
-    let items = {};
-    let effects = {};
-    let actor = null;
-
-    context.system = foundry.utils.duplicate(this.item.system);
-
-    this.options.title = this.document.name;
-    isOwner = this.document.isOwner;
-    isEditable = this.isEditable;
-
-    // Copy Active Effects
-    effects = this.object.effects.map(e => foundry.utils.deepClone(e));
-    context.effects = effects;
-
-    // Grab the parent actor, if any.
-    actor = this.object?.parent;
-
-    context.dtypes = ["String", "Number", "Boolean"];
-
-    // Prepare enrichment options.
     const enrichmentOptions = {
       async: true,
       documents: true,
-      secrets: this.item.isOwner,
-      rollData: this.item.getRollData(),
-      relativeTo: this.item
+      secrets: this.document.isOwner,
+      rollData: this.document.getRollData(),
+      relativeTo: this.document
     };
 
-    // Handle enriched fields.
-    context.system.descriptionEnriched = await TextEditor.enrichHTML(context.system.description, enrichmentOptions);
-    if (itemData.type == 'effect') {
-      context.system.positiveEnriched = await TextEditor.enrichHTML(context.system.positive ?? '', enrichmentOptions);
-      context.system.negativeEnriched = await TextEditor.enrichHTML(context.system.negative ?? '', enrichmentOptions);
+    const system = foundry.utils.duplicate(this.document.system);
+
+    system.descriptionEnriched = await TextEditor.enrichHTML(system.description ?? '', enrichmentOptions);
+
+    if (itemData.type === 'effect') {
+      system.positiveEnriched = await TextEditor.enrichHTML(system.positive ?? '', enrichmentOptions);
+      system.negativeEnriched = await TextEditor.enrichHTML(system.negative ?? '', enrichmentOptions);
     }
 
-    // Handle preprocessing for tagify data.
-    if (itemData.type == 'equipment') {
-      // If there are tags, convert it into a string.
-      if (context.system.tags != undefined && context.system.tags != '') {
+    if (itemData.type === 'equipment') {
+      if (system.tags != undefined && system.tags !== '') {
         let tagArray = [];
-        try {
-          tagArray = JSON.parse(context.system.tags);
-        } catch (e) {
-          tagArray = [context.system.tags];
-        }
-        context.system.tagsString = tagArray.map((item) => {
-          return item.value;
-        }).join(', ');
+        try { tagArray = JSON.parse(system.tags); }
+        catch (e) { tagArray = [system.tags]; }
+        system.tagsString = tagArray.map(t => t.value).join(', ');
       }
       // Otherwise, set tags equal to the string.
       else {
-        context.system.tags = context.system.tagsString;
+        system.tags = system.tagsString;
       }
     }
 
     // Handle move results.
-    if (itemData.type == 'move' || itemData.type == 'npcMove') {
-      if (context.system.moveResults) {
-        for (let key of Object.keys(context.system.moveResults)) {
-          context.system.moveResults[key].key = `system.moveResults.${key}.value`;
-          context.system.moveResults[key].enriched = await TextEditor.enrichHTML(context.system.moveResults[key].value, enrichmentOptions);
+    if (itemData.type === 'move' || itemData.type === 'npcMove') {
+      if (system.moveResults) {
+        for (const key of Object.keys(system.moveResults)) {
+          system.moveResults[key].key = `system.moveResults.${key}.value`;
+          system.moveResults[key].enriched = await TextEditor.enrichHTML(system.moveResults[key].value, enrichmentOptions);
         }
       }
     }
 
     // Handle choices.
-    if (context.system?.choices) {
-      context.system.choicesEnriched = await TextEditor.enrichHTML(context.system.choices, enrichmentOptions);
+    if (system?.choices) {
+      system.choicesEnriched = await TextEditor.enrichHTML(system.choices, enrichmentOptions);
     }
 
     // Handle bonds.
-    if (itemData.type == 'bond') {
-      context.item.nameEnriched = await TextEditor.enrichHTML(context.item.name, enrichmentOptions);
+    if (itemData.type === 'bond') {
+      const nameEnriched = await TextEditor.enrichHTML(this.document.name, enrichmentOptions);
+      this.document._nameEnriched = nameEnriched;
     }
 
     // Handle select options.
-    context.selects = {};
-    if (itemData.type == 'equipment') {
-      context.selects.itemTypes = {
+    const selects = {};
+
+    if (itemData.type === 'equipment') {
+      selects.itemTypes = {
         weapon: 'PMTTRPG.Weapon',
         armor: 'PMTTRPG.Armor',
         dungeongear: 'PMTTRPG.DungeonGear',
@@ -208,28 +186,30 @@ export class PMTTRPGItemSheet extends foundry.appv1.sheets.ItemSheet {
       };
     }
 
-    if (itemData.type == 'effect') {
-      context.selects.effectAppliesTo = {
+    if (itemData.type === 'effect') {
+      selects.effectAppliesTo = {
         weapon: 'TYPES.Item.weapon',
         outfit: 'TYPES.Item.outfit',
         skill: 'TYPES.Item.skill',
         augment: 'TYPES.Item.augment'
       };
     }
-    if (itemData.type == 'npcMove') {
-      context.selects.moveTypes = {
+
+    if (itemData.type === 'npcMove') {
+      selects.moveTypes = {
         basic: 'PMTTRPG.MoveBasic',
         special: 'PMTTRPG.MoveSpecial',
       };
     }
-    if (itemData.type == 'skill') {
-      context.selects.skillTypes = {
+
+    if (itemData.type === 'skill') {
+      selects.skillTypes = {
         attack: 'PMTTRPG.SkillTypeAttack',
         block: 'PMTTRPG.SkillTypeBlock',
         evade: 'PMTTRPG.SkillTypeEvade',
         stat: 'PMTTRPG.SkillTypeStatUse'
       };
-      context.selects.abilities = {
+      selects.abilities = {
         for: 'PMTTRPG.AbilityFor',
         pru: 'PMTTRPG.AbilityPru',
         jus: 'PMTTRPG.AbilityJus',
@@ -238,15 +218,15 @@ export class PMTTRPGItemSheet extends foundry.appv1.sheets.ItemSheet {
         tem: 'PMTTRPG.AbilityTem'
       };
     }
-    if (itemData.type == 'move') {
-      context.selects.moveTypes = {
+
+    if (itemData.type === 'move') {
+      selects.moveTypes = {
         basic: 'PMTTRPG.MoveBasic',
         starting: 'PMTTRPG.MoveStarting',
         advanced: 'PMTTRPG.MoveAdvanced',
         special: 'PMTTRPG.MoveSpecial',
       };
-
-      context.selects.rollTypes = {
+      selects.rollTypes = {
         FOR: 'PMTTRPG.FOR',
         PRU: 'PMTTRPG.PRU',
         JUS: 'PMTTRPG.JUS',
@@ -258,25 +238,24 @@ export class PMTTRPGItemSheet extends foundry.appv1.sheets.ItemSheet {
         FORMULA: 'PMTTRPG.FORMULA',
       };
     }
-    if (itemData.type == 'class') {
-      context.selects.damages = {
-        d4: 'd4',
-        d6: 'd6',
-        d8: 'd8',
-        d10: 'd10',
-        d12: 'd12',
-      };
-      context.selects.equipmentGroupModes = {
+    if (itemData.type === 'class') {
+      selects.damages = { d4: 'd4',
+         d6: 'd6',
+         d8: 'd8',
+         d10: 'd10',
+         d12: 'd12',
+       };
+      selects.equipmentGroupModes = {
         radio: 'PMTTRPG.ChooseOne',
         checkbox: 'PMTTRPG.ChooseAny',
       };
     }
 
-    context.selects.effectModes = {
+    selects.effectModes = {
       positive: 'PMTTRPG.EffectModePositive',
       negative: 'PMTTRPG.EffectModeNegative'
     };
-    context.selects.effectProcOn = {
+    selects.effectProcOn = {
       alwaysActive: 'PMTTRPG.EffectProcAlwaysActive',
       onClash: 'PMTTRPG.EffectProcOnClash',
       onClashResult: 'PMTTRPG.EffectProcOnClashResult',
@@ -288,12 +267,12 @@ export class PMTTRPGItemSheet extends foundry.appv1.sheets.ItemSheet {
       onDevastating: 'PMTTRPG.EffectProcOnDevastating',
       onAction: 'PMTTRPG.EffectProcOnAction'
     };
-    context.selects.effectProcResult = {
+    selects.effectProcResult = {
       none: 'PMTTRPG.EffectProcResultNone',
       win: 'PMTTRPG.EffectProcResultWin',
       lose: 'PMTTRPG.EffectProcResultLose'
     };
-    context.selects.effectProcStat = {
+    selects.effectProcStat = {
       any: 'PMTTRPG.EffectProcStatAny',
       for: 'PMTTRPG.AbilityFor',
       pru: 'PMTTRPG.AbilityPru',
@@ -302,115 +281,247 @@ export class PMTTRPGItemSheet extends foundry.appv1.sheets.ItemSheet {
       ins: 'PMTTRPG.AbilityIns',
       tem: 'PMTTRPG.AbilityTem'
     };
-    context.selects.effectProcDice = {
+    selects.effectProcDice = {
       any: 'PMTTRPG.EffectProcDiceAny',
       offensive: 'PMTTRPG.EffectProcDiceOffensive',
       defensive: 'PMTTRPG.EffectProcDiceDefensive'
     };
-    context.selects.effectProcAction = {
+    selects.effectProcAction = {
       any: 'PMTTRPG.EffectProcActionAny',
       action: 'PMTTRPG.EffectProcActionAction',
       reaction: 'PMTTRPG.EffectProcActionReaction'
     };
 
-    let returnData = {
-      item: this.object,
-      cssClass: isEditable ? "editable" : "locked",
-      editable: isEditable,
-      system: context.system,
-      effects: effects,
-      selects: context.selects,
+    Object.assign(context, {
+      item: this.document,
+      cssClass: this.isEditable ? "editable" : "locked",
+      editable: this.isEditable,
+      system,
+      effects: this.document.effects.map(e => foundry.utils.deepClone(e)),
+      selects,
       effectChoices: [],
-      limited: this.object.limited,
+      limited: this.document.limited,
       options: this.options,
-      owner: isOwner,
-      title: context.name
-    };
-
-    if (this.object.type === 'weapon' || this.object.type === 'outfit' || this.object.type === 'skill' || this.object.type === 'augment') {
-      const effectContext = await this._prepareEffectHostContext();
-      returnData.effectChoices = effectContext.effectChoices;
-      returnData.system.effects = effectContext.effects;
-      returnData.system.effectSummaryGroups = effectContext.effectSummaryGroups;
-      returnData.system.effectSummary = effectContext.effectSummary;
-      returnData.system.effectSearchPlaceholder = effectContext.effectSearchPlaceholder;
-    }
-
-    // Only relevant for GM-owned items linked to a compendium.
-    if (game.user.isGM && this.item.isLinkedToCompendium) {
-      const { outdated, sourceModifiedTime } = await this.item.checkOutdated();
-      returnData.isOutdated          = outdated;
-      returnData.compendiumModifiedTime = sourceModifiedTime;
-    } else {
-      returnData.isOutdated = false;
-    }
-
-    return returnData;
-  }
-
-  /* -------------------------------------------- */
-
-  /** @override */
-  async activateListeners(html) {
-    super.activateListeners(html);
-
-    this._tagify(html, this.isEditable);
-
-    // Everything below here is only needed if the sheet is editable
-    if (!this.isEditable) return;
-
-    this.html = html;
-
-    // Add or Remove Attribute
-    html.find(".class-fields").on("click", ".class-control", this._onClickClassControl.bind(this));
-
-    html.find('.status-macro-trigger').on('click', this._onStatusMacroTrigger.bind(this));
+      owner: this.document.isOwner,
+      title: this.document.name,
+      activeTab: this.tabGroups?.primary ?? "description"
+    });
 
     if (this._supportsEffects()) {
-      html.find('.effect-control').on('click', this._onEffectControl.bind(this));
-      html.find('.effect-picker').on('change', this._onEffectPickerChange.bind(this));
-      html.find('.effect-picker').on('keydown', this._onEffectPickerKeydown.bind(this));
-      html.find('.effect-row__stack').on('change', this._onEffectStackChange.bind(this));
-      html.find('.effect-row__proc-result-select').on('change', this._onEffectProcResultChange.bind(this));
-      html.find('.effect-row__proc-stat-select').on('change', this._onEffectProcStatChange.bind(this));
-      html.find('.effect-row__proc-action-select').on('change', this._onEffectProcActionChange.bind(this));
-      html.find('.effect-row__mode-select').on('change', this._onEffectModeChange.bind(this));
-      html.on('dragover', this._onEffectDragOver.bind(this));
-      html.on('drop', this._onDrop.bind(this));
+      const effectContext = await this._prepareEffectHostContext();
+      context.effectChoices = effectContext.effectChoices;
+      context.system.effects = effectContext.effects;
+      context.system.effectSummaryGroups = effectContext.effectSummaryGroups;
+      context.system.effectSummary = effectContext.effectSummary;
+      context.system.effectSearchPlaceholder = effectContext.effectSearchPlaceholder;
     }
 
-    html.find('[data-action="sync-from-compendium"]').click(async () => {
-      await this.item.syncFromCompendium();
-      // syncFromCompendium already calls render(), nothing else needed.
-    });
+    if (game.user.isGM && this.document.isLinkedToCompendium) {
+      const { outdated, sourceModifiedTime } = await this.document.checkOutdated();
+      context.isOutdated = outdated;
+      context.compendiumModifiedTime = sourceModifiedTime;
+    } else {
+      context.isOutdated = false;
+    }
 
-    html.find('[data-action="dismiss-outdated"]').click(async ev => {
-      const modifiedTime = Number(ev.currentTarget.dataset.modifiedTime);
-      await this.item.dismissOutdatedWarning(modifiedTime);
-      this.render();
-    });
+    return context;
+  }
 
-    // TODO: Create tags that don't already exist on focus out. This is a
-    // nice-to-have, but it's high risk due to how easy it will make it to
-    // create extra tags unintentionally.
+  _onTabClick(event, target) {
+    event.preventDefault();
+    const group = target.dataset.group ?? "primary";
+    const tabId = target.dataset.tab;
+    if (!tabId || this.tabGroups[group] === tabId) return;
+    this.tabGroups[group] = tabId;
+    for (const el of this.element.querySelectorAll(`[data-group="${group}"][data-tab]`)) {
+      el.classList.toggle("active", el.dataset.tab === tabId);
+    }
+    for (const el of this.element.querySelectorAll(`.sheet-tabs [data-tab]`)) {
+      el.classList.toggle("active", el.dataset.tab === tabId);
+    }
+  }
+
+  _onRender(context, options) {
+    super._onRender(context, options);
+
+    if (this.tagify) {
+      this.tagify.destroy();
+      this.tagify = null;
+    }
+    this._tagify(this.isEditable);
+
+    if (!this.isEditable) return;
+
+    this._listenerAbort?.abort();
+    this._listenerAbort = new AbortController();
+    const { signal } = this._listenerAbort;
+
+    for (const el of this.element.querySelectorAll('.class-fields')) {
+      el.addEventListener('click', (e) => {
+        if (e.target.closest('.class-control')) this._onClickClassControl(e);
+      }, { signal });
+    }
+
+    for (const el of this.element.querySelectorAll('.status-macro-trigger')) {
+      el.addEventListener('click', (e) => this._onStatusMacroTrigger(e), { signal });
+    }
+
+    if (this._supportsEffects()) {
+      for (const el of this.element.querySelectorAll('.effect-control')) {
+        el.addEventListener('click', (e) => this._onEffectControl(e), { signal });
+      }
+      for (const el of this.element.querySelectorAll('.effect-picker')) {
+        el.addEventListener('change', (e) => this._onEffectPickerChange(e), { signal });
+        el.addEventListener('keydown', (e) => this._onEffectPickerKeydown(e), { signal });
+      }
+      for (const el of this.element.querySelectorAll('.effect-row__stack')) {
+        el.addEventListener('change', (e) => this._onEffectStackChange(e), { signal });
+      }
+      for (const el of this.element.querySelectorAll('.effect-row__proc-result-select')) {
+        el.addEventListener('change', (e) => this._onEffectProcResultChange(e), { signal });
+      }
+      for (const el of this.element.querySelectorAll('.effect-row__proc-stat-select')) {
+        el.addEventListener('change', (e) => this._onEffectProcStatChange(e), { signal });
+      }
+      for (const el of this.element.querySelectorAll('.effect-row__proc-action-select')) {
+        el.addEventListener('change', (e) => this._onEffectProcActionChange(e), { signal });
+      }
+      for (const el of this.element.querySelectorAll('.effect-row__mode-select')) {
+        el.addEventListener('change', (e) => this._onEffectModeChange(e), { signal });
+      }
+
+      this.element.addEventListener('dragover', this._onEffectDragOver.bind(this), { signal });
+      this.element.addEventListener('drop', this._onDrop.bind(this), { signal });
+    }
+  }
+
+  async _onClose(options) {
+    this._listenerAbort?.abort();
+    if (this.tagify) {
+      this.tagify.destroy();
+      if (this.needsRender && this.document?.parent) this.document.parent.render(true);
+    }
+    await super._onClose(options);
+  }
+
+  _onChangeForm(formConfig, event) {
+    const target = event.target instanceof HTMLElement
+      ? (event.target.closest("[name]") ?? event.target)
+      : null;
+    this._pendingChangeField = target?.name ?? null;
+    return super._onChangeForm(formConfig, event);
+  }
+
+  _prepareSubmitData(event, form, formData, updateData) {
+    if (this.document.type !== "class") {
+      const name = this._pendingChangeField;
+      this._pendingChangeField = null;
+      if (name && name in formData.object) {
+        const newValue = formData.object[name];
+        if (newValue === foundry.utils.getProperty(this.document, name)) return {};
+        return foundry.utils.expandObject({ [name]: newValue });
+      }
+      return {};
+    }
+    return super._prepareSubmitData(event, form, formData, updateData);
+  }
+
+  async _onSubmitForm(formConfig, event) {
+    if (this.document.type !== "class") {
+      return super._onSubmitForm(formConfig, event);
+    }
+
+    const form = this.form;
+    if (!form) return;
+
+    const formData = new FormDataExtended(form);
+    const formObj = foundry.utils.expandObject(formData.object);
+
+    let i = 0;
+    const deletedKeys = [];
+
+    if (typeof formObj.system?.equipment === 'object') {
+      for (const [k, v] of Object.entries(formObj.system.equipment)) {
+        if (i != k) {
+          v.items = foundry.utils.duplicate(this.document.system.equipment[k]?.items ?? []);
+          formObj.system.equipment[i] = v;
+          delete formObj.system.equipment[k];
+          deletedKeys.push(`equipment.${k}`);
+        }
+        i++;
+      }
+    }
+
+    i = 0;
+    if (typeof formObj.system?.races === 'object') {
+      for (const [k, v] of Object.entries(formObj.system.races)) {
+        if (i != k) {
+          formObj.system.races[i] = v;
+          delete formObj.system.races[k];
+          deletedKeys.push(`races.${k}`);
+        }
+        i++;
+      }
+    }
+
+    i = 0;
+    if (typeof formObj.system?.alignments === 'object') {
+      for (const [k, v] of Object.entries(formObj.system.alignments)) {
+        if (i != k) {
+          formObj.system.alignments[i] = v;
+          delete formObj.system.alignments[k];
+          deletedKeys.push(`alignments.${k}`);
+        }
+        i++;
+      }
+    }
+
+    for (const k of deletedKeys) {
+      const keys = k.split('.');
+      if (formObj.system[keys[0]][keys[1]] == undefined) {
+        formObj.system[keys[0]][`-=${keys[1]}`] = null;
+      }
+    }
+
+    const flatData = Object.entries(formData.object)
+      .filter(e => !e[0].match(/system\.(equipment|alignments|races)/g))
+      .reduce((obj, e) => { obj[e[0]] = e[1]; return obj; }, {
+        _id: this.document.id,
+        "system.equipment": formObj.system?.equipment,
+        "system.races": formObj.system?.races,
+        "system.alignments": formObj.system?.alignments
+      });
+
+    await this.document.update(flatData);
+  }
+
+  async _onSyncFromCompendium(event, target) {
+    event.preventDefault();
+    await this.document.syncFromCompendium();
+  }
+
+  async _onDismissOutdated(event, target) {
+    event.preventDefault();
+    const modifiedTime = Number(target.dataset.modifiedTime);
+    await this.document.dismissOutdatedWarning(modifiedTime);
+    this.render();
   }
 
   async _onStatusMacroTrigger(event) {
     event.preventDefault();
-    if (this.object.type !== 'status') return;
-
-    await game.projectmoonttrpg?.statusMacros?.emitManualButton(this.object, {
-      actorId: this.object.parent?.id ?? null,
+    if (this.document.type !== 'status') return;
+    await game.projectmoonttrpg?.statusMacros?.emitManualButton(this.document, {
+      actorId: this.document.parent?.id ?? null,
       source: 'status-sheet'
     });
   }
 
   _supportsEffects() {
-    return ['weapon', 'outfit', 'skill', 'augment'].includes(this.object.type);
+    return ['weapon', 'outfit', 'skill', 'augment'].includes(this.document.type);
   }
 
   _effectHostType() {
-    return this.object.type;
+    return this.document.type;
   }
 
   _effectLabel(effect) {
@@ -462,9 +573,7 @@ export class PMTTRPGItemSheet extends foundry.appv1.sheets.ItemSheet {
       stackMax: Math.max(1, Number(system.stackMax ?? (system.allowMultiple === false ? 1 : 5)) || 5),
       positive: system.positive ?? '',
       negative: system.negative ?? '',
-      macro: {
-        uuid: system?.macro?.uuid ?? ''
-      }
+      macro: { uuid: system?.macro?.uuid ?? '' }
     };
   }
 
@@ -511,7 +620,7 @@ export class PMTTRPGItemSheet extends foundry.appv1.sheets.ItemSheet {
         appliesTo,
         canPositive: effect.system?.canPositive !== false,
         canNegative: effect.system?.canNegative !== false,
-        effect: {
+        effect: { 
           ...effect.toObject(),
           uuid: effect.uuid
         }
@@ -520,17 +629,16 @@ export class PMTTRPGItemSheet extends foundry.appv1.sheets.ItemSheet {
 
     for (const pack of packs) {
       let docs = [];
-      try {
-        docs = await pack.getDocuments();
+      try { 
+        docs = await pack.getDocuments(); 
       }
-      catch (error) {
-        continue;
+      catch (error) { 
+        continue; 
       }
 
       for (const effect of docs.filter(doc => doc.type === 'effect')) {
         const appliesTo = effect.system?.appliesTo ?? hostType;
         if (appliesTo !== hostType) continue;
-
         catalog.push({
           uuid: effect.uuid,
           name: effect.name,
@@ -554,7 +662,7 @@ export class PMTTRPGItemSheet extends foundry.appv1.sheets.ItemSheet {
 
   async _prepareEffectHostContext() {
     const catalog = await this._getEffectCatalog();
-    const effects = foundry.utils.duplicate(this.object.system.effects ?? []).map(effect => {
+    const effects = foundry.utils.duplicate(this.document.system.effects ?? []).map(effect => {
       const stack = this._getEffectStack(effect);
       const showProcResult = ['onClash', 'onClashResult', 'onEitherClashResult'].includes(effect.procOn);
       const showProcStat = ['onUse', 'onAction'].includes(effect.procOn);
@@ -579,185 +687,91 @@ export class PMTTRPGItemSheet extends foundry.appv1.sheets.ItemSheet {
     return {
       effectChoices: catalog,
       effects,
-      effectSummary: computeEffectSummary(effects, Number(this.object.system?.epMax ?? 0)),
+      effectSummary: computeEffectSummary(effects, Number(this.document.system?.epMax ?? 0)),
       effectSummaryGroups: this._buildEffectSummaryGroups(effects),
       effectSearchPlaceholder: game.i18n.localize('PMTTRPG.EffectSearchPlaceholder')
     };
   }
 
+
   /**
    * Add tagging widget.
    */
-  async _tagify(html, editable) {
+  async _tagify(editable) {
     // Build the tags list.
-    let tags = game.items.filter(item => item.type == 'tag').map(item => item.name);
-    for (let c of game.packs) {
-      if (c.metadata.type && c.metadata.type == 'Item' && c.metadata.name == 'tags') {
-        let items = c?.index ? c.index.map(indexedItem => {
-          return indexedItem.name;
-        }) : [];
+    const inputEl = this.element?.querySelector('.tags-input-source');
+    if (!inputEl) return;
+    let tags = game.items.filter(item => item.type === 'tag').map(item => item.name);
+    for (const c of game.packs) {
+      if (c.metadata.type === 'Item' && c.metadata.name === 'tags') {
+        const items = c?.index ? c.index.map(i => i.name) : [];
         tags = tags.concat(items);
       }
     }
-    // Reduce duplicates.
-    let tagNames = [];
-    for (let tag of tags) {
-      let tagName = tag.toLowerCase();
-      if (tagNames.includes(tagName) === false) {
-        tagNames.push(tagName);
-      }
-    }
-
     // Sort the tagnames list.
-    tagNames.sort((a, b) => {
-      const aSort = a.toLowerCase();
-      const bSort = b.toLowerCase();
-      if (aSort < bSort) {
-        return -1;
-      }
-      if (aSort > bSort) {
-        return 1;
-      }
-      return 0;
-    });
-
+    const tagNames = [...new Set(tags.map(t => t.toLowerCase()))].sort();
     // Tagify!
-    var $input = html.find('.tags-input-source');
-    if ($input.length > 0) {
-      if (!editable) {
-        $input.attr('readonly', true);
-      }
-
+    if (!editable) inputEl.setAttribute('readonly', 'true');
       // init Tagify script on the above inputs
-      this.tagify = new Tagify($input[0], {
-        whitelist: tagNames,
-        maxTags: 'Infinity',
-        dropdown: {
-          maxItems: 20,           // <- mixumum allowed rendered suggestions
-          classname: "tags-look", // <- custom classname for this dropdown, so it could be targeted
-          enabled: 0,             // <- show suggestions on focus
-          closeOnSelect: false    // <- do not hide the suggestions dropdown once an item has been selected
-        }
-      });
-
-      // @todo this version of tagify updates has a strange race condition.
-      // We've temporarily switched to just using the `system.tags` name prop.
-
-      // // Update document with the changes.
-      // this.tagify.on('change', e => {
-      //   // Grab the raw tags.
-      //   let newTags = e.detail.value;
-      //   // Parse it into a string.
-      //   let tagArray = [];
-      //   try {
-      //     tagArray = JSON.parse(newTags);
-      //   } catch (e) {
-      //     tagArray = [newTags];
-      //   }
-      //   let newTagsString = tagArray.map((item) => {
-      //     return item.value;
-      //   }).join(', ');
-
-      //   // Apply the update.
-      //   this.document.update({
-      //     'system.tags': newTags,
-      //     'system.tagsString': newTagsString
-      //   }, {render: false});
-
-      //   this.needsRender = true;
-      // });
-    }
+    this.tagify = new Tagify(inputEl, {
+      whitelist: tagNames,
+      maxTags: 'Infinity',
+      dropdown: {
+        maxItems: 20,
+        classname: "tags-look",
+        enabled: 0,
+        closeOnSelect: false
+      }
+    });
   }
 
-  /* -------------------------------------------- */
-
-  /**
-   * Listen for click events on an attribute control to modify the composition of attributes in the sheet
-   * @param {MouseEvent} event    The originating left click event
-   * @private
-   */
   async _onClickClassControl(event) {
     event.preventDefault();
-    const a = event.currentTarget;
+    const a = event.target.closest('.class-control');
+    if (!a) return;
     const action = a.dataset.action;
     const field_type = a.dataset.type;
-    const form = this.form;
 
-    let field_types = {
-      'races': 'race',
-      'alignments': 'alignment'
+    const field_types = {
+      races: 'race',
+      alignments: 'alignment'
     };
 
-    // // Add new attribute
     if (action === "create") {
       if (Object.keys(field_types).includes(field_type)) {
-        const field_values = this.object.system[field_type];
+        const field_values = this.document.system[field_type] ?? {};
         const nk = Object.keys(field_values).length + 1;
-        let newKey = document.createElement("div");
-        newKey.innerHTML = `<li class="item ${field_types[field_type]}" data-index="${nk}">
-    <div class="flexrow">
-      <input type="text" class="input input--title" name="system.${field_type}.${nk}.label" value="" data-dtype="string"/>
-      <a class="class-control" data-action="delete" data-type="${field_type}"><i class="fas fa-trash"></i></a>
-    </div>
-    <textarea class="${field_types[field_type]}" name="system.${field_type}.${nk}.description" rows="5" title="What's your ${field_types[field_type]}?" data-dtype="String"></textarea>
-  </li>`;
-        newKey = newKey.children[0];
-        form.appendChild(newKey);
-        await this._onSubmit(event);
+        const update = {};
+        update[`system.${field_type}.${nk}`] = { label: '', description: '' };
+        await this.document.update(update);
       }
-      else if (field_type == 'equipment-groups') {
-        const field_values = this.object.system.equipment;
+      else if (field_type === 'equipment-groups') {
+        const field_values = this.document.system.equipment ?? {};
         const nk = Object.keys(field_values).length + 1;
-        let template = '/systems/projectmoonttrpg/templates/items/_class-sheet--equipment-group.html';
-        let templateData = {
-          group: nk
-        };
-        let newKey = document.createElement('div');
-        newKey.innerHTML = await renderTemplate(template, templateData);
-        newKey = newKey.children[0];
-
-        let update = {
-          system: foundry.utils.duplicate(this.object.system)
-        };
-        update.system.equipment[nk] = {
-          label: '',
-          mode: 'radio',
-          items: [],
-          objects: []
-        };
-
-        await this.object.update(update);
-
-        form.appendChild(newKey);
-        await this._onSubmit(event);
+        const systemCopy = foundry.utils.duplicate(this.document.system);
+        systemCopy.equipment[nk] = { label: '', mode: 'radio', items: [], objects: [] };
+        await this.document.update({ system: systemCopy });
       }
     }
-
-    // Remove existing attribute
     else if (action === "delete") {
-      const field_type = a.dataset.type;
-      if (field_type == 'equipment-groups') {
-        let elem = a.closest('.equipment-group');
-        const nk = elem.dataset.index;
-        elem.parentElement.removeChild(elem);
-        let update = {};
+      if (field_type === 'equipment-groups') {
+        const elem = a.closest('.equipment-group');
+        const nk = elem?.dataset?.index;
+        if (!nk) return;
+        const update = {};
         update[`system.equipment.-=${nk}`] = null;
-        await this.object.update(update);
-        await this._onSubmit(event);
+        await this.document.update(update);
       }
       else {
         const li = a.closest(".item");
-        const nk = li.dataset.index;
-        li.parentElement.removeChild(li);
-        let update = {};
+        const nk = li?.dataset?.index;
+        if (!nk) return;
+        const update = {};
         update[`system.${field_type}.-=${nk}`] = null;
-        await this.object.update(update);
-        await this._onSubmit(event);
+        await this.document.update(update);
       }
     }
   }
-
-  /* -------------------------------------------- */
 
   async _onEffectControl(event) {
     event.preventDefault();
@@ -767,29 +781,28 @@ export class PMTTRPGItemSheet extends foundry.appv1.sheets.ItemSheet {
     const action = button.dataset.action;
     const row = button.closest('.effect-row');
     const index = row ? Number(row.dataset.index ?? -1) : -1;
-    const effects = foundry.utils.duplicate(this.object.system.effects ?? []);
+    const effects = foundry.utils.duplicate(this.document.system.effects ?? []);
 
     if (action === 'delete' && index >= 0) {
       effects.splice(index, 1);
+      await this.document.update({ 'system.effects': effects });
     }
-    else {
-      return;
-    }
-
-    await this.object.update({ 'system.effects': effects });
   }
 
   async _onEffectPickerChange(event) {
     event.preventDefault();
     event.stopPropagation();
-    const value = `${event.currentTarget?.value ?? ''}`.trim();
+    // Capture the input before any await: event.currentTarget is nulled out by the
+    // browser once the event has finished dispatching.
+    const input = event.currentTarget;
+    const value = `${input?.value ?? ''}`.trim();
     if (!value) return;
 
     const choice = (await this._getEffectCatalog()).find(entry => entry.label === value || entry.name === value);
     if (!choice) return;
 
     await this._addEffectToHost(choice);
-    event.currentTarget.value = '';
+    if (input?.isConnected) input.value = '';
   }
 
   async _onEffectPickerKeydown(event) {
@@ -810,12 +823,12 @@ export class PMTTRPGItemSheet extends foundry.appv1.sheets.ItemSheet {
     const stackRaw = Number(event.currentTarget.value ?? 1);
     const stackMax = Math.max(1, Number(row?.dataset?.stackMax ?? 5) || 5);
     const stack = Math.max(1, Math.min(stackMax, Number.isFinite(stackRaw) ? stackRaw : 1));
-    const effects = foundry.utils.duplicate(this.object.system.effects ?? []);
+    const effects = foundry.utils.duplicate(this.document.system.effects ?? []);
     if (!effects[index]) return;
 
     effects[index].stack = stack;
     effects[index].count = stack;
-    await this.object.update({ 'system.effects': effects });
+    await this.document.update({ 'system.effects': effects });
   }
 
   async _onEffectProcResultChange(event) {
@@ -827,13 +840,11 @@ export class PMTTRPGItemSheet extends foundry.appv1.sheets.ItemSheet {
     const index = Number(row?.dataset?.index ?? -1);
     if (index < 0) return;
 
-    const effects = foundry.utils.duplicate(this.object.system.effects ?? []);
-    if (!effects[index]) return;
-
-    if (effects[index].procResultLocked) return;
+    const effects = foundry.utils.duplicate(this.document.system.effects ?? []);
+    if (!effects[index] || effects[index].procResultLocked) return;
 
     effects[index].procResult = `${event.currentTarget.value ?? 'none'}`;
-    await this.object.update({ 'system.effects': effects });
+    await this.document.update({ 'system.effects': effects });
   }
 
   async _onEffectProcStatChange(event) {
@@ -845,11 +856,11 @@ export class PMTTRPGItemSheet extends foundry.appv1.sheets.ItemSheet {
     const index = Number(row?.dataset?.index ?? -1);
     if (index < 0) return;
 
-    const effects = foundry.utils.duplicate(this.object.system.effects ?? []);
+    const effects = foundry.utils.duplicate(this.document.system.effects ?? []);
     if (!effects[index]) return;
 
     effects[index].procStat = `${event.currentTarget.value ?? 'any'}`;
-    await this.object.update({ 'system.effects': effects });
+    await this.document.update({ 'system.effects': effects });
   }
 
   async _onEffectProcActionChange(event) {
@@ -861,11 +872,11 @@ export class PMTTRPGItemSheet extends foundry.appv1.sheets.ItemSheet {
     const index = Number(row?.dataset?.index ?? -1);
     if (index < 0) return;
 
-    const effects = foundry.utils.duplicate(this.object.system.effects ?? []);
+    const effects = foundry.utils.duplicate(this.document.system.effects ?? []);
     if (!effects[index]) return;
 
     effects[index].procAction = `${event.currentTarget.value ?? 'any'}`;
-    await this.object.update({ 'system.effects': effects });
+    await this.document.update({ 'system.effects': effects });
   }
 
   async _onEffectModeChange(event) {
@@ -877,11 +888,11 @@ export class PMTTRPGItemSheet extends foundry.appv1.sheets.ItemSheet {
     const index = Number(row?.dataset?.index ?? -1);
     if (index < 0) return;
 
-    const effects = foundry.utils.duplicate(this.object.system.effects ?? []);
+    const effects = foundry.utils.duplicate(this.document.system.effects ?? []);
     if (!effects[index]) return;
 
     effects[index].mode = `${event.currentTarget.value ?? 'positive'}`;
-    await this.object.update({ 'system.effects': effects });
+    await this.document.update({ 'system.effects': effects });
   }
 
   _onEffectDragOver(event) {
@@ -905,8 +916,7 @@ export class PMTTRPGItemSheet extends foundry.appv1.sheets.ItemSheet {
 
     return submitted.map((entry, index) => {
       const merged = foundry.utils.mergeObject(currentEffects[index] ?? {}, entry ?? {}, {
-        inplace: false,
-        overwrite: true
+        inplace: false, overwrite: true
       });
 
       const stackMaxRaw = Number(merged?.stackMax ?? (merged?.allowMultiple === false ? 1 : 5));
@@ -932,136 +942,32 @@ export class PMTTRPGItemSheet extends foundry.appv1.sheets.ItemSheet {
       mode: effectData.system?.cost < 0 || effectData.system?.canPositive === false ? 'negative' : 'positive'
     });
 
-    const effects = this._mergeHostEffectEntries(this.object.system.effects ?? [], incoming);
-    await this.object.update({ 'system.effects': effects });
+    const effects = this._mergeHostEffectEntries(this.document.system.effects ?? [], incoming);
+    await this.document.update({ 'system.effects': effects });
   }
 
-  /* -------------------------------------------- */
-
-  /** @override */
   async _onDrop(event) {
-    const rawData = event.originalEvent?.dataTransfer?.getData('text/plain')
-      ?? event.dataTransfer?.getData('text/plain');
-
-    if (!rawData) {
-      return super._onDrop ? super._onDrop(event) : false;
-    }
+    const rawData = event.dataTransfer?.getData('text/plain');
+    if (!rawData) return false;
 
     let dropData = null;
-    try {
-      dropData = JSON.parse(rawData);
-    }
-    catch (err) {
-      return super._onDrop ? super._onDrop(event) : false;
-    }
+    try { dropData = JSON.parse(rawData); }
+    catch (err) { return false; }
 
-    if (dropData?.type !== 'Item' || !this._supportsEffects()) {
-      return super._onDrop ? super._onDrop(event) : false;
-    }
+    if (dropData?.type !== 'Item' || !this._supportsEffects()) return false;
 
     const droppedItem = await Item.fromDropData(dropData);
-    if (!droppedItem || droppedItem.type !== 'effect') {
-      return super._onDrop ? super._onDrop(event) : false;
-    }
+    if (!droppedItem || droppedItem.type !== 'effect') return false;
 
-    if ((droppedItem.system?.appliesTo ?? this._effectHostType()) !== this._effectHostType()) {
-      return false;
-    }
+    if ((droppedItem.system?.appliesTo ?? this._effectHostType()) !== this._effectHostType()) return false;
 
-    const effects = this._mergeHostEffectEntries(this.object.system.effects ?? [], this._createHostEffectEntry(droppedItem, {
-      mode: droppedItem.system?.cost < 0 || droppedItem.system?.canPositive === false ? 'negative' : 'positive'
-    }));
-    await this.object.update({ 'system.effects': effects });
-
+    const effects = this._mergeHostEffectEntries(
+      this.document.system.effects ?? [],
+      this._createHostEffectEntry(droppedItem, {
+        mode: droppedItem.system?.cost < 0 || droppedItem.system?.canPositive === false ? 'negative' : 'positive'
+      })
+    );
+    await this.document.update({ 'system.effects': effects });
     return false;
-  }
-
-  /* -------------------------------------------- */
-
-  /** @override */
-  _updateObject(event, formData) {
-
-    // Exit early for other item types.
-    if (this.object.type != 'class') {
-      if (!this._supportsEffects()) {
-        return this.object.update(formData);
-      }
-
-      const expanded = foundry.utils.expandObject(formData);
-      expanded.system = expanded.system || {};
-
-      const currentEffects = foundry.utils.duplicate(this.object.system.effects ?? []);
-      expanded.system.effects = this._normalizeSubmittedEffects(expanded.system.effects, currentEffects);
-
-      const flattened = foundry.utils.flattenObject(expanded);
-      return this.object.update(flattened);
-    }
-
-    // Handle the freeform lists on classes.
-    const formObj = foundry.utils.expandObject(formData);
-
-    // Re-index the equipment.
-    let i = 0;
-    let deletedKeys = [];
-    if (typeof formObj.system.equipment == 'object') {
-      for (let [k, v] of Object.entries(formObj.system.equipment)) {
-        if (i != k) {
-          v.items = foundry.utils.duplicate(this.object.system.equipment[k]?.items ?? []);
-          formObj.system.equipment[i] = v;
-          delete formObj.system.equipment[k];
-          deletedKeys.push(`equipment.${k}`);
-        }
-        i++;
-      }
-    }
-
-    // Re-index the races.
-    i = 0;
-    if (typeof formObj.system.races == 'object') {
-      for (let [k, v] of Object.entries(formObj.system.races)) {
-        if (i != k) {
-          formObj.system.races[i] = v;
-          delete formObj.system.races[k];
-          deletedKeys.push(`races.${k}`);
-        }
-        i++;
-      }
-    }
-
-    // Re-index the alignments.
-    i = 0;
-    if (typeof formObj.system.alignments == 'object') {
-      for (let [k, v] of Object.entries(formObj.system.alignments)) {
-        if (i != k) {
-          formObj.system.alignments[i] = v;
-          delete formObj.system.alignments[k];
-          deletedKeys.push(`alignments.${k}`);
-        }
-        i++;
-      }
-    }
-
-    // Remove deleted keys.
-    for (let k of deletedKeys) {
-      const keys = k.split('.');
-      if (formObj.system[keys[0]][keys[1]] == undefined) {
-        formObj.system[keys[0]][`-=${keys[1]}`] = null;
-      }
-    }
-
-    // Re-combine formData
-    formData = Object.entries(formData).filter(e => !e[0].match(/system\.(equipment|alignments|races)/g)).reduce((obj, e) => {
-      obj[e[0]] = e[1];
-      return obj;
-    }, {
-      _id: this.object.id,
-      "system.equipment": formObj.system.equipment,
-      "system.races": formObj.system.races,
-      "system.alignments": formObj.system.alignments
-    });
-
-
-    // Update the Item
-    return this.object.update(formData);
   }
 }

@@ -18,6 +18,7 @@
     > .cell__title {
       margin-bottom: 0.55rem;
       border-radius: 10px;
+      font-size: 1.15rem;
       background: linear-gradient(120deg, var(--sheet-brown-dark) 0%, var(--sheet-brown) 100%);
     }
 
@@ -35,8 +36,15 @@
         gap: 0.8rem;
         padding: clamp(0.6rem, 1.5vw, 0.95rem);
         background: var(--sheet-card);
+        border: 1px solid rgba(111, 82, 56, 0.35);
         border-radius: 12px;
-        box-shadow: 0 6px 14px var(--sheet-shadow);
+        box-shadow: 0 4px 12px var(--sheet-shadow);
+        transition: transform 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease;
+
+        &:hover {
+          border-color: rgba(214, 162, 74, 0.4);
+          box-shadow: 0 8px 18px var(--sheet-shadow);
+        }
       }
 
       .item--outfit.collapsed {
@@ -57,7 +65,7 @@
       }
 
       .item-name {
-        font-size: clamp(1.1rem, 2.4vw, 1.4rem);
+        font-size: 1rem;
         font-weight: bold;
         color: var(--sheet-ink);
         margin: 0;
@@ -74,24 +82,28 @@
         flex-direction: row;
         align-items: center;
         justify-content: flex-start;
-        gap: 2rem;
+        gap: 1rem;
         text-align: left;
       }
-
+      
       .item-avatar--large {
-        display: inline-block;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
         flex: 0 0 auto;
+        height: 7rem;
+        width: auto;
+        overflow: hidden;
         background: var(--sheet-paper-alt);
-        border-radius: 10px;
+        border-radius: 12px;
         box-shadow: inset 0 0 0 1px rgba(111, 82, 56, 0.12);
 
         .item-icon {
           display: block;
+          height: 100%;
           width: auto;
-          height: auto;
-          max-width: 12rem;
-          max-height: 8rem;
-          border-radius: 10px;
+          object-fit: contain;
+          border-radius: 12px;
           padding: 0;
           margin: 0;
         }
@@ -240,9 +252,9 @@
         .tag {
           background: rgba(42, 31, 20, 0.75);
           color: var(--sheet-ink);
-          padding: 0.35rem 0.65rem;
+          padding: 0.25rem 0.55rem;
           border-radius: 8px;
-          font-size: 0.85rem;
+          font-size: 0.75rem;
           text-transform: capitalize;
 
           &.equipped {
@@ -288,6 +300,12 @@
 
         .item-sort {
           cursor: grab;
+          user-select: none;
+          touch-action: none;
+
+          i {
+            pointer-events: none;
+          }
 
           &:active {
             cursor: grabbing;

@@ -14,8 +14,8 @@ import { PMTTRPGOutfitItemSheet } from "./item/outfit-item-sheet.js";
 import { PMTTRPGAmmunitionItemSheet } from "./item/ammunition-item-sheet.js";
 import { PMTTRPGEffectItemSheet } from "./item/effect-item-sheet.js";
 import { PMTTRPGAugmentItemSheet } from "./item/augment-item-sheet.js";
-import { PMTTRPGActorSheet } from "./actor/actor-sheet.js";
 import { PMTTRPGActorNpcSheet } from "./actor/actor-npc-sheet.js";
+import { PMTTRPGCharacterSheet } from "./actor/character-sheet.js";
 import { PMTTRPGRegisterHelpers } from "./handlebars.js";
 import { preloadHandlebarsTemplates } from "./templates.js";
 import { PMTTRPGUtility } from "./utility.js";
@@ -26,7 +26,6 @@ import { PMTTRPGStatusMacroAPI } from "./status-macro-api.js";
 import * as chat from "./chat.js";
 
 const { Actors, Items } = foundry.documents.collections;
-const { ActorSheet, ItemSheet } = foundry.appv1.sheets;
 const { renderTemplate } = foundry.applications.handlebars;
 
 /* -------------------------------------------- */
@@ -59,8 +58,8 @@ Hooks.once("init", async function() {
   });
 
   // Register sheet application classes
-  Actors.unregisterSheet("core", ActorSheet);
-  Actors.registerSheet("projectmoonttrpg", PMTTRPGActorSheet, {
+  Actors.unregisterSheet("core", foundry.appv1.sheets.ActorSheet);
+  Actors.registerSheet("projectmoonttrpg", PMTTRPGCharacterSheet, {
     types: ['character'],
     makeDefault: true
   });
@@ -68,7 +67,7 @@ Hooks.once("init", async function() {
     types: ['npc'],
     makeDefault: true
   });
-  Items.unregisterSheet("core", ItemSheet);
+  Items.unregisterSheet("core", foundry.appv1.sheets.ItemSheet);
   Items.registerSheet("projectmoonttrpg", PMTTRPGItemSheet, { makeDefault: false });
   Items.registerSheet("projectmoonttrpg", PMTTRPGWeaponItemSheet, {
     types: ['weapon'],
@@ -276,7 +275,7 @@ Hooks.once("setup", function() {
 
   // Localize CONFIG objects once up-front
   const toLocalize = [
-    "abilities", "debilities"
+    "abilities"
   ];
   for (let o of toLocalize) {
     CONFIG.PMTTRPG[o] = Object.entries(CONFIG.PMTTRPG[o]).reduce((obj, e) => {

@@ -1,4 +1,4 @@
-<form class="{{cssClass}} item-form flexcol" autocomplete="off">
+<div class="{{cssClass}} item-form flexcol">
   <div class="sheet-wrapper flexcol">
     <header class="sheet-header flexrow">
       {{#if isOutdated}}
@@ -23,19 +23,19 @@
     </header>
 
     <nav class="sheet-tabs tabs" data-group="primary">
-      <a class="item" data-tab="description">{{localize "PMTTRPG.Common.Description"}}</a>
-      <a class="item" data-tab="augment">{{localize "PMTTRPG.Augment"}}</a>
-      <a class="item" data-tab="effects">{{localize "PMTTRPG.Effects"}}</a>
-      <a class="item" data-tab="advanced">{{localize "PMTTRPG.Advanced"}}</a>
+      <a class="item{{#if (eq activeTab 'description')}} active{{/if}}" data-action="tab" data-group="primary" data-tab="description">{{localize "PMTTRPG.Common.Description"}}</a>
+      <a class="item{{#if (eq activeTab 'augment')}} active{{/if}}" data-action="tab" data-group="primary" data-tab="augment">{{localize "PMTTRPG.Augment"}}</a>
+      <a class="item{{#if (eq activeTab 'effects')}} active{{/if}}" data-action="tab" data-group="primary" data-tab="effects">{{localize "PMTTRPG.Effects"}}</a>
+      <a class="item{{#if (eq activeTab 'advanced')}} active{{/if}}" data-action="tab" data-group="primary" data-tab="advanced">{{localize "PMTTRPG.Advanced"}}</a>
     </nav>
 
     <section class="sheet-body">
-      <div class="tab" data-group="primary" data-tab="description">
+      <div class="tab{{#if (eq activeTab 'description')}} active{{/if}}" data-group="primary" data-tab="description">
         <div class="help-text"><p>{{localize "PMTTRPG.AugmentNarrativeHint"}}</p></div>
-        {{editor system.descriptionEnriched target="system.description" button=true owner=owner editable=editable}}
+        <prose-mirror name="system.description" value="{{system.description}}" toggled {{#unless editable}}disabled{{/unless}}>{{{system.descriptionEnriched}}}</prose-mirror>
       </div>
 
-      <div class="tab" data-group="primary" data-tab="augment">
+      <div class="tab{{#if (eq activeTab 'augment')}} active{{/if}}" data-group="primary" data-tab="augment">
         <div class="resource-group">
           <div class="resource">
             <label>{{localize "PMTTRPG.AugmentRank"}}</label>
@@ -51,11 +51,11 @@
         </div>
       </div>
 
-      <div class="tab" data-group="primary" data-tab="effects">
+      <div class="tab{{#if (eq activeTab 'effects')}} active{{/if}}" data-group="primary" data-tab="effects">
         {{> "systems/projectmoonttrpg/templates/parts/effects-list.html"}}
       </div>
 
-      <div class="tab" data-group="primary" data-tab="advanced">
+      <div class="tab{{#if (eq activeTab 'advanced')}} active{{/if}}" data-group="primary" data-tab="advanced">
         <div class="resource-group">
           <div class="resource">
             <label>{{localize "PMTTRPG.CustomNotes"}}</label>
@@ -65,4 +65,4 @@
       </div>
     </section>
   </div>
-</form>
+</div>

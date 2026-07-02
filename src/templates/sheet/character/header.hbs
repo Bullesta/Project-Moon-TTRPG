@@ -1,0 +1,30 @@
+{{!-- Character sheet: header --}}
+<header class="sheet-header">
+  <div class="sheet-header__fields">
+    <input class="input--title" name="name" type="text" value="{{actor.name}}" placeholder="{{localize "PMTTRPG.Common.Name"}}"/>
+  </div>
+
+  <section class="sheet-notifications">
+    {{#if system.isToken}}
+    <div class="cell__title error">{{localize "PMTTRPG.TokenLinkWarning"}}</div>
+    {{/if}}
+  </section>
+
+  {{#if statuses.length}}
+  <section class="sheet-statuses sheet-statuses--summary">
+    <div class="cell cell--statuses">
+      <h2 class="cell__title">
+        <label>{{localize "PMTTRPG.ActiveStatuses"}}</label>
+      </h2>
+      <div class="status-strip">
+        {{#each statuses as |status statusId|}}
+        <div class="status-strip__item item" data-action="itemEdit" data-item-id="{{status.representative._id}}" data-status-key="{{status.key}}" title="{{status.name}}">
+          <img class="status-strip__icon" src="{{status.img}}" alt="{{status.name}}"/>
+          <span class="status-strip__stack">{{status.count}}</span>
+        </div>
+        {{/each}}
+      </div>
+    </div>
+  </section>
+  {{/if}}
+</header>

@@ -1,0 +1,21 @@
+// Design tokens for the Project Moon sheet theme.
+// Exposed as a mixin so the custom properties can be emitted onto the sheet
+// root (`.projectmoonttrpg`) from within a selector context.
+
+@mixin sheet-tokens {
+  --sheet-paper: #2a1f14;
+  --sheet-paper-alt: #3d2a1f;
+  --sheet-card: #342415;
+  --sheet-ink: #f4ead2;
+  --sheet-ink-muted: #d4c4a8;
+  --sheet-brown: #5c3d28;
+  --sheet-brown-dark: #2d1f14;
+  --sheet-gold: #d6a24a;
+  --sheet-gold-bright: #f4c96f;
+  --sheet-border: #6f5238;
+  --sheet-accent: #d4a360;
+  --sheet-shadow: rgba(0, 0, 0, 0.4);
+  --sheet-danger: #e07856;
+  --sheet-warning: #d7a34b;
+  --sheet-success: #7ec97f;
+}

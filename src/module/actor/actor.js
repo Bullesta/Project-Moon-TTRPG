@@ -1,4 +1,5 @@
 import { PMTTRPGUtility } from '../utility.js';
+import { getRankFromLevel } from './progression.js';
 const { renderTemplate } = foundry.applications.handlebars;
 
 /**
@@ -38,7 +39,9 @@ export class ActorPMTTRPG extends Actor {
     }
 
     // Derived Attributes based on Stats and Rank
-    const rank = Number(data.attributes.level?.value) || 0;
+    const rank = Number(getRankFromLevel(data.attributes.level?.value)) || 0;
+    data.attributes.rank = data.attributes.rank || {};
+    data.attributes.rank.value = rank;
     const fort = Number(data.abilities.for?.value) || 0;
     const pru = Number(data.abilities.pru?.value) || 0;
     const jus = Number(data.abilities.jus?.value) || 0;
@@ -234,13 +237,13 @@ export class ActorPMTTRPG extends Actor {
     let template = 'systems/projectmoonttrpg/templates/chat/chat-move.html';
     // GM rolls.
     let chatData = {
-      user: game.user.id,
+      author: game.user.id,
       speaker: ChatMessage.getSpeaker({ actor: actor })
     };
-    let rollMode = game.settings.get("core", "rollMode");
-    if (["gmroll", "blindroll"].includes(rollMode)) chatData["whisper"] = ChatMessage.getWhisperRecipients("GM");
-    if (rollMode === "selfroll") chatData["whisper"] = [game.user.id];
-    if (rollMode === "blindroll") chatData["blind"] = true;
+    let rollMode = game.settings.get("core", "messageMode");
+    if (["gm", "blind"].includes(rollMode)) chatData["whisper"] = ChatMessage.getWhisperRecipients("GM");
+    if (rollMode === "self") chatData["whisper"] = [game.user.id];
+    if (rollMode === "blind") chatData["blind"] = true;
     // Handle dice rolls.
     if (roll) {
       // Roll can be either a formula like `2d6+3` or a raw stat like `str`.
