@@ -1,4 +1,4 @@
-<form class="{{cssClass}} item-form flexcol" autocomplete="off">
+<div class="{{cssClass}} item-form flexcol">
   <div class="sheet-wrapper flexcol">
     <header class="sheet-header flexrow">
       {{#if isOutdated}}
@@ -23,19 +23,19 @@
     </header>
 
     <nav class="sheet-tabs tabs" data-group="primary">
-      <a class="item" data-tab="description">{{localize "PMTTRPG.Common.Description"}}</a>
-      <a class="item" data-tab="defenses">{{localize "PMTTRPG.OutfitDefenses"}}</a>
-      <a class="item" data-tab="resistances">{{localize "PMTTRPG.Resistances"}}</a>
-      <a class="item" data-tab="effects">{{localize "PMTTRPG.Effects"}}</a>
-      <a class="item" data-tab="advanced">{{localize "PMTTRPG.Advanced"}}</a>
+      <a class="item{{#if (eq activeTab 'description')}} active{{/if}}" data-action="tab" data-group="primary" data-tab="description">{{localize "PMTTRPG.Common.Description"}}</a>
+      <a class="item{{#if (eq activeTab 'defenses')}} active{{/if}}" data-action="tab" data-group="primary" data-tab="defenses">{{localize "PMTTRPG.OutfitDefenses"}}</a>
+      <a class="item{{#if (eq activeTab 'resistances')}} active{{/if}}" data-action="tab" data-group="primary" data-tab="resistances">{{localize "PMTTRPG.Resistances"}}</a>
+      <a class="item{{#if (eq activeTab 'effects')}} active{{/if}}" data-action="tab" data-group="primary" data-tab="effects">{{localize "PMTTRPG.Effects"}}</a>
+      <a class="item{{#if (eq activeTab 'advanced')}} active{{/if}}" data-action="tab" data-group="primary" data-tab="advanced">{{localize "PMTTRPG.Advanced"}}</a>
     </nav>
 
     <section class="sheet-body">
-      <div class="tab" data-group="primary" data-tab="description">
-        {{editor system.descriptionEnriched target="system.description" button=true owner=owner editable=editable}}
+      <div class="tab{{#if (eq activeTab 'description')}} active{{/if}}" data-group="primary" data-tab="description">
+        <prose-mirror name="system.description" value="{{system.description}}" toggled {{#unless editable}}disabled{{/unless}}>{{{system.descriptionEnriched}}}</prose-mirror>
       </div>
 
-      <div class="tab" data-group="primary" data-tab="defenses">
+      <div class="tab{{#if (eq activeTab 'defenses')}} active{{/if}}" data-group="primary" data-tab="defenses">
         <div class="resource-group">
           <div class="resource">
             <label>{{localize "PMTTRPG.OutfitProperty"}}</label>
@@ -49,31 +49,31 @@
           </div>
           <div class="resource">
             <label>{{localize "PMTTRPG.EP"}}</label>
-            <input class="disabled" type="text" value="{{system.epMax}}" readonly/>
+            <input class="disabled" type="text" data-system-field="epMax" value="{{system.epMax}}" readonly/>
           </div>
           <div class="resource">
             <label>{{localize "PMTTRPG.BlockDice"}}</label>
-            <input class="disabled" type="text" value="{{system.blockDiceComputed}}" readonly/>
+            <input class="disabled" type="text" data-system-field="blockDiceComputed" value="{{system.blockDiceComputed}}" readonly/>
           </div>
           <div class="resource">
             <label>{{localize "PMTTRPG.EvadeDice"}}</label>
-            <input class="disabled" type="text" value="{{system.evadeDiceComputed}}" readonly/>
+            <input class="disabled" type="text" data-system-field="evadeDiceComputed" value="{{system.evadeDiceComputed}}" readonly/>
           </div>
           <div class="resource">
             <label>{{localize "PMTTRPG.BlockDicePower"}}</label>
-            <input class="disabled" type="text" value="{{system.blockDicePower}}" readonly/>
+            <input class="disabled" type="text" data-system-field="blockDicePower" value="{{system.blockDicePower}}" readonly/>
           </div>
           <div class="resource">
             <label>{{localize "PMTTRPG.EvadeDicePower"}}</label>
-            <input class="disabled" type="text" value="{{system.evadeDicePower}}" readonly/>
+            <input class="disabled" type="text" data-system-field="evadeDicePower" value="{{system.evadeDicePower}}" readonly/>
           </div>
           <div class="resource">
             <label>{{localize "PMTTRPG.BonusLight"}}</label>
-            <input class="disabled" type="text" value="{{system.bonusLight}}" readonly/>
+            <input class="disabled" type="text" data-system-field="bonusLight" value="{{system.bonusLight}}" readonly/>
           </div>
           <div class="resource">
             <label>{{localize "PMTTRPG.BonusEP"}}</label>
-            <input class="disabled" type="text" value="{{system.bonusEP}}" readonly/>
+            <input class="disabled" type="text" data-system-field="bonusEP" value="{{system.bonusEP}}" readonly/>
           </div>
           <div class="resource">
             <label>{{localize "PMTTRPG.Equipped"}}</label>
@@ -82,7 +82,7 @@
         </div>
       </div>
 
-      <div class="tab" data-group="primary" data-tab="resistances">
+      <div class="tab{{#if (eq activeTab 'resistances')}} active{{/if}}" data-group="primary" data-tab="resistances">
         <div class="resource-group">
           <div class="resource">
             <label>{{localize "PMTTRPG.ResistanceTrading"}}</label>
@@ -119,11 +119,11 @@
         </div>
       </div>
 
-      <div class="tab" data-group="primary" data-tab="effects">
+      <div class="tab{{#if (eq activeTab 'effects')}} active{{/if}}" data-group="primary" data-tab="effects">
         {{> "systems/projectmoonttrpg/templates/parts/effects-list.html"}}
       </div>
 
-      <div class="tab" data-group="primary" data-tab="advanced">
+      <div class="tab{{#if (eq activeTab 'advanced')}} active{{/if}}" data-group="primary" data-tab="advanced">
         <div class="resource-group">
           <div class="resource">
             <label>{{localize "PMTTRPG.CustomNotes"}}</label>
@@ -133,4 +133,4 @@
       </div>
     </section>
   </div>
-</form>
+</div>

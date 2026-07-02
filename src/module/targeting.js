@@ -172,35 +172,35 @@ export async function promptTargetSelection({
 
   if (PMTTRPGUtility.nightmode) dlgOptions.classes.push('nightmode');
 
-  return new Promise(resolve => {
-    const buttons = {
-      select: {
-        label: game.i18n.localize('PMTTRPG.Dialog.selectTarget'),
-        callback: html => {
-          const form = html[0].querySelector('form');
-          const combatantId = form.combatantId?.value ?? selectedCombatantId;
-          resolve(resolveCombatantTarget(combatantId, { combat, actorId: actor?.id ?? null }));
-        }
-      },
-      cancel: {
-        label: game.i18n.localize('PMTTRPG.Dialog.cancel'),
-        callback: () => resolve(null)
-      }
-    };
-
-    if (allowNone) {
-      buttons.none = {
-        label: game.i18n.localize('PMTTRPG.Dialog.noTarget'),
-        callback: () => resolve(null),
-      };
+  const buttons = [{
+    action: 'select',
+    label: game.i18n.localize('PMTTRPG.Dialog.selectTarget'),
+    default: true,
+    callback: (event, button, dialog) => {
+      const form = dialog.element.querySelector('form');
+      const combatantId = form.combatantId?.value ?? selectedCombatantId;
+      return resolveCombatantTarget(combatantId, { combat, actorId: actor?.id ?? null });
     }
+  }, {
+    action: 'cancel',
+    label: game.i18n.localize('PMTTRPG.Dialog.cancel'),
+    callback: () => null
+  }];
 
-    new Dialog({
-      title,
-      content: html,
-      buttons,
-      close: () => resolve(null)
-    }, dlgOptions).render(true);
+  if (allowNone) {
+    buttons.push({
+      action: 'none',
+      label: game.i18n.localize('PMTTRPG.Dialog.noTarget'),
+      callback: () => null
+    });
+  }
+
+  return foundry.applications.api.DialogV2.wait({
+    window: { title },
+    classes: dlgOptions.classes,
+    content: html,
+    buttons,
+    rejectClose: false
   });
 }
 
@@ -208,7 +208,7 @@ export async function rollInitiative(actor, { macroMisc = null, manualMisc = nul
   if (!actor) return false;
 
   const parts = computeInitiativeFormulaParts(actor, { macroMisc, manualMisc });
-  const roll = await (new Roll(parts.formula, actor.getRollData())).evaluate({ async: true });
+  const roll = await (new Roll(parts.formula, actor.getRollData())).evaluate();
   const rollPMTTRPG = await roll.render();
 
   const templateData = {
@@ -224,15 +224,15 @@ export async function rollInitiative(actor, { macroMisc = null, manualMisc = nul
   };
 
   const chatData = {
-    user: game.user.id,
+    author: game.user.id,
     speaker: ChatMessage.getSpeaker({ actor }),
     content: await renderTemplate('systems/projectmoonttrpg/templates/chat/chat-move.html', templateData),
   };
 
-  const rollMode = game.settings.get('core', 'rollMode');
-  if (["gmroll", "blindroll"].includes(rollMode)) chatData.whisper = ChatMessage.getWhisperRecipients('GM');
-  if (rollMode === 'selfroll') chatData.whisper = [game.user.id];
-  if (rollMode === 'blindroll') chatData.blind = true;
+  const rollMode = game.settings.get('core', 'messageMode');
+  if (["gm", "blind"].includes(rollMode)) chatData.whisper = ChatMessage.getWhisperRecipients('GM');
+  if (rollMode === 'self') chatData.whisper = [game.user.id];
+  if (rollMode === 'blind') chatData.blind = true;
 
   await ChatMessage.create(chatData);
 

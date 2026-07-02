@@ -12,7 +12,7 @@ export const displayChatActionButtons = function(message, html, data) {
     let actor = game.actors.get(data.message.speaker.actor);
     // Exit early from further operations if this is a GM user.
     if ( game.user.isGM ) return;
-    if ((data.author.id === game.user.id) || ( actor && actor.owner )) return;
+    if ((data.author.id === game.user.id) || ( actor && actor.isOwner )) return;
     // Otherwise conceal action buttons.
     chatCard.find("button[data-action], .button-disabled").each((i, btn) => {
       btn.style.display = "none"
@@ -66,10 +66,9 @@ function _getChatCardActor(card) {
     const [sceneId, tokenId] = tokenKey.split(".");
     const scene = game.scenes.get(sceneId);
     if (!scene) return null;
-    const tokenData = scene.getEmbeddedDocument("Token", tokenId);
-    if (!tokenData) return null;
-    const token = new Token(tokenData);
-    return token.actor;
+    const tokenDoc = scene.tokens.get(tokenId);
+    if (!tokenDoc) return null;
+    return tokenDoc.actor;
   }
 
   // Case 2 - use Actor ID directory

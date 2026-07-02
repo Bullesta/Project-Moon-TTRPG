@@ -2,20 +2,16 @@ import { PMTTRPGItemSheet } from "./item-sheet.js";
 
 export class PMTTRPGAugmentItemSheet extends PMTTRPGItemSheet {
 
-  /** @override */
-  static get defaultOptions() {
-    return foundry.utils.mergeObject(super.defaultOptions, {
+  static DEFAULT_OPTIONS = foundry.utils.mergeObject(
+    PMTTRPGItemSheet.DEFAULT_OPTIONS,
+    {
       classes: ["projectmoonttrpg", "sheet", "item", "augment"],
-      width: 620,
-      height: 700,
-      tabs: [{ navSelector: ".sheet-tabs", contentSelector: ".sheet-body", initial: "description" }],
-      submitOnChange: true,
-    });
-  }
+      position: { width: 620, height: 700 },
+    },
+    { inplace: false }
+  );
 
-  /** @override */
-  get template() {
-    const path = "systems/projectmoonttrpg/templates/items";
-    return `${path}/augment-sheet.html`;
-  }
+  static PARTS = {
+    body: { template: "systems/projectmoonttrpg/templates/items/augment-sheet.html", scrollable: [".sheet-body"] }
+  };
 }

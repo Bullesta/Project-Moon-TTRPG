@@ -1,4 +1,4 @@
-<form class="{{cssClass}}" autocomplete="off">
+<div class="{{cssClass}}">
 
   <div class="sheet-wrapper">
 
@@ -38,13 +38,11 @@
         </div>
 
         <div class="cell cell--abilities">
-          <label class="cell__title">Stats</label>
           <ol class="abilities-list">
             {{#each system.abilities as |ability key|}}
-              <li class="ability flexrow" data-ability="{{key}}">
-                <label class="cell__title">{{localize ability.label}}</label>
+              <li class="ability" data-ability="{{key}}">
+                <label for="system.abilities.{{key}}.value" class="ability-label ability-rollable rollable" data-action="rollable" data-roll="{{key}}" data-label="{{localize ability.label}}">{{localize ability.label}}</label>
                 <input class="ability-value" type="text" name="system.abilities.{{key}}.value" value="{{ability.value}}" data-dtype="Number"/>
-                <span class="ability-mod">{{ability.mod}}</span>
               </li>
             {{/each}}
           </ol>
@@ -82,7 +80,7 @@
             </div>
             <div class="cell cell--description">
               <label class="cell__title">{{localize "TTRPG.Description"}}</label>
-              {{editor system.details.biographyEnriched target="system.details.biography" button=true owner=owner editable=editable}}
+              <prose-mirror name="system.details.biography" value="{{system.details.biography}}" toggled {{#unless editable}}disabled{{/unless}}>{{{system.details.biographyEnriched}}}</prose-mirror>
             </div>
           </section>
         </div>
@@ -133,4 +131,4 @@
 
   </div>
 
-</form>
+</div>
