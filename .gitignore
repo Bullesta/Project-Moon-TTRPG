@@ -11,20 +11,3 @@ node_modules/
 dist/
 /pbta/
 /pbta.zip
-
-# Local dev tooling (copy from *.example.* templates)
-tools/deploy.mjs
-tools/watch-and-deploy.mjs
-
-# Personal / WIP docs
-docs/3.0 Roll20 Global Settings.txt
-docs/3.x Roll20 Global Settings.docx
-docs/\[EN\] Roll20 Sheet Guide - Project Moon TRPG.docx
-docs/AutoScripts Directory.docx
-docs/DOCUMENTATION_INDEX.md
-docs/MODIFICATION_GUIDE.md
-docs/Project Moon TTRPG - Community Rulebook 3.x.md
-docs/QUICK_REFERENCE.md
-docs/WIP AutoEffects - An Illustrated Guide.docx
-docs/SYSTEM_INTERNALS.md
-docs/PMTRPG Sheet.xlsx
