@@ -1,0 +1,60 @@
+{{!-- Character sheet: biography fields --}}
+<section class="sheet-biography">
+    {{!-- note; textarea picks up spaces, tab indents, and newlines. So the contents need to not have those--}}
+    <div class="cell cell--bio">
+        <label>{{localize "PMTTRPG.Bios-Occupation"}}</label>
+        <input type="text" name="system.details.biography.occupation" value="{{system.details.biography.occupation}}" data-dtype="String"/>
+    </div>
+    <div class="cell cell--bio">
+        <label>{{localize "PMTTRPG.Bios-Age"}}</label>
+        <input type="text" name="system.details.biography.age" value="{{system.details.biography.age}}" data-dtype="String"/>
+    </div>
+    <div class="cell cell--bio">
+        <label>{{localize "PMTTRPG.Bios-Height"}}</label>
+        <input type="text" name="system.details.biography.height" value="{{system.details.biography.height}}" data-dtype="String"/>
+    </div>
+    <div class="cell cell--bio">
+        <label>{{localize "PMTTRPG.Bios-Birthplace"}}</label>
+        <input type="text" name="system.details.biography.birthplace" value="{{system.details.biography.birthplace}}" data-dtype="String"/>
+    </div>
+    <div class="cell cell--bio">
+        <label>{{localize "PMTTRPG.Bios-Residence"}}</label>
+        <input type="text" name="system.details.biography.residence" value="{{system.details.biography.residence}}" data-dtype="String"/>
+    </div>
+    <div class="cell cell--bio">
+        <label>{{localize "PMTTRPG.Bios-Description"}}</label>
+        <textarea name="system.details.biography.description">{{system.details.biography.description}}</textarea>
+    </div>
+    <div class="cell cell--bio">
+        <label>{{localize "PMTTRPG.Bios-Background"}}</label>
+        <textarea name="system.details.biography.background">{{system.details.biography.background}}</textarea>
+    </div>
+    <div class="cell cell--bio">
+        <label>{{localize "PMTTRPG.Bios-Personality"}}</label>
+        <textarea name="system.details.biography.personality">{{system.details.biography.personality}}</textarea>
+    </div>
+    <div class="cell cell--bio">
+        <label>{{localize "PMTTRPG.Bios-Ahn"}}</label>
+        <div class="field-currency">
+            <input
+                type="number"
+                name="system.details.biography.ahn"
+                value="{{system.details.biography.ahn}}"
+                data-dtype="Number"
+                placeholder="0"
+                step="1">
+        </div>
+    </div>
+    <div class="cell cell--bio">
+        <label>{{localize "PMTTRPG.Bios-Relationships"}}</label>
+        <textarea name="system.details.biography.relationships">{{system.details.biography.relationships}}</textarea>
+    </div>
+    <div class="cell cell--bio">
+        <label>{{localize "PMTTRPG.Bios-Notes"}}</label>
+        <textarea name="system.details.biography.notes">{{system.details.biography.notes}}</textarea>
+    </div>
+    <div class="cell cell--bio">
+        <label>{{localize "PMTTRPG.Bios-NotableHistory"}}</label>
+        <textarea name="system.details.biography.notableHistory">{{system.details.biography.notableHistory}}</textarea>
+    </div>
+</section>

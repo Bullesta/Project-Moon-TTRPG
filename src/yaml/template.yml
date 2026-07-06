@@ -32,7 +32,19 @@ Actor:
           min: 0
           max: 8
       details:
-        biography: ''
+        biography: 
+          occupation: ''
+          age: ''
+          height: ''
+          birthplace: ''
+          residence: ''
+          description: ''
+          background: ''
+          personality: ''
+          ahn: 0
+          relationships: ''
+          notes: ''
+          notableHistory: ''
   character:
     templates:
       - base
