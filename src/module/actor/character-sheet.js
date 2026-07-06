@@ -69,6 +69,7 @@ export class PMTTRPGCharacterSheet extends HandlebarsApplicationMixin(ActorSheet
       "weapons-attacks": { id: "weapons-attacks", group: "primary", label: "PMTTRPG.Weapons", icon: "fa-solid fa-gun" },
       "outfits": { id: "outfits", group: "primary", label: "PMTTRPG.Outfits", icon: "fa-solid fa-shirt" },
       "skills": { id: "skills", group: "primary", label: "PMTTRPG.Skills", icon: "fa-solid fa-hand-fist" },
+      "bios": { id: "bios", group: "primary", label: "PMTTRPG.Bios", icon: "fa-solid fa-book" },
     };
     for (const tab of Object.values(tabs)) {
       tab.active = this.tabGroups[tab.group] === tab.id;

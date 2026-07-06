@@ -31,4 +31,22 @@
       box-shadow: inset 0 0 0 1px rgba(111, 82, 56, 0.1);
     }
   }
+
+  .field-currency {
+    position: relative;
+
+    input {
+        padding-left: 1.5em;
+    }
+
+    &::before {
+        content: "₳";
+        position: absolute;
+        left: 0.6em;
+        top: 50%;
+        transform: translateY(-50%);
+        pointer-events: none;
+        opacity: 0.8;
+    }
+  }
 }
