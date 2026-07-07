@@ -189,6 +189,7 @@ Item:
     effects: []
     equipped: false
     customNotes: ''
+    easyEffects: ''
   outfit:
     templates:
       - base
@@ -214,6 +215,7 @@ Item:
         blunt: normal
     equipped: false
     customNotes: ''
+    easyEffects: ''
   ammunition:
     templates:
       - base
@@ -232,12 +234,14 @@ Item:
     stat: for
     effects: []
     customNotes: ''
+    easyEffects: ''
   augment:
     templates:
       - base
     rank: 1
     effects: []
     customNotes: ''
+    easyEffects: ''
   effect:
     templates:
       - base

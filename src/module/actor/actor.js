@@ -1,6 +1,7 @@
 import { PMTTRPGUtility } from '../utility.js';
 import { getRankFromLevel } from './progression.js';
 const { renderTemplate } = foundry.applications.handlebars;
+import { applyAlwaysActiveModifiers } from '../easy-effects/registry.js';
 
 /**
  * Extends the basic Actor class for Project Moon TTRPG.
@@ -155,6 +156,23 @@ export class ActorPMTTRPG extends Actor {
     // Handle roll mode flag.
     if (actorData?.flags?.projectmoonttrpg) {
       if (!actorData.flags.projectmoonttrpg.rollMode) actorData.flags.projectmoonttrpg.rollMode = 'def';
+    }
+
+    try {
+      const eeMods = applyAlwaysActiveModifiers(actorData);
+      data.attributes.attackModifier.value += eeMods.attackPower;
+      data.attributes.evadeModifier.value += eeMods.evadePower;
+      data.attributes.blockModifier.value += eeMods.blockPower;
+      data.attributes.light.max += eeMods.lightBonus;
+      data.attributes.light.value = Math.clamp(
+        Number(data.attributes.light.value) || 0, 0, data.attributes.light.max
+      );
+      data.attributes.toolSlots.value += eeMods.toolSlots;
+      // damagePower / damageMax / attackMax / blockMax / evadeMax are
+      // clash-time bonuses, but we store them for weapon/dice resolution later.
+      data.attributes.easyEffectsMods = eeMods;
+    } catch (err) {
+      console.error('[EasyEffects] Error in Always Active pass:', err);
     }
   }
 
@@ -466,5 +484,111 @@ export class ActorPMTTRPG extends Actor {
         }
       }
     }
+  }
+
+  /**
+   * Returns the current stack count of a named status on this actor.
+   * Count = number of owned items with type 'status' and matching name.
+   *
+   * @param {string} statusName  e.g. "Burn", "Poise", "Charge"
+   * @returns {number}
+   */
+  getStatusStacks(statusName) {
+    return this.items.filter(
+      i => i.type === 'status' && i.name === statusName
+    ).length;
+  }
+
+  /**
+   * Adds `amount` stacks of a status to this actor.
+   * Pulls the base item from the system compendium if no copy exists yet.
+   *
+   * @param {string} statusName
+   * @param {number} [amount=1]
+   * @returns {Promise<Item[]>}  The newly created Item documents.
+   */
+  async addStatusStacks(statusName, amount = 1) {
+    // Try to find a template in the actor's own items first (for custom entries),
+    // then fall back to the compendium.
+    let sourceItem = this.items.find(
+      i => i.type === 'status' && i.name === statusName
+    );
+
+    let itemData;
+    if (sourceItem) {
+      itemData = sourceItem.toObject();
+    } else {
+      itemData = await ActorPMTTRPG._fetchStatusFromCompendium(statusName);
+      if (!itemData) {
+        console.warn(`[EasyEffects] Status '${statusName}' not found in compendium. Cannot add stacks.`);
+        ui.notifications?.warn(`EasyEffects: Status '${statusName}' not found in compendium.`);
+        return [];
+      }
+    }
+
+    // Create `amount` copies.
+    const copies = Array.from({ length: amount }, () => foundry.utils.duplicate(itemData));
+    return this.createEmbeddedDocuments('Item', copies);
+  }
+
+  /**
+   * Sets the stack count of a status to an exact value.
+   * Adds or removes items as needed.
+   *
+   * @param {string} statusName
+   * @param {number} target
+   * @returns {Promise<void>}
+   */
+  async setStatusStacks(statusName, target) {
+    const current = this.getStatusStacks(statusName);
+    const delta = target - current;
+    if (delta > 0) await this.addStatusStacks(statusName, delta);
+    else if (delta < 0) await this.removeStatusStacks(statusName, Math.abs(delta));
+  }
+
+  /**
+   * Removes `amount` stacks of a status from this actor.
+   * Silently clamps to 0 (won't error if fewer stacks exist than requested).
+   *
+   * @param {string} statusName
+   * @param {number} [amount=1]
+   * @returns {Promise<string[]>}  IDs of the deleted Item documents.
+   */
+  async removeStatusStacks(statusName, amount = 1) {
+    const matching = this.items
+      .filter(i => i.type === 'status' && i.name === statusName)
+      .slice(0, amount)                          // only remove up to `amount`
+      .map(i => i.id);
+
+    if (matching.length === 0) return [];
+    return this.deleteEmbeddedDocuments('Item', matching);
+  }
+
+  /**
+   * Searches all loaded compendium packs for a status item by name.
+   * Checks Item-type packs only.
+   *
+   * @param {string} statusName
+   * @returns {Promise<object|null>}  Raw item data object, or null if not found.
+   */
+  static async _fetchStatusFromCompendium(statusName) {
+    // Search packs in order — first match wins.
+    // You can narrow this by filtering pack.metadata.id if you want to
+    // prioritise your own compendium:
+    //   e.g. pack.metadata.id === 'projectmoonttrpg.statuses'
+    for (const pack of game.packs) {
+      if (pack.documentName !== 'Item') continue;
+
+      const index = await pack.getIndex({ fields: ['name', 'type'] });
+      const entry = index.find(
+        e => e.type === 'status' && e.name === statusName
+      );
+      if (!entry) continue;
+
+      const doc = await pack.getDocument(entry._id);
+      return doc?.toObject() ?? null;
+    }
+
+    return null;
   }
 }

@@ -28,8 +28,11 @@
         <a class="item{{#if (eq activeTab 'description')}} active{{/if}}" data-action="tab" data-group="primary" data-tab="description">{{localize "PMTTRPG.Common.Description"}}</a>
         <a class="item{{#if (eq activeTab 'properties')}} active{{/if}}" data-action="tab" data-group="primary" data-tab="properties">{{localize "PMTTRPG.Weapon"}}</a>
         <a class="item{{#if (eq activeTab 'effects')}} active{{/if}}" data-action="tab" data-group="primary" data-tab="effects">{{localize "PMTTRPG.Effects"}}</a>
+        {{#if supportsEasyEffects}}
+          <a class="item{{#if (eq activeTab 'easy-effects')}} active{{/if}}" data-action="tab" data-group="primary" data-tab="easy-effects">{{localize "PMTTRPG.EasyEffects"}}</a>
+        {{/if}}
         <a class="item{{#if (eq activeTab 'advanced')}} active{{/if}}" data-action="tab" data-group="primary" data-tab="advanced">{{localize "PMTTRPG.Advanced"}}</a>
-    </nav>
+      </nav>
 
     {{!-- Sheet Body --}}
     <section class="sheet-body">
@@ -132,6 +135,33 @@
         <div class="tab{{#if (eq activeTab 'effects')}} active{{/if}}" data-group="primary" data-tab="effects">
           {{> "systems/projectmoonttrpg/templates/parts/effects-list.html"}}
         </div>
+
+        {{!-- EasyEffects Tab --}}
+        {{#if supportsEasyEffects}}
+          <section class="tab sheet-body easy-effects-tab
+                          {{#if (eq activeTab 'easy-effects')}}active{{/if}}"
+                  data-group="primary" data-tab="easy-effects">
+
+            <div class="easy-effects-editor">
+              <label class="easy-effects-label">
+                {{localize "PMTTRPG.EasyEffectsScript"}}
+              </label>
+              <textarea
+                name="system.easyEffects"
+                class="easy-effects-textarea"
+                placeholder="[Clash Win]&#10;inflict 1 Burn;"
+                {{#unless editable}}disabled{{/unless}}
+              >{{system.easyEffects}}</textarea>
+
+              {{#if system.easyEffects}}
+              <div class="easy-effects-status" data-item-id="{{item.id}}">
+                <!-- TODO: Populate by _onRender() function -->
+              </div>
+              {{/if}}
+            </div>
+
+          </section>
+        {{/if}}
 
         {{!-- Advanced Tab --}}
         <div class="tab{{#if (eq activeTab 'advanced')}} active{{/if}}" data-group="primary" data-tab="advanced">

@@ -324,6 +324,8 @@ export class PMTTRPGItemSheet extends HandlebarsApplicationMixin(ItemSheetV2) {
       context.isOutdated = false;
     }
 
+    context.supportsEasyEffects = this._supportsEasyEffects();
+
     return context;
   }
 
@@ -517,6 +519,11 @@ export class PMTTRPGItemSheet extends HandlebarsApplicationMixin(ItemSheetV2) {
   }
 
   _supportsEffects() {
+    return ['weapon', 'outfit', 'skill', 'augment'].includes(this.document.type);
+  }
+
+  // separated cause effects & EasyEffects are different, though the function is the same currently, may not be the case always
+  _supportsEasyEffects() {
     return ['weapon', 'outfit', 'skill', 'augment'].includes(this.document.type);
   }
 
