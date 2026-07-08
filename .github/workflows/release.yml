@@ -48,7 +48,7 @@ jobs:
 
       - name: Create zip archive
         run: |
-          cd dist/ && zip -r ../projectmoonttrpg.zip *
+          cd dist/ && zip -r ../projectmoonttrpg.zip * && cd ..
 
       - name: Authenticate to Google Cloud
         uses: google-github-actions/auth@v2
