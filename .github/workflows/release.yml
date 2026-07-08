@@ -59,12 +59,12 @@ jobs:
         uses: google-github-actions/upload-cloud-storage@v2
         with:
           path: dist/system.json
-          destination: pmttrpg_zip/${{ steps.version.outputs.VERSION }}/system.json
+          destination: pmttrpg_zip/${{ steps.version.outputs.VERSION }}
           process_gcloudignore: false
 
       - name: Upload zip to Google Cloud Storage
         uses: google-github-actions/upload-cloud-storage@v2
         with:
           path: projectmoonttrpg.zip
-          destination: pmttrpg_zip/${{ steps.version.outputs.VERSION }}/projectmoonttrpg.zip
+          destination: pmttrpg_zip/${{ steps.version.outputs.VERSION }}
           process_gcloudignore: false
