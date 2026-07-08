@@ -41,7 +41,8 @@ jobs:
           jq \
             --arg manifest "${BASE_URL}/system.json" \
             --arg download "${BASE_URL}/projectmoonttrpg.zip" \
-            '.manifest = $manifest | .download = $download' \
+            --arg version "${VERSION}" \
+            'version = $version | .manifest = $manifest | .download = $download' \
             dist/system.json > dist/system.tmp.json
 
           mv dist/system.tmp.json dist/system.json
