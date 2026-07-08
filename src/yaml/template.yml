@@ -31,6 +31,9 @@ Actor:
           value: 0
           min: 0
           max: 8
+        toolSlots:
+          value: 4
+          min: 0
       details:
         biography: 
           occupation: ''
@@ -49,50 +52,6 @@ Actor:
     templates:
       - base
     attributes:
-      weight:
-        value: 0
-        max: 1
-      coin:
-        value: 0
-      rollFormula:
-        value: ''
-      forward:
-        value: 0
-      hold:
-        value: 0
-      ongoing:
-        value: 0
-      resource1:
-        label: Custom Resource
-        value: 0
-        max: 0
-      statPoints:
-        value: 0
-        min: 0
-      st:
-        value: 0
-        min: 0
-        maxBase: 0
-        maxMisc: 0
-        max: 0
-      sp:
-        value: 0
-        min: 0
-        maxBase: 0
-        maxMisc: 0
-        max: 0
-      light:
-        value: 0
-        min: 0
-        maxBase: 0
-        maxMisc: 0
-        max: 0
-      ep:
-        value: 0
-        min: 0
-        maxBase: 0
-        maxMisc: 0
-        max: 0
       attackModifier:
         value: 0
         min: 0
@@ -104,9 +63,6 @@ Actor:
         min: 0
       equipmentRankLimit:
         value: 0
-        min: 0
-      toolSlots:
-        value: 4
         min: 0
       speed:
         dice: "1d6"
@@ -142,16 +98,9 @@ Actor:
         min: -1
         mod: 0
         debility: false
-    details:
-      alignment:
-        value: ''
-        description: ''
-      look: ''
   npc:
     templates:
       - base
-    tags: '[]'
-    tagsString: ''
 Item:
   types:
     - weapon
@@ -165,29 +114,6 @@ Item:
     base:
       name: ''
       description: ''
-    effectEntry:
-      effectUuid: ''
-      name: ''
-      cost: 0
-      stack: 1
-      count: 1
-      stackMax: 5
-      mode: positive
-      appliesTo: ''
-      canPositive: true
-      canNegative: true
-      allowModeToggle: true
-      procOn: alwaysActive
-      procResult: none
-      procResultLocked: false
-      procStat: any
-      procDice: any
-      procAction: any
-      procCondition: ''
-      positive: ''
-      negative: ''
-      macro:
-        uuid: ''
   weapon:
     templates:
       - base
@@ -232,8 +158,6 @@ Item:
     ammoType: standard
     damageType: null
     quantity: 1
-    weight: 0
-    price: 0
   skill:
     templates:
       - base
@@ -273,15 +197,6 @@ Item:
   status:
     templates:
       - base
-    proc:
-      turnStart: false
-      endOfRound: false
-      actionOrReaction: false
-      attackerBurst: false
-      onHitWhenActorHas: false
-      onHitWhenTargetHas: false
-      alwaysActive: false
-      skillEffect: false
     macro:
       uuid: ''
     customNotes: ''

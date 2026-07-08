@@ -133,16 +133,6 @@ export class PMTTRPGCharacterSheet extends HandlebarsApplicationMixin(ActorSheet
       context.system.details.look, context.enrichmentOptions
     );
     context.system.isToken = this.actor.token != null;
-    if (!context.system.isToken) {
-      context.system.xpSvg = PMTTRPGUtility.getProgressCircle({
-        current: Number(context.system.attributes.xp.value),
-        max: Number(context.system.attributes.xp.max),
-        radius: 16,
-      });
-    }
-    else {
-      context.system.xpSvg = { radius: 16, circumference: 100, offset: 100 };
-    }
 
     context.selects = {
       weaponTypes: { melee: "PMTTRPG.WeaponTypeMelee", ranged: "PMTTRPG.WeaponTypeRanged" },
