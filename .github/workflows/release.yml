@@ -1,0 +1,70 @@
+name: Release to Google Cloud Storage
+
+on:
+  release:
+    types: [published]
+
+jobs:
+  build-and-upload:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '26'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build project
+        run: npm run build
+
+      - name: Extract version from tag
+        id: version
+        run: echo "VERSION=${GITHUB_REF_NAME#v}" >> $GITHUB_OUTPUT
+        # Strips leading 'v' from tag — so 'v0.0.2' becomes '0.0.2'
+
+      - name: Update system.json with release URLs
+        run: |
+          VERSION="${{ steps.version.outputs.VERSION }}"
+          BASE_URL="https://storage.googleapis.com/pmttrpg_zip/${VERSION}"
+
+          # Patch the compiled system.json in place
+          jq \
+            --arg manifest "${BASE_URL}/system.json" \
+            --arg download "${BASE_URL}/projectmoonttrpg.zip" \
+            '.manifest = $manifest | .download = $download' \
+            dist/system.json > dist/system.tmp.json
+
+          mv dist/system.tmp.json dist/system.json
+
+      - name: Create zip archive
+        run: |
+          cd dist/ && zip -r ../projectmoonttrpg.zip *
+
+      - name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@v2
+        with:
+          credentials_json: ${{ secrets.GCP_SA_KEY }}
+
+      - name: Upload to Google Cloud Storage
+        uses: google-github-actions/upload-cloud-storage@v2
+        with:
+          path: system.json
+          destination: pmttrpg_zip/${{ steps.version.outputs.VERSION }}/system.json
+          process_gcloudignore: false
+
+      - name: Upload zip to Google Cloud Storage
+        uses: google-github-actions/upload-cloud-storage@v2
+        with:
+          path: projectmoonttrpg.zip
+          destination: pmttrpg_zip/${{ steps.version.outputs.VERSION }}/projectmoonttrpg.zip
+          process_gcloudignore: false
