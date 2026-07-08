@@ -48,7 +48,7 @@ jobs:
 
       - name: Create zip archive
         run: |
-          cd dist/ && zip -r ../projectmoonttrpg.zip * && cd ..
+          cd dist/ && zip -r ../projectmoonttrpg.zip *
 
       - name: Authenticate to Google Cloud
         uses: google-github-actions/auth@v2
@@ -58,7 +58,7 @@ jobs:
       - name: Upload to Google Cloud Storage
         uses: google-github-actions/upload-cloud-storage@v2
         with:
-          path: system.json
+          path: dist/system.json
           destination: pmttrpg_zip/${{ steps.version.outputs.VERSION }}/system.json
           process_gcloudignore: false
 
