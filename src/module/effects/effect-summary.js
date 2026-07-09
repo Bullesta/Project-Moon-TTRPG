@@ -154,7 +154,7 @@ export function buildEffectSummaryGroups(effects = []) {
 }
 
 
-function computeEffectSummary(entries = [], epMax = 0) {
+export function computeEffectSummary(entries = [], epMax = 0) {
   let positiveSpent = 0;
   let negativeSpent = 0;
   const signatureCounts = new Map();
@@ -201,7 +201,7 @@ function computeEffectSummary(entries = [], epMax = 0) {
   };
 }
 
-function normalizeEffectEntries(rawEffects = []) {
+export function normalizeEffectEntries(rawEffects = []) {
   if (!Array.isArray(rawEffects)) return [];
 
   return rawEffects.map((entry) => {
