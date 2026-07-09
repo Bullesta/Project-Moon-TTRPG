@@ -1,0 +1,52 @@
+<li class="item item--outfit collapsed{{#if item.system.equipped}} item--equipped{{/if}}" data-item-id="{{item._id}}">
+  <div class="item-title-row">
+    <div class="item-title-row__lead">
+      {{> "systems/projectmoonttrpg/templates/sheet/character/partials/item-thumb.hbs" img=item.img name=item.name}}
+      <strong class="item-name">{{item.name}}</strong>
+      <div class="item-title-row__actions">
+        {{> "systems/projectmoonttrpg/templates/sheet/character/partials/item-defense-dice.hbs" roll=item.system.blockDiceComputed rollType="block" itemId=item._id icon=(concat assetPath "/01_defense.webp") iconLabel=(localize "PMTTRPG.Def")}}
+        {{> "systems/projectmoonttrpg/templates/sheet/character/partials/item-defense-dice.hbs" roll=item.system.evadeDiceComputed rollType="evade" itemId=item._id icon=(concat assetPath "/01_evade.webp") iconLabel=(localize "PMTTRPG.Evd")}}
+      </div>
+    </div>
+    <div class="item-controls">
+      {{> "systems/projectmoonttrpg/templates/sheet/character/partials/item-controls-equipment.hbs" itemId=item._id}}
+    </div>
+  </div>
+  <div class="item-details">
+    <div class="item-tags">
+      {{#if item.system.equipped}}<span class="tag tag--equipped">{{localize "PMTTRPG.Equipped"}}</span>{{/if}}
+      {{#if (lookup selects.outfitProperties item.system.outfitProperty)}}
+        <span class="tag">{{localize (lookup selects.outfitProperties item.system.outfitProperty)}}</span>
+      {{/if}}
+      {{#if item.system.rank}}
+        <span class="tag tag--rank">{{localize "PMTTRPG.OutfitRank"}} {{item.system.rank}}</span>
+      {{/if}}
+    </div>
+    <div class="item-resists">
+      {{> "systems/projectmoonttrpg/templates/sheet/character/partials/item-resist-strip.hbs" pool="hp" label=(localize "PMTTRPG.TrackerHP") assetPath=assetPath values=item.system.resistancesDisplay.hp slashLabel=(localize "PMTTRPG.DamageTypeSlash") pierceLabel=(localize "PMTTRPG.DamageTypePierce") bluntLabel=(localize "PMTTRPG.DamageTypeBlunt")}}
+      {{> "systems/projectmoonttrpg/templates/sheet/character/partials/item-resist-strip.hbs" pool="st" label=(localize "PMTTRPG.TrackerST") assetPath=assetPath values=item.system.resistancesDisplay.st slashLabel=(localize "PMTTRPG.DamageTypeSlash") pierceLabel=(localize "PMTTRPG.DamageTypePierce") bluntLabel=(localize "PMTTRPG.DamageTypeBlunt")}}
+    </div>
+    <div class="item-meta-row">
+      {{#if item.system.bonusLight}}
+      <span class="item-meta-chip"><span class="item-meta-chip__label">{{localize "PMTTRPG.BonusLight"}}</span> +{{item.system.bonusLight}}</span>
+      {{/if}}
+      {{#if item.system.bonusEP}}
+      <span class="item-meta-chip"><span class="item-meta-chip__label">{{localize "PMTTRPG.BonusEP"}}</span> +{{item.system.bonusEP}}</span>
+      {{/if}}
+      {{#if item.system.epMax}}
+      <span class="item-meta-chip"><span class="item-meta-chip__label">{{localize "PMTTRPG.EP"}}</span> {{item.system.epMax}}</span>
+      {{/if}}
+    </div>
+    {{#if item.system.descriptionEnriched}}
+    <div class="item-flavor description">{{{item.system.descriptionEnriched}}}</div>
+    {{/if}}
+    {{#if item.system.effectSummaryGroups.length}}
+      {{#with (lookup item.system.effectSummaryGroups 0) as |group|}}
+      <div class="item-effect-summary">
+        <h4 class="item-effect-summary__title">{{group.heading}}</h4>
+        <div class="item-effect-summary__body">{{{group.summaryText}}}</div>
+      </div>
+      {{/with}}
+    {{/if}}
+  </div>
+</li>

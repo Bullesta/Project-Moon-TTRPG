@@ -61,7 +61,8 @@ Hooks.once("init", async function() {
   Actors.unregisterSheet("core", foundry.appv1.sheets.ActorSheet);
   Actors.registerSheet("projectmoonttrpg", PMTTRPGCharacterSheet, {
     types: ['character'],
-    makeDefault: true
+    makeDefault: true,
+    label: "PMTTRPG.CharacterSheet"
   });
   Actors.registerSheet("projectmoonttrpg", PMTTRPGActorNpcSheet, {
     types: ['npc'],

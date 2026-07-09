@@ -1,0 +1,85 @@
+<div class="tab-scroll combat-tab">
+  <section class="equipment-section equipment-section--modifiers">
+    <header class="tab-section-header">
+      <h3 class="tab-section-title">{{localize "PMTTRPG.CombatModifiers"}}</h3>
+    </header>
+    <div class="combat-modifiers__grid">
+      <label class="stat-field">{{localize "PMTTRPG.Att"}}
+        <input type="text" value="{{system.attributes.attackModifier.value}}" data-dtype="Number" readonly tabindex="-1">
+      </label>
+      <label class="stat-field">{{localize "PMTTRPG.Def"}}
+        <input type="text" value="{{system.attributes.blockModifier.value}}" data-dtype="Number" readonly tabindex="-1">
+      </label>
+      <label class="stat-field">{{localize "PMTTRPG.Evd"}}
+        <input type="text" value="{{system.attributes.evadeModifier.value}}" data-dtype="Number" readonly tabindex="-1">
+      </label>
+    </div>
+  </section>
+
+  <section class="equipment-section equipment-section--initiative">
+    <header class="tab-section-header">
+      <h3 class="tab-section-title">{{localize "PMTTRPG.InitiativeRoll"}}</h3>
+      <button type="button" class="initiative-roll" data-action="initiativeRoll">{{localize "PMTTRPG.InitiativeRoll"}}</button>
+    </header>
+    <div class="combat-initiative__grid">
+      <label class="stat-field">{{localize "PMTTRPG.InitiativeMacroMisc"}}
+        <input type="text" value="{{flags.projectmoonttrpg.initiative.macroMisc}}" data-dtype="Number" readonly tabindex="-1">
+      </label>
+      <label class="stat-field">{{localize "PMTTRPG.InitiativeManualMisc"}}
+        <input type="text" name="flags.projectmoonttrpg.initiative.manualMisc" value="{{flags.projectmoonttrpg.initiative.manualMisc}}" data-dtype="Number" {{#if locked}}readonly{{/if}}>
+      </label>
+    </div>
+  </section>
+
+  <section class="equipment-section equipment-section--equipped">
+    <header class="tab-section-header">
+      <h3 class="tab-section-title">{{localize "PMTTRPG.Equipped"}}</h3>
+    </header>
+    <ol class="items-list">
+      {{#each equippedWeapons as |item|}}
+      {{> "systems/projectmoonttrpg/templates/sheet/character/partials/item-row-weapon.hbs" item=item assetPath=../assetPath selects=../selects}}
+      {{else}}
+      <li class="tab-empty-item"><p class="tab-empty">{{localize "PMTTRPG.Weapons"}} — {{localize "PMTTRPG.NoneEquipped"}}</p></li>
+      {{/each}}
+
+      {{#each equippedOutfits as |item|}}
+      {{> "systems/projectmoonttrpg/templates/sheet/character/partials/item-row-outfit.hbs" item=item assetPath=../assetPath selects=../selects}}
+      {{else}}
+      <li class="tab-empty-item"><p class="tab-empty">{{localize "PMTTRPG.Outfits"}} — {{localize "PMTTRPG.NoneEquipped"}}</p></li>
+      {{/each}}
+    </ol>
+  </section>
+
+  <section class="equipment-section equipment-section--statuses">
+    <header class="tab-section-header">
+      <h3 class="tab-section-title">{{localize "PMTTRPG.ActiveStatuses"}}</h3>
+    </header>
+    {{#if statuses.length}}
+    <ol class="items-list">
+      {{#each statuses as |status|}}
+      <li class="item item--status collapsed" data-item-id="{{status.representative._id}}" data-status-key="{{status.key}}">
+        <div class="item-title-row">
+          <div class="item-title-row__lead">
+            {{> "systems/projectmoonttrpg/templates/sheet/character/partials/item-thumb.hbs" img=status.img name=status.name}}
+            <strong class="item-name">{{status.name}} <span class="item-count">×{{status.count}}</span></strong>
+          </div>
+          <div class="item-controls">
+            <button type="button" class="item-control" data-action="statusControl" data-control="decrease" title='{{localize "PMTTRPG.RemoveStack"}}' aria-label='{{localize "PMTTRPG.RemoveStack"}}'><i class="fas fa-minus" aria-hidden="true"></i></button>
+            <button type="button" class="item-control" data-action="statusControl" data-control="increase" title='{{localize "PMTTRPG.AddStack"}}' aria-label='{{localize "PMTTRPG.AddStack"}}'><i class="fas fa-plus" aria-hidden="true"></i></button>
+            <button type="button" class="item-control" data-action="itemEdit" data-item-id="{{status.representative._id}}" title="{{localize "PMTTRPG.Common.EditItem"}}" aria-label="{{localize "PMTTRPG.Common.EditItem"}}"><i class="fas fa-edit" aria-hidden="true"></i></button>
+            <button type="button" class="item-control item-toggle-details" data-action="toggleDetails" aria-expanded="false" title="{{localize "PMTTRPG.Common.Details"}}" aria-label="{{localize "PMTTRPG.Common.Details"}}"><i class="fas fa-chevron-down" aria-hidden="true"></i></button>
+          </div>
+        </div>
+        <div class="item-details">
+          {{#if status.system.descriptionEnriched}}
+          <div class="item-flavor description">{{{status.system.descriptionEnriched}}}</div>
+          {{/if}}
+        </div>
+      </li>
+      {{/each}}
+    </ol>
+    {{else}}
+    <p class="tab-empty">{{localize "PMTTRPG.NoStatuses"}}</p>
+    {{/if}}
+  </section>
+</div>

@@ -1,0 +1,40 @@
+<div class="player-header">
+  <input class="player-header__name txt charname" type="text" name="name" value="{{actor.name}}" placeholder="{{localize "PMTTRPG.CharacterNamePlaceholder"}}"
+         maxlength="30" spellcheck="false" {{#if locked}}readonly{{/if}} aria-label="{{localize "PMTTRPG.CharacterName"}}">
+  <div class="player-header__stats">
+    <div class="player-header__stat">
+      <p class="player-header__label">{{localize "PMTTRPG.Rank"}}</p>
+      <p class="player-header__value">{{profileHeader.rank}}</p>
+    </div>
+    <div class="player-header__divider" aria-hidden="true"></div>
+    <div class="player-header__stat">
+      <p class="player-header__label">{{localize "PMTTRPG.Level"}}</p>
+      {{#if locked}}
+      <p class="player-header__value">{{profileHeader.level}}</p>
+      {{else}}
+      <input class="player-header__value num" type="text" name="system.attributes.level.value" value="{{profileHeader.level}}" data-dtype="Number" aria-label="{{localize "PMTTRPG.Level"}}">
+      {{/if}}
+    </div>
+    <div class="player-header__divider" aria-hidden="true"></div>
+    <div class="player-header__stat player-header__stat--exp">
+      <p class="player-header__label">{{localize "PMTTRPG.Exp"}}</p>
+      <div class="player-header__exp-unit">
+        <p class="player-header__value player-header__exp-readout">
+          {{#if locked}}
+          <span class="player-header__exp-current">{{profileHeader.currentExp}}</span>
+          {{else}}
+          <input class="player-header__exp-current num" type="text" name="system.attributes.xp.value" value="{{profileHeader.currentExp}}" data-dtype="Number" size="2" aria-label="{{localize "PMTTRPG.XP"}}">
+          {{/if}}
+          <span class="player-header__exp-max"><span class="player-header__exp-sep" aria-hidden="true">/</span>{{profileHeader.maxExp}}</span>
+        </p>
+        <div class="player-header__exp-track" role="progressbar" aria-valuenow="{{profileHeader.currentExp}}" aria-valuemin="0" aria-valuemax="{{profileHeader.maxExp}}" aria-label="{{localize "PMTTRPG.ExperienceProgress"}}">
+          <div class="player-header__exp-fill" style="width: {{profileHeader.expFillPct}}%"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+{{#if system.isToken}}
+<p class="pm-warning">{{localize "PMTTRPG.TokenLinkWarning"}}</p>
+{{/if}}

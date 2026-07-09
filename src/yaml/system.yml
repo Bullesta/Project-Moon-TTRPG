@@ -32,6 +32,7 @@ esmodules:
 styles:
   - styles/lib/tagify.css
   - styles/dist/projectmoonttrpg.css
+  - styles/lib/character-sheet.css
 # @todo make a custom logo
 # media:
 #   - type: setup

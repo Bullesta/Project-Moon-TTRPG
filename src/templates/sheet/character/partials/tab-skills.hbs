@@ -1,70 +1,14 @@
-{{!-- Character sheet: Skills tab --}}
-<div class="tab skills {{lookup (lookup tabs "skills") "cssClass"}}" data-group="primary" data-tab="skills">
-  <section class="sheet-tab">
-
-    <div class="cell cell--skills">
-      <h2 class="cell__title">
-        <label>{{localize "PMTTRPG.Skills"}}</label>
-        <div class="item-controls">
-          <button type="button" class="item-control item-create" data-action="itemCreate" title='{{localize "PMTTRPG.AddSkill"}}' data-type="skill">
-            <i class="fas fa-plus"></i>
-          </button>
-        </div>
-      </h2>
-      <div class="help-text"><p>{{localize "PMTTRPG.SkillsLimitHint"}}</p></div>
-      <ol class="items-list">
-      {{#each skills as |item id|}}
-        <li class="item item--skill" data-item-id="{{item._id}}">
-          <div class="item-summary">
-            <div class="item-avatar item-avatar--small">
-              <img class="item-icon" src="{{item.img}}" title="{{item.name}}" alt="{{item.name}}"/>
-            </div>
-            <div class="item-info">
-              <h4 class="item-name">
-                <span class="item-label" data-action="showItemDetails">{{item.name}}<span class="item-details-toggle"><i class="fas fa-chevron-down"></i></span></span>
-              </h4>
-              <div class="item-meta tags">
-                {{#if (lookup ../selects.skillTypes item.system.skillType)}}
-                  <span class="tag">{{localize (lookup ../selects.skillTypes item.system.skillType)}}</span>
-                {{/if}}
-                <span class="tag">{{localize "PMTTRPG.SkillLightCost"}}: {{item.system.lightCost}}</span>
-                {{#if item.system.rank}}
-                  <span class="tag">{{localize "PMTTRPG.SkillRank"}}: {{item.system.rank}}</span>
-                {{/if}}
-              </div>
-            </div>
-          </div>
-          <div class="item-controls">
-            <button type="button" class="rollable item-rollable skill-roll" data-action="rollable" title="{{localize "PMTTRPG.Roll"}}" data-item-id="{{item._id}}">
-              <span class="skill-roll-icon">
-                {{#if (eq item.system.skillType "attack")}}
-                  {{#if item.equippedWeaponDamageType}}
-                    <div class="category-icon" data-damage="{{item.equippedWeaponDamageType}}"></div>
-                  {{else}}
-                    <i class="fas fa-dice-d20"></i>
-                  {{/if}}
-                {{else if (eq item.system.skillType "block")}}
-                  <img src="systems/projectmoonttrpg/assets/icons/sheet/01_defense.webp" alt="{{localize "PMTTRPG.Def"}}"/>
-                {{else if (eq item.system.skillType "evade")}}
-                  <img src="systems/projectmoonttrpg/assets/icons/sheet/01_evade.webp" alt="{{localize "PMTTRPG.Evd"}}"/>
-                {{else if (eq item.system.skillType "stat")}}
-                  <div class="ability-icon" data-ability="{{item.system.stat}}"></div>
-                {{else}}
-                  <i class="fas fa-dice-d20"></i>
-                {{/if}}
-              </span>
-            </button>
-            <a class="item-control item-edit" data-action="itemEdit" title="Edit Item"><i class="fas fa-edit"></i></a>
-            <span class="item-control item-sort" draggable="true" role="button" title="Drag to Sort"><i class="fas fa-grip-lines"></i></span>
-            <a class="item-control item-delete" data-action="itemDelete" title="Delete Item"><i class="fas fa-trash"></i></a>
-          </div>
-          <div class="item-description">
-            <div>{{{item.system.descriptionEnriched}}}</div>
-          </div>
-        </li>
+<div class="tab-scroll skills-tab">
+  <section class="equipment-section equipment-section--skills">
+    <header class="tab-section-header">
+      <h3 class="tab-section-title">{{localize "PMTTRPG.Skills"}}</h3>
+      <button type="button" data-action="itemCreate" data-type="skill">{{localize "PMTTRPG.AddSkill"}}</button>
+    </header>
+    <p class="help-text">{{localize "PMTTRPG.SkillsLimitHint"}}</p>
+    <ol class="items-list">
+      {{#each skills as |item|}}
+      {{> "systems/projectmoonttrpg/templates/sheet/character/partials/item-row-skill.hbs" item=item selects=../selects}}
       {{/each}}
-      </ol>
-    </div>
-
+    </ol>
   </section>
 </div>
