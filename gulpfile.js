@@ -261,6 +261,7 @@ const buildTask = gulp.series(
   gulp.parallel(
     compileYaml,
     compileScss,
+    compileImages,
     copyFiles,
     compilePacks
   )

@@ -1,0 +1,28 @@
+<div class="tab-stack">
+<nav class="tabbar tabs" role="tablist" aria-label="{{localize "PMTTRPG.SheetSections"}}" data-group="primary">
+  {{#each tabs as |tab|}}
+  <a class="tab-btn item {{tab.cssClass}}" role="tab" data-action="tab" data-group="{{tab.group}}" data-tab="{{tab.id}}"
+     aria-selected="{{tab.active}}">{{tab.label}}</a>
+  {{/each}}
+</nav>
+
+<div class="tab-panel">
+  {{> "systems/projectmoonttrpg/templates/sheet/character/partials/panel-fx.hbs"}}
+
+  <section class="tab-content tab {{lookup (lookup tabs "combat") "cssClass"}}" data-group="primary" data-tab="combat" role="tabpanel">
+    {{> "systems/projectmoonttrpg/templates/sheet/character/partials/tab-combat.hbs"}}
+  </section>
+  <section class="tab-content tab {{lookup (lookup tabs "skills") "cssClass"}}" data-group="primary" data-tab="skills" role="tabpanel">
+    {{> "systems/projectmoonttrpg/templates/sheet/character/partials/tab-skills.hbs"}}
+  </section>
+  <section class="tab-content tab {{lookup (lookup tabs "equipment") "cssClass"}}" data-group="primary" data-tab="equipment" role="tabpanel">
+    {{> "systems/projectmoonttrpg/templates/sheet/character/partials/tab-equipment.hbs"}}
+  </section>
+  <section class="tab-content tab {{lookup (lookup tabs "augment") "cssClass"}}" data-group="primary" data-tab="augment" role="tabpanel">
+    {{> "systems/projectmoonttrpg/templates/sheet/character/partials/tab-augment.hbs"}}
+  </section>
+  <section class="tab-content tab {{lookup (lookup tabs "bio") "cssClass"}}" data-group="primary" data-tab="bio" role="tabpanel">
+    {{> "systems/projectmoonttrpg/templates/sheet/character/partials/tab-bio.hbs"}}
+  </section>
+</div>
+</div>

@@ -1,0 +1,8 @@
+<div class="resist {{row.key}}" title="{{row.title}}">
+  {{#each row.tiles as |tile|}}
+  <div class="tile">
+    <img src="{{tile.icon}}" alt="{{tile.dmg}}">
+    <div class="mult"><span class="txt">{{tile.value}}</span></div>
+  </div>
+  {{/each}}
+</div>

@@ -1,0 +1,41 @@
+<section class="equipment-section equipment-section--ammunition">
+  <header class="tab-section-header">
+    <h3 class="tab-section-title">{{localize "PMTTRPG.Ammunition"}}</h3>
+    <button type="button" data-action="itemCreate" data-type="ammunition">{{localize "PMTTRPG.AddAmmunition"}}</button>
+  </header>
+
+  {{#if ammunition.length}}
+  <ol class="items-list">
+    {{#each ammunition as |ammo|}}
+    <li class="item item--ammunition collapsed" data-item-id="{{ammo._id}}">
+      <div class="item-title-row">
+        <div class="item-title-row__lead">
+          {{> "systems/projectmoonttrpg/templates/sheet/character/partials/item-thumb.hbs" img=ammo.img name=ammo.name}}
+          <strong class="item-name">{{ammo.name}} <span class="item-count">×{{ammo.system.quantity}}</span></strong>
+          {{#if (lookup ../selects.damageTypes ammo.system.damageType)}}
+          <div class="item-title-row__actions">
+            {{> "systems/projectmoonttrpg/templates/sheet/character/partials/damage-type-icon.hbs" assetPath=../assetPath damageType=ammo.system.damageType label=(localize (lookup ../selects.damageTypes ammo.system.damageType))}}
+          </div>
+          {{/if}}
+        </div>
+        <div class="item-controls">
+          {{> "systems/projectmoonttrpg/templates/sheet/character/partials/item-controls-ammunition.hbs" itemId=ammo._id}}
+        </div>
+      </div>
+      <div class="item-details">
+        <div class="item-tags">
+          {{#if (lookup ../selects.ammoTypes ammo.system.ammoType)}}
+          <span class="tag">{{localize (lookup ../selects.ammoTypes ammo.system.ammoType)}}</span>
+          {{/if}}
+        </div>
+        {{#if ammo.system.descriptionEnriched}}
+        <div class="item-flavor description">{{{ammo.system.descriptionEnriched}}}</div>
+        {{/if}}
+      </div>
+    </li>
+    {{/each}}
+  </ol>
+  {{else}}
+  <p class="tab-empty">{{localize "PMTTRPG.NoAmmunition"}}</p>
+  {{/if}}
+</section>

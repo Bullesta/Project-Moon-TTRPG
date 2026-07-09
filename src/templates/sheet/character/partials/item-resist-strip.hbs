@@ -1,0 +1,8 @@
+<div class="item-resist-strip item-resist-strip--{{pool}}">
+  <span class="item-resist-strip__label">{{label}}</span>
+  <div class="item-resist-strip__tiles">
+    {{> "systems/projectmoonttrpg/templates/sheet/character/partials/item-resist-tile.hbs" assetPath=assetPath damageType="slash" value=(lookup values "slash") label=slashLabel}}
+    {{> "systems/projectmoonttrpg/templates/sheet/character/partials/item-resist-tile.hbs" assetPath=assetPath damageType="pierce" value=(lookup values "pierce") label=pierceLabel}}
+    {{> "systems/projectmoonttrpg/templates/sheet/character/partials/item-resist-tile.hbs" assetPath=assetPath damageType="blunt" value=(lookup values "blunt") label=bluntLabel}}
+  </div>
+</div>
