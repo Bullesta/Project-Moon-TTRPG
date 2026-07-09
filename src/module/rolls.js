@@ -333,7 +333,18 @@ export class PMTTRPGRolls {
       author: game.user.id,
       speaker: ChatMessage.getSpeaker({ actor: this.actor })
     };
-    let rollMode = game.settings.get("core", "rollMode");
+
+    let rollMode = "publicroll";
+    switch(game.release.generation) {
+      case 13:
+        rollMode = game.settings.get("core", "rollMode");
+        break;
+      // assume latest version
+      default:
+        rollMode = game.settings.get("core", "messageMode");
+        break;
+    }
+
     if (["gm", "blind"].includes(rollMode)) chatData["whisper"] = ChatMessage.getWhisperRecipients("GM");
     if (rollMode === "self") chatData["whisper"] = [game.user.id];
     if (rollMode === "blind") chatData["blind"] = true;
