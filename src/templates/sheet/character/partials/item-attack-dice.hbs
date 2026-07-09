@@ -1,0 +1,6 @@
+<button type="button" class="item-dice rollable" data-action="rollable" data-roll="{{roll}}" data-item-id="{{itemId}}">
+  <span class="item-dice__inner item-dice__inner--row">
+    <span class="item-dice__label">{{roll}}</span>
+    {{> "systems/projectmoonttrpg/templates/sheet/character/partials/damage-type-icon.hbs" assetPath=assetPath damageType=damageType label=damageLabel size="md"}}
+  </span>
+</button>

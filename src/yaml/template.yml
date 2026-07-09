@@ -7,18 +7,21 @@ Actor:
       attributes:
         hp:
           value: 96
+          temp: 0
           min: 0
           maxBase: 96
           maxMisc: 0
           max: 96
         st:
           value: 24
+          temp: 0
           min: 0
           maxBase: 24
           maxMisc: 0
           max: 24
         sp:
           value: 15
+          temp: 0
           min: 0
           maxBase: 15
           maxMisc: 0
@@ -71,12 +74,14 @@ Actor:
         min: 0
       st:
         value: 0
+        temp: 0
         min: 0
         maxBase: 0
         maxMisc: 0
         max: 0
       sp:
         value: 0
+        temp: 0
         min: 0
         maxBase: 0
         maxMisc: 0

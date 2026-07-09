@@ -178,11 +178,6 @@ export class PMTTRPGActorNpcSheet extends HandlebarsApplicationMixin(ActorSheetV
     for (const el of this.element.querySelectorAll('.item-delete')) {
       el.addEventListener('click', (e) => this._onItemDelete(e, el), { signal });
     }
-
-    this.element.addEventListener('dragover', (e) => {
-      if (e.dataTransfer?.types?.includes('text/plain')) e.preventDefault();
-    }, { signal });
-    this.element.addEventListener('drop', (e) => this._onDrop(e), { signal });
   }
 
   async _onClose(options) {
@@ -248,8 +243,11 @@ export class PMTTRPGActorNpcSheet extends HandlebarsApplicationMixin(ActorSheetV
     const data = foundry.utils.duplicate(target.dataset);
     data.moveType = data.movetype ?? data.moveType;
     const itemName = data.name || game.i18n.localize(`TYPES.Item.${type}`) || type;
+    delete data.action;
+    delete data.type;
+    delete data.name;
+    delete data.movetype;
     const itemData = { name: itemName, type, system: data };
-    delete itemData.system["type"];
     await this.actor.createEmbeddedDocuments('Item', [itemData], {});
   }
 
@@ -267,29 +265,16 @@ export class PMTTRPGActorNpcSheet extends HandlebarsApplicationMixin(ActorSheetV
     await this.actor.items.get(itemId)?.delete();
   }
 
-  async _onDrop(event) {
-    const rawData = event.dataTransfer?.getData('text/plain');
-    if (!rawData) return false;
+  /** @override */
+  async _onDropItem(event, item) {
+    if (!item) return null;
+    if (item.parent?.id === this.actor.id) return null;
 
-    let dropData = null;
-    try { dropData = JSON.parse(rawData); }
-    catch (err) { return false; }
+    if (item.type === 'augment' && this.actor.items.some(owned => owned.type === 'augment')) {
+      ui.notifications.warn(game.i18n.localize('PMTTRPG.AugmentOnlyOne'));
+      return null;
+    }
 
-    if (dropData?.type !== 'Item') return false;
-
-    const droppedItem = await Item.fromDropData(dropData);
-    if (!droppedItem || (droppedItem.type !== 'status' && droppedItem.type !== 'augment')) return false;
-    if (droppedItem.parent?.id === this.actor.id) return false;
-
-    event.preventDefault();
-
-    const itemData = foundry.utils.duplicate(droppedItem.toObject());
-    delete itemData._id;
-    delete itemData.id;
-    delete itemData.uuid;
-    itemData.system = foundry.utils.duplicate(itemData.system ?? {});
-
-    await this.actor.createEmbeddedDocuments('Item', [itemData], {});
-    return false;
+    return super._onDropItem(event, item);
   }
 }

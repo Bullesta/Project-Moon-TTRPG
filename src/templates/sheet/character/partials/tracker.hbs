@@ -1,0 +1,73 @@
+<section class="tracker tracker--{{tracker.key}} {{#if tracker.open}}open{{/if}}{{#if tracker.hasTemp}} has-temp{{/if}}" id="{{tracker.key}}" data-tracker="{{tracker.key}}" title="{{tracker.short}}">
+
+  <div class="icon"><img src="{{tracker.icon}}" alt=""></div>
+
+
+
+  <div class="reading">
+
+    <input class="num cur" type="text" name="{{tracker.valueName}}" value="{{tracker.value}}" data-dtype="Number"
+
+           style="width: {{tracker.curWidth}}px" aria-label="{{tracker.ariaCurrent}}">
+
+    {{#if tracker.showTemp}}
+
+    <span class="tmpchip" {{#unless tracker.hasTemp}}hidden{{/unless}}>(+<span class="tmpval">{{tracker.temp}}</span>)</span>
+
+    {{/if}}
+
+    <span class="sep">/</span>
+
+    <span class="maxview">{{tracker.effMax}}</span>
+
+  </div>
+
+
+
+  <button type="button" class="chev" data-action="toggleTracker" data-tracker="{{tracker.key}}"
+
+          aria-expanded="{{tracker.open}}" aria-label="{{tracker.ariaToggle}}"></button>
+
+
+
+  <div class="bar"{{#if tracker.isLight}} style="--segs: {{tracker.segs}}"{{/if}}>
+    <div class="fill" style="width: {{tracker.pct}}%"></div>
+    {{#if tracker.hasTemp}}<div class="shield" style="left: {{tracker.shieldLeftPct}}%; width: {{tracker.shieldWidthPct}}%"></div>{{/if}}
+  </div>
+
+
+
+  <div class="details">
+
+    {{#if tracker.showTemp}}
+
+    <div class="cell">
+
+      <div class="box"><input class="num temp" type="text" name="{{tracker.tempName}}" value="{{tracker.temp}}" data-dtype="Number" {{#if @root.locked}}readonly{{/if}} aria-label="{{tracker.ariaTemp}}"></div>
+
+      <span class="dl">{{tracker.detailLabels.a}}</span>
+
+    </div>
+
+    {{/if}}
+
+    <div class="cell">
+
+      <div class="box"><input class="num max" type="text" value="{{tracker.maxBase}}" data-dtype="Number" readonly tabindex="-1" aria-label="{{tracker.ariaMax}}"></div>
+
+      <span class="dl">{{#if tracker.showTemp}}{{tracker.detailLabels.b}}{{else}}{{tracker.detailLabels.a}}{{/if}}</span>
+
+    </div>
+
+    <div class="cell">
+
+      <div class="box"><input class="num bonus" type="text" name="{{tracker.maxMiscName}}" value="{{tracker.maxMisc}}" data-dtype="Number" {{#if @root.locked}}readonly{{/if}} aria-label="{{tracker.ariaBonusMax}}"></div>
+
+      <span class="dl">{{#if tracker.showTemp}}{{tracker.detailLabels.c}}{{else}}{{tracker.detailLabels.b}}{{/if}}</span>
+
+    </div>
+
+  </div>
+
+</section>
+
