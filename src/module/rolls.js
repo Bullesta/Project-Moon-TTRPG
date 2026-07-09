@@ -297,108 +297,17 @@ export class PMTTRPGRolls {
       classes: ['projectmoonttrpg', 'PMTTRPG-dialog']
     };
 
-    if (PMTTRPGUtility.nightmode) dlgOptions.classes.push('nightmode');
-
-    // Handle item rolls (moves).
     if (this.item) {
-      // Handle moves.
-      if (this.item.type == 'move' || this.item.type == 'npcMove') {
-        formula = dice;
-        templateData = {
-          image: this.item.img,
-          title: this.item.name,
-          trigger: null,
-          details: this.item.system.description,
-          moveResults: this.item.system.moveResults,
-          choices: this.item.system.choices
-        };
-
-        if (this.item.type == 'npcMove' || this.item.system?.rollType == 'FORMULA') {
-          data.roll = this.item.system.rollFormula;
-          data.rollType = this.item.system.rollType ? this.item.system.rollType.toLowerCase() : 'npc';
-        }
-        else {
-          data.roll = this.item.system.rollType.toLowerCase();
-          data.rollType = this.item.system.rollType.toLowerCase();
-        }
-        data.mod = this.item.type == 'move' ? this.item.system.rollMod : 0;
-        // If this is an ASK roll, render a bond first to determine which
-        // score to use.
-        if (data.roll == 'ask') {
-          const stats = Object.keys(this.actorData.abilities);
-          await foundry.applications.api.DialogV2.wait({
-            window: { title: game.i18n.localize('PMTTRPG.Dialog.askTitle') },
-            classes: dlgOptions.classes,
-            content: `<p>${game.i18n.format('PMTTRPG.Dialog.askContent', {name: this.item.name})}`,
-            buttons: stats.map(stat => ({
-              action: stat,
-              label: game.i18n.localize(`PMTTRPG.${stat.toUpperCase()}`),
-              callback: () => this.rollMoveExecute(stat, data, templateData)
-            })),
-            rejectClose: false
-          });
-        }
-        // If this is a PROMPT roll, render a different bond to let the user
-        // enter their bond value.
-        else if (data.roll == 'bond') {
-          let template = 'systems/projectmoonttrpg/templates/chat/roll-dialog.html';
-          let dialogData = {
-            title: game.i18n.format('PMTTRPG.Dialog.bondContent', {name: this.item.name}),
-            bond: null
-          };
-          const html = await renderTemplate(template, dialogData);
-          return foundry.applications.api.DialogV2.wait({
-            window: { title: game.i18n.localize('PMTTRPG.Dialog.bondTitle') },
-            classes: dlgOptions.classes,
-            content: html,
-            buttons: [{
-              action: 'submit',
-              label: 'Roll',
-              default: true,
-              callback: (event, button, dialog) => {
-                this.rollMoveExecute('bond', data, templateData, dialog.element.querySelector('form'));
-              }
-            }],
-            rejectClose: false
-          });
-
-        }
-        // Otherwise, grab the data from the move and pass it along.
-        else {
-          this.rollMoveExecute(data.roll, data, templateData);
-        }
-      }
-      // Handle spells.
-      else if (this.item.type == 'spell') {
-        templateData = {
-          image: this.item.img,
-          title: this.item.name,
-          trigger: null,
-          details: this.item.system.description
-        };
-        data.roll = this.item.system.rollFormula;
-        this.rollMoveExecute(data.roll, data, templateData);
-      }
-      // Handle equipment.
-      else if (this.item.type == 'equipment') {
-        templateData = {
-          image: this.item.img,
-          title: this.item.name,
-          trigger: null,
-          details: this.item.system.description,
-          tags: this.item.system.tags
-        }
-        data.roll = this.item.system.rollFormula;
-        this.rollMoveExecute(data.roll, data, templateData);
-      }
-      else if (this.item.type == 'weapon') {
-        templateData = foundry.utils.mergeObject({
-          image: this.item.img,
-          title: this.item.name,
-          trigger: null,
-          details: this.item.system.description,
-          rollType: 'damage'
-        }, templateData);
+      if (this.item.type == 'weapon') {
+        templateData = foundry.utils.mergeObject(
+          {
+            image: this.item.img,
+            title: this.item.name,
+            trigger: null,
+            details: this.item.system.description,
+            rollType: 'damage'
+          }, templateData
+        );
         data.roll = this.item.system.offensiveDiceComputed;
         this.rollMoveExecute(data.roll, data, templateData);
       }
@@ -406,7 +315,6 @@ export class PMTTRPGRolls {
         this.rollMoveExecute(formula, data, templateData);
       }
     }
-    // Handle formula-only rolls.
     else {
       this.rollMoveExecute(formula, data, templateData, null, statModifier);
     }
@@ -429,35 +337,7 @@ export class PMTTRPGRolls {
     if (["gm", "blind"].includes(rollMode)) chatData["whisper"] = ChatMessage.getWhisperRecipients("GM");
     if (rollMode === "self") chatData["whisper"] = [game.user.id];
     if (rollMode === "blind") chatData["blind"] = true;
-    // Define tags.
-    let baseTags = this.item?.system?.tags ?? this.actor?.system?.tags;
-    let tags = [];
-    let hasPiercingTag = false;
-    let hasDmgBonusTag = false;
-    let hasIgnoreArmorTag = false;
-    if (baseTags && baseTags.length > 0) {
-      tags = JSON.parse(baseTags);
-      if (baseTags.includes('piercing')) {
-        hasPiercingTag = true;
-      }
-      if (baseTags.includes('damage')) {
-        hasDmgBonusTag = true;
-      }
-      if (baseTags.includes('ignores armor')) {
-        hasIgnoreArmorTag = true;
-      }
-    }
-    // Add piercing and armor tags.
-    if (this.item?.system?.itemType == 'weapon' || templateData?.rollType == 'damage') {
-      let piercing = this.actor.system.attributes.damage?.piercing ?? 0;
-      let dmgBonus = this.actor.system.attributes.damage?.dmgBonus ?? 0;
-      let ignoreArmor = this.actor.system.attributes.damage?.ignoreArmor ?? false;
-      if (piercing > 0 && !hasPiercingTag) tags.push({value: `${piercing} piercing`});
-      if (ignoreArmor && !hasIgnoreArmorTag) tags.push({value: `ignores armor`});
-      if (dmgBonus > 0 && !hasDmgBonusTag) tags.push({value: `+${dmgBonus} damage`});
-      if (this.actor.type == 'npc' && templateData?.flavor) tags.push({value: templateData.flavor});
-    }
-    templateData.tags = JSON.stringify(tags);
+    
     // Handle dice rolls.
     if (!PMTTRPGUtility.isEmpty(roll)) {
       // Test if the roll is a formula.
@@ -471,20 +351,14 @@ export class PMTTRPGRolls {
       let formula = validRoll ? roll.trim() : '';
       // Handle bond (user input).
       if (!validRoll || dataset?.rollType == 'formula') {
-        if (roll.toLowerCase() == 'bond') {
-          formula = form.bond?.value ? `${dice}+${form.bond.value}` : dice;
-          if (dataset.value && dataset.value != 0) {
-            formula += `+${dataset.value}`;
-          }
-        }
-        else if (dataset?.rollType == 'formula') {
+        if (dataset?.rollType == 'formula') {
           formula = roll;
         }
-        // Handle ability scores (no input).
+        
         else if (roll.match(/(\d*)d\d+/g)) {
           formula = roll;
         }
-        // Handle moves.
+        
         else {
           // Determine if the stat toggle is in effect.
           let toggleModifier = 0;
@@ -522,14 +396,13 @@ export class PMTTRPGRolls {
           case 'adv':
             rollModeUsed = true;
             if (formula.includes('2d6')) {
-              formula = formula.replace('2d6', '3d6kh2');
+              formula = formula.replace('2d6', '{2d6, 2d6}kh');
             }
             else if (formula.includes('d6')) {
               // Match the first d6 as (n)d6.
               formula = formula.replace(/(\d*)(d6)/, (match, p1, p2, offset, string) => {
-                let keep = p1 ? Number(p1) : 1;
                 let count = keep + 1;
-                return `${count}d6kh${keep}`; // Ex: 2d6 -> 3d6kh2
+                return `{${count}d6, ${count}d6}kh`; // Ex: 2d6 -> 3d6kh2
               });
             }
             break;
@@ -537,13 +410,12 @@ export class PMTTRPGRolls {
           case 'dis':
             rollModeUsed = true;
             if (formula.includes('2d6')) {
-              formula = formula.replace('2d6', '3d6kl2');
+              formula = formula.replace('2d6', '{2d6, 2d6}kl');
             }
             else if (formula.includes('d6')) {
               formula = formula.replace(/(\d*)(d6)/, (match, p1, p2, offset, string) => {
-                let keep = p1 ? Number(p1) : 1;
                 let count = keep + 1;
-                return `${count}d6kl${keep}`;
+                return `{${count}d6, ${count}d6}kl`;
               });
             }
             break;
@@ -560,7 +432,7 @@ export class PMTTRPGRolls {
         await (roll.evaluate());
         let rollType = templateData.rollType ?? 'none';
         // Add success notification.
-        if (resultRangeNeeded || rollType == 'move') {
+        if (resultRangeNeeded) {
           // Retrieve the result ranges.
           let resultRanges = CONFIG.PMTTRPG.rollResults;
           let resultType = null;
@@ -591,12 +463,6 @@ export class PMTTRPGRolls {
               }
             }
           }
-
-          // Handle XP.
-          const token = canvas.tokens.controlled.find(t => t.actorId == this.actor.id);
-          // @todo determine if this should be the canvas ID or the actor ID.
-          templateData.tokenId = token ? `${canvas.scene.id}.${token.id}` : null;
-          templateData.xp = resultType == 'failure' ? true : false;
 
           // Update the templateData.
           templateData.resultLabel = resultRanges[resultType]?.label ?? resultType;

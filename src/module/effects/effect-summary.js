@@ -152,3 +152,88 @@ export function buildEffectSummaryGroups(effects = []) {
     summaryText: orderedKeys.map(key => renderGroup(topGroups.get(key))).join("<br><br>")
   }];
 }
+
+
+function computeEffectSummary(entries = [], epMax = 0) {
+  let positiveSpent = 0;
+  let negativeSpent = 0;
+  const signatureCounts = new Map();
+
+  for (const entry of entries ?? []) {
+    const cost = Math.abs(Number(entry?.cost ?? 0));
+    const stack = Math.max(1, Number(entry?.stack ?? entry?.count ?? 1));
+    const signature = [
+      entry?.effectUuid ?? '',
+      entry?.procOn ?? '',
+      entry?.procResult ?? '',
+      entry?.procStat ?? '',
+      entry?.procDice ?? '',
+      entry?.procAction ?? '',
+      entry?.procCondition ?? '',
+      entry?.mode ?? ''
+    ].join('|').toLowerCase();
+
+    signatureCounts.set(signature, (signatureCounts.get(signature) ?? 0) + 1);
+
+    if (entry?.mode === 'negative') {
+      negativeSpent += cost * stack;
+    }
+    else {
+      positiveSpent += cost * stack;
+    }
+  }
+
+  const cap = Number.isFinite(Number(epMax)) ? Number(epMax) : 0;
+  const remaining = (cap + negativeSpent) - positiveSpent;
+  const overPositive = positiveSpent > (cap + negativeSpent);
+  const overNegative = negativeSpent > cap;
+  const hasDuplicates = Array.from(signatureCounts.values()).some(count => count > 1);
+
+  return {
+    epMax: cap,
+    positiveSpent,
+    negativeSpent,
+    remaining,
+    overPositive,
+    overNegative,
+    hasDuplicates,
+    hasWarnings: overPositive || overNegative || hasDuplicates
+  };
+}
+
+function normalizeEffectEntries(rawEffects = []) {
+  if (!Array.isArray(rawEffects)) return [];
+
+  return rawEffects.map((entry) => {
+    const stackRaw = Number(entry?.stack ?? entry?.count ?? 1);
+    const stackMaxRaw = Number(entry?.stackMax ?? (entry?.allowMultiple === false ? 1 : 5));
+    const stackMax = Math.max(1, Number.isFinite(stackMaxRaw) ? stackMaxRaw : 5);
+    const stack = Math.max(1, Math.min(stackMax, Number.isFinite(stackRaw) ? stackRaw : 1));
+    const costRaw = Number(entry?.cost ?? 0);
+    const cost = Number.isFinite(costRaw) ? costRaw : 0;
+    const mode = entry?.mode === 'negative' ? 'negative' : 'positive';
+
+    return {
+      effectUuid: entry?.effectUuid ?? entry?.uuid ?? '',
+      name: entry?.name ?? '',
+      cost,
+      stackMax,
+      stack,
+      count: stack,
+      mode,
+      appliesTo: entry?.appliesTo ?? '',
+      canPositive: entry?.canPositive !== false,
+      canNegative: entry?.canNegative !== false,
+      procOn: entry?.procOn ?? 'alwaysActive',
+      procResult: entry?.procResult ?? 'none',
+      procResultLocked: entry?.procResultLocked ?? false,
+      procStat: entry?.procStat ?? 'any',
+      procDice: entry?.procDice ?? 'any',
+      procAction: entry?.procAction ?? 'any',
+      procCondition: entry?.procCondition ?? '',
+      positive: entry?.positive ?? '',
+      negative: entry?.negative ?? '',
+      macro: foundry.utils.mergeObject({ uuid: '' }, entry?.macro ?? {}, { inplace: false })
+    };
+  });
+}
