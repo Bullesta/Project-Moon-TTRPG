@@ -240,7 +240,7 @@ export class ActorPMTTRPG extends Actor {
       author: game.user.id,
       speaker: ChatMessage.getSpeaker({ actor: actor })
     };
-    let rollMode = game.settings.get("core", "messageMode");
+    let rollMode = game.settings.get("core", "rollMode");
     if (["gm", "blind"].includes(rollMode)) chatData["whisper"] = ChatMessage.getWhisperRecipients("GM");
     if (rollMode === "self") chatData["whisper"] = [game.user.id];
     if (rollMode === "blind") chatData["blind"] = true;

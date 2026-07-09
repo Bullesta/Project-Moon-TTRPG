@@ -229,7 +229,7 @@ export async function rollInitiative(actor, { macroMisc = null, manualMisc = nul
     content: await renderTemplate('systems/projectmoonttrpg/templates/chat/chat-move.html', templateData),
   };
 
-  const rollMode = game.settings.get('core', 'messageMode');
+  const rollMode = game.settings.get('core', 'rollMode');
   if (["gm", "blind"].includes(rollMode)) chatData.whisper = ChatMessage.getWhisperRecipients('GM');
   if (rollMode === 'self') chatData.whisper = [game.user.id];
   if (rollMode === 'blind') chatData.blind = true;
