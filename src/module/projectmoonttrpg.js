@@ -216,7 +216,7 @@ Hooks.once("ready", async function() {
 });
 
 Hooks.on('createChatMessage', async (message, options, id) => {
-  // @todo expand this to work with multiple rolls.
+  // TODO: expand this to work with multiple rolls.
   if (message?.rolls) {
     // Limit this to a single user.
     let firstGM = game.users.find(u => u.active && u.role == CONST.USER_ROLES.GAMEMASTER);
@@ -375,11 +375,8 @@ Hooks.on('createActor', async (actor, options, id) => {
   }
 });
 
-// Update the item list on new item creation.
 Hooks.on('createItem', async (item, options, id) => {
-  if (item.type == 'equipment') {
-    PMTTRPGUtility.getEquipment(true);
-  }
+
 })
 
 Hooks.on('preUpdateActor', (actor, updateData, options, id) => {

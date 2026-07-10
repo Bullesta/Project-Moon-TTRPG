@@ -17,29 +17,29 @@ documentTypes:
     effect: {}
     augment: {}
     status: {}
-    move: {}
-    npcMove: {}
-    spell: {}
-    equipment: {}
-    class: {}
-    tag: {}
-    bond: {}
 authors:
   - name: 'Leetram'
     discord: 'leetram'
+  - name: 'Fetlach'
+    discord: 'fetlach'
+  - name: 'Derpete'
+    discord: 'derpete'
+  - name: 'Bullesta'
+    discord: 'bullesta'
+  - name: 'B Lightning'
+    discord: 'b_lightning'
 esmodules:
   - module/projectmoonttrpg.js
 styles:
   - styles/lib/tagify.css
   - styles/dist/projectmoonttrpg.css
   - styles/lib/character-sheet.css
-# @todo make a custom logo
-# media:
-#   - type: setup
-#     url: "systems/projectmoonttrpg/assets/dungeon-world.webp"
-#     thumbnail: "systems/projectmoonttrpg/assets/dungeon-world.webp"
-#     loop: false
-#     flags: {}
+media:
+  - type: setup
+    url: "systems/projectmoonttrpg/assets/thumbnail.webp"
+    thumbnail: "systems/projectmoonttrpg/assets/thumbnail.webp"
+    loop: false
+    flags: {}
 scripts:
   - scripts/lib/tagify.min.js
 packs:
@@ -72,7 +72,7 @@ grid:
   units: ft
 primaryTokenAttribute: attributes.hp
 secondaryTokenAttribute: attributes.st
-initiative: 1d20
+initiative: 1d6
 socket: true
 url: https://github.com/Leetram519/Project-Moon-TTRPG
 manifest: https://storage.googleapis.com/pmttrpg_zip/0.0.1/system.json

@@ -8,8 +8,7 @@ $c-blue-dark: #344460;
   .window-content {
     background: $c-nightmode;
     background-image:
-      linear-gradient(#333, #333),
-      url('../../assets/heath-alseike-vector-edge-nightmode.svg');
+      linear-gradient(#333, #333);
     background-repeat: no-repeat;
     background-size:
       100% 264px,

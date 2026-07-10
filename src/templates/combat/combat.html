@@ -2,7 +2,6 @@
   {{#each combatants as |combatantGroup group|}}
     {{!-- Render the group label. --}}
     <li class="combatant directory-item flexrow directory-item--group {{group}}">
-      <div class="ct-label ct-label--name">{{localize (concat "TTRPG." group "s")}}</div>
       {{#ifEquals group "character"}}
       <div class="ct-label ct-label--moves">{{../moveTotal}}</div>
       {{/ifEquals}}

@@ -1,44 +1,8 @@
 import { PMTTRPGUtility } from "../utility.js";
 import { PMTTRPGRolls } from "../rolls.js";
 import { getRankFromLevel } from "../actor/progression.js";
+import { computeEffectSummary, normalizeEffectEntries } from "../effects/effect-summary.js";
 const { renderTemplate } = foundry.applications.handlebars;
-
-function normalizeEffectEntries(rawEffects = []) {
-  if (!Array.isArray(rawEffects)) return [];
-
-  return rawEffects.map((entry) => {
-    const stackRaw = Number(entry?.stack ?? entry?.count ?? 1);
-    const stackMaxRaw = Number(entry?.stackMax ?? (entry?.allowMultiple === false ? 1 : 5));
-    const stackMax = Math.max(1, Number.isFinite(stackMaxRaw) ? stackMaxRaw : 5);
-    const stack = Math.max(1, Math.min(stackMax, Number.isFinite(stackRaw) ? stackRaw : 1));
-    const costRaw = Number(entry?.cost ?? 0);
-    const cost = Number.isFinite(costRaw) ? costRaw : 0;
-    const mode = entry?.mode === 'negative' ? 'negative' : 'positive';
-
-    return {
-      effectUuid: entry?.effectUuid ?? entry?.uuid ?? '',
-      name: entry?.name ?? '',
-      cost,
-      stackMax,
-      stack,
-      count: stack,
-      mode,
-      appliesTo: entry?.appliesTo ?? '',
-      canPositive: entry?.canPositive !== false,
-      canNegative: entry?.canNegative !== false,
-      procOn: entry?.procOn ?? 'alwaysActive',
-      procResult: entry?.procResult ?? 'none',
-      procResultLocked: entry?.procResultLocked ?? false,
-      procStat: entry?.procStat ?? 'any',
-      procDice: entry?.procDice ?? 'any',
-      procAction: entry?.procAction ?? 'any',
-      procCondition: entry?.procCondition ?? '',
-      positive: entry?.positive ?? '',
-      negative: entry?.negative ?? '',
-      macro: foundry.utils.mergeObject({ uuid: '' }, entry?.macro ?? {}, { inplace: false })
-    };
-  });
-}
 
 function getEffectSignature(entry) {
   return [
@@ -53,43 +17,6 @@ function getEffectSignature(entry) {
   ].join('|').toLowerCase();
 }
 
-function computeEffectSummary(entries = [], epMax = 0) {
-  let positiveSpent = 0;
-  let negativeSpent = 0;
-  const signatureCounts = new Map();
-
-  for (const entry of entries) {
-    const cost = Math.abs(Number(entry?.cost ?? 0));
-    const count = Math.max(1, Number(entry?.stack ?? entry?.count ?? 1));
-    const signature = getEffectSignature(entry);
-    signatureCounts.set(signature, (signatureCounts.get(signature) ?? 0) + 1);
-
-    if (entry?.mode === 'negative') {
-      negativeSpent += cost * count;
-    }
-    else {
-      positiveSpent += cost * count;
-    }
-  }
-
-  const cap = Number.isFinite(epMax) ? epMax : 0;
-  const remaining = (cap + negativeSpent) - positiveSpent;
-  const overPositive = positiveSpent > (cap + negativeSpent);
-  const overNegative = negativeSpent > cap;
-  const hasDuplicates = Array.from(signatureCounts.values()).some(count => count > 1);
-
-  return {
-    epMax: cap,
-    positiveSpent,
-    negativeSpent,
-    remaining,
-    overPositive,
-    overNegative,
-    hasDuplicates,
-    hasWarnings: overPositive || overNegative || hasDuplicates
-  };
-}
-
 export class ItemPMTTRPG extends Item {
   /**
    * Augment the basic Item data model with additional dynamic data.
@@ -102,20 +29,6 @@ export class ItemPMTTRPG extends Item {
     const actorData = this.actor ? this.actor : {};
     const data = itemData.system;
     const effectProcOn = data.procOn ?? 'alwaysActive';
-
-    // Clean up broken groups.
-    if (itemData.type == 'class') {
-      if (itemData.system.equipment) {
-        for (let [group_key, group] of Object.entries(itemData.system.equipment)) {
-          if (group) {
-            if (PMTTRPGUtility.isEmpty(group['items'])) {
-              group['items'] = [];
-              group['objects'] = [];
-            }
-          }
-        }
-      }
-    }
 
     if (itemData.type == 'weapon') {
       const baseDieSides = 10;
@@ -322,24 +235,6 @@ export class ItemPMTTRPG extends Item {
       data.showProcDice = ['onClash', 'onClashResult', 'onEitherClashResult', 'onBurst', 'onCritical', 'onDevastating'].includes(effectProcOn);
       data.showProcAction = ['onUse', 'onAction'].includes(effectProcOn);
     }
-  }
-
-  async _getEquipmentObjects(force_reload = false) {
-    let obj = null;
-    let itemData = this;
-
-    let items = await PMTTRPGUtility.getEquipment(force_reload);
-    let equipment = [];
-
-    if (itemData.system.equipment) {
-      for (let [group, group_items] of Object.entries(itemData.system.equipment)) {
-        if (group_items) {
-          equipment[group] = items.filter(i => group_items['items'].includes(i.id));
-        }
-      }
-    }
-
-    return equipment;
   }
 
   /** @override */

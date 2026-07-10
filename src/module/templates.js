@@ -8,8 +8,7 @@
   // Define template paths to load
   const templatePaths = [
     "systems/projectmoonttrpg/templates/parts/chat-buttons.html",
-    "systems/projectmoonttrpg/templates/parts/sheet-moves.html",
-    "systems/projectmoonttrpg/templates/parts/sheet-level-up-move.html",
+    "systems/projectmoonttrpg/templates/parts/initiative-character.html",
     "systems/projectmoonttrpg/templates/parts/effects-list.html",
     // Character sheet (AppV2) partials referenced by sheet.hbs
     "systems/projectmoonttrpg/templates/sheet/character/partials/tracker.hbs",
