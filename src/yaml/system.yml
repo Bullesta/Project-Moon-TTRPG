@@ -33,6 +33,7 @@ esmodules:
 styles:
   - styles/lib/tagify.css
   - styles/dist/projectmoonttrpg.css
+  - styles/lib/character-sheet.css
 media:
   - type: setup
     url: "systems/projectmoonttrpg/assets/thumbnail.webp"
