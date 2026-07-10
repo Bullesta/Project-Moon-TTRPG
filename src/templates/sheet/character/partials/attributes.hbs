@@ -1,118 +1,16 @@
-{{!-- Character sheet: attributes block (abilities + resources) --}}
-<section class="sheet-attributes">
-
-  <div class="attributes-left">
-    <div class="cell cell--abilities">
-      <ol class="abilities-list">
-      {{#each system.abilities as |ability key|}}
-        <li class="ability" data-ability="{{key}}">
-          <label for="system.abilities.{{key}}.value" class="ability-label ability-rollable rollable" data-action="rollable" data-roll="{{key}}" data-label="{{ability.label}}">{{ localize ability.label }}</label>
-          <input class="ability-value" type="text" name="system.abilities.{{key}}.value" value="{{#if ability.value}}{{numberFormat ability.value decimals=0 sign=true}}{{else}}0{{/if}}" data-dtype="Number"/>
-        </li>
-      {{/each}}
-      </ol>
-    </div>
-
-    <div class="cell cell--rank">
-      <label class="cell__title">{{localize "PMTTRPG.Rank"}}</label>
-      <div class="cell__wrapper">
-        <input class="disabled" type="text" value="{{system.attributes.rank.value}}" data-dtype="Number" readonly/>
-      </div>
-    </div>
-
-    <div class="cell cell--rank-inline">
-      <div class="rank-inline-item">
-        <label class="cell__title">{{localize "PMTTRPG.Level"}}</label>
-        <input type="text" name="system.attributes.level.value" value="{{system.attributes.level.value}}" data-dtype="Number"/>
-      </div>
-      <div class="rank-inline-item">
-        <label class="cell__title">{{localize "PMTTRPG.XP"}}</label>
-        <input type="text" name="system.attributes.xp.value" value="{{system.attributes.xp.value}}" data-dtype="Number"/>
-        {{{progressCircle system.xpSvg}}}
-      </div>
-      <div class="rank-inline-item">
-        <label class="cell__title">{{localize "PMTTRPG.StatPoints"}}</label>
-        <input type="text" name="system.attributes.statPoints.value" value="{{system.attributes.statPoints.value}}" data-dtype="Number"/>
-      </div>
-    </div>
-
-    <div class="cell cell--limits">
-      <div class="limits-item">
-        <label class="cell__title">{{localize "PMTTRPG.EquipmentRankLimit"}}</label>
-        <input class="disabled" type="text" name="system.attributes.equipmentRankLimit.value" value="{{system.attributes.equipmentRankLimit.value}}" data-dtype="Number" readonly/>
-      </div>
-      <div class="limits-item">
-        <label class="cell__title">{{localize "PMTTRPG.ToolSlots"}}</label>
-        <input class="disabled" type="text" name="system.attributes.toolSlots.value" value="{{system.attributes.toolSlots.value}}" data-dtype="Number" readonly/>
-      </div>
+<div class="stats-row">
+  {{#each rollableAttributes as |attr|}}
+  <div class="attr attr--{{attr.id}}" id="attr-{{attr.id}}" title="{{localize attr.label}}">
+    <span class="frame"></span>
+    <img src="{{attr.icon}}" alt="">
+    <div class="val">
+      <input class="num ability-stat{{#if @root.locked}} ability-roll ability-rollable rollable{{else}} ability-value{{/if}}"
+             type="text" name="{{attr.name}}"
+             value="{{#if attr.value}}{{numberFormat attr.value decimals=0 sign=true}}{{else}}0{{/if}}"
+             data-dtype="Number"
+             {{#if @root.locked}}readonly tabindex="-1" data-action="rollable" data-roll="{{attr.rollKey}}" data-label="{{attr.label}}"{{/if}}
+             aria-label="{{localize attr.label}}">
     </div>
   </div>
-
-  <div class="attributes-right">
-    <div class="cell cell--hp">
-      <label for="system.attributes.hp.value" class="cell__title">{{localize "PMTTRPG.Health"}}</label>
-      <div class="cell__counter">
-        <input type="text" name="system.attributes.hp.value" value="{{system.attributes.hp.value}}" data-dtype="Number"/>
-        <span> / </span>
-        <input type="text" class="resource--max-base disabled" value="{{system.attributes.hp.maxBase}}" readonly data-dtype="Number"/>
-        <span class="misc-separator">+</span>
-        <input type="text" class="resource--misc" name="system.attributes.hp.maxMisc" value="{{system.attributes.hp.maxMisc}}" data-dtype="Number" title="Misc modifier"/>
-      </div>
-    </div>
-
-    <div class="cell cell--st">
-      <label class="cell__title">{{localize "PMTTRPG.Stagger"}}</label>
-      <div class="cell__counter">
-        <input type="text" name="system.attributes.st.value" value="{{system.attributes.st.value}}" data-dtype="Number"/>
-        <span> / </span>
-        <input type="text" class="resource--max-base disabled" value="{{system.attributes.st.maxBase}}" readonly data-dtype="Number"/>
-        <span class="misc-separator">+</span>
-        <input type="text" class="resource--misc" name="system.attributes.st.maxMisc" value="{{system.attributes.st.maxMisc}}" data-dtype="Number" title="Misc modifier"/>
-      </div>
-    </div>
-
-    <div class="cell cell--sp">
-      <label class="cell__title">{{localize "PMTTRPG.Mentality"}}</label>
-      <div class="cell__counter">
-        <input type="text" name="system.attributes.sp.value" value="{{system.attributes.sp.value}}" data-dtype="Number"/>
-        <span> / </span>
-        <input type="text" class="resource--max-base disabled" value="{{system.attributes.sp.maxBase}}" readonly data-dtype="Number"/>
-        <span class="misc-separator">+</span>
-        <input type="text" class="resource--misc" name="system.attributes.sp.maxMisc" value="{{system.attributes.sp.maxMisc}}" data-dtype="Number" title="Misc modifier"/>
-      </div>
-    </div>
-
-    <div class="cell cell--light">
-      <label class="cell__title">{{localize "PMTTRPG.Light"}}</label>
-      <div class="cell__counter">
-        <input type="text" name="system.attributes.light.value" value="{{system.attributes.light.value}}" data-dtype="Number"/>
-        <span> / </span>
-        <input type="text" class="resource--max-base disabled" value="{{system.attributes.light.maxBase}}" readonly data-dtype="Number"/>
-        <span class="misc-separator">+</span>
-        <input type="text" class="resource--misc" name="system.attributes.light.maxMisc" value="{{system.attributes.light.maxMisc}}" data-dtype="Number" title="Misc modifier"/>
-      </div>
-    </div>
-
-    <div class="cell cell--attack">
-      <label class="cell__title">{{localize "PMTTRPG.Att"}}</label>
-      <div class="cell__counter">
-        <input class="disabled" type="text" name="system.attributes.attackModifier.value" value="{{system.attributes.attackModifier.value}}" data-dtype="Number" readonly/>
-      </div>
-    </div>
-
-    <div class="cell cell--def">
-      <label class="cell__title">{{localize "PMTTRPG.Def"}}</label>
-      <div class="cell__counter">
-        <input class="disabled" type="text" name="system.attributes.blockModifier.value" value="{{system.attributes.blockModifier.value}}" data-dtype="Number" readonly/>
-      </div>
-    </div>
-
-    <div class="cell cell--evade">
-      <label class="cell__title">{{localize "PMTTRPG.Evd"}}</label>
-      <div class="cell__counter">
-        <input class="disabled" type="text" name="system.attributes.evadeModifier.value" value="{{system.attributes.evadeModifier.value}}" data-dtype="Number" readonly/>
-      </div>
-    </div>
-  </div>
-
-</section>
+  {{/each}}
+</div>

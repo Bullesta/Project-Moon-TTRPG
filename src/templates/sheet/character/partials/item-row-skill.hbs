@@ -1,0 +1,33 @@
+<li class="item item--skill collapsed" data-item-id="{{item._id}}">
+  <div class="item-title-row">
+    <div class="item-title-row__lead">
+      {{> "systems/projectmoonttrpg/templates/sheet/character/partials/item-thumb.hbs" img=item.img name=item.name}}
+      <strong class="item-name">{{item.name}}</strong>
+    </div>
+    <div class="item-controls">
+      {{> "systems/projectmoonttrpg/templates/sheet/character/partials/item-controls-skill.hbs" itemId=item._id}}
+    </div>
+  </div>
+  <div class="item-details">
+    <div class="item-tags">
+      {{#if (lookup selects.skillTypes item.system.skillType)}}
+        <span class="tag">{{localize (lookup selects.skillTypes item.system.skillType)}}</span>
+      {{/if}}
+      <span class="tag">{{localize "PMTTRPG.SkillLightCost"}}: {{item.system.lightCost}}</span>
+      {{#if item.system.rank}}
+        <span class="tag tag--rank">{{localize "PMTTRPG.SkillRank"}}: {{item.system.rank}}</span>
+      {{/if}}
+    </div>
+    {{#if item.system.descriptionEnriched}}
+    <div class="item-flavor description">{{{item.system.descriptionEnriched}}}</div>
+    {{/if}}
+    {{#if item.system.effectSummaryGroups.length}}
+      {{#with (lookup item.system.effectSummaryGroups 0) as |group|}}
+      <div class="item-effect-summary">
+        <h4 class="item-effect-summary__title">{{group.heading}}</h4>
+        <div class="item-effect-summary__body">{{{group.summaryText}}}</div>
+      </div>
+      {{/with}}
+    {{/if}}
+  </div>
+</li>

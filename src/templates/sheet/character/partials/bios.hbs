@@ -1,0 +1,62 @@
+<section class="sheet-biography">
+  <div class="bio-fields__grid bio-fields__grid--short">
+    <label class="bio-field">
+      <span class="bio-field__label">{{localize "PMTTRPG.Bios-Occupation"}}</span>
+      <input type="text" name="system.details.biography.occupation" value="{{system.details.biography.occupation}}" data-dtype="String" {{#if locked}}readonly{{/if}}>
+    </label>
+    <label class="bio-field">
+      <span class="bio-field__label">{{localize "PMTTRPG.Bios-Age"}}</span>
+      <input type="text" name="system.details.biography.age" value="{{system.details.biography.age}}" data-dtype="String" {{#if locked}}readonly{{/if}}>
+    </label>
+    <label class="bio-field">
+      <span class="bio-field__label">{{localize "PMTTRPG.Bios-Height"}}</span>
+      <input type="text" name="system.details.biography.height" value="{{system.details.biography.height}}" data-dtype="String" {{#if locked}}readonly{{/if}}>
+    </label>
+    <label class="bio-field">
+      <span class="bio-field__label">{{localize "PMTTRPG.Bios-Birthplace"}}</span>
+      <input type="text" name="system.details.biography.birthplace" value="{{system.details.biography.birthplace}}" data-dtype="String" {{#if locked}}readonly{{/if}}>
+    </label>
+    <label class="bio-field">
+      <span class="bio-field__label">{{localize "PMTTRPG.Bios-Residence"}}</span>
+      <input type="text" name="system.details.biography.residence" value="{{system.details.biography.residence}}" data-dtype="String" {{#if locked}}readonly{{/if}}>
+    </label>
+    <label class="bio-field bio-field--ahn">
+      <span class="bio-field__label">{{localize "PMTTRPG.Bios-Ahn"}}</span>
+      <div class="field-currency">
+        <input
+          type="number"
+          name="system.details.biography.ahn"
+          value="{{system.details.biography.ahn}}"
+          data-dtype="Number"
+          placeholder="0"
+          step="1"
+          {{#if locked}}readonly{{/if}}>
+      </div>
+    </label>
+  </div>
+
+  <label class="bio-field bio-field--textarea">
+    <span class="bio-field__label">{{localize "PMTTRPG.Bios-Description"}}</span>
+    <textarea name="system.details.biography.description" {{#if locked}}readonly{{/if}}>{{system.details.biography.description}}</textarea>
+  </label>
+  <label class="bio-field bio-field--textarea">
+    <span class="bio-field__label">{{localize "PMTTRPG.Bios-Background"}}</span>
+    <textarea name="system.details.biography.background" {{#if locked}}readonly{{/if}}>{{system.details.biography.background}}</textarea>
+  </label>
+  <label class="bio-field bio-field--textarea">
+    <span class="bio-field__label">{{localize "PMTTRPG.Bios-Personality"}}</span>
+    <textarea name="system.details.biography.personality" {{#if locked}}readonly{{/if}}>{{system.details.biography.personality}}</textarea>
+  </label>
+  <label class="bio-field bio-field--textarea">
+    <span class="bio-field__label">{{localize "PMTTRPG.Bios-Relationships"}}</span>
+    <textarea name="system.details.biography.relationships" {{#if locked}}readonly{{/if}}>{{system.details.biography.relationships}}</textarea>
+  </label>
+  <label class="bio-field bio-field--textarea">
+    <span class="bio-field__label">{{localize "PMTTRPG.Bios-Notes"}}</span>
+    <textarea name="system.details.biography.notes" {{#if locked}}readonly{{/if}}>{{system.details.biography.notes}}</textarea>
+  </label>
+  <label class="bio-field bio-field--textarea">
+    <span class="bio-field__label">{{localize "PMTTRPG.Bios-NotableHistory"}}</span>
+    <textarea name="system.details.biography.notableHistory" {{#if locked}}readonly{{/if}}>{{system.details.biography.notableHistory}}</textarea>
+  </label>
+</section>

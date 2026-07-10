@@ -19,7 +19,7 @@
   "browserslist": [
     "last 3 versions"
   ],
-  "author": "Asacolips",
+  "author": "Leetram",
   "license": "MIT",
   "private": true,
   "dependencies": {

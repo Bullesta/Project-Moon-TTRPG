@@ -1,15 +1,8 @@
 TYPES.Actor.character: "Character"
 TYPES.Actor.npc: "NPC"
-TYPES.Item.move: "Move"
-TYPES.Item.npcMove: "NPC Move"
-TYPES.Item.equipment: "Equipment"
 TYPES.Item.weapon: "Weapon"
 TYPES.Item.outfit: "Outfit"
 TYPES.Item.ammunition: "Ammunition"
-TYPES.Item.spell: "Spell"
-TYPES.Item.bond: "Bond"
-TYPES.Item.tag: "Tag"
-TYPES.Item.class: "Class"
 TYPES.Item.skill: "Skill"
 TYPES.Item.status: "Status"
 TYPES.Item.effect: "Effect"
@@ -41,12 +34,10 @@ PMTTRPG.StatPoints: "Stat Points"
 PMTTRPG.EquipmentRankLimit: "Equipment Rank Limit"
 PMTTRPG.ToolSlots: "Tool Slots"
 PMTTRPG.Speed: "Speed"
-PMTTRPG.TokenLinkWarning: "Warning! This character sheet is not linked to an actor and cannot use the character builder!"
-PMTTRPG.MovesNotLinkedWarning: "Moves cannot be rearranged while this token is not linked to an actor."
 
 PMTTRPG.Health: "Health"
 PMTTRPG.Stagger: "Stagger Threshold"
-PMTTRPG.Mentality: "Sanity Points"
+PMTTRPG.Mentality: "Sanity"
 PMTTRPG.Light: "Light"
 PMTTRPG.EP: "EP"
 PMTTRPG.Augment: "Augment"
@@ -59,6 +50,20 @@ PMTTRPG.NoAugments: "No augments yet."
 PMTTRPG.AugmentNarrativeHint: "Talk with your GM about what this augment looks like in the world."
 PMTTRPG.AugmentEPHint: "Augment Base EP is Rank x 4. Negative EP can never exceed Base EP."
 PMTTRPG.AugmentOnlyOne: "A character can only have one augment."
+
+PMTTRPG.Bios: "Bios"
+PMTTRPG.Bios-Occupation: "Occupation"
+PMTTRPG.Bios-Age: "Age"
+PMTTRPG.Bios-Height: "Height"
+PMTTRPG.Bios-Birthplace: "Birthplace"
+PMTTRPG.Bios-Residence: "Residence"
+PMTTRPG.Bios-Description: "Description"
+PMTTRPG.Bios-Background: "Background"
+PMTTRPG.Bios-Personality: "Personality"
+PMTTRPG.Bios-Ahn: "Ahn"
+PMTTRPG.Bios-Relationships: "Relationships"
+PMTTRPG.Bios-Notes: "Notes"
+PMTTRPG.Bios-NotableHistory: "Notable History"
 
 PMTTRPG.Att: "Attack"
 PMTTRPG.Def: "Defense"
@@ -75,73 +80,51 @@ PMTTRPG.InitiativeManualMiscHint: "Bonus or penalty entered directly on the shee
 PMTTRPG.InitiativeCurrentTurn: "Current turn"
 
 PMTTRPG.Misc: "e.g. d4+2"
-PMTTRPG.Look: "Look"
-PMTTRPG.Class: "Class"
-PMTTRPG.ClassViewer: "Class Viewer"
-PMTTRPG.Tags: "Tags"
-PMTTRPG.Add: "Add"
-PMTTRPG.BondDefault: "_____ has a bond with me"
-PMTTRPG.BondHelp: "________ bond text goes here."
-PMTTRPG.Dialog.Bond1: "Choose the bonus for the bond on this "
-PMTTRPG.Dialog.Bond2: " move."
-PMTTRPG.MoveCreate: "Create Move"
-PMTTRPG.AddBasicMove: "Add a Basic move"
-PMTTRPG.AddStartingMove: "Add a Starting move"
-PMTTRPG.AddAdvancedMove: "Add an Advanced move"
-PMTTRPG.AddMove: "Add a move"
-PMTTRPG.MovesBasic: "Basic Moves"
-PMTTRPG.MovesStarting: "Starting Moves"
-PMTTRPG.MovesAdvanced: "Advanced Moves"
-PMTTRPG.MovesSpecial: "Special Moves"
-PMTTRPG.MovesOther: "Other Moves"
-PMTTRPG.MoveBasic: "Basic Move"
-PMTTRPG.MoveStarting: "Starting Move"
-PMTTRPG.MoveAdvanced: "Advanced Move"
-PMTTRPG.MoveSpecial: "Special Move"
-PMTTRPG.MoveGroup: "Move Group"
-PMTTRPG.MoveGroupHelp: "Multiple moves with the same move-group will be either/or selections when creating a new character using the character builder."
 PMTTRPG.Description: "Description"
-PMTTRPG.Moves: "Moves"
 PMTTRPG.Biography: "Biography"
 PMTTRPG.Equipment: "Equipment"
-PMTTRPG.Spells: "Spells"
-PMTTRPG.SpellLevel: "Spell Level"
-PMTTRPG.Spells0: "Cantrips/Rotes"
-PMTTRPG.Spells1: "1st Level Spells"
-PMTTRPG.Spells2: "2nd Level Spells"
-PMTTRPG.Spells3: "3rd Level Spells"
-PMTTRPG.Spells4: "4th Level Spells"
-PMTTRPG.Spells5: "5th Level Spells"
-PMTTRPG.Spells6: "6th Level Spells"
-PMTTRPG.Spells7: "7th Level Spells"
-PMTTRPG.Spells8: "8th Level Spells"
-PMTTRPG.Spells9: "9th Level Spells"
-PMTTRPG.SpellPrepared: "Prepared"
 PMTTRPG.SpellRollFormula: "Roll Formula"
 PMTTRPG.RollFormula: "Roll Formula"
-PMTTRPG.AddEquipment: "Add equipment"
-PMTTRPG.AddSpell: "Add spell"
 PMTTRPG.Common.Description: "Description"
 PMTTRPG.Common.Details: "Details"
 PMTTRPG.Common.Name: "Name"
 PMTTRPG.Roll: "Roll"
 PMTTRPG.Modifier: "Modifier"
-PMTTRPG.RequiresLevel: "Requires Level"
-PMTTRPG.RequiresMove: "Requires Move"
-PMTTRPG.MoveType: "Move Type"
 PMTTRPG.Equipped: "Equipped"
 PMTTRPG.Quantity: "Quantity"
 PMTTRPG.Qty: "Qty"
-PMTTRPG.Weight: "Weight"
 PMTTRPG.Price: "Price"
-PMTTRPG.DamageOverride: "Damage Override"
-PMTTRPG.Wt: "Wt"
-PMTTRPG.Uses: "Uses"
-PMTTRPG.MagicItem: "Magic Item"
 PMTTRPG.ItemType: "Item Type"
-PMTTRPG.Coin: "Coin"
 PMTTRPG.Weapon: "Weapon"
 PMTTRPG.TabMain: "Main"
+PMTTRPG.TabCombat: "Combat"
+PMTTRPG.TabBio: "Bio"
+PMTTRPG.CombatModifiers: "Combat modifiers"
+PMTTRPG.NoneEquipped: "none equipped"
+PMTTRPG.SheetSections: "Sheet sections"
+PMTTRPG.ToggleEditMode: "Toggle edit mode"
+PMTTRPG.EditMode: "Edit mode"
+PMTTRPG.CharacterNamePlaceholder: "Character Name"
+PMTTRPG.CharacterName: "Character name"
+PMTTRPG.Exp: "Exp"
+PMTTRPG.ExperienceProgress: "Experience progress"
+PMTTRPG.TrackerHP: "HP"
+PMTTRPG.TrackerST: "ST"
+PMTTRPG.TrackerSP: "SP"
+PMTTRPG.TrackerLT: "LT"
+PMTTRPG.MaxLight: "Max Light"
+PMTTRPG.BonusMaxLight: "Bonus Max Light"
+PMTTRPG.TrackerTemp: "Temp {tracker}"
+PMTTRPG.TrackerMax: "Max {tracker}"
+PMTTRPG.TrackerBonusMax: "Bonus max {tracker}"
+PMTTRPG.TrackerAriaCurrent: "Current {tracker}"
+PMTTRPG.TrackerAriaTemp: "Temp {tracker}"
+PMTTRPG.TrackerAriaMax: "Max {tracker}"
+PMTTRPG.TrackerAriaBonusMax: "Bonus max {tracker}"
+PMTTRPG.TrackerAriaToggle: "Toggle {tracker} details"
+PMTTRPG.Common.EditItem: "Edit Item"
+PMTTRPG.Common.DeleteItem: "Delete Item"
+PMTTRPG.Common.Equip: "Equip"
 PMTTRPG.Outfits: "Outfits"
 PMTTRPG.Skill: "Skill"
 PMTTRPG.Skills: "Skills"
@@ -155,46 +138,8 @@ PMTTRPG.SkillRank: "Skill Rank"
 PMTTRPG.SkillLightCost: "Light Cost"
 PMTTRPG.SkillLightCostHint: "Increase Light cost to raise base EP by the skill rank."
 PMTTRPG.SkillsLimitHint: "Up to 6 known skills."
-PMTTRPG.DungeonGear: "Dungeon Gear"
-PMTTRPG.Poison: "Poison"
-PMTTRPG.Service: "Service"
-PMTTRPG.Meal: "Meal"
-PMTTRPG.Transport: "Transport"
-PMTTRPG.LandBuildings: "Land and Buildings"
-PMTTRPG.Bribe: "Bribe"
-PMTTRPG.GiftsFinery: "Gifts and Finery"
-PMTTRPG.Hoard: "Hoard"
-PMTTRPG.TagsHelp: "(Use tab to autocomplete, commas to create new tags, and double click a tag to edit it)"
-PMTTRPG.SpecialQualities: "Special Qualities"
-PMTTRPG.ClassSettings: "Class settings"
-PMTTRPG.ClassBaseHp: "Base HP"
-PMTTRPG.ClassBaseHpHelp: "Constitution will automatically be added to this number."
-PMTTRPG.ClassBaseLoad: "Base max load"
-PMTTRPG.ClassBaseLoadHelp: "STR will automatically be added to this number."
-PMTTRPG.ClassDamage: "Damage Die"
-PMTTRPG.ClassDamageHelp: "Damage die used for class damage."
-PMTTRPG.ClassAddEquipmentGroup: "Add new equipment group"
-PMTTRPG.ClassEquipmentGroupHelp: "You can define groups of equipment choices for this class below. Each group can have any number of equipment items dropped inside of it, and it can have its choice mode set to either choose one of the items or choose all."
-PMTTRPG.ClassEquipmentGroupPlaceholder: "Choose one, all are are weight 0 for you"
-PMTTRPG.ClassEquipmentDropText: "Drop items here"
-PMTTRPG.ChooseOne: "Choose one"
-PMTTRPG.ChooseAny: "Choose any"
-PMTTRPG.ChooseRace: "Choose a race"
-PMTTRPG.ChooseAlignment: "Choose an alignment"
-PMTTRPG.ChooseAbilityScores: "Choose ability scores"
-PMTTRPG.ChooseAbilityScoresIncrease: "Choose an ability score to increase by 1."
-PMTTRPG.ChooseStartingMoves: "Choose starting moves"
-PMTTRPG.ChooseStartingOne: "Choose one of these to start with:"
-PMTTRPG.ChooseStartingAll: "You also start with all of these:"
-PMTTRPG.ChooseAdvancedMoves: "Choose advanced moves"
-PMTTRPG.ChooseAdvanced2: "When you gain a level from 2-5, choose from these moves."
-PMTTRPG.ChooseAdvanced6: "When you gain a level from 6-10, choose from these moves or the level 2-5 moves."
-PMTTRPG.ChooseSpells: "Choose spells"
-PMTTRPG.DefaultLook: "<ul><li>Eyes:</li><li>Hair:</li><li>Body:</li><li>Skin:</li><li>Clothes:</li></ul>"
 PMTTRPG.Cancel: "Cancel"
 PMTTRPG.Confirm: "Confirm"
-PMTTRPG.Prepared: "Prepared"
-PMTTRPG.Unprepared: "Unprepared"
 PMTTRPG.DamageRoll: "Deal Damage"
 PMTTRPG.character: "Character"
 PMTTRPG.characters: "Characters"
@@ -215,112 +160,6 @@ PMTTRPG.Choices: "Choices"
 PMTTRPG.MarkXp: "Mark XP"
 PMTTRPG.XpMarked: "XP marked"
 
-PMTTRPG.the-barbarian.Bond1: _______________ is puny and foolish, but amusing to me.
-PMTTRPG.the-barbarian.Bond2: "_______________ 's ways are strange and confusing."
-PMTTRPG.the-barbarian.Bond3: _______________ is always getting into trouble - I must protect them from themselves.
-PMTTRPG.the-barbarian.Bond4: _______________ shares my hunger for glory; the earth will tremble at our passing!
-PMTTRPG.the-bard.Bond1: This is not my first adventure with _______________.
-PMTTRPG.the-bard.Bond2: I sang stories of _______________ long before I ever met them in person.
-PMTTRPG.the-bard.Bond3: _______________ is often the butt of my jokes.
-PMTTRPG.the-bard.Bond4: I am writing a ballad about the adventures of _______________.
-PMTTRPG.the-bard.Bond5: _______________ trusted me with a secret.
-PMTTRPG.the-bard.Bond6: _______________ does not trust me, and for good reason.
-PMTTRPG.the-cleric.Bond1: _______________ has insulted my deity; I do not trust them.
-PMTTRPG.the-cleric.Bond2: _______________ is a good and faithful person; I trust them implicitly.
-PMTTRPG.the-cleric.Bond3: _______________ is in constant danger, I will keep them safe.
-PMTTRPG.the-cleric.Bond4: I am working on converting _______________ to my faith.
-PMTTRPG.the-druid.Bond1: ____________________ smells more like prey than a hunter.
-PMTTRPG.the-druid.Bond2: The spirits spoke to me of a great danger that follows ______________.
-PMTTRPG.the-druid.Bond3: I have showed ________________ a secret rite of the Land.
-PMTTRPG.the-druid.Bond4: ___________ has tasted my blood and I theirs. We are bound by it.
-PMTTRPG.the-fighter.Bond1: _______________ owes me their life, whether they admit it or not.,
-PMTTRPG.the-fighter.Bond2: I have sworn to protect _______________.,
-PMTTRPG.the-fighter.Bond3: I worry about the ability of _______________ to survive in the dungeon.,
-PMTTRPG.the-fighter.Bond4: _______________ is soft, but I will make them hard like me.
-PMTTRPG.the-immolator.Bond1: ____________________ has felt the hellish touch of fire, now they know my strength.
-PMTTRPG.the-immolator.Bond2: I will teach ______________ the true meaning of sacrifice.
-PMTTRPG.the-immolator.Bond3: I cast something into the fire for ________________ and still owe them their due.
-PMTTRPG.the-paladin.Bond1: _______________’s misguided behavior endangers their very soul!
-PMTTRPG.the-paladin.Bond2: _______________ has stood by me in battle and can be trusted completely.
-PMTTRPG.the-paladin.Bond3: I respect the beliefs of _______________ but hope they will someday see the true way.
-PMTTRPG.the-paladin.Bond4: _______________ is a brave soul, I have much to learn from them.
-PMTTRPG.the-thief.Bond1: I stole something from _______________.
-PMTTRPG.the-thief.Bond2: _______________ has my back when things go wrong.
-PMTTRPG.the-thief.Bond3: _______________ knows incriminating details about me.
-PMTTRPG.the-thief.Bond4: _______________ and I have a con running.
-PMTTRPG.the-wizard.Bond1: _______________ will play an important role in the events to come. I have foreseen it!,
-PMTTRPG.the-wizard.Bond2: _______________ is keeping an important secret from me.,
-PMTTRPG.the-wizard.Bond3: _______________ is woefully misinformed about the world; I will teach them all that I can.
-PMTTRPG.the-ranger.Bond1: I have guided _______________ before and they owe me for it.
-PMTTRPG.the-ranger.Bond2: _______________ is a friend of nature, so I will be their friend as well.
-PMTTRPG.the-ranger.Bond3: _______________ has no respect for nature, so I have no respect for them.
-PMTTRPG.the-ranger.Bond4: _______________ does not understand life in the wild, so I will teach them.
-
-PMTTRPG.Settings.itemIcons.name: "Enable Item Icons"
-PMTTRPG.Settings.itemIcons.hint: "Enable visual icons for moves, spells, and equipment in character sheets (requires browser reload)."
-PMTTRPG.Settings.enableDamageButtons.name: "Enable Damage Buttons"
-PMTTRPG.Settings.enableDamageButtons.hint: "Enable damage buttons on chat cards for GM users. Damage will be applied to selected tokens (not targeted tokens) and will be reduced by armor and piercing values per the core rules. Requires reloading the browser to take effect."
-PMTTRPG.Settings.xpFormula.name: "XP Formula"
-PMTTRPG.Settings.xpFormula.hint: "Enter the XP formula used for leveling up. Available attributes are those that would work in rolls sent to chat, such as (2 * @attributes.level.value) + 10. Default is (@attributes.level.value + 7). To use a fixed XP amount for level up, just enter a number."
-PMTTRPG.Settings.advForward.name: "Clear ADV/DIS After Rolls"
-PMTTRPG.Settings.advForward.hint: "If enabled, advantage and disadvantage choices on the character sheet will be reset to normal after each roll (similar to Forward)."
-PMTTRPG.Settings.disDebility.name: "Debilities Impose Disadvantage"
-PMTTRPG.Settings.disDebility.hint: "If enabled, debilities will apply disadvantage on rolls rather than a change to the ability modifier."
-PMTTRPG.Settings.coinWeight.name: "Coin weight"
-PMTTRPG.Settings.coinWeight.hint: "Number of coins corresponding to one unit of weight, 0 makes coins weightless"
-
-PMTTRPG.Settings.alignmentSingle.name: 'Override "Alignment" label (single).'
-PMTTRPG.Settings.alignmentSingle.hint: 'Override "Alignment", such as by using "Drive" instead.'
-PMTTRPG.Settings.alignmentPlural.name: 'Override "Alignments" label (plural).'
-PMTTRPG.Settings.alignmentPlural.hint: 'Override "Alignments", such as by using "Drives" instead.'
-
-PMTTRPG.Settings.raceSingle.name: 'Override "Race" label (single).'
-PMTTRPG.Settings.raceSingle.hint: 'Override "Race", such as by using "Background" instead.'
-PMTTRPG.Settings.racePlural.name: 'Override "Races" label (plural).'
-PMTTRPG.Settings.racePlural.hint: 'Override "Races", such as by using "Backgrounds" instead.'
-
-PMTTRPG.Settings.bondSingle.name: 'Override "Bond" label (single).'
-PMTTRPG.Settings.bondSingle.hint: 'Override "Bond", such as by using "Flag" instead.'
-PMTTRPG.Settings.bondPlural.name: 'Override "Bonds" label (plural).'
-PMTTRPG.Settings.bondPlural.hint: 'Override "Bonds", such as by using "Flags" instead.'
-
-PMTTRPG.Settings.noCompendiumAutoData.name: 'Exclude Project Moon TTRPG Compendim Data'
-PMTTRPG.Settings.noCompendiumAutoData.hint: 'Exclude moves and classes from the items in the default Project Moon TTRPG compendia, for PMTTRPG hacks like Homebrew World that re-use the same class names'
-
-PMTTRPG.Settings.compendiumPrefix.name: 'Compendium Prefix'
-PMTTRPG.Settings.compendiumPrefix.hint: 'Auto-select moves and classes from compendiums with this prefix on their name, for PMTTRPG hacks like Homebrew World. For example if the setting is set to "HBW", the classes will be selected from a compendium named "HBW Classes" and moves for The Fighter will be selected from a compendium named "HBW The Fighter Moves". Leave blank to disable.'
-
-PMTTRPG.Settings.noAbilityIncrease.name: 'No Ability Increase'
-PMTTRPG.Settings.noAbilityIncrease.hint: 'No abiltiy score increase on level up, for PMTTRPG hacks like Homebrew World'
-
-PMTTRPG.Settings.noConstitutionToHP.name: "Don't Add Constitution Score to HP"
-PMTTRPG.Settings.noConstitutionToHP.hint: 'Used for PMTTRPG hacks like Homebrew World'
-
-PMTTRPG.Settings.noSTRToMaxLoad.name: "Don't Add STR mod to Max Load"
-PMTTRPG.Settings.noSTRToMaxLoad.hint: 'Used for PMTTRPG hacks like Homebrew World'
-
-PMTTRPG.Settings.debilityLabelSTR.name: "STR Debility Name"
-PMTTRPG.Settings.debilityLabelSTR.hint: ''
-
-PMTTRPG.Settings.debilityLabelDEX.name: "DEX Debility Name"
-PMTTRPG.Settings.debilityLabelDEX.hint: ''
-
-PMTTRPG.Settings.debilityLabelCON.name: "CON Debility Name"
-PMTTRPG.Settings.debilityLabelCON.hint: ''
-
-PMTTRPG.Settings.debilityLabelINT.name: "INT Debility Name"
-PMTTRPG.Settings.debilityLabelINT.hint: ''
-
-PMTTRPG.Settings.debilityLabelWIS.name: "WIS Debility Name"
-PMTTRPG.Settings.debilityLabelWIS.hint: ''
-
-PMTTRPG.Settings.debilityLabelCHA.name: "CHA Debility Name"
-PMTTRPG.Settings.debilityLabelCHA.hint: ''
-
-PMTTRPG.Dialog.askTitle: 'Choose a stat'
-PMTTRPG.Dialog.askContent: 'Choose a stat for this <strong>{name}</strong> move.'
-PMTTRPG.Dialog.bondTitle: 'Enter your modifier'
-PMTTRPG.Dialog.bondContent: 'Enter a modifier for this <strong>{name}</strong> move.'
 PMTTRPG.Dialog.statRollTitle: 'Roll {ability}'
 PMTTRPG.Dialog.rollMode: 'Roll Mode'
 PMTTRPG.Dialog.modifier: 'Bonus/Penalty'

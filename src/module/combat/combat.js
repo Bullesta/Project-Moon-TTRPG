@@ -411,31 +411,6 @@ export class CombatSidebarPMTTRPG {
         // in the combat tracker HTML template.
         combatant.editable = combatant.isOwner || game.user.isGM;
 
-        // Build the radial progress circle settings for the template.
-        combatant.healthSvg = PMTTRPGUtility.getProgressCircle({
-          current: combatant.actor.system.attributes.hp.value,
-          max: combatant.actor.system.attributes.hp.max,
-          radius: 16,
-          _strokeWidth: 4,
-          _color: 'red',
-        });
-
-        combatant.staggerSvg = PMTTRPGUtility.getProgressCircle({
-          current: combatant.actor.system.attributes.st.value,
-          max: combatant.actor.system.attributes.st.max,
-          radius: 20,
-          _strokeWidth: 4,
-          _color: 'yellow',
-        });
-
-        combatant.sanitySvg = PMTTRPGUtility.getProgressCircle({
-          current: combatant.actor.system.attributes.sp.value,
-          max: combatant.actor.system.attributes.sp.max,
-          radius: 24,
-          _strokeWidth: 4,
-          _color: 'purple'
-        });
-
         // If this is the GM or the owner, push to the combatants list.
         // Otherwise, only push if the token isn't hidden in the scene.
         const combatantToken = combatant?.token ?? combat?._token;

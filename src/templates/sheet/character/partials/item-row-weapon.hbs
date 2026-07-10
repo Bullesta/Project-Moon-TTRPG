@@ -1,0 +1,56 @@
+<li class="item item--weapon collapsed{{#if item.system.equipped}} item--equipped{{/if}}" data-item-id="{{item._id}}">
+  <div class="item-title-row">
+    <div class="item-title-row__lead">
+      {{> "systems/projectmoonttrpg/templates/sheet/character/partials/item-thumb.hbs" img=item.img name=item.name}}
+      <strong class="item-name">{{item.name}}</strong>
+      <div class="item-title-row__actions">
+        {{#if item.system.offensiveDiceComputed}}
+          {{#if (lookup selects.damageTypes item.system.damageType)}}
+          {{> "systems/projectmoonttrpg/templates/sheet/character/partials/item-attack-dice.hbs" assetPath=assetPath roll=item.system.offensiveDiceComputed itemId=item._id damageType=item.system.damageType damageLabel=(localize (lookup selects.damageTypes item.system.damageType))}}
+          {{/if}}
+        {{/if}}
+      </div>
+    </div>
+    <div class="item-controls">
+      {{> "systems/projectmoonttrpg/templates/sheet/character/partials/item-controls-equipment.hbs" itemId=item._id}}
+    </div>
+  </div>
+  <div class="item-details">
+    <div class="item-tags">
+      {{#if item.system.equipped}}<span class="tag tag--equipped">{{localize "PMTTRPG.Equipped"}}</span>{{/if}}
+      {{#if (lookup selects.weaponTypes item.system.weaponType)}}
+        <span class="tag">{{localize (lookup selects.weaponTypes item.system.weaponType)}}</span>
+      {{/if}}
+      {{#if (eq item.system.weaponType "melee")}}
+        {{#if (lookup selects.formPropertiesMelee item.system.formProperty)}}
+          <span class="tag">{{localize (lookup selects.formPropertiesMelee item.system.formProperty)}}</span>
+        {{/if}}
+        {{#if (lookup selects.handPropertiesMelee item.system.handProperty)}}
+          <span class="tag">{{localize (lookup selects.handPropertiesMelee item.system.handProperty)}}</span>
+        {{/if}}
+      {{/if}}
+      {{#if (eq item.system.weaponType "ranged")}}
+        {{#if (lookup selects.formPropertiesRanged item.system.formProperty)}}
+          <span class="tag">{{localize (lookup selects.formPropertiesRanged item.system.formProperty)}}</span>
+        {{/if}}
+        {{#if (lookup selects.handPropertiesRanged item.system.handProperty)}}
+          <span class="tag">{{localize (lookup selects.handPropertiesRanged item.system.handProperty)}}</span>
+        {{/if}}
+      {{/if}}
+      {{#if item.system.rank}}
+        <span class="tag tag--rank">{{localize "PMTTRPG.WeaponRank"}} {{item.system.rank}}</span>
+      {{/if}}
+    </div>
+    {{#if item.system.descriptionEnriched}}
+    <div class="item-flavor description">{{{item.system.descriptionEnriched}}}</div>
+    {{/if}}
+    {{#if item.system.effectSummaryGroups.length}}
+      {{#with (lookup item.system.effectSummaryGroups 0) as |group|}}
+      <div class="item-effect-summary">
+        <h4 class="item-effect-summary__title">{{group.heading}}</h4>
+        <div class="item-effect-summary__body">{{{group.summaryText}}}</div>
+      </div>
+      {{/with}}
+    {{/if}}
+  </div>
+</li>

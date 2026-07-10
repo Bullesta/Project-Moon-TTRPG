@@ -1,43 +1,6 @@
 export class PMTTRPGUtility {
-  static cleanClass(string) {
-    //Lower case everything
-    string = string.toLowerCase();
-    //Make alphanumeric (removes all other characters)
-    string = string.replace(/[^a-z0-9\s]/g, "");
-    //Convert whitespaces and underscore to dash
-    string = string.replace(/[\s\_]/g, "-");
-    //Clean up multiple dashes or whitespaces
-    string = string.replace(/[\s\-]+/g, "-");
-    return string;
-  };
-
   static isEmpty(arg) {
     return [null, false, undefined, 0, ''].includes(arg);
-  }
-
-  static async getEquipment(update = false) {
-    if (typeof game.items == 'undefined') {
-      return false;
-    }
-
-    // Cache results.
-    if (game.projectmoonttrpg.equipment && !update) {
-      return game.projectmoonttrpg.equipment;
-    }
-
-    // Load new results.
-    let items = game.items.filter(i => i.type == 'equipment');
-    for (let pack of game.packs) {
-      if (pack.metadata.name.includes('equipment')) {
-        if (pack) {
-          items = items.concat(await pack.getDocuments());
-        }
-      }
-    }
-
-    game.projectmoonttrpg.equipment = items;
-
-    return items;
   }
 
   static getRollFormula(defaultFormula = '2d6') {
