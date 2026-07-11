@@ -9,49 +9,6 @@
     margin-top: 0.5rem;
   }
 
-  // ── EasyEffects tab ──────────────────────────────────────────────────────────
-
-  .easy-effects-tab {
-    padding: 0.5rem;
-    display: flex;
-    flex-direction: column;
-    gap: 0.5rem;
-    height: 100%;
-  }
-
-  .easy-effects-label {
-    font-weight: bold;
-    font-size: 0.85rem;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-    color: var(--color-text-light-heading, #555);
-  }
-
-  .easy-effects-textarea {
-    flex: 1;
-    width: 100%;
-    min-height: 220px;
-    font-family: monospace;
-    font-size: 0.82rem;
-    line-height: 1.5;
-    resize: vertical;
-    border: 1px solid var(--color-border-light-primary, #999);
-    border-radius: 3px;
-    padding: 0.5rem;
-    background: var(--color-bg-input, #f0f0e0);
-    color: var(--color-text-primary, #191813);
-
-    &:focus {
-      outline: 1px solid var(--color-border-highlight, #ff6400);
-      border-color: var(--color-border-highlight, #ff6400);
-    }
-
-    &:disabled {
-      opacity: 0.7;
-      cursor: default;
-    }
-  }
-
   .cell--weapons {
     background: linear-gradient(180deg, rgba(61, 42, 31, 0.58) 0%, rgba(42, 31, 20, 0.72) 100%);
     border-radius: 14px;

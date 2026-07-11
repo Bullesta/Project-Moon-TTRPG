@@ -243,16 +243,12 @@ const TRIGGER_HOOKS = [
   },
 
   // ── [Turn Start] ────────────────────────────────────────────────────────────
-  // Native Foundry hook — no custom callAll needed.
+  // Fired from combat.js next to statusMacros.emitTurnStart.
   {
-    hook: "combatTurnChange",
+    hook: "pmttrpg.turnStart",
     triggerName: "Turn Start",
-    getItems: (combat, _prior, current) => {
-      const actor = combat.combatants.get(current?.combatantId)?.actor;
-      return actor ? getEquippedItems(actor) : [];
-    },
-    buildContext: (combat, _prior, current) => {
-      const actor = combat.combatants.get(current?.combatantId)?.actor;
+    getItems: ({ actor }) => actor ? getEquippedItems(actor) : [],
+    buildContext: ({ actor }) => {
       if (!actor) return null;
       return { self: actor, target: null, ally: null, clash: null };
     },

@@ -27,6 +27,9 @@
       <a class="item{{#if (eq activeTab 'defenses')}} active{{/if}}" data-action="tab" data-group="primary" data-tab="defenses">{{localize "PMTTRPG.OutfitDefenses"}}</a>
       <a class="item{{#if (eq activeTab 'resistances')}} active{{/if}}" data-action="tab" data-group="primary" data-tab="resistances">{{localize "PMTTRPG.Resistances"}}</a>
       <a class="item{{#if (eq activeTab 'effects')}} active{{/if}}" data-action="tab" data-group="primary" data-tab="effects">{{localize "PMTTRPG.Effects"}}</a>
+      {{#if supportsEasyEffects}}
+      <a class="item{{#if (eq activeTab 'easy-effects')}} active{{/if}}" data-action="tab" data-group="primary" data-tab="easy-effects">{{localize "PMTTRPG.EasyEffects"}}</a>
+      {{/if}}
       <a class="item{{#if (eq activeTab 'advanced')}} active{{/if}}" data-action="tab" data-group="primary" data-tab="advanced">{{localize "PMTTRPG.Advanced"}}</a>
     </nav>
 
@@ -122,6 +125,22 @@
       <div class="tab{{#if (eq activeTab 'effects')}} active{{/if}}" data-group="primary" data-tab="effects">
         {{> "systems/projectmoonttrpg/templates/parts/effects-list.html"}}
       </div>
+
+      {{#if supportsEasyEffects}}
+      <div class="tab{{#if (eq activeTab 'easy-effects')}} active{{/if}}" data-group="primary" data-tab="easy-effects">
+        <div class="resource-group">
+          <div class="resource resource--easy-effects">
+            <label>{{localize "PMTTRPG.EasyEffectsScript"}}</label>
+            <textarea
+              name="system.easyEffects"
+              rows="12"
+              data-dtype="String"
+              {{#unless editable}}disabled{{/unless}}
+            >{{system.easyEffects}}</textarea>
+          </div>
+        </div>
+      </div>
+      {{/if}}
 
       <div class="tab{{#if (eq activeTab 'advanced')}} active{{/if}}" data-group="primary" data-tab="advanced">
         <div class="resource-group">

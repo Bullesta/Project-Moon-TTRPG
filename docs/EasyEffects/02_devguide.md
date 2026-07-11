@@ -360,7 +360,7 @@ That's all — no changes to the lexer, parser, or interpreter.
 | `pmttrpg.clashResolved` | `{ winner, loser, attackerItem, defenderItem, attackerRoll, defenderRoll }` | `[Clash Win]`, `[Clash Lose]` |
 | `pmttrpg.attackConnected` | `{ attacker, defender, item }` | `[On Hit]` |
 | `pmttrpg.actorStaggered` | `{ actor, attacker }` | `[On Stagger]` |
-| `combatTurnChange` *(native)* | `(combat, prior, current)` | `[Turn Start]` |
+| `pmttrpg.turnStart` | `{ actor }` | `[Turn Start]` |
 
 ---
 

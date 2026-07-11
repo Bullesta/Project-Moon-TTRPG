@@ -250,6 +250,18 @@ export class CombatSidebarPMTTRPG {
           previous: snapshot,
           current: { turn: combat.turn, round: combat.round },
         });
+        try {
+          Hooks.callAll("pmttrpg.turnStart", {
+            actor: currentCombatant.actor,
+            actorId: currentCombatant.actor.id,
+            combat,
+            combatant: currentCombatant,
+            previous: snapshot,
+            current: { turn: combat.turn, round: combat.round },
+          });
+        } catch (error) {
+          console.warn("[EasyEffects] turnStart hook failed", error);
+        }
       }
     });
 
