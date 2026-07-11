@@ -1,0 +1,83 @@
+/* NPC sheet: reuses character-sheet-prototype layout but with a cooler/rust accent. */
+
+.npc-sheet {
+  --gold-border: #c4785a;
+  --gold-label: #8a5a48;
+  --gold-text: #c4896a;
+  --gold-tab: #b8896a;
+  --ph-accent: var(--gold-tab);
+  --ph-border: color-mix(in srgb, var(--gold-border) 36%, transparent);
+}
+
+.npc-sheet .window-content,
+.projectmoonttrpg.npc-sheet .window-content {
+  background: linear-gradient(165deg, #1c1818, #151212 60%, #120f0f) !important;
+  background-image: linear-gradient(165deg, #1c1818, #151212 60%, #120f0f) !important;
+}
+
+.npc-sheet .pm-sheet__left {
+  background: linear-gradient(180deg, #1a1514, #12100f);
+}
+
+.npc-sheet .npc-header__title-row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  min-width: 0;
+}
+
+.npc-sheet .npc-header__title-row .player-header__name {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.npc-sheet .npc-badge {
+  flex: 0 0 auto;
+  padding: 0.15rem 0.45rem;
+  border: 1px solid color-mix(in srgb, var(--gold-border) 55%, transparent);
+  border-radius: 4px;
+  font-size: 0.7rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--gold-text);
+  background: color-mix(in srgb, var(--gold-border) 12%, transparent);
+}
+
+.npc-sheet .npc-header__stats {
+  margin-top: 0.35rem;
+}
+
+.npc-sheet .npc-header__ratings {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.55rem 0.85rem;
+  margin-top: 0.45rem;
+  padding-top: 0.35rem;
+  border-top: 1px solid color-mix(in srgb, var(--gold-border) 22%, transparent);
+}
+
+.npc-sheet .npc-rating {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 0.3rem;
+  font-size: 0.78rem;
+  color: var(--cream);
+}
+
+.npc-sheet .npc-rating__label {
+  color: var(--gold-label);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  font-size: 0.68rem;
+}
+
+.npc-sheet .npc-rating__value {
+  color: var(--cream-bright);
+  font-variant-numeric: tabular-nums;
+}
+
+.npc-sheet .tab-section-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+}

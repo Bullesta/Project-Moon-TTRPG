@@ -1,0 +1,47 @@
+<div class="player-header npc-header">
+  <div class="npc-header__title-row">
+    <input class="player-header__name txt charname" type="text" name="name" value="{{actor.name}}"
+           placeholder="{{localize "PMTTRPG.NpcNamePlaceholder"}}"
+           maxlength="40" spellcheck="false" {{#if locked}}readonly{{/if}}
+           aria-label="{{localize "PMTTRPG.NpcName"}}">
+    <span class="npc-badge" title="{{localize "TYPES.Actor.npc"}}">{{localize "PMTTRPG.npc"}}</span>
+  </div>
+
+  <div class="player-header__stats npc-header__stats">
+    <div class="player-header__stat">
+      <p class="player-header__label">{{localize "PMTTRPG.Rank"}}</p>
+      <p class="player-header__value">{{profileHeader.rank}}</p>
+    </div>
+    <div class="player-header__divider" aria-hidden="true"></div>
+    <div class="player-header__stat">
+      <p class="player-header__label">{{localize "PMTTRPG.Level"}}</p>
+      {{#if locked}}
+      <p class="player-header__value">{{profileHeader.level}}</p>
+      {{else}}
+      <input class="player-header__value num" type="text" name="system.attributes.level.value"
+             value="{{profileHeader.level}}" data-dtype="Number" aria-label="{{localize "PMTTRPG.Level"}}">
+      {{/if}}
+    </div>
+  </div>
+
+  <div class="npc-header__ratings" title="{{localize "PMTTRPG.NpcBriefRatings"}}">
+    <span class="npc-rating">
+      <span class="npc-rating__label">{{localize "PMTTRPG.NpcComplexityGm"}}</span>
+      <span class="npc-rating__value">{{gmBrief.complexityGm}}</span>
+    </span>
+    <span class="npc-rating">
+      <span class="npc-rating__label">{{localize "PMTTRPG.NpcComplexityPlayers"}}</span>
+      <span class="npc-rating__value">{{gmBrief.complexityPlayers}}</span>
+    </span>
+    {{#if gmBrief.strength}}
+    <span class="npc-rating npc-rating--strength">
+      <span class="npc-rating__label">{{localize "PMTTRPG.NpcStrength"}}</span>
+      <span class="npc-rating__value">{{gmBrief.strength}}</span>
+    </span>
+    {{/if}}
+  </div>
+</div>
+
+{{#if system.isToken}}
+<p class="pm-warning">{{localize "PMTTRPG.TokenLinkWarning"}}</p>
+{{/if}}

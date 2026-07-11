@@ -39,7 +39,17 @@
     "systems/projectmoonttrpg/templates/sheet/character/partials/item-resist-strip.hbs",
     "systems/projectmoonttrpg/templates/sheet/character/partials/item-row-weapon.hbs",
     "systems/projectmoonttrpg/templates/sheet/character/partials/item-row-outfit.hbs",
-    "systems/projectmoonttrpg/templates/sheet/character/partials/item-row-skill.hbs"
+    "systems/projectmoonttrpg/templates/sheet/character/partials/item-row-skill.hbs",
+    // NPC sheet (AppV2) partials
+    "systems/projectmoonttrpg/templates/sheet/npc/partials/header.hbs",
+    "systems/projectmoonttrpg/templates/sheet/npc/partials/tabs.hbs",
+    "systems/projectmoonttrpg/templates/sheet/npc/partials/tab-combat.hbs",
+    "systems/projectmoonttrpg/templates/sheet/npc/partials/tab-skills.hbs",
+    "systems/projectmoonttrpg/templates/sheet/npc/partials/tab-brief.hbs",
+    "systems/projectmoonttrpg/templates/sheet/npc/partials/item-controls-loadout.hbs",
+    "systems/projectmoonttrpg/templates/sheet/npc/partials/item-row-weapon.hbs",
+    "systems/projectmoonttrpg/templates/sheet/npc/partials/item-row-outfit.hbs",
+    "systems/projectmoonttrpg/templates/sheet/npc/partials/item-row-augment.hbs"
   ];
 
   // Load the template parts

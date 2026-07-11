@@ -171,7 +171,7 @@ export class PMTTRPGCharacterSheet extends HandlebarsApplicationMixin(ActorSheet
     context.augment = context.augments[0] ?? null;
     context.statuses = this._prepareStatusItems(context.items);
 
-    context.system.isToken = this.actor.token != null;
+    context.system.isToken = this.actor.isToken;
 
     context.selects = {
       weaponTypes: { melee: "PMTTRPG.WeaponTypeMelee", ranged: "PMTTRPG.WeaponTypeRanged" },
@@ -750,7 +750,7 @@ export class PMTTRPGCharacterSheet extends HandlebarsApplicationMixin(ActorSheet
     event.preventDefault();
     const form = this.element;
     const macroMisc = Number(this.actor.flags?.projectmoonttrpg?.initiative?.macroMisc ?? 0) || 0;
-    const manualMisc = Number(form?.querySelector('input[name="flags.projectmoonttrpg.initiative.manualMisc"]')?.value ?? 0) || 0;
+    const manualMisc = Number(form?.querySelector('input[name="flags.projectmoonttrpg.initiative.manualMisc"]')?.value ?? this.actor.flags?.projectmoonttrpg?.initiative?.manualMisc ?? 0 ) || 0;
     await PMTTRPGTargetingAPI.rollInitiative(this.actor, { macroMisc, manualMisc });
   }
 

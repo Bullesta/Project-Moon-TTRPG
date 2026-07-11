@@ -1,0 +1,17 @@
+<div class="tab-scroll skills-tab">
+  <section class="equipment-section equipment-section--skills">
+    <header class="tab-section-header">
+      <h3 class="tab-section-title">{{localize "PMTTRPG.Skills"}}</h3>
+      {{#unless locked}}
+      <button type="button" data-action="itemCreate" data-type="skill">{{localize "PMTTRPG.AddSkill"}}</button>
+      {{/unless}}
+    </header>
+    <ol class="items-list">
+      {{#each skills as |item|}}
+      {{> "systems/projectmoonttrpg/templates/sheet/character/partials/item-row-skill.hbs" item=item selects=../selects}}
+      {{else}}
+      <li class="tab-empty-item"><p class="tab-empty">{{localize "PMTTRPG.Skills"}} — {{localize "PMTTRPG.None"}}</p></li>
+      {{/each}}
+    </ol>
+  </section>
+</div>

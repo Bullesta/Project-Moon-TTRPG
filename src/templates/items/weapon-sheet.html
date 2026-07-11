@@ -28,8 +28,11 @@
         <a class="item{{#if (eq activeTab 'description')}} active{{/if}}" data-action="tab" data-group="primary" data-tab="description">{{localize "PMTTRPG.Common.Description"}}</a>
         <a class="item{{#if (eq activeTab 'properties')}} active{{/if}}" data-action="tab" data-group="primary" data-tab="properties">{{localize "PMTTRPG.Weapon"}}</a>
         <a class="item{{#if (eq activeTab 'effects')}} active{{/if}}" data-action="tab" data-group="primary" data-tab="effects">{{localize "PMTTRPG.Effects"}}</a>
+        {{#if supportsEasyEffects}}
+        <a class="item{{#if (eq activeTab 'easy-effects')}} active{{/if}}" data-action="tab" data-group="primary" data-tab="easy-effects">{{localize "PMTTRPG.EasyEffects"}}</a>
+        {{/if}}
         <a class="item{{#if (eq activeTab 'advanced')}} active{{/if}}" data-action="tab" data-group="primary" data-tab="advanced">{{localize "PMTTRPG.Advanced"}}</a>
-    </nav>
+      </nav>
 
     {{!-- Sheet Body --}}
     <section class="sheet-body">
@@ -132,6 +135,23 @@
         <div class="tab{{#if (eq activeTab 'effects')}} active{{/if}}" data-group="primary" data-tab="effects">
           {{> "systems/projectmoonttrpg/templates/parts/effects-list.html"}}
         </div>
+
+        {{!-- EasyEffects Tab --}}
+        {{#if supportsEasyEffects}}
+        <div class="tab{{#if (eq activeTab 'easy-effects')}} active{{/if}}" data-group="primary" data-tab="easy-effects">
+          <div class="resource-group">
+            <div class="resource resource--easy-effects">
+              <label>{{localize "PMTTRPG.EasyEffectsScript"}}</label>
+              <textarea
+                name="system.easyEffects"
+                rows="12"
+                data-dtype="String"
+                {{#unless editable}}disabled{{/unless}}
+              >{{system.easyEffects}}</textarea>
+            </div>
+          </div>
+        </div>
+        {{/if}}
 
         {{!-- Advanced Tab --}}
         <div class="tab{{#if (eq activeTab 'advanced')}} active{{/if}}" data-group="primary" data-tab="advanced">

@@ -22,6 +22,7 @@ import { PMTTRPGUtility } from "./utility.js";
 import { PMTTRPGTargetingAPI } from "./targeting.js";
 import { CombatSidebarPMTTRPG } from "./combat/combat.js";
 import { PMTTRPGStatusMacroAPI } from "./status-macro-api.js";
+import { registerEasyEffectsHooks } from "./easy-effects/registry.js";
 
 import * as chat from "./chat.js";
 
@@ -66,7 +67,8 @@ Hooks.once("init", async function() {
   });
   Actors.registerSheet("projectmoonttrpg", PMTTRPGActorNpcSheet, {
     types: ['npc'],
-    makeDefault: true
+    makeDefault: true,
+    label: "PMTTRPG.NpcSheet"
   });
   Items.unregisterSheet("core", foundry.appv1.sheets.ItemSheet);
   Items.registerSheet("projectmoonttrpg", PMTTRPGItemSheet, { makeDefault: false });
@@ -153,6 +155,8 @@ Hooks.once("init", async function() {
 
   // Preload template partials.
   preloadHandlebarsTemplates();
+
+  registerEasyEffectsHooks();
 });
 
 Hooks.once("ready", async function() {

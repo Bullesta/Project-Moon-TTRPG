@@ -47,7 +47,7 @@ export class PMTTRPGRolls {
 
     return items
       .map(item => {
-        const isEquipped = !!item.system?.equipped;
+        const isEquipped = actor.type === "npc" || !!item.system?.equipped;
         const formula = isAttack
           ? (item.system?.offensiveDiceComputed || '1d10')
           : (skillType === 'block'
@@ -489,19 +489,29 @@ export class PMTTRPGRolls {
           templateData.rollPMTTRPG = r;
           templateData.roll = roll;
           if (templateData?.attackRoll && templateData?.target) {
+            const attackPayload = PMTTRPGTargetingAPI.buildAttackContextPayload({
+              actor: this.actor,
+              item: this.item,
+              roll,
+              templateData,
+              target: templateData.target,
+            });
             try {
-              await game.projectmoonttrpg?.statusMacros?.emitAttackRoll(
-                PMTTRPGTargetingAPI.buildAttackContextPayload({
-                  actor: this.actor,
-                  item: this.item,
-                  roll,
-                  templateData,
-                  target: templateData.target,
-                })
-              );
+              await game.projectmoonttrpg?.statusMacros?.emitAttackRoll(attackPayload);
             }
             catch (error) {
               console.warn('[PMTTRPG] Attack roll hook failed', error);
+            }
+            try {
+              // Placeholder: treat "attack roll with a target" as a hit until clash can tell us it actually connected.
+              Hooks.callAll("pmttrpg.attackConnected", {
+                attacker: this.actor,
+                defender: attackPayload.targetActor ?? null,
+                item: this.item,
+              });
+            }
+            catch (error) {
+              console.warn("[EasyEffects] attackConnected hook failed", error);
             }
           }
           renderTemplate(template, templateData).then(content => {

@@ -150,6 +150,65 @@ Actor:
   npc:
     templates:
       - base
+    attributes:
+      light:
+        value: 0
+        min: 0
+        maxBase: 0
+        maxMisc: 0
+        max: 0
+      attackModifier:
+        value: 0
+        min: 0
+      evadeModifier:
+        value: 0
+        min: 0
+      blockModifier:
+        value: 0
+        min: 0
+      speed:
+        dice: "1d6"
+        bonus: 0
+    abilities:
+      for:
+        value: 0
+        min: -1
+        mod: 0
+        debility: false
+      pru:
+        value: 0
+        min: -1
+        mod: 0
+        debility: false
+      jus:
+        value: 0
+        min: -1
+        mod: 0
+        debility: false
+      cha:
+        value: 0
+        min: -1
+        mod: 0
+        debility: false
+      ins:
+        value: 0
+        min: -1
+        mod: 0
+        debility: false
+      tem:
+        value: 0
+        min: -1
+        mod: 0
+        debility: false
+    details:
+      gmBrief:
+        complexityGm: 0
+        complexityPlayers: 0
+        strength: ''
+        designIntention: ''
+        recommendedBehavior: ''
+        lore: ''
+        notes: ''
 Item:
   types:
     - weapon
@@ -176,6 +235,7 @@ Item:
     effects: []
     equipped: false
     customNotes: ''
+    easyEffects: ''
   outfit:
     templates:
       - base
@@ -201,6 +261,7 @@ Item:
         blunt: normal
     equipped: false
     customNotes: ''
+    easyEffects: ''
   ammunition:
     templates:
       - base
@@ -217,12 +278,14 @@ Item:
     stat: for
     effects: []
     customNotes: ''
+    easyEffects: ''
   augment:
     templates:
       - base
     rank: 1
     effects: []
     customNotes: ''
+    easyEffects: ''
   effect:
     templates:
       - base

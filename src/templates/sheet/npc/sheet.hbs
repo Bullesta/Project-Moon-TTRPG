@@ -1,0 +1,30 @@
+<div class="pm-sheet npc-sheet__layout {{#if locked}}pm-locked{{/if}}">
+
+  <aside class="pm-sheet__left left-panel">
+    <div class="avatar" data-action="editImage" data-edit="img" title="{{actor.name}}">
+      <img src="{{actor.img}}" alt="{{actor.name}}">
+    </div>
+
+    {{#each trackers}}
+      {{> "systems/projectmoonttrpg/templates/sheet/character/partials/tracker.hbs" tracker=this}}
+    {{/each}}
+
+    {{#each resistRows}}
+      {{> "systems/projectmoonttrpg/templates/sheet/character/partials/resists.hbs" row=this}}
+    {{/each}}
+  </aside>
+
+  <div class="pm-sheet__right">
+    {{> "systems/projectmoonttrpg/templates/sheet/npc/partials/header.hbs"}}
+    {{> "systems/projectmoonttrpg/templates/sheet/character/partials/attributes.hbs"}}
+    {{> "systems/projectmoonttrpg/templates/sheet/npc/partials/tabs.hbs"}}
+  </div>
+
+  <label class="edit-toggle" title="{{localize "PMTTRPG.ToggleEditMode"}}">
+    <input type="checkbox" data-action="toggleEdit" {{#if editMode}}checked{{/if}} aria-label="{{localize "PMTTRPG.EditMode"}}">
+    <span class="track"></span>
+    <span class="inner"></span>
+    <span class="knob"></span>
+  </label>
+
+</div>
