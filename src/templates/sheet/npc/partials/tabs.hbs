@@ -1,0 +1,17 @@
+<div class="tab-stack">
+<nav class="tabbar tabs" role="tablist" aria-label="{{localize "PMTTRPG.SheetSections"}}" data-group="primary">
+  {{#each tabs as |tab|}}
+  <a class="tab-btn item {{tab.cssClass}}" role="tab" data-action="tab" data-group="{{tab.group}}" data-tab="{{tab.id}}"
+     aria-selected="{{tab.active}}">{{tab.label}}</a>
+  {{/each}}
+</nav>
+
+<div class="tab-panel">
+  <section class="tab-content tab {{lookup (lookup tabs "combat") "cssClass"}}" data-group="primary" data-tab="combat" role="tabpanel">
+    {{> "systems/projectmoonttrpg/templates/sheet/npc/partials/tab-combat.hbs"}}
+  </section>
+  <section class="tab-content tab {{lookup (lookup tabs "brief") "cssClass"}}" data-group="primary" data-tab="brief" role="tabpanel">
+    {{> "systems/projectmoonttrpg/templates/sheet/npc/partials/tab-brief.hbs"}}
+  </section>
+</div>
+</div>

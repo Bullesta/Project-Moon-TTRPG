@@ -311,9 +311,10 @@ export function applyAlwaysActiveModifiers(actor) {
     lightBonus:  0, toolSlots:  0,
   };
 
+  const npcLoadout = actor.type === "npc";
   for (const item of actor.items) {
     if (!["weapon", "outfit", "augment", "skill"].includes(item.type)) continue;
-    if (!item.system?.equipped) continue;
+    if (!npcLoadout && !item.system?.equipped) continue;
 
     const ast = getAST(item);
     if (!ast) continue;
@@ -337,8 +338,9 @@ export function applyAlwaysActiveModifiers(actor) {
  * Returns all equipped weapons, outfits, skills, and augments on an actor.
  */
 function getEquippedItems(actor) {
+  const npcLoadout = actor.type === "npc";
   return actor.items.filter(
     i => ["weapon", "outfit", "skill", "augment"].includes(i.type)
-      && i.system?.equipped === true
+      && (npcLoadout || i.system?.equipped === true)
   );
 }

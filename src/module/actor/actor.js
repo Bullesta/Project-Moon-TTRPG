@@ -19,7 +19,9 @@ export class ActorPMTTRPG extends Actor {
     const data = actorData.system;
     const flags = actorData.flags;
 
-    if (actorData.type === 'character') this._prepareCharacterData(actorData);
+    if (actorData.type === 'character' || actorData.type === 'npc') {
+      this._prepareCharacterData(actorData);
+    }
   }
 
   /**
@@ -27,6 +29,34 @@ export class ActorPMTTRPG extends Actor {
    */
   _prepareCharacterData(actorData) {
     const data = actorData.system;
+
+    // Legacy NPCs may predate the expanded npc template so we seed required fields.
+    if (!data.abilities) {
+      if (actorData.type !== 'npc') return;
+      data.abilities = {
+        for: { value: 0, min: -1, mod: 0, debility: false },
+        pru: { value: 0, min: -1, mod: 0, debility: false },
+        jus: { value: 0, min: -1, mod: 0, debility: false },
+        cha: { value: 0, min: -1, mod: 0, debility: false },
+        ins: { value: 0, min: -1, mod: 0, debility: false },
+        tem: { value: 0, min: -1, mod: 0, debility: false },
+      };
+    }
+    if (!data.attributes.light) {
+      data.attributes.light = { value: 0, min: 0, maxBase: 0, maxMisc: 0, max: 0 };
+    }
+    if (!data.details) data.details = {};
+    if (!data.details.gmBrief) {
+      data.details.gmBrief = {
+        complexityGm: 0,
+        complexityPlayers: 0,
+        strength: '',
+        designIntention: '',
+        recommendedBehavior: '',
+        lore: '',
+        notes: '',
+      };
+    }
 
     // Ability Scores - keep value and compute a 'mod' for use in rolls.
     for (let [a, abl] of Object.entries(data.abilities)) {
@@ -97,13 +127,15 @@ export class ActorPMTTRPG extends Actor {
       data.attributes.light.value = Math.clamp(Number(data.attributes.light.value) || 0, 0, data.attributes.light.max);
     }
 
-    // Equipped outfit bonuses.
+    // Equipped outfit bonuses. NPCs always use their loadout outfits.
     let outfitBlockBonus = 0;
     let outfitEvadeBonus = 0;
     let outfitLightBonus = 0;
     let outfitEpBonus = 0;
+    const isNpc = actorData.type === 'npc';
     for (let item of actorData.items || []) {
-      if (item.type != 'outfit' || !item.system?.equipped) continue;
+      if (item.type != 'outfit') continue;
+      if (!isNpc && !item.system?.equipped) continue;
       outfitBlockBonus += Number(item.system?.blockDicePower ?? 0);
       outfitEvadeBonus += Number(item.system?.evadeDicePower ?? 0);
       outfitLightBonus += Number(item.system?.bonusLight ?? 0);

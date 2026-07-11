@@ -17,18 +17,20 @@
   </section>
 
   <section class="equipment-section equipment-section--initiative">
-    <header class="tab-section-header">
+    <header class="tab-section-header tab-section-header--initiative">
       <h3 class="tab-section-title">{{localize "PMTTRPG.InitiativeRoll"}}</h3>
+      <div class="combat-initiative__inline">
+        <label class="initiative-misc" title="{{localize "PMTTRPG.InitiativeMacroMiscHint"}}">
+          <span class="initiative-misc__label">{{localize "PMTTRPG.InitiativeMacroMiscShort"}}</span>
+          <input type="text" value="{{flags.projectmoonttrpg.initiative.macroMisc}}" data-dtype="Number" readonly tabindex="-1" aria-label="{{localize "PMTTRPG.InitiativeMacroMisc"}}">
+        </label>
+        <label class="initiative-misc" title="{{localize "PMTTRPG.InitiativeManualMiscHint"}}">
+          <span class="initiative-misc__label">{{localize "PMTTRPG.InitiativeManualMiscShort"}}</span>
+          <input type="text" name="flags.projectmoonttrpg.initiative.manualMisc" value="{{flags.projectmoonttrpg.initiative.manualMisc}}" data-dtype="Number" {{#if locked}}readonly{{/if}} aria-label="{{localize "PMTTRPG.InitiativeManualMisc"}}">
+        </label>
+      </div>
       <button type="button" class="initiative-roll" data-action="initiativeRoll">{{localize "PMTTRPG.InitiativeRoll"}}</button>
     </header>
-    <div class="combat-initiative__grid">
-      <label class="stat-field">{{localize "PMTTRPG.InitiativeMacroMisc"}}
-        <input type="text" value="{{flags.projectmoonttrpg.initiative.macroMisc}}" data-dtype="Number" readonly tabindex="-1">
-      </label>
-      <label class="stat-field">{{localize "PMTTRPG.InitiativeManualMisc"}}
-        <input type="text" name="flags.projectmoonttrpg.initiative.manualMisc" value="{{flags.projectmoonttrpg.initiative.manualMisc}}" data-dtype="Number" {{#if locked}}readonly{{/if}}>
-      </label>
-    </div>
   </section>
 
   <section class="equipment-section equipment-section--equipped">

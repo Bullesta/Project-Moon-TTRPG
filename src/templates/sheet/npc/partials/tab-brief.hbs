@@ -1,0 +1,35 @@
+<div class="tab-scroll bio-tab brief-tab">
+  <section class="sheet-biography">
+    <div class="bio-fields__grid bio-fields__grid--short">
+      <label class="bio-field">
+        <span class="bio-field__label">{{localize "PMTTRPG.NpcComplexityGm"}}</span>
+        <input type="text" name="system.details.gmBrief.complexityGm" value="{{gmBrief.complexityGm}}" data-dtype="Number" {{#if locked}}readonly{{/if}}>
+      </label>
+      <label class="bio-field">
+        <span class="bio-field__label">{{localize "PMTTRPG.NpcComplexityPlayers"}}</span>
+        <input type="text" name="system.details.gmBrief.complexityPlayers" value="{{gmBrief.complexityPlayers}}" data-dtype="Number" {{#if locked}}readonly{{/if}}>
+      </label>
+      <label class="bio-field">
+        <span class="bio-field__label">{{localize "PMTTRPG.NpcStrength"}}</span>
+        <input type="text" name="system.details.gmBrief.strength" value="{{gmBrief.strength}}" {{#if locked}}readonly{{/if}}>
+      </label>
+    </div>
+
+    <label class="bio-field bio-field--textarea">
+      <span class="bio-field__label">{{localize "PMTTRPG.NpcDesignIntention"}}</span>
+      <textarea name="system.details.gmBrief.designIntention" {{#if locked}}readonly{{/if}}>{{gmBrief.designIntention}}</textarea>
+    </label>
+    <label class="bio-field bio-field--textarea">
+      <span class="bio-field__label">{{localize "PMTTRPG.NpcRecommendedBehavior"}}</span>
+      <textarea name="system.details.gmBrief.recommendedBehavior" {{#if locked}}readonly{{/if}}>{{gmBrief.recommendedBehavior}}</textarea>
+    </label>
+    <label class="bio-field bio-field--textarea">
+      <span class="bio-field__label">{{localize "PMTTRPG.NpcLore"}}</span>
+      <textarea name="system.details.gmBrief.lore" {{#if locked}}readonly{{/if}}>{{gmBrief.lore}}</textarea>
+    </label>
+    <label class="bio-field bio-field--textarea">
+      <span class="bio-field__label">{{localize "PMTTRPG.NpcFightNotes"}}</span>
+      <textarea name="system.details.gmBrief.notes" {{#if locked}}readonly{{/if}}>{{gmBrief.notes}}</textarea>
+    </label>
+  </section>
+</div>
