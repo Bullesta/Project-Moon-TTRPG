@@ -2,8 +2,7 @@
 name: Feature request
 about: Suggest an idea for us to make the VTT better
 title: "[FEATURE] CHANGEME!!!"
-labels: enhancement
-assignees: Leetram519
+labels: enhancement, needs-triage
 
 ---
 
