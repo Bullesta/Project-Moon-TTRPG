@@ -111,10 +111,21 @@ export class ItemPMTTRPG extends Item {
         break;
       }
 
+      const tem = Number(actorData?.system?.abilities?.tem?.value ?? 0);
+      const ins = Number(actorData?.system?.abilities?.ins?.value ?? 0);
+      const eeMods = actorData?.system?.attributes?.easyEffectsMods;
+      const blockFromEffects = Number(eeMods?.blockPower ?? 0);
+      const evadeFromEffects = Number(eeMods?.evadePower ?? 0);
+      const blockTotal = blockPower + tem + blockFromEffects;
+      const evadeTotal = evadePower + ins + evadeFromEffects;
+      const formatDefensePower = (n) => (n ? (n > 0 ? `+${n}` : `${n}`) : '+0');
+
       data.blockDicePower = blockPower;
       data.evadeDicePower = evadePower;
-      data.blockDiceComputed = `1d${blockBaseSides}${blockPower ? (blockPower > 0 ? `+${blockPower}` : `${blockPower}`) : '+0'}`;
-      data.evadeDiceComputed = `1d${evadeBaseSides}${evadePower ? (evadePower > 0 ? `+${evadePower}` : `${evadePower}`) : '+0'}`;
+      data.dicePowerFromTemperance = tem;
+      data.dicePowerFromInsight = ins;
+      data.blockDiceComputed = `1d${blockBaseSides}${formatDefensePower(blockTotal)}`;
+      data.evadeDiceComputed = `1d${evadeBaseSides}${formatDefensePower(evadeTotal)}`;
 
       data.resistanceLevels = {
         fatal: { label: 'PMTTRPG.ResistanceFatal', multiplier: 2 },
