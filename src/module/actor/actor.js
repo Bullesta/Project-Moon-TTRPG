@@ -21,6 +21,9 @@ export class ActorPMTTRPG extends Actor {
 
     if (actorData.type === 'character' || actorData.type === 'npc') {
       this._prepareCharacterData(actorData);
+      for (const item of this.items) {
+        if (item.type === 'weapon' || item.type === 'outfit') item.prepareData();
+      }
     }
   }
 
@@ -86,8 +89,9 @@ export class ActorPMTTRPG extends Actor {
     data.attributes.hp.maxBase = hpMaxBase;
     data.attributes.hp.maxMisc = Number(data.attributes.hp.maxMisc) || 0;
     data.attributes.hp.max = hpMaxBase + data.attributes.hp.maxMisc;
-    if (!data.attributes.hp.value) data.attributes.hp.value = data.attributes.hp.max;
-    else {
+    if (data.attributes.hp.value === undefined || data.attributes.hp.value === null) {
+      data.attributes.hp.value = data.attributes.hp.max;
+    } else {
       data.attributes.hp.value = Math.clamp(Number(data.attributes.hp.value) || 0, 0, data.attributes.hp.max);
     }
 
