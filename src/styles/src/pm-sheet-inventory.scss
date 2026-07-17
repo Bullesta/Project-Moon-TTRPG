@@ -1,0 +1,164 @@
+.pm-sheet {
+  .tab-section-header__meta.inventory-slots {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.35rem 0.75rem;
+    align-items: center;
+    margin-inline: auto 0.5rem;
+    font-size: 0.78em;
+    color: var(--gold-tab, #c4a35a);
+  }
+
+  .inventory-slots__pool {
+    display: inline-flex;
+    gap: 0.3rem;
+    align-items: baseline;
+    white-space: nowrap;
+  }
+
+  .inventory-slots__label {
+    opacity: 0.8;
+  }
+
+  .inventory-slots__value {
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .inventory-slots__pool--over .inventory-slots__value {
+    color: #c45c5c;
+  }
+
+  .item-controls .tool-equip {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 2rem;
+    height: 2rem;
+    padding: 0;
+    border-radius: 8px;
+    border: 1px solid rgba(214, 162, 74, 0.22);
+    background: rgba(42, 31, 20, 0.72);
+    color: var(--sheet-ink, #e8dcc8);
+    cursor: pointer;
+    transition: color 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease, background 0.15s ease, opacity 0.15s ease;
+
+    > * {
+      pointer-events: none;
+    }
+
+    &--stowed {
+      color: rgba(180, 168, 150, 0.42);
+      border-color: rgba(140, 128, 110, 0.18);
+      background: rgba(28, 22, 16, 0.45);
+      opacity: 0.72;
+    }
+
+    &__hands {
+      position: relative;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 18px;
+      height: 18px;
+      line-height: 1;
+    }
+
+    .tool-equip__hands > .fa-hand-back-fist {
+      font-size: 17px !important;
+      line-height: 1;
+      position: static;
+      top: auto;
+      margin: 0;
+    }
+
+    &__count {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transform: translateY(0%);
+      font-family: var(--font-primary, sans-serif);
+      font-size: 0.58rem !important;
+      font-weight: 900 !important;
+      font-style: normal;
+      font-variant-numeric: tabular-nums;
+      line-height: 1;
+      color: #fff !important;
+      text-shadow:
+        -1px -1px 0 #17100a,
+        1px -1px 0 #17100a,
+        -1px 1px 0 #17100a,
+        1px 1px 0 #17100a !important;
+      pointer-events: none;
+    }
+
+    &:hover,
+    &:focus {
+      color: var(--sheet-gold, #d6a24a);
+      opacity: 1;
+      box-shadow: 0 0 0 2px rgba(214, 162, 74, 0.18);
+    }
+
+    &--on {
+      color: var(--sheet-gold, #d6a24a);
+      border-color: rgba(214, 162, 74, 0.55);
+      background: rgba(214, 162, 74, 0.16);
+      opacity: 1;
+    }
+  }
+
+  .item.item--equipped .tool-equip {
+    color: var(--sheet-gold, #d6a24a);
+    border-color: rgba(214, 162, 74, 0.55);
+    background: rgba(214, 162, 74, 0.16);
+    opacity: 1;
+  }
+}
+
+.character-sheet-prototype .pm-sheet .item-controls {
+  .tool-equip .tool-equip__hands > .fa-hand-back-fist {
+    font-size: 17px !important;
+    line-height: 1;
+    position: static;
+    top: auto;
+    margin: 0;
+  }
+
+  .tool-equip__count {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transform: translateY(0%);
+    font-family: var(--font-primary, sans-serif);
+    font-size: 0.58rem !important;
+    font-weight: 900 !important;
+    font-style: normal;
+    font-variant-numeric: tabular-nums;
+    line-height: 1;
+    color: #fff !important;
+    text-shadow:
+      -1px -1px 0 #17100a,
+      1px -1px 0 #17100a,
+      -1px 1px 0 #17100a,
+      1px 1px 0 #17100a !important;
+    pointer-events: none;
+  }
+
+  .tool-equip.tool-equip--stowed {
+    color: rgba(180, 168, 150, 0.42) !important;
+    background: rgba(28, 22, 16, 0.45) !important;
+    box-shadow: inset 0 0 0 1px rgba(140, 128, 110, 0.18) !important;
+    opacity: 0.72;
+  }
+
+  .tool-equip.tool-equip--on {
+    color: var(--sheet-gold, #d6a24a) !important;
+    background: rgba(214, 162, 74, 0.16) !important;
+    box-shadow: inset 0 0 0 1px rgba(214, 162, 74, 0.55) !important;
+    opacity: 1;
+  }
+}

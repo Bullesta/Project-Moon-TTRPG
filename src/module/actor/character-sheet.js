@@ -48,6 +48,11 @@ export class PMTTRPGCharacterSheet extends HandlebarsApplicationMixin(ActorSheet
     "system.attributes.light.maxBase",
     "system.attributes.equipmentRankLimit.value",
     "system.attributes.toolSlots.value",
+    "system.attributes.toolSlots.used",
+    "system.attributes.narrativeSlots.value",
+    "system.attributes.narrativeSlots.used",
+    "system.attributes.stockSlots.value",
+    "system.attributes.stockSlots.used",
     "flags.projectmoonttrpg.initiative.macroMisc",
     "img",
   ]);
@@ -130,6 +135,20 @@ export class PMTTRPGCharacterSheet extends HandlebarsApplicationMixin(ActorSheet
     context.actor = actorData;
     context.system = actorData.system;
 
+    for (const key of ["toolSlots", "narrativeSlots", "stockSlots"]) {
+      const live = this.actor.system?.attributes?.[key];
+      if (!live || !context.system.attributes) continue;
+      context.system.attributes[key] = foundry.utils.mergeObject(
+        context.system.attributes[key] ?? {},
+        {
+          value: live.value,
+          used: live.used ?? 0,
+          over: !!live.over,
+        },
+        { inplace: false }
+      );
+    }
+
     context.items = actorData.items;
     for (const i of context.items) {
       const item = this.actor.items.get(i._id);
@@ -196,6 +215,31 @@ export class PMTTRPGCharacterSheet extends HandlebarsApplicationMixin(ActorSheet
       },
       handPropertiesRanged: { off1h: "PMTTRPG.HandPropertyOff1H", off2h: "PMTTRPG.HandPropertyOff2H" },
       ammoTypes: { standard: "PMTTRPG.AmmoStandard", specialized: "PMTTRPG.AmmoSpecialized" },
+      inventoryPools: { tool: "PMTTRPG.InventoryPoolTool", stock: "PMTTRPG.InventoryPoolStock" },
+      toolForms: {
+        none: "PMTTRPG.ToolFormNone",
+        consumable: "PMTTRPG.ToolFormConsumable",
+        reusable: "PMTTRPG.ToolFormReusable",
+      },
+      toolHands: {
+        handless: "PMTTRPG.ToolHandHandless",
+        oneHanded: "PMTTRPG.ToolHandOneHanded",
+        twoHanded: "PMTTRPG.ToolHandTwoHanded",
+      },
+      toolKinds: {
+        standalone: "PMTTRPG.ToolKindStandalone",
+        applied: "PMTTRPG.ToolKindApplied",
+        market: "PMTTRPG.ToolKindMarket",
+      },
+      toolInventoryTags: {
+        tool: "PMTTRPG.ToolInventoryTool",
+        narrative: "PMTTRPG.ToolInventoryNarrative",
+        stock: "PMTTRPG.ToolInventoryStock",
+      },
+      toolPackingTypes: {
+        none: "PMTTRPG.ToolPackingNone",
+        ammunition: "PMTTRPG.ToolPackingAmmunition",
+      },
       skillTypes: {
         attack: "PMTTRPG.SkillTypeAttack", block: "PMTTRPG.SkillTypeBlock",
         evade: "PMTTRPG.SkillTypeEvade", stat: "PMTTRPG.SkillTypeStatUse",
@@ -617,6 +661,7 @@ export class PMTTRPGCharacterSheet extends HandlebarsApplicationMixin(ActorSheet
     const weapons = [];
     const outfits = [];
     const ammunition = [];
+    const tools = [];
     const skills = [];
 
     for (const i of sheetData.items) {
@@ -637,6 +682,9 @@ export class PMTTRPGCharacterSheet extends HandlebarsApplicationMixin(ActorSheet
       else if (i.type === "ammunition") {
         ammunition.push(i);
       }
+      else if (i.type === "tool") {
+        tools.push(i);
+      }
       else if (i.type === "skill") {
         skills.push(i);
       }
@@ -644,6 +692,7 @@ export class PMTTRPGCharacterSheet extends HandlebarsApplicationMixin(ActorSheet
 
     sheetData.outfits = outfits;
     sheetData.ammunition = ammunition;
+    sheetData.tools = tools;
     sheetData.skills = skills;
 
     const buildGroupsFor = (item) => {
@@ -799,10 +848,17 @@ export class PMTTRPGCharacterSheet extends HandlebarsApplicationMixin(ActorSheet
 
   async _onEquipEquipment(event, target) {
     event.preventDefault();
+    event.stopPropagation();
     const itemId = this._itemIdFor(target);
     const item = itemId ? this.actor.items.get(itemId) : null;
     if (!item) return;
-    await item.update({ "system.equipped": !item.system.equipped }, {});
+
+    // Prefer source so a leftover system.held overlay can't invert the toggle.
+    const source = item._source?.system ?? {};
+    const currentlyOn = !!(source.equipped || source.held || item.system?.equipped);
+    const update = { "system.equipped": !currentlyOn };
+    if (item.type === "tool") update["system.held"] = foundry.data.operators.ForcedDeletion;
+    await item.update(update);
   }
 
   _onToggleDetails(event, target) {
@@ -869,16 +925,30 @@ export class PMTTRPGCharacterSheet extends HandlebarsApplicationMixin(ActorSheet
     const update = {};
     if (counter === "uses") update["system.uses"] = Math.max(0, Number(item.system?.uses ?? 0) + offset);
     else if (counter === "quantity") update["system.quantity"] = Math.max(0, Number(item.system?.quantity ?? 0) + offset);
+    else if (counter === "usesRemaining") {
+      const max = Math.max(0, Number(item.system?.usesMax ?? 0));
+      const next = Math.max(0, Number(item.system?.usesRemaining ?? 0) + offset);
+      update["system.usesRemaining"] = max > 0 ? Math.min(max, next) : next;
+    }
     else return;
 
     await item.update(update, { render: false });
-    this._syncCounterDisplay(itemId, counter, Object.values(update)[0]);
+    this._syncCounterDisplay(itemId, counter, Object.values(update)[0], item);
+
+    const affectsSlots = item.type === "tool"
+      || (item.type === "ammunition" && item.system?.ammoType === "specialized");
+    if (affectsSlots) this.render();
   }
 
-  _syncCounterDisplay(itemId, counter, value) {
-    if (!this.element || counter !== "quantity") return;
+  _syncCounterDisplay(itemId, counter, value, item = null) {
+    if (!this.element) return;
     const countEl = this.element.querySelector(`.item[data-item-id="${itemId}"] .item-count`);
-    if (countEl) countEl.textContent = `×${value}`;
+    if (!countEl) return;
+    if (counter === "quantity") countEl.textContent = `×${value}`;
+    else if (counter === "usesRemaining") {
+      const max = Number(item?.system?.usesMax ?? countEl.textContent.split("/")[1] ?? 0);
+      countEl.textContent = `${value}/${max}`;
+    }
   }
 
   async _onStatusControl(event, target) {
@@ -938,7 +1008,7 @@ export class PMTTRPGCharacterSheet extends HandlebarsApplicationMixin(ActorSheet
   }
 
   _bindSortDragDrop(root, signal) {
-    const sortableSelector = ".equipment-section--weapons .item.item--weapon, .equipment-section--outfits .item.item--outfit, .equipment-section--skills .item.item--skill";
+    const sortableSelector = ".equipment-section--weapons .item.item--weapon, .equipment-section--outfits .item.item--outfit, .equipment-section--skills .item.item--skill, .equipment-section--tools .item.item--tool";
 
     for (const li of root.querySelectorAll(sortableSelector)) {
       li.setAttribute("draggable", "false");
@@ -998,7 +1068,7 @@ export class PMTTRPGCharacterSheet extends HandlebarsApplicationMixin(ActorSheet
     const targetItem = this.actor.items.get(targetRow.dataset.itemId);
     if (!droppedItem || !targetItem) return false;
     if (droppedItem.parent?.id !== this.actor.id) return false;
-    if (!["weapon", "outfit", "skill"].includes(droppedItem.type)) return false;
+    if (!["weapon", "outfit", "skill", "tool"].includes(droppedItem.type)) return false;
     if (droppedItem.type !== targetItem.type) return false;
 
     return this._sortItems(droppedItem, targetItem);

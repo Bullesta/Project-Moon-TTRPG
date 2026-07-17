@@ -12,6 +12,7 @@ import { PMTTRPGItemSheet } from "./item/item-sheet.js";
 import { PMTTRPGWeaponItemSheet } from "./item/weapon-item-sheet.js";
 import { PMTTRPGOutfitItemSheet } from "./item/outfit-item-sheet.js";
 import { PMTTRPGAmmunitionItemSheet } from "./item/ammunition-item-sheet.js";
+import { PMTTRPGToolItemSheet } from "./item/tool-item-sheet.js";
 import { PMTTRPGEffectItemSheet } from "./item/effect-item-sheet.js";
 import { PMTTRPGAugmentItemSheet } from "./item/augment-item-sheet.js";
 import { PMTTRPGActorNpcSheet } from "./actor/actor-npc-sheet.js";
@@ -55,7 +56,8 @@ Hooks.once("init", async function() {
     status: game.i18n.localize("TYPES.Item.status"),
     skill: game.i18n.localize("TYPES.Item.skill"),
     effect: game.i18n.localize("TYPES.Item.effect"),
-    augment: game.i18n.localize("TYPES.Item.augment")
+    augment: game.i18n.localize("TYPES.Item.augment"),
+    tool: game.i18n.localize("TYPES.Item.tool")
   });
 
   // Register sheet application classes
@@ -82,6 +84,10 @@ Hooks.once("init", async function() {
   });
   Items.registerSheet("projectmoonttrpg", PMTTRPGAmmunitionItemSheet, {
     types: ['ammunition'],
+    makeDefault: true
+  });
+  Items.registerSheet("projectmoonttrpg", PMTTRPGToolItemSheet, {
+    types: ['tool'],
     makeDefault: true
   });
   Items.registerSheet("projectmoonttrpg", PMTTRPGEffectItemSheet, {

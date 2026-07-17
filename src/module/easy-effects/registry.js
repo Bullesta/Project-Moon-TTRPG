@@ -1,5 +1,7 @@
 import { parse }                                    from "./parser.js";
 import { execute, executeAlwaysActive }             from "./interpreter.js";
+import { emptyAlwaysActiveMods }                    from "./nouns.js";
+import { isToolPresent }                            from "../inventory/slots.js";
 
 // ── Clash context factory ─────────────────────────────────────────────────────
 
@@ -63,6 +65,7 @@ Hooks.on("updateItem", (item) => _astCache.delete(item.id));
 //   triggerName  — the [Trigger Name] string in EasyEffects source
 //   getItems     — (...hookArgs) => Item[]
 //   buildContext — (...hookArgs) => { self, target, ally, clash } | null
+//   (registry adds `item` per effect Item before execute)
 
 const TRIGGER_HOOKS = [
 
@@ -72,8 +75,8 @@ const TRIGGER_HOOKS = [
   {
     hook: "pmttrpg.clashStarted",
     triggerName: "On Clash",
-    getItems: ({ attackerItem, defenderItem }) =>
-      [attackerItem, defenderItem].filter(Boolean),
+    getItems: ({ attackerItem, defenderItem, appliedTool, defenderAppliedTool }) =>
+      [attackerItem, defenderItem, appliedTool, defenderAppliedTool].filter(Boolean),
     buildContext: ({ attacker, defender, clash }) => ({
       self:   attacker,
       target: defender,
@@ -88,8 +91,8 @@ const TRIGGER_HOOKS = [
   {
     hook: "pmttrpg.clashStarted",
     triggerName: "On Clash Start",
-    getItems: ({ attackerItem, defenderItem }) =>
-      [attackerItem, defenderItem].filter(Boolean),
+    getItems: ({ attackerItem, defenderItem, appliedTool, defenderAppliedTool }) =>
+      [attackerItem, defenderItem, appliedTool, defenderAppliedTool].filter(Boolean),
     buildContext: ({ attacker, defender, clash }) => ({
       self:   attacker,
       target: defender,
@@ -102,7 +105,8 @@ const TRIGGER_HOOKS = [
   {
     hook: "pmttrpg.clashResolved",
     triggerName: "Clash Win",
-    getItems: ({ attackerItem }) => attackerItem ? [attackerItem] : [],
+    getItems: ({ attackerItem, appliedTool }) =>
+      [attackerItem, appliedTool].filter(Boolean),
     buildContext: ({ winner, loser, attackerRoll, defenderRoll, clash }) => ({
       self:   winner,
       target: loser,
@@ -115,7 +119,8 @@ const TRIGGER_HOOKS = [
   {
     hook: "pmttrpg.clashResolved",
     triggerName: "Clash Lose",
-    getItems: ({ defenderItem }) => defenderItem ? [defenderItem] : [],
+    getItems: ({ defenderItem, defenderAppliedTool }) =>
+      [defenderItem, defenderAppliedTool].filter(Boolean),
     buildContext: ({ winner, loser, attackerRoll, defenderRoll, clash }) => ({
       self:   loser,
       target: winner,
@@ -132,7 +137,8 @@ const TRIGGER_HOOKS = [
   {
     hook: "pmttrpg.attackConnected",
     triggerName: "On Hit",
-    getItems: ({ item }) => item ? [item] : [],
+    getItems: ({ item, appliedTool }) =>
+      [item, appliedTool].filter(Boolean),
     buildContext: ({ attacker, defender, clash }) => ({
       self:   attacker,
       target: defender,
@@ -147,7 +153,8 @@ const TRIGGER_HOOKS = [
   {
     hook: "pmttrpg.damageCalc",
     triggerName: "On Damage Calc",
-    getItems: ({ attackerItem }) => attackerItem ? [attackerItem] : [],
+    getItems: ({ attackerItem, appliedTool }) =>
+      [attackerItem, appliedTool].filter(Boolean),
     buildContext: ({ attacker, defender, clash }) => ({
       self:   attacker,
       target: defender,
@@ -213,19 +220,30 @@ const TRIGGER_HOOKS = [
     }),
   },
 
+  // ── [On Use] ────────────────────────────────────────────────────────────────
+  {
+    hook: "pmttrpg.toolUsed",
+    triggerName: "On Use",
+    getItems: ({ item }) => item ? [item] : [],
+    buildContext: ({ actor, target }) => ({
+      self:   actor,
+      target: target ?? null,
+      ally:   null,
+      clash:  null,
+    }),
+  },
+
   // ── [On Action] ─────────────────────────────────────────────────────────────
   // Fires whenever the actor uses an action or reaction with this item.
   {
     hook: "pmttrpg.actorAction",
     triggerName: "On Action",
     getItems: ({ item }) => item ? [item] : [],
-    buildContext: ({ actor, actionType }) => ({
+    buildContext: ({ actor, target }) => ({
       self:   actor,
-      target: null,
+      target: target ?? null,
       ally:   null,
       clash:  null,
-      // actionType available as context.actionType for future flag checks
-      actionType,
     }),
   },
 
@@ -272,7 +290,7 @@ export function registerEasyEffectsHooks() {
       for (const item of items) {
         const ast = getAST(item);
         if (!ast) continue;
-        await execute(ast, def.triggerName, context);
+        await execute(ast, def.triggerName, { ...context, item });
       }
     });
   }
@@ -297,24 +315,23 @@ export function registerEasyEffectsHooks() {
  *   data.attributes.attackModifier.value  += eeMods.attackPower;
  *   data.attributes.evadeModifier.value   += eeMods.evadePower;
  *   data.attributes.blockModifier.value   += eeMods.blockPower;
- *   data.attributes.light.max             += eeMods.lightBonus;
- *   data.attributes.toolSlots.value       += eeMods.toolSlots;
+ *   applyResourceModsToSystem(data, eeMods);
  *   // damagePower / damageMax / attackMax etc. — apply to weapon dice fields
  *
  * @param {ActorPMTTRPG} actor
  * @returns {object} merged modifier object
  */
 export function applyAlwaysActiveModifiers(actor) {
-  const merged = {
-    attackPower: 0, blockPower: 0, evadePower: 0, damagePower: 0,
-    attackMax:   0, blockMax:   0, evadeMax:   0, damageMax:   0,
-    lightBonus:  0, toolSlots:  0,
-  };
+  const merged = emptyAlwaysActiveMods();
 
   const npcLoadout = actor.type === "npc";
   for (const item of actor.items) {
-    if (!["weapon", "outfit", "augment", "skill"].includes(item.type)) continue;
-    if (!npcLoadout && !item.system?.equipped) continue;
+    if (!["weapon", "outfit", "augment", "skill", "tool"].includes(item.type)) continue;
+    if (item.type === "tool") {
+      if (!item.system?.equipped || !isToolPresent(item)) continue;
+    } else if (!npcLoadout && !item.system?.equipped) {
+      continue;
+    }
 
     const ast = getAST(item);
     if (!ast) continue;
@@ -323,7 +340,7 @@ export function applyAlwaysActiveModifiers(actor) {
     const hasAlwaysActive = ast.blocks.some(b => b.trigger === "Always Active");
     if (!hasAlwaysActive) continue;
 
-    const mods = executeAlwaysActive(ast, { self: actor });
+    const mods = executeAlwaysActive(ast, { self: actor, item });
     for (const key of Object.keys(merged)) {
       merged[key] += mods[key] ?? 0;
     }
@@ -335,12 +352,13 @@ export function applyAlwaysActiveModifiers(actor) {
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
 /**
- * Returns all equipped weapons, outfits, skills, and augments on an actor.
+ * Returns all equipped weapons, outfits, skills, tools, and augments on an actor.
  */
 function getEquippedItems(actor) {
   const npcLoadout = actor.type === "npc";
-  return actor.items.filter(
-    i => ["weapon", "outfit", "skill", "augment"].includes(i.type)
-      && (npcLoadout || i.system?.equipped === true)
-  );
+  return actor.items.filter(i => {
+    if (!["weapon", "outfit", "skill", "augment", "tool"].includes(i.type)) return false;
+    if (i.type === "tool") return !!i.system?.equipped && isToolPresent(i);
+    return npcLoadout || i.system?.equipped === true;
+  });
 }

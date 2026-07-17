@@ -9,12 +9,12 @@
       </div>
     </div>
     <div class="item-controls">
-      {{> "systems/projectmoonttrpg/templates/sheet/character/partials/item-controls-equipment.hbs" itemId=item._id}}
+      {{> "systems/projectmoonttrpg/templates/sheet/character/partials/item-controls-equipment.hbs" itemId=item._id equipped=item.system.equipped mode="wear"}}
     </div>
   </div>
   <div class="item-details">
     <div class="item-tags">
-      {{#if item.system.equipped}}<span class="tag tag--equipped">{{localize "PMTTRPG.Equipped"}}</span>{{/if}}
+      {{#if item.system.equipped}}<span class="tag tag--equipped">{{localize "PMTTRPG.ToolWorn"}}</span>{{/if}}
       {{#if (lookup selects.outfitProperties item.system.outfitProperty)}}
         <span class="tag">{{localize (lookup selects.outfitProperties item.system.outfitProperty)}}</span>
       {{/if}}

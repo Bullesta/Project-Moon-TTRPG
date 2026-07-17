@@ -1,0 +1,33 @@
+<div class="tool-use-dialog">
+  <form>
+    <div class="dialog-summary">
+      <div class="dialog-summary__weapon">
+        <img class="dialog-summary__icon" src="{{tool.img}}" title="{{tool.name}}" alt="{{tool.name}}"/>
+        <div class="dialog-summary__body">
+          <h3>{{tool.name}}</h3>
+          <div class="dialog-summary__meta">
+            <span class="tag">{{localize "PMTTRPG.ToolUses"}}: {{tool.remaining}}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="form-group">
+      {{#if showConsume}}
+      <label class="checkbox">
+        <input type="checkbox" name="consumeUse" {{#if consume}}checked{{/if}}/>
+        {{localize "PMTTRPG.Dialog.consumeToolUse"}}
+      </label>
+      {{/if}}
+    </div>
+
+    {{#if inCombat}}
+    <div class="form-group">
+      <label class="checkbox">
+        <input type="checkbox" name="promptTarget"/>
+        {{localize "PMTTRPG.Dialog.promptToolTarget"}}
+      </label>
+    </div>
+    {{/if}}
+  </form>
+</div>

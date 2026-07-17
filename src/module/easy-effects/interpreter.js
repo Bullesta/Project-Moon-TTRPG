@@ -1,3 +1,13 @@
+import {
+  applyResourceMod,
+  emptyAlwaysActiveMods,
+  getMaxField,
+  getPowerField,
+  getRegenField,
+  recoverPool,
+  resolvePathShorthand,
+} from "./nouns.js";
+
 async function evaluateExpr(node, context) {
   switch (node.type) {
     case "Num":   return node.value;
@@ -50,6 +60,8 @@ function applyMathOp(op, left, right) {
   }
 }
 
+const ITEM_PATH_FIELDS = new Set(["rank", "lightCost"]);
+
 function resolvePath(segments, context) {
   const root = segments[0];
 
@@ -77,6 +89,17 @@ function resolvePath(segments, context) {
     return map[key];
   }
 
+  if (root === "item") {
+    const item = context.item;
+    if (!item) { console.warn("[EasyEffects] 'item.*' used but no item in context."); return 0; }
+    const key = segments[1];
+    if (!ITEM_PATH_FIELDS.has(key)) {
+      console.warn(`[EasyEffects] Unknown item path 'item.${key}'`);
+      return 0;
+    }
+    return Number(item.system?.[key] ?? 0);
+  }
+
   const actor = context[root] ?? null;
   if (!actor) { console.warn(`[EasyEffects] Path root '${root}' not in context.`); return 0; }
 
@@ -85,21 +108,11 @@ function resolvePath(segments, context) {
 
   if (sub[0] === "status" && sub[1]) return actor.getStatusStacks(sub[1]);
 
-  const attrShorthands = { hp:"hp", sp:"sp", st:"st", light:"light", xp:"xp", slots:"toolSlots" };
-  if (attrShorthands[sub[0]] && sub.length === 1) return actor.system.attributes?.[attrShorthands[sub[0]]]?.value ?? 0;
-
-  const modShorthands = {
-    rank:   ["attributes","level"],
-    attack: ["attributes","attackModifier"],
-    evade:  ["attributes","evadeModifier"],
-    block:  ["attributes","blockModifier"],
-  };
-  if (modShorthands[sub[0]] && sub.length === 1) {
-    const [sec, key] = modShorthands[sub[0]];
-    return actor.system[sec]?.[key]?.value ?? 0;
+  if (sub.length === 1) {
+    const shorthand = resolvePathShorthand(actor, sub[0]);
+    if (shorthand !== null) return shorthand;
   }
 
-  if (sub[0] === "speed" && sub.length === 1) return actor.system.attributes?.speed?.bonus ?? 0;
   if (sub[0] === "stat"  && sub[1]) return actor.system.abilities?.[sub[1]]?.value ?? 0;
   if (sub[0] === "attr"  && sub[1]) return actor.system.attributes?.[sub[1]]?.value ?? 0;
 
@@ -115,7 +128,9 @@ async function resolveAmount(amountNode, context) {
     case "NUMBER":   return amountNode.value;
     case "DICE":     { const r = new Roll(amountNode.value); await r.roll(); return r.total; }
     case "ACCESSOR": return evaluateExpr(amountNode.expr, context);
-    case "MULTIPLIEDPATH": return resolvePath(amountNode.path.segments, context) * await evaluateExpr(amountNode.multiplier, context);
+    case "MULTIPLIEDPATH":
+      return resolvePath(amountNode.path.segments, context)
+        * await resolveAmount(amountNode.multiplier, context);
     default: console.warn(`[EasyEffects] Unknown amount type '${amountNode.type}'`); return 1;
   }
 }
@@ -126,7 +141,9 @@ function resolveAmountSync(amountNode, context) {
     case "NUMBER":   return amountNode.value;
     case "DICE":     console.warn("[EasyEffects] Dice not allowed in [Always Active]"); return 0;
     case "ACCESSOR": return evaluateExprSync(amountNode.expr, context);
-    case "MULTIPLIEDPATH": return resolvePath(amountNode.path.segments, context) * evaluateExpr(amountNode.multiplier, context);
+    case "MULTIPLIEDPATH":
+      return resolvePath(amountNode.path.segments, context)
+        * resolveAmountSync(amountNode.multiplier, context);
     default: return 1;
   }
 }
@@ -146,14 +163,22 @@ function _applyClashBonus(context, field, delta) {
 }
 
 const ACTION_HANDLERS = {
-  // ── Status ─────────────────────────────────────────────────────────────────
+  // ── Status / resource ──────────────────────────────────────────────────────
   add: async (action, context, amount) => {
+    if (action.noun === "resource") {
+      console.warn(`[EasyEffects] Resource gain/lose ('${action.argument}') only applies in [Always Active].`);
+      return;
+    }
     if (action.noun !== "status") throw new InterpretError(`'add' only supports noun 'status'`);
     for (const actor of resolveTargets(action.target, context))
       await actor.addStatusStacks(action.argument, amount);
   },
 
   remove: async (action, context, amount) => {
+    if (action.noun === "resource") {
+      console.warn(`[EasyEffects] Resource gain/lose ('${action.argument}') only applies in [Always Active].`);
+      return;
+    }
     if (action.noun !== "status") throw new InterpretError(`'remove' only supports noun 'status'`);
     for (const actor of resolveTargets(action.target, context))
       await actor.removeStatusStacks(action.argument, amount);
@@ -163,7 +188,7 @@ const ACTION_HANDLERS = {
   deal: async (action, context, amount) => {
     if (action.noun !== "damage") throw new InterpretError(`'deal' only supports noun 'damage'`);
     for (const actor of resolveTargets(action.target, context))
-      await actor.applyDamage(amount, { op: "full", ignoreArmor: false });
+      await actor.applyDamage(amount, { op: "full", ignoreArmor: false, dmgBonus: 0 });
   },
 
   heal: async (action, context, amount) => {
@@ -192,55 +217,47 @@ const ACTION_HANDLERS = {
   // "regen hp 5"           → clash.bonuses.regenHP     += 5
   //
   // noun can be: attack | block | evade | damage (for power/dice max)
-  //              hp | st                           (for regen)
+  //              hp | st | sp | light (for regen)
 
   "power up": async (action, context, amount) => {
-    const field = _bonusPowerField(action.noun);
-    if (!field) return;
+    const field = getPowerField(action.noun);
+    if (!field) { console.warn(`[EasyEffects] Unknown noun for power up/down: '${action.noun}'`); return; }
     _applyClashBonus(context, field, +amount);
   },
 
   "power down": async (action, context, amount) => {
-    const field = _bonusPowerField(action.noun);
-    if (!field) return;
+    const field = getPowerField(action.noun);
+    if (!field) { console.warn(`[EasyEffects] Unknown noun for power up/down: '${action.noun}'`); return; }
     _applyClashBonus(context, field, -amount);
   },
 
   "dice max up": async (action, context, amount) => {
-    const field = _bonusMaxField(action.noun);
-    if (!field) return;
+    const field = getMaxField(action.noun);
+    if (!field) { console.warn(`[EasyEffects] Unknown noun for dice max up/down: '${action.noun}'`); return; }
     _applyClashBonus(context, field, +amount);
   },
 
   "dice max down": async (action, context, amount) => {
-    const field = _bonusMaxField(action.noun);
-    if (!field) return;
+    const field = getMaxField(action.noun);
+    if (!field) { console.warn(`[EasyEffects] Unknown noun for dice max up/down: '${action.noun}'`); return; }
     _applyClashBonus(context, field, -amount);
   },
 
   regen: async (action, context, amount) => {
-    if (action.noun === "hp") {
-      _applyClashBonus(context, "regenHP", +amount);
-    } else if (action.noun === "st") {
-      _applyClashBonus(context, "regenST", +amount);
-    } else {
-      console.warn(`[EasyEffects] 'regen' only supports 'hp' or 'st', got '${action.noun}'`);
+    const field = getRegenField(action.noun);
+    if (field) {
+      _applyClashBonus(context, field, +amount);
+      return;
     }
+
+    let supported = false;
+    for (const actor of resolveTargets(action.target, context)) {
+      supported = await recoverPool(actor, action.noun, amount) || supported;
+    }
+    if (!supported)
+      console.warn(`[EasyEffects] Unknown regen pool '${action.noun}'`);
   },
 };
-
-// Maps noun → clash.bonuses field name
-function _bonusPowerField(noun) {
-  const map = { attack:"attackPower", block:"blockPower", evade:"evadePower", damage:"damagePower" };
-  if (!map[noun]) { console.warn(`[EasyEffects] Unknown noun for power up/down: '${noun}'`); return null; }
-  return map[noun];
-}
-
-function _bonusMaxField(noun) {
-  const map = { attack:"attackMax", block:"blockMax", evade:"evadeMax", damage:"damageMax" };
-  if (!map[noun]) { console.warn(`[EasyEffects] Unknown noun for dice max up/down: '${noun}'`); return null; }
-  return map[noun];
-}
 
 // ── Flag and condition ────────────────────────────────────────────────────────
 
@@ -317,7 +334,7 @@ function _isEnemy(other, self) {
  *
  * @param {object} ast
  * @param {string} trigger
- * @param {object} context — { self, target, ally, clash? }
+ * @param {object} context — { self, target, ally, item?, clash? }
  */
 export async function execute(ast, trigger, context) {
   for (const block of ast.blocks) {
@@ -355,20 +372,20 @@ export async function execute(ast, trigger, context) {
  * Dice and async operations are NOT allowed here.
  *
  * @param {object} ast
- * @param {object} prepareContext — { self: actor } (no clash, no target)
- * @returns {{ attackPower, blockPower, evadePower, damagePower,
- *             attackMax, blockMax, evadeMax, damageMax,
- *             lightBonus, toolSlots }}
+ * @param {object} prepareContext — { self: actor, item? } (no clash, no target)
+ * @returns {Record<string, number>}
  */
 export function executeAlwaysActive(ast, prepareContext) {
-  const mods = {
-    attackPower: 0, blockPower: 0, evadePower: 0, damagePower: 0,
-    attackMax:   0, blockMax:   0, evadeMax:   0, damageMax:   0,
-    lightBonus:  0, toolSlots:  0,
-  };
+  const mods = emptyAlwaysActiveMods();
 
   // [Always Active] context has no clash and no target
-  const context = { self: prepareContext.self, target: null, ally: null, clash: null };
+  const context = {
+    self: prepareContext.self,
+    target: null,
+    ally: null,
+    item: prepareContext.item ?? null,
+    clash: null,
+  };
 
   for (const block of ast.blocks) {
     if (block.trigger !== "Always Active") continue;
@@ -399,10 +416,53 @@ export function executeAlwaysActive(ast, prepareContext) {
           const amount = Math.max(0, Math.round(resolveAmountSync(action.amount, context)));
 
           switch (action.verb) {
-            case "power up":      mods[_bonusPowerField(action.noun) ?? ""] = (mods[_bonusPowerField(action.noun)] ?? 0) + amount; break;
-            case "power down":    mods[_bonusPowerField(action.noun) ?? ""] = (mods[_bonusPowerField(action.noun)] ?? 0) - amount; break;
-            case "dice max up":   mods[_bonusMaxField(action.noun)   ?? ""] = (mods[_bonusMaxField(action.noun)]   ?? 0) + amount; break;
-            case "dice max down": mods[_bonusMaxField(action.noun)   ?? ""] = (mods[_bonusMaxField(action.noun)]   ?? 0) - amount; break;
+            case "power up": {
+              const f = getPowerField(action.noun);
+              if (f) mods[f] = (mods[f] ?? 0) + amount;
+              else console.warn(`[EasyEffects] Unknown noun for power up: '${action.noun}'`);
+              break;
+            }
+            case "power down": {
+              const f = getPowerField(action.noun);
+              if (f) mods[f] = (mods[f] ?? 0) - amount;
+              else console.warn(`[EasyEffects] Unknown noun for power down: '${action.noun}'`);
+              break;
+            }
+            case "dice max up": {
+              const f = getMaxField(action.noun);
+              if (f) mods[f] = (mods[f] ?? 0) + amount;
+              else console.warn(`[EasyEffects] Unknown noun for dice max up: '${action.noun}'`);
+              break;
+            }
+            case "dice max down": {
+              const f = getMaxField(action.noun);
+              if (f) mods[f] = (mods[f] ?? 0) - amount;
+              else console.warn(`[EasyEffects] Unknown noun for dice max down: '${action.noun}'`);
+              break;
+            }
+            case "add":
+              if (action.noun === "resource") {
+                if (!applyResourceMod(mods, action.argument, +amount))
+                  console.warn(`[EasyEffects] [Always Active] unknown resource '${action.argument}'`);
+              } else {
+                console.warn(`[EasyEffects] Verb '${action.verb}' is not supported in [Always Active] for noun '${action.noun}'.`);
+              }
+              break;
+            case "remove":
+              if (action.noun === "resource") {
+                if (!applyResourceMod(mods, action.argument, -amount))
+                  console.warn(`[EasyEffects] [Always Active] unknown resource '${action.argument}'`);
+              } else {
+                console.warn(`[EasyEffects] Verb '${action.verb}' is not supported in [Always Active] for noun '${action.noun}'.`);
+              }
+              break;
+            case "regen": {
+              console.warn(
+                `[EasyEffects] [Always Active] regen '${action.noun}' is not a derived mod; `
+                + "use gain on a resource noun (e.g. gain 1 maxLight)."
+              );
+              break;
+            }
             default:
               console.warn(`[EasyEffects] Verb '${action.verb}' is not supported in [Always Active].`);
           }

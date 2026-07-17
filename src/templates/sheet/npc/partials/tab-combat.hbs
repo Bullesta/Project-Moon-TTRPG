@@ -74,6 +74,97 @@
     </ol>
   </section>
 
+  <section class="equipment-section equipment-section--tools">
+    <header class="tab-section-header">
+      <h3 class="tab-section-title">{{localize "PMTTRPG.Tools"}}</h3>
+      <div class="tab-section-header__meta inventory-slots inventory-slots--tools">
+        <span class="inventory-slots__pool{{#if system.attributes.toolSlots.over}} inventory-slots__pool--over{{/if}}" title="{{localize "PMTTRPG.ToolSlots"}}">
+          <span class="inventory-slots__label">{{localize "PMTTRPG.ToolSlotsUsed"}}</span>
+          <span class="inventory-slots__value">{{system.attributes.toolSlots.used}} / {{system.attributes.toolSlots.value}}</span>
+        </span>
+        <span class="inventory-slots__pool{{#if system.attributes.narrativeSlots.over}} inventory-slots__pool--over{{/if}}" title="{{localize "PMTTRPG.NarrativeSlots"}}">
+          <span class="inventory-slots__label">{{localize "PMTTRPG.NarrativeSlots"}}</span>
+          <span class="inventory-slots__value">{{system.attributes.narrativeSlots.used}} / {{system.attributes.narrativeSlots.value}}</span>
+        </span>
+        <span class="inventory-slots__pool{{#if system.attributes.stockSlots.over}} inventory-slots__pool--over{{/if}}" title="{{localize "PMTTRPG.StockSlots"}}">
+          <span class="inventory-slots__label">{{localize "PMTTRPG.StockSlots"}}</span>
+          <span class="inventory-slots__value">{{system.attributes.stockSlots.used}} / {{system.attributes.stockSlots.value}}</span>
+        </span>
+      </div>
+      {{#unless locked}}
+      <button type="button" data-action="itemCreate" data-type="tool">{{localize "PMTTRPG.AddTool"}}</button>
+      {{/unless}}
+    </header>
+
+    {{#if tools.length}}
+    <ol class="items-list">
+      {{#each tools as |tool|}}
+      <li class="item item--tool collapsed{{#if tool.system.equipped}} item--equipped{{/if}}" data-item-id="{{tool._id}}">
+        <div class="item-title-row">
+          <div class="item-title-row__lead">
+            {{> "systems/projectmoonttrpg/templates/sheet/character/partials/item-thumb.hbs" img=tool.img name=tool.name}}
+            <strong class="item-name">
+              {{tool.name}}
+              {{#if (eq tool.system.form "reusable")}}
+              <span class="item-count item-count--uses">{{tool.system.usesRemaining}}/{{tool.system.usesMax}}</span>
+              {{else if (ne tool.system.quantity 1)}}
+              <span class="item-count">×{{tool.system.quantity}}</span>
+              {{/if}}
+              {{#if (and tool.system.packing (ne tool.system.packing.accepts "none"))}}
+              <span class="item-count item-count--packing"
+                    title="{{localize (lookup ../selects.toolPackingTypes tool.system.packing.accepts)}}">
+                {{localize "PMTTRPG.ToolPackingPacked"}} {{tool.system.packing.used}}/{{tool.system.packing.capacity}}
+              </span>
+              {{/if}}
+            </strong>
+          </div>
+          <div class="item-controls">
+            {{#if (eq tool.system.form "reusable")}}
+            {{> "systems/projectmoonttrpg/templates/sheet/character/partials/item-controls-tool.hbs" itemId=tool._id counter="usesRemaining" equipped=tool.system.equipped handProperty=tool.system.handProperty showUse=(and (ne tool.system.toolKind "applied") (or (ne tool.system.form "none") tool.system.allowUse))}}
+            {{else}}
+            {{> "systems/projectmoonttrpg/templates/sheet/character/partials/item-controls-tool.hbs" itemId=tool._id counter="quantity" equipped=tool.system.equipped handProperty=tool.system.handProperty showUse=(and (ne tool.system.toolKind "applied") (or (ne tool.system.form "none") tool.system.allowUse))}}
+            {{/if}}
+          </div>
+        </div>
+        <div class="item-details">
+          <div class="item-tags">
+            {{#if tool.system.equipped}}
+            {{#if (eq tool.system.handProperty "handless")}}
+            <span class="tag tag--equipped">{{localize "PMTTRPG.ToolWorn"}}</span>
+            {{else}}
+            <span class="tag tag--equipped">{{localize "PMTTRPG.ToolHeld"}}</span>
+            {{/if}}
+            {{/if}}
+            {{#if (lookup ../selects.toolForms tool.system.form)}}
+            <span class="tag">{{localize (lookup ../selects.toolForms tool.system.form)}}</span>
+            {{/if}}
+            {{#if (lookup ../selects.toolHands tool.system.handProperty)}}
+            <span class="tag">{{localize (lookup ../selects.toolHands tool.system.handProperty)}}</span>
+            {{/if}}
+            {{#if (lookup ../selects.toolKinds tool.system.toolKind)}}
+            <span class="tag">{{localize (lookup ../selects.toolKinds tool.system.toolKind)}}</span>
+            {{/if}}
+            {{#if tool.system.compact}}
+            <span class="tag">{{localize "PMTTRPG.ToolCompact"}}</span>
+            {{else if (lookup ../selects.toolInventoryTags tool.system.inventoryTag)}}
+            <span class="tag">{{localize (lookup ../selects.toolInventoryTags tool.system.inventoryTag)}}</span>
+            {{/if}}
+            {{#if tool.system.unique}}
+            <span class="tag">{{localize "PMTTRPG.ToolUnique"}}</span>
+            {{/if}}
+          </div>
+          {{#if tool.system.descriptionEnriched}}
+          <div class="item-flavor description">{{{tool.system.descriptionEnriched}}}</div>
+          {{/if}}
+        </div>
+      </li>
+      {{/each}}
+    </ol>
+    {{else}}
+    <p class="tab-empty">{{localize "PMTTRPG.NoTools"}}</p>
+    {{/if}}
+  </section>
+
   <section class="equipment-section equipment-section--augment">
     <header class="tab-section-header">
       <h3 class="tab-section-title">{{localize "PMTTRPG.Augment"}}</h3>
@@ -122,6 +213,9 @@
           <div class="item-tags">
             {{#if (lookup ../selects.ammoTypes ammo.system.ammoType)}}
             <span class="tag">{{localize (lookup ../selects.ammoTypes ammo.system.ammoType)}}</span>
+            {{/if}}
+            {{#if (and (eq ammo.system.ammoType "specialized") (lookup ../selects.inventoryPools ammo.system.inventoryPool))}}
+            <span class="tag">{{localize (lookup ../selects.inventoryPools ammo.system.inventoryPool)}}</span>
             {{/if}}
           </div>
           {{#if ammo.system.descriptionEnriched}}

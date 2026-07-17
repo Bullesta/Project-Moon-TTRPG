@@ -283,6 +283,7 @@ export class PMTTRPGRolls {
     
     // Grab the stat modifier (from stat roll dialog), if any.
     let statModifier = options?.statModifier ?? 0;
+    const onBeforeChat = typeof options?.onBeforeChat === "function" ? options.onBeforeChat : null;
 
     // Prepare template data for the roll.
     let templateData = options.templateData ? foundry.utils.duplicate(options.templateData): {};
@@ -309,18 +310,18 @@ export class PMTTRPGRolls {
           }, templateData
         );
         data.roll = this.item.system.offensiveDiceComputed;
-        this.rollMoveExecute(data.roll, data, templateData);
+        this.rollMoveExecute(data.roll, data, templateData, null, statModifier, onBeforeChat);
       }
       else if (this.item.type == 'outfit') {
-        this.rollMoveExecute(formula, data, templateData);
+        this.rollMoveExecute(formula, data, templateData, null, statModifier, onBeforeChat);
       }
     }
     else {
-      this.rollMoveExecute(formula, data, templateData, null, statModifier);
+      this.rollMoveExecute(formula, data, templateData, null, statModifier, onBeforeChat);
     }
   }
 
-  static async rollMoveExecute(roll, dataset, templateData, form = null, statModifier = 0) {
+  static async rollMoveExecute(roll, dataset, templateData, form = null, statModifier = 0, onBeforeChat = null) {
     // Render the roll.
     let template = 'systems/projectmoonttrpg/templates/chat/chat-move.html';
     let dice = PMTTRPGUtility.getRollFormula('2d6');
@@ -483,6 +484,16 @@ export class PMTTRPGRolls {
             templateData.resultDetails = templateData.moveResults[resultType].value;
           }
         }
+
+        if (typeof onBeforeChat === "function") {
+          try {
+            await onBeforeChat({ resultType: templateData.result ?? null, roll, templateData });
+          }
+          catch (error) {
+            console.warn("[PMTTRPG] onBeforeChat failed", error);
+          }
+        }
+
         // Render it.
         templateData.actor = this.actor;
         roll.render().then(async r => {
@@ -508,6 +519,9 @@ export class PMTTRPGRolls {
                 attacker: this.actor,
                 defender: attackPayload.targetActor ?? null,
                 item: this.item,
+                appliedTool: templateData.appliedToolId
+                  ? (this.actor?.items.get(templateData.appliedToolId) ?? null)
+                  : null,
               });
             }
             catch (error) {

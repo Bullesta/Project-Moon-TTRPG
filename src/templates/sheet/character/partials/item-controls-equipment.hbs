@@ -1,4 +1,22 @@
-<button type="button" class="item-control" data-action="itemEquip" data-item-id="{{itemId}}" title="{{localize "PMTTRPG.Common.Equip"}}" aria-label="{{localize "PMTTRPG.Common.Equip"}}"><i class="fas fa-shirt" aria-hidden="true"></i></button>
+{{!-- readiness: outfits/handless = worn, weapons/tools 1H/2H = held --}}
+<button type="button"
+        class="item-control tool-equip{{#if equipped}} tool-equip--on{{else}} tool-equip--stowed{{/if}}"
+        data-action="itemEquip"
+        data-item-id="{{itemId}}"
+        title="{{#if equipped}}{{localize "PMTTRPG.ToolStow"}}{{else if (or (eq mode "wear") (eq handProperty "handless"))}}{{localize "PMTTRPG.ToolWear"}}{{else if (or (eq handProperty "twoHanded") (eq handProperty "off2h") (eq handProperty "def2h"))}}{{localize "PMTTRPG.ToolHold2H"}}{{else}}{{localize "PMTTRPG.ToolHold1H"}}{{/if}}"
+        aria-label="{{#if equipped}}{{localize "PMTTRPG.ToolStow"}}{{else if (or (eq mode "wear") (eq handProperty "handless"))}}{{localize "PMTTRPG.ToolWear"}}{{else if (or (eq handProperty "twoHanded") (eq handProperty "off2h") (eq handProperty "def2h"))}}{{localize "PMTTRPG.ToolHold2H"}}{{else}}{{localize "PMTTRPG.ToolHold1H"}}{{/if}}"
+        aria-pressed="{{#if equipped}}true{{else}}false{{/if}}">
+  {{#if (or (eq mode "wear") (eq handProperty "handless"))}}
+  <i class="fa-solid fa-shirt" aria-hidden="true"></i>
+  {{else}}
+  <span class="tool-equip__hands" aria-hidden="true">
+    <i class="fa-solid fa-hand-back-fist"></i>
+    {{#if equipped}}
+    <span class="tool-equip__count">{{#if (or (eq handProperty "twoHanded") (eq handProperty "off2h") (eq handProperty "def2h"))}}2{{else}}1{{/if}}</span>
+    {{/if}}
+  </span>
+  {{/if}}
+</button>
 <button type="button" class="item-control" data-action="itemEdit" data-item-id="{{itemId}}" title="{{localize "PMTTRPG.Common.EditItem"}}" aria-label="{{localize "PMTTRPG.Common.EditItem"}}"><i class="fas fa-edit" aria-hidden="true"></i></button>
 <button type="button" class="item-control" data-action="itemDelete" data-item-id="{{itemId}}" title="{{localize "PMTTRPG.Common.DeleteItem"}}" aria-label="{{localize "PMTTRPG.Common.DeleteItem"}}"><i class="fas fa-trash" aria-hidden="true"></i></button>
 <button type="button" class="item-control item-toggle-details" data-action="toggleDetails" data-item-id="{{itemId}}" aria-expanded="false" title="{{localize "PMTTRPG.Common.Details"}}" aria-label="{{localize "PMTTRPG.Common.Details"}}"><i class="fas fa-chevron-down" aria-hidden="true"></i></button>

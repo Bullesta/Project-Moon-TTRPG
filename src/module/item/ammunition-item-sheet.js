@@ -28,6 +28,10 @@ export class PMTTRPGAmmunitionItemSheet extends PMTTRPGItemSheet {
       pierce: "PMTTRPG.DamageTypePierce",
       blunt: "PMTTRPG.DamageTypeBlunt"
     };
+    context.selects.inventoryPools = {
+      tool: "PMTTRPG.InventoryPoolTool",
+      stock: "PMTTRPG.InventoryPoolStock"
+    };
 
     return context;
   }

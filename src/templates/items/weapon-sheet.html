@@ -139,17 +139,7 @@
         {{!-- EasyEffects Tab --}}
         {{#if supportsEasyEffects}}
         <div class="tab{{#if (eq activeTab 'easy-effects')}} active{{/if}}" data-group="primary" data-tab="easy-effects">
-          <div class="resource-group">
-            <div class="resource resource--easy-effects">
-              <label>{{localize "PMTTRPG.EasyEffectsScript"}}</label>
-              <textarea
-                name="system.easyEffects"
-                rows="12"
-                data-dtype="String"
-                {{#unless editable}}disabled{{/unless}}
-              >{{system.easyEffects}}</textarea>
-            </div>
-          </div>
+          {{> "systems/projectmoonttrpg/templates/parts/easy-effects.html"}}
         </div>
         {{/if}}
 

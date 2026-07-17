@@ -1,12 +1,10 @@
 import { tokenize, tokenizeExpression, LexError } from "./lexer.js";
+import { isBonusNoun, isRegenNoun, isReservedNoun, isResourceNoun, lookupNoun, nounAllowsOp } from "./nouns.js";
 
 const SINGLE_TARGETS = new Set(["self", "target", "ally"]);
 const MULTI_TARGETS  = new Set(["enemies", "allies", "all"]);
 const ALL_TARGETS    = new Set([...SINGLE_TARGETS, ...MULTI_TARGETS]);
 const FLAG_KEYWORDS  = new Set(["isStaggered", "isPanicking", "hasStatus"]);
-
-// Nouns that are valid after bonus verbs — kept as IDENTs or KWORDs
-const BONUS_NOUNS = new Set(["attack", "block", "evade", "damage", "hp", "st"]);
 
 export function parse(source) {
   const tokens = tokenize(source);
@@ -45,7 +43,7 @@ class Parser {
   }
 
   isStatusNameToken() {
-    return this.check("STRING") || (this.check("IDENT") && !BONUS_NOUNS.has(this.peek().value));
+    return this.check("STRING") || (this.check("IDENT") && !isReservedNoun(this.peek().value));
   }
 
   // ── Top level ──────────────────────────────────────────────────────────────
@@ -77,7 +75,7 @@ class Parser {
    * Returns true if the upcoming tokens start a bonus verb:
    *   power (up|down) …
    *   dice max (up|down) …
-   *   regen (hp|st) …
+   *   regen <registered regen noun> …
    */
   _isBonusVerbAhead() {
     const t0 = this.tokens[this.pos];
@@ -87,8 +85,8 @@ class Parser {
     if (t0.value === "power" && t1?.type === "KEYWORD" && (t1.value === "up" || t1.value === "down")) return true;
     if (t0.value === "dice"  && t1?.type === "KEYWORD" && t1.value === "max" &&
         t2?.type === "KEYWORD" && (t2.value === "up" || t2.value === "down")) return true;
-    if (t0.value === "regen" && t1?.type === "KEYWORD" && (t1.value === "hp" || t1.value === "st")) return true;
-    if (t0.value === "regen" && t1?.type === "IDENT"   && (t1.value === "hp" || t1.value === "st")) return true;
+    if (t0.value === "regen" && t1 && (t1.type === "KEYWORD" || t1.type === "IDENT") && isRegenNoun(t1.value))
+      return true;
     return false;
   }
 
@@ -210,10 +208,11 @@ class Parser {
       noun = this.consume("IDENT").value;
     }
 
-    // Optional status name argument (only for standard verbs)
+    // Optional status/resource name argument (only for standard verbs)
     let argument = null;
     if (!["power up","power down","dice max up","dice max down","regen"].includes(verb)) {
-      if (this.isStatusNameToken()) argument = this.parseStatusName();
+      if (noun === "resource") argument = this.parseStatusName();
+      else if (this.isStatusNameToken()) argument = this.parseStatusName();
     }
 
     // Optional amount
@@ -234,10 +233,15 @@ class Parser {
         type: "MULTIPLIEDPATH",
         multiplier: { type: "NUMBER", value: 1 },
         path: { type: "Path", segments: [] },
-      }
+      };
 
-      if(check("NUMBER")) per.multiplier.value = Number(this.consume("NUMBER").value);
-      if(check("ACCESSOR")) per.path = parseAccessorExpression(this.consume("ACCESSOR").value);
+      if (this.check("NUMBER")) {
+        per.multiplier.value = Number(this.consume("NUMBER").value);
+      }
+      if (!this.check("ACCESSOR")) {
+        throw new ParseError(`Expected accessor after 'per', got '${this.peek().value}'`, this.peek());
+      }
+      per.path = parseAccessorExpression(this.consume("ACCESSOR").value);
     }
 
     // Optional on <target>
@@ -255,19 +259,21 @@ class Parser {
   /** Parses the noun for power up/down and dice max up/down: attack|block|evade|damage */
   _parseBonusNoun() {
     const tok = this.peek();
-    if (tok.type === "IDENT" && BONUS_NOUNS.has(tok.value)) return this.consume("IDENT").value;
-    if (tok.type === "KEYWORD" && BONUS_NOUNS.has(tok.value)) return this.consume("KEYWORD").value;
+    if ((tok.type === "IDENT" || tok.type === "KEYWORD") && isBonusNoun(tok.value)) {
+      this.pos++;
+      return lookupNoun(tok.value).id;
+    }
     throw new ParseError(`Expected bonus noun (attack/block/evade/damage) after verb, got '${tok.value}'`, tok);
   }
 
   /** Parses the noun for regen: hp|st */
   _parseRegenNoun() {
     const tok = this.peek();
-    if ((tok.type === "IDENT" || tok.type === "KEYWORD") && (tok.value === "hp" || tok.value === "st")) {
+    if ((tok.type === "IDENT" || tok.type === "KEYWORD") && isRegenNoun(tok.value)) {
       this.pos++;
-      return tok.value;
+      return lookupNoun(tok.value).id;
     }
-    throw new ParseError(`Expected 'hp' or 'st' after 'regen', got '${tok.value}'`, tok);
+    throw new ParseError(`Expected a regen noun after 'regen', got '${tok.value}'`, tok);
   }
 
   // ── Natural language ──────────────────────────────────────────────────────
@@ -325,6 +331,36 @@ class Parser {
       amount = { type: "DICE", value: this.consume("DICE").value };
     } else if (this.check("ACCESSOR")) {
       amount = { type: "ACCESSOR", expr: parseAccessorExpression(this.consume("ACCESSOR").value) };
+    }
+
+    const nameTok = this.peek();
+    const isResource = (nameTok.type === "IDENT" || nameTok.type === "KEYWORD") && isResourceNoun(nameTok.value);
+    if (isResource) {
+      const resourceHit = lookupNoun(nameTok.value);
+      if (verbTok.value === "inflict")
+        throw new ParseError(`'inflict' cannot target resource nouns like '${nameTok.value}'`, nameTok);
+      if (!nounAllowsOp(nameTok.value, verbTok.value))
+        throw new ParseError(`'${verbTok.value}' is not allowed on resource '${resourceHit.id}'`, verbTok);
+      this.pos++;
+
+      let target = "self";
+      if (this.check("KEYWORD", "on")) {
+        this.consume("KEYWORD", "on");
+        const tok = this.peek();
+        if (!ALL_TARGETS.has(tok.value)) throw new ParseError(`Expected target after 'on', got '${tok.value}'`, tok);
+        target = this.consume("KEYWORD").value;
+      }
+
+      const verb = verbTok.value === "lose" ? "remove" : "add";
+      return {
+        type: "Action",
+        verb,
+        noun: "resource",
+        argument: resourceHit.id,
+        amount,
+        per: null,
+        target,
+      };
     }
 
     const statusName = this.parseStatusName();

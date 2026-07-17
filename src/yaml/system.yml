@@ -13,6 +13,7 @@ documentTypes:
     weapon: {}
     outfit: {}
     ammunition: {}
+    tool: {}
     skill: {}
     effect: {}
     augment: {}
@@ -34,6 +35,7 @@ styles:
   - styles/lib/tagify.css
   - styles/dist/projectmoonttrpg.css
   - styles/lib/character-sheet.css
+  - styles/dist/pm-sheet-inventory.css
   - styles/lib/npc-sheet.css
 media:
   - type: setup
@@ -69,8 +71,8 @@ languages:
     name: English
     path: lang/en.json
 grid:
-  distance: 5
-  units: ft
+  distance: 1
+  units: SQR
 primaryTokenAttribute: attributes.hp
 secondaryTokenAttribute: attributes.st
 initiative: 1d6

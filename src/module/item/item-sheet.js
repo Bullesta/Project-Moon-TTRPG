@@ -275,6 +275,7 @@ export class PMTTRPGItemSheet extends HandlebarsApplicationMixin(ItemSheetV2) {
     }
 
     context.supportsEasyEffects = this._supportsEasyEffects();
+    context.supportsEffects = this._supportsEffects();
 
     return context;
   }
@@ -445,7 +446,7 @@ export class PMTTRPGItemSheet extends HandlebarsApplicationMixin(ItemSheetV2) {
     for (const k of deletedKeys) {
       const keys = k.split('.');
       if (formObj.system[keys[0]][keys[1]] == undefined) {
-        formObj.system[keys[0]][`-=${keys[1]}`] = null;
+        formObj.system[keys[0]][keys[1]] = foundry.data.operators.ForcedDeletion;
       }
     }
 
@@ -483,15 +484,16 @@ export class PMTTRPGItemSheet extends HandlebarsApplicationMixin(ItemSheetV2) {
   }
 
   _supportsEffects() {
-    return ['weapon', 'outfit', 'skill', 'augment'].includes(this.document.type);
+    return ['weapon', 'outfit', 'skill', 'augment', 'tool'].includes(this.document.type);
   }
 
   // separated cause effects & EasyEffects are different, though the function is the same currently, may not be the case always
   _supportsEasyEffects() {
-    return ['weapon', 'outfit', 'skill', 'augment'].includes(this.document.type);
+    return ['weapon', 'outfit', 'skill', 'augment', 'tool'].includes(this.document.type);
   }
 
   _effectHostType() {
+    if (this.document.type === 'tool') return 'skill';
     return this.document.type;
   }
 
@@ -730,7 +732,7 @@ export class PMTTRPGItemSheet extends HandlebarsApplicationMixin(ItemSheetV2) {
         const nk = elem?.dataset?.index;
         if (!nk) return;
         const update = {};
-        update[`system.equipment.-=${nk}`] = null;
+        update[`system.equipment.${nk}`] = foundry.data.operators.ForcedDeletion;
         await this.document.update(update);
       }
       else {
@@ -738,7 +740,7 @@ export class PMTTRPGItemSheet extends HandlebarsApplicationMixin(ItemSheetV2) {
         const nk = li?.dataset?.index;
         if (!nk) return;
         const update = {};
-        update[`system.${field_type}.-=${nk}`] = null;
+        update[`system.${field_type}.${nk}`] = foundry.data.operators.ForcedDeletion;
         await this.document.update(update);
       }
     }

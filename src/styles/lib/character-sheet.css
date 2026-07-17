@@ -2016,6 +2016,7 @@
 .pm-sheet .item--outfit.collapsed .item-details,
 .pm-sheet .item--skill.collapsed .item-details,
 .pm-sheet .item--ammunition.collapsed .item-details,
+.pm-sheet .item--tool.collapsed .item-details,
 .pm-sheet .item--status.collapsed .item-details,
 .pm-sheet .item--augment.collapsed .item-details {
   display: none;
