@@ -1,0 +1,27 @@
+{{#if showUse}}
+<button type="button" class="item-control rollable tool-use" data-action="rollable" data-item-id="{{itemId}}" title='{{localize "PMTTRPG.UseTool"}}' aria-label='{{localize "PMTTRPG.UseTool"}}'><i class="fas fa-hand-sparkles" aria-hidden="true"></i></button>
+{{/if}}
+{{!-- readiness: handless = worn, 1H/2H = held. One toggle either way. --}}
+<button type="button"
+        class="item-control tool-equip{{#if equipped}} tool-equip--on{{else}} tool-equip--stowed{{/if}}"
+        data-action="itemEquip"
+        data-item-id="{{itemId}}"
+        title="{{#if equipped}}{{localize "PMTTRPG.ToolStow"}}{{else if (eq handProperty "handless")}}{{localize "PMTTRPG.ToolWear"}}{{else if (eq handProperty "twoHanded")}}{{localize "PMTTRPG.ToolHold2H"}}{{else}}{{localize "PMTTRPG.ToolHold1H"}}{{/if}}"
+        aria-label="{{#if equipped}}{{localize "PMTTRPG.ToolStow"}}{{else if (eq handProperty "handless")}}{{localize "PMTTRPG.ToolWear"}}{{else if (eq handProperty "twoHanded")}}{{localize "PMTTRPG.ToolHold2H"}}{{else}}{{localize "PMTTRPG.ToolHold1H"}}{{/if}}"
+        aria-pressed="{{#if equipped}}true{{else}}false{{/if}}">
+  {{#if (eq handProperty "handless")}}
+  <i class="fa-solid fa-shirt" aria-hidden="true"></i>
+  {{else}}
+  <span class="tool-equip__hands" aria-hidden="true">
+    <i class="fa-solid fa-hand-back-fist"></i>
+    {{#if equipped}}
+    <span class="tool-equip__count">{{#if (eq handProperty "twoHanded")}}2{{else}}1{{/if}}</span>
+    {{/if}}
+  </span>
+  {{/if}}
+</button>
+<button type="button" class="item-control" data-action="counterDecrease" data-counter="{{counter}}" data-item-id="{{itemId}}" title='{{localize "PMTTRPG.RemoveStack"}}' aria-label='{{localize "PMTTRPG.RemoveStack"}}'><i class="fas fa-minus" aria-hidden="true"></i></button>
+<button type="button" class="item-control" data-action="counterIncrease" data-counter="{{counter}}" data-item-id="{{itemId}}" title='{{localize "PMTTRPG.AddStack"}}' aria-label='{{localize "PMTTRPG.AddStack"}}'><i class="fas fa-plus" aria-hidden="true"></i></button>
+<button type="button" class="item-control" data-action="itemEdit" data-item-id="{{itemId}}" title="{{localize "PMTTRPG.Common.EditItem"}}" aria-label="{{localize "PMTTRPG.Common.EditItem"}}"><i class="fas fa-edit" aria-hidden="true"></i></button>
+<button type="button" class="item-control" data-action="itemDelete" data-item-id="{{itemId}}" title="{{localize "PMTTRPG.Common.DeleteItem"}}" aria-label="{{localize "PMTTRPG.Common.DeleteItem"}}"><i class="fas fa-trash" aria-hidden="true"></i></button>
+<button type="button" class="item-control item-toggle-details" data-action="toggleDetails" data-item-id="{{itemId}}" aria-expanded="false" title="{{localize "PMTTRPG.Common.Details"}}" aria-label="{{localize "PMTTRPG.Common.Details"}}"><i class="fas fa-chevron-down" aria-hidden="true"></i></button>

@@ -27,6 +27,7 @@ export class PMTTRPGActorNpcSheet extends PMTTRPGCharacterSheet {
       itemCreate: PMTTRPGActorNpcSheet.prototype._onItemCreate,
       itemEdit: PMTTRPGCharacterSheet.prototype._onItemEdit,
       itemDelete: PMTTRPGCharacterSheet.prototype._onItemDelete,
+      itemEquip: PMTTRPGCharacterSheet.prototype._onEquipEquipment,
       toggleDetails: PMTTRPGCharacterSheet.prototype._onToggleDetails,
       counterIncrease: PMTTRPGCharacterSheet.prototype._onCounterIncrease,
       counterDecrease: PMTTRPGCharacterSheet.prototype._onCounterDecrease,
@@ -152,7 +153,7 @@ export class PMTTRPGActorNpcSheet extends PMTTRPGCharacterSheet {
     delete data.name;
 
     const system = { ...data };
-    // NPC kit is always active so we mark loadout items equipped for shared roll/effect code paths.
+    //  NPC weapons/outfits/skills/augments are always active so we mark loadout items equipped for shared roll/effect code paths.
     if (["weapon", "outfit", "skill", "augment"].includes(type)) {
       system.equipped = true;
     }
