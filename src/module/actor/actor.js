@@ -2,6 +2,8 @@ import { PMTTRPGUtility } from '../utility.js';
 import { getRankFromLevel } from './progression.js';
 const { renderTemplate } = foundry.applications.handlebars;
 import { applyAlwaysActiveModifiers } from '../easy-effects/registry.js';
+import { applyResourceModsToSystem } from '../easy-effects/nouns.js';
+import { applyInventorySlotUsage } from '../inventory/slots.js';
 
 /**
  * Extends the basic Actor class for Project Moon TTRPG.
@@ -119,7 +121,7 @@ export class ActorPMTTRPG extends Actor {
       data.attributes.sp.value = Math.clamp(Number(data.attributes.sp.value) || 0, 0, data.attributes.sp.max);
     }
 
-    // Light: 3 + Rank
+    // Light: 3 + Rank. Clamp after equipment bonuses.
     const lightMaxBase = 3 + rank;
     data.attributes.light = data.attributes.light || {};
     data.attributes.light.maxBase = lightMaxBase;
@@ -128,7 +130,7 @@ export class ActorPMTTRPG extends Actor {
     if (data.attributes.light.value === undefined || data.attributes.light.value === null) {
       data.attributes.light.value = data.attributes.light.max;
     } else {
-      data.attributes.light.value = Math.clamp(Number(data.attributes.light.value) || 0, 0, data.attributes.light.max);
+      data.attributes.light.value = Number(data.attributes.light.value) || 0;
     }
 
     // Equipped outfit bonuses. NPCs always use their loadout outfits.
@@ -156,13 +158,16 @@ export class ActorPMTTRPG extends Actor {
 
     data.attributes.light.maxMisc += outfitLightBonus;
     data.attributes.light.max = data.attributes.light.maxBase + data.attributes.light.maxMisc;
-    data.attributes.light.value = Math.clamp(Number(data.attributes.light.value) || 0, 0, data.attributes.light.max);
 
-    // Equipment rank limit and tool slots
+    // Equipment rank limit and inventory slot pools
     data.attributes.equipmentRankLimit = data.attributes.equipmentRankLimit || {};
     data.attributes.equipmentRankLimit.value = rank + 1;
     data.attributes.toolSlots = data.attributes.toolSlots || {};
     data.attributes.toolSlots.value = 4;
+    data.attributes.narrativeSlots = data.attributes.narrativeSlots || {};
+    data.attributes.narrativeSlots.value = 4;
+    data.attributes.stockSlots = data.attributes.stockSlots || {};
+    data.attributes.stockSlots.value = 4;
 
     // Speed: base dice + Justice bonus
     data.attributes.speed = data.attributes.speed || {};
@@ -199,16 +204,27 @@ export class ActorPMTTRPG extends Actor {
       data.attributes.attackModifier.value += eeMods.attackPower;
       data.attributes.evadeModifier.value += eeMods.evadePower;
       data.attributes.blockModifier.value += eeMods.blockPower;
-      data.attributes.light.max += eeMods.lightBonus;
+      applyResourceModsToSystem(data, eeMods);
+      for (const key of ['hp', 'st', 'sp']) {
+        const pool = data.attributes[key];
+        if (!pool) continue;
+        pool.max = (Number(pool.maxBase) || 0) + (Number(pool.maxMisc) || 0);
+        pool.value = Math.clamp(Number(pool.value) || 0, 0, pool.max);
+      }
       data.attributes.light.value = Math.clamp(
         Number(data.attributes.light.value) || 0, 0, data.attributes.light.max
       );
-      data.attributes.toolSlots.value += eeMods.toolSlots;
       // damagePower / damageMax / attackMax / blockMax / evadeMax are
       // clash-time bonuses, but we store them for weapon/dice resolution later.
       data.attributes.easyEffectsMods = eeMods;
     } catch (err) {
       console.error('[EasyEffects] Error in Always Active pass:', err);
+    }
+
+    applyInventorySlotUsage(data.attributes, actorData.items);
+    for (const key of ['toolSlots', 'narrativeSlots', 'stockSlots']) {
+      const pool = data.attributes[key];
+      pool.over = Number(pool.used ?? 0) > Number(pool.value ?? 0);
     }
   }
 
@@ -367,11 +383,11 @@ export class ActorPMTTRPG extends Actor {
 
   async applyDamage(amount, options = {op: 'full', ignoreArmor: false, piercing: 0, dmgBonus: 0}) {
     let newAmount = Number(amount);
-    let dmgBonus = options?.dmgBonus;
+    // Some option objects don't include dmgBonus, so avoid parsing undefined into NaN.
+    const dmgBonus = Number(options?.dmgBonus) || 0;
 
-    // Apply dmgbonus.
     if (options.op !== 'heal') {
-        newAmount += parseInt(dmgBonus);
+      newAmount += dmgBonus;
     }
 
     switch (options.op) {
