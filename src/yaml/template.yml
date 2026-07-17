@@ -36,6 +36,18 @@ Actor:
           max: 8
         toolSlots:
           value: 4
+          used: 0
+          over: false
+          min: 0
+        narrativeSlots:
+          value: 4
+          used: 0
+          over: false
+          min: 0
+        stockSlots:
+          value: 4
+          used: 0
+          over: false
           min: 0
       details:
         biography: 
@@ -214,6 +226,7 @@ Item:
     - weapon
     - outfit
     - ammunition
+    - tool
     - skill
     - augment
     - effect
@@ -268,6 +281,35 @@ Item:
     ammoType: standard
     damageType: null
     quantity: 1
+    inventoryPool: tool
+  tool:
+    templates:
+      - base
+    rank: 1
+    form: consumable
+    handProperty: handless
+    toolKind: market
+    applyTo: null
+    challengeStat: for
+    quantity: 1
+    usesMax: 3
+    usesRemaining: 3
+    allowUse: false
+    inventoryTag: tool
+    slotCost: 1
+    stackPerSlot: 1
+    unique: false
+    compact: false
+    equipped: false
+    packing:
+      accepts: none
+      capacity: 0
+      used: 0
+      free: 0
+    damageType: null
+    customNotes: ''
+    effects: []
+    easyEffects: ''
   skill:
     templates:
       - base
