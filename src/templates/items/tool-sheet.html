@@ -1,0 +1,174 @@
+<div class="{{cssClass}} item-form flexcol">
+  <div class="sheet-wrapper flexcol">
+    <header class="sheet-header flexrow">
+      {{#if isOutdated}}
+      <div class="compendium-outdated-banner">
+        <span>{{localize "PMTTRPG.OutdatedWarning"}}</span>
+        <button type="button" data-action="sync-from-compendium">
+          {{localize "PMTTRPG.OutdatedUpdate"}}
+        </button>
+        <button type="button"
+                data-action="dismiss-outdated"
+                data-modified-time="{{compendiumModifiedTime}}">
+          {{localize "PMTTRPG.OutdatedDismiss"}}
+        </button>
+      </div>
+      {{/if}}
+      <div class="cell cell--image">
+        <img class="profile-img" src="{{item.img}}" data-action="editImage" data-edit="img" title="{{item.name}}"/>
+      </div>
+      <div class="header-fields">
+          <h1><input name="name" type="text" value="{{item.name}}" placeholder="{{localize "PMTTRPG.Common.Name"}}"/></h1>
+      </div>
+    </header>
+
+    {{!-- Sheet Tab Navigation --}}
+    <nav class="sheet-tabs tabs" data-group="primary">
+        <a class="item{{#if (eq activeTab 'description')}} active{{/if}}" data-action="tab" data-group="primary" data-tab="description">{{localize "PMTTRPG.Common.Description"}}</a>
+        <a class="item{{#if (eq activeTab 'details')}} active{{/if}}" data-action="tab" data-group="primary" data-tab="details">{{localize "PMTTRPG.Common.Details"}}</a>
+        {{#if supportsEffects}}
+        <a class="item{{#if (eq activeTab 'effects')}} active{{/if}}" data-action="tab" data-group="primary" data-tab="effects">{{localize "PMTTRPG.Effects"}}</a>
+        {{/if}}
+        {{#if supportsEasyEffects}}
+        <a class="item{{#if (eq activeTab 'easy-effects')}} active{{/if}}" data-action="tab" data-group="primary" data-tab="easy-effects">{{localize "PMTTRPG.EasyEffects"}}</a>
+        {{/if}}
+    </nav>
+
+    {{!-- Sheet Body --}}
+    <section class="sheet-body">
+
+        {{!-- Description Tab --}}
+        <div class="tab{{#if (eq activeTab 'description')}} active{{/if}}" data-group="primary" data-tab="description">
+            <prose-mirror name="system.description" value="{{system.description}}" toggled {{#unless editable}}disabled{{/unless}}>{{{system.descriptionEnriched}}}</prose-mirror>
+        </div>
+
+        {{!-- Details Tab --}}
+        <div class="tab{{#if (eq activeTab 'details')}} active{{/if}}" data-group="primary" data-tab="details">
+          <div class="resource-group">
+            <div class="resource">
+              <label>{{localize "PMTTRPG.Rank"}}</label>
+              <input type="text" name="system.rank" value="{{system.rank}}" data-dtype="Number"/>
+            </div>
+            <div class="resource">
+              <label>{{localize "PMTTRPG.ToolForm"}}</label>
+              <select name="system.form" data-dtype="String">
+                {{selectOptions selects.toolForms selected=system.form localize=true}}
+              </select>
+            </div>
+            <div class="resource">
+              <label>{{localize "PMTTRPG.ToolHand"}}</label>
+              <select name="system.handProperty" data-dtype="String">
+                {{selectOptions selects.toolHands selected=system.handProperty localize=true}}
+              </select>
+            </div>
+            <div class="resource">
+              <label>{{localize "PMTTRPG.ToolKind"}}</label>
+              <select name="system.toolKind" data-dtype="String">
+                {{selectOptions selects.toolKinds selected=system.toolKind localize=true}}
+              </select>
+            </div>
+            {{#if isApplied}}
+            <div class="resource">
+              <label>{{localize "PMTTRPG.ToolApplyTo"}}</label>
+              <select name="system.applyTo" data-dtype="String">
+                {{selectOptions selects.toolApplyTo selected=system.applyTo localize=true}}
+              </select>
+            </div>
+            <div class="resource">
+              <label>{{localize "PMTTRPG.DamageType"}}</label>
+              <select name="system.damageType" data-dtype="String">
+                {{selectOptions selects.damageTypes selected=system.damageType blank="" localize=true}}
+              </select>
+            </div>
+            {{/if}}
+            {{#if isStandalone}}
+            <div class="resource">
+              <label>{{localize "PMTTRPG.ToolChallengeStat"}}</label>
+              <select name="system.challengeStat" data-dtype="String">
+                {{selectOptions selects.abilities selected=system.challengeStat localize=true}}
+              </select>
+            </div>
+            {{/if}}
+            {{#unless isReusable}}
+            <div class="resource">
+              <label>{{localize "PMTTRPG.Quantity"}}</label>
+              <input type="text" name="system.quantity" value="{{system.quantity}}" data-dtype="Number"/>
+            </div>
+            {{/unless}}
+            {{#if isReusable}}
+            <div class="resource">
+              <label>{{localize "PMTTRPG.ToolUsesRemaining"}}</label>
+              <input type="text" name="system.usesRemaining" value="{{system.usesRemaining}}" data-dtype="Number"/>
+            </div>
+            <div class="resource">
+              <label>{{localize "PMTTRPG.ToolUsesMax"}}</label>
+              <input type="text" name="system.usesMax" value="{{system.usesMax}}" data-dtype="Number"/>
+            </div>
+            {{/if}}
+            {{#if isFormNone}}
+            <div class="resource">
+              <label>{{localize "PMTTRPG.ToolAllowUse"}}</label>
+              <input type="checkbox" name="system.allowUse" data-dtype="Boolean" {{checked system.allowUse}}/>
+            </div>
+            {{/if}}
+            <div class="resource">
+              <label>{{localize "PMTTRPG.EP"}}</label>
+              <input class="disabled" type="text" value="{{system.epMax}}" readonly/>
+            </div>
+            <div class="resource">
+              <label>{{localize "PMTTRPG.ToolInventoryTag"}}</label>
+              <select name="system.inventoryTag" data-dtype="String">
+                {{selectOptions selects.toolInventoryTags selected=system.inventoryTag localize=true}}
+              </select>
+            </div>
+            <div class="resource">
+              <label>{{localize "PMTTRPG.ToolSlotCost"}}</label>
+              <input class="disabled" type="text" value="{{system.slotCost}}" readonly title="{{localize "PMTTRPG.ToolSlotCostHint"}}"/>
+            </div>
+            <div class="resource">
+              <label>{{localize "PMTTRPG.ToolStackPerSlot"}}</label>
+              <input type="text" name="system.stackPerSlot" value="{{system.stackPerSlot}}" data-dtype="Number"/>
+            </div>
+            <div class="resource">
+              <label>{{localize "PMTTRPG.ToolPackingAccepts"}}</label>
+              <select name="system.packing.accepts" data-dtype="String">
+                {{selectOptions selects.toolPackingTypes selected=system.packing.accepts localize=true}}
+              </select>
+            </div>
+            {{#if isPackingContainer}}
+            <div class="resource">
+              <label>{{localize "PMTTRPG.ToolPackingCapacity"}}</label>
+              <input type="text" name="system.packing.capacity" value="{{system.packing.capacity}}" data-dtype="Number" min="0"/>
+            </div>
+            {{/if}}
+            <div class="resource">
+              <label>{{localize "PMTTRPG.ToolCompact"}}</label>
+              <input type="checkbox" name="system.compact" data-dtype="Boolean" {{checked system.compact}}/>
+            </div>
+            <div class="resource">
+              <label>{{localize "PMTTRPG.ToolUnique"}}</label>
+              <input type="checkbox" name="system.unique" data-dtype="Boolean" {{checked system.unique}}/>
+            </div>
+            <div class="resource">
+              <label>{{localize "PMTTRPG.Equipped"}}</label>
+              <input type="checkbox" name="system.equipped" data-dtype="Boolean" {{checked system.equipped}}/>
+            </div>
+          </div>
+        </div>
+
+        {{!-- Effects Tab --}}
+        {{#if supportsEffects}}
+        <div class="tab{{#if (eq activeTab 'effects')}} active{{/if}}" data-group="primary" data-tab="effects">
+          {{> "systems/projectmoonttrpg/templates/parts/effects-list.html"}}
+        </div>
+        {{/if}}
+
+        {{!-- EasyEffects Tab --}}
+        {{#if supportsEasyEffects}}
+        <div class="tab{{#if (eq activeTab 'easy-effects')}} active{{/if}}" data-group="primary" data-tab="easy-effects">
+          {{> "systems/projectmoonttrpg/templates/parts/easy-effects.html"}}
+        </div>
+        {{/if}}
+    </section>
+  </div>
+</div>

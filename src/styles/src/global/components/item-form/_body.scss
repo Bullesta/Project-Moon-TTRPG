@@ -60,6 +60,7 @@
     .editor-content,
     .ProseMirror {
       color: var(--sheet-ink);
+      font-family: $font-stack-base;
       font-size: 13px;
       line-height: 1.45;
     }
