@@ -13,6 +13,7 @@ documentTypes:
     weapon: {}
     outfit: {}
     ammunition: {}
+    tool: {}
     skill: {}
     effect: {}
     augment: {}
@@ -70,6 +71,8 @@ languages:
     name: English
     path: lang/en.json
 grid:
+  distance: 1
+  units: SQR
 primaryTokenAttribute: attributes.hp
 secondaryTokenAttribute: attributes.st
 initiative: 1d6
