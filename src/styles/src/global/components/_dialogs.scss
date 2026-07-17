@@ -138,6 +138,13 @@
   .form-grid { display: grid; grid-template-columns: 1fr; gap: 0.65rem; }
   .modifier-input { display: flex; flex-direction: column; }
   .modifier-hint { font-size: 0.78rem; color: var(--sheet-ink-muted); }
+
+  .standalone-target-modes {
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+    margin: 0.35rem 0;
+  }
 }
 
 .skill-roll-dialog {

@@ -2,6 +2,14 @@ import { PMTTRPGUtility } from "../utility.js";
 import { PMTTRPGRolls } from "../rolls.js";
 import { getRankFromLevel } from "../actor/progression.js";
 import { computeEffectSummary, normalizeEffectEntries } from "../effects/effect-summary.js";
+import { slotCostFromHand } from "../inventory/slots.js";
+import { useTool } from "./tool-use.js";
+import {
+  buildAppliedToolOnBeforeChat,
+  buildAppliedToolTemplateData,
+  canConsumeAppliedTool,
+  promptAppliedToolDialog,
+} from "./applied-tool.js";
 const { renderTemplate } = foundry.applications.handlebars;
 
 function getEffectSignature(entry) {
@@ -18,6 +26,28 @@ function getEffectSignature(entry) {
 }
 
 export class ItemPMTTRPG extends Item {
+  /** @override */
+  static migrateData(source) {
+    source = super.migrateData(source) ?? source;
+    if (source?.type === "tool" && source.system) {
+      if (source.system.held) source.system.equipped = true;
+      delete source.system.held;
+    }
+    return source;
+  }
+
+  /** @inheritDoc */
+  async _preUpdate(changed, options, userId) {
+    if (this.type === "tool" && this._source?.system?.held != null) {
+      changed.system ??= {};
+      if (this._source.system.held && changed.system.equipped === undefined) {
+        changed.system.equipped = true;
+      }
+      changed.system["-=held"] = null;
+    }
+    return super._preUpdate(changed, options, userId);
+  }
+
   /**
    * Augment the basic Item data model with additional dynamic data.
    */
@@ -193,6 +223,38 @@ export class ItemPMTTRPG extends Item {
       data.lightCostMax = actorLightMax > 0 ? actorLightMax : null;
     }
 
+    if (itemData.type == 'tool') {
+      const rank = Number(data.rank ?? 0);
+      data.rank = rank;
+      data.form = data.form || 'consumable';
+      data.handProperty = data.handProperty || 'handless';
+      data.toolKind = data.toolKind || 'market';
+      data.inventoryTag = data.inventoryTag || 'tool';
+      data.slotCost = data.compact ? 0 : slotCostFromHand(data.handProperty);
+      data.stackPerSlot = Math.max(1, Number(data.stackPerSlot ?? 1));
+      data.quantity = Math.max(0, Number(data.quantity ?? 1));
+      data.usesMax = Math.max(0, Number(data.usesMax ?? 3));
+      data.usesRemaining = Math.max(0, Number(data.usesRemaining ?? data.usesMax));
+      data.allowUse = !!data.allowUse;
+      if (data.packing) {
+        if (data.packing.accepts === "specializedAmmunition") {
+          data.packing.accepts = "ammunition";
+        }
+        data.packing.accepts = data.packing.accepts || "none";
+        data.packing.capacity = Math.max(0, Number(data.packing.capacity) || 0);
+      }
+
+      let epBase = 0;
+      if (data.handProperty === 'handless') epBase = rank < 0 ? 0 : rank * 2;
+      else if (data.handProperty === 'twoHanded') epBase = rank < 0 ? 0 : (rank * 2) + 4;
+      else epBase = rank < 0 ? 0 : (rank * 2) + 2;
+      data.epBase = epBase;
+      data.epMax = epBase;
+      const normalizedEffects = normalizeEffectEntries(data.effects);
+      data.effects = normalizedEffects;
+      data.effectsSummary = computeEffectSummary(normalizedEffects, Number(data.epMax ?? 0));
+    }
+
     if (itemData.type == 'augment') {
       const rank = actorData?.system?.attributes
         ? Math.max(0, getRankFromLevel(actorData.system.attributes.level?.value))
@@ -260,7 +322,25 @@ export class ItemPMTTRPG extends Item {
    * Roll the item to Chat, creating a chat card which contains follow up attack or damage roll options
    * @return {Promise}
    */
-  async roll({ configureDialog = true, mode = 'block', ammo = null, consumeAmmo = true, targetSelection = null } = {}) {
+  async roll({
+    configureDialog = true,
+    mode = 'block',
+    ammo = null,
+    consumeAmmo = true,
+    appliedTool = undefined,
+    consumeAppliedTool = true,
+    targetSelection,
+  } = {}) {
+    if (this.type == 'tool') {
+      return useTool(this, {
+        configureDialog,
+        consume: true,
+        target: targetSelection === undefined
+          ? undefined
+          : (targetSelection?.actor ?? targetSelection ?? null),
+      });
+    }
+
     if (this.type == 'skill') {
       return PMTTRPGRolls.doSkillRoll({
         actor: this.actor,
@@ -274,19 +354,49 @@ export class ItemPMTTRPG extends Item {
     }
 
     if (this.type == 'outfit') {
+      let tool = appliedTool;
+      let willConsumeTool = consumeAppliedTool;
+
+      if (configureDialog && appliedTool === undefined) {
+        const pick = await promptAppliedToolDialog(this.actor, {
+          applyTo: 'outfit',
+          hostItem: this,
+          defenseType: mode,
+        });
+        if (pick === null) return;
+        tool = pick.tool;
+        willConsumeTool = pick.consume;
+      }
+
+      if (!canConsumeAppliedTool(tool, willConsumeTool)) {
+        ui.notifications.warn(game.i18n.localize('PMTTRPG.Dialog.noToolUses'));
+        return;
+      }
+
       const formula = mode == 'evade' ? this.system.evadeDiceComputed : this.system.blockDiceComputed;
       const flavor = mode == 'evade' ? 'PMTTRPG.Evade' : 'PMTTRPG.Def';
+      const title = tool ? `${this.name} · ${tool.name}` : this.name;
+      const actionType = mode === 'evade' ? 'evade' : 'block';
+
       PMTTRPGRolls.rollMove({
         actor: this.actor,
         data: this,
         formula: formula,
         templateData: {
           image: this.img,
-          title: this.name,
+          title,
           flavor: game.i18n.localize(flavor),
           rollType: 'defense',
-          defenseType: mode
-        }
+          defenseType: mode,
+          ...buildAppliedToolTemplateData(tool),
+        },
+        onBeforeChat: buildAppliedToolOnBeforeChat({
+          actor: this.actor,
+          tool,
+          hostItem: this,
+          actionType,
+          consume: willConsumeTool,
+        }),
       });
       return;
     }
@@ -295,9 +405,30 @@ export class ItemPMTTRPG extends Item {
       const ammoQuantity = Number(ammo.system?.quantity ?? 0);
       if (ammoQuantity <= 0) return;
 
+      let tool = appliedTool;
+      let willConsumeTool = consumeAppliedTool;
+
+      if (configureDialog && appliedTool === undefined) {
+        const pick = await promptAppliedToolDialog(this.actor, {
+          applyTo: 'weapon',
+          hostItem: this,
+        });
+        if (pick === null) return;
+        tool = pick.tool;
+        willConsumeTool = pick.consume;
+      }
+
+      if (!canConsumeAppliedTool(tool, willConsumeTool)) {
+        ui.notifications.warn(game.i18n.localize('PMTTRPG.Dialog.noToolUses'));
+        return;
+      }
+
       if (consumeAmmo) {
         await ammo.update({ 'system.quantity': Math.max(0, ammoQuantity - 1) });
       }
+
+      const titleParts = [this.name, ammo.name];
+      if (tool) titleParts.push(tool.name);
 
       PMTTRPGRolls.rollMove({
         actor: this.actor,
@@ -305,14 +436,24 @@ export class ItemPMTTRPG extends Item {
         targetSelection,
         templateData: {
           image: this.img,
-          title: `${this.name} - ${ammo.name}`,
+          title: titleParts.join(' · '),
           trigger: null,
           details: this.system.description,
           rollType: 'damage',
           ammoName: ammo.name,
           ammoType: ammo.system?.ammoType ?? null,
-          ammoDamageType: ammo.system?.damageType ?? null
-        }
+          ammoDamageType: ammo.system?.damageType ?? null,
+          damageType: tool?.system?.damageType || ammo.system?.damageType || this.system?.damageType || null,
+          ...buildAppliedToolTemplateData(tool),
+        },
+        onBeforeChat: buildAppliedToolOnBeforeChat({
+          actor: this.actor,
+          tool,
+          hostItem: this,
+          target: targetSelection?.actor ?? null,
+          actionType: 'attack',
+          consume: willConsumeTool,
+        }),
       });
       return;
     }
@@ -368,6 +509,12 @@ export class ItemPMTTRPG extends Item {
 
               if (!chosenAmmo) return;
 
+              const pick = await promptAppliedToolDialog(this.actor, {
+                applyTo: 'weapon',
+                hostItem: this,
+              });
+              if (pick === null) return;
+
               const targeting = game.projectmoonttrpg?.targeting;
               const chosenTarget = targeting ? await targeting.promptTargetSelection({
                 actor: this.actor,
@@ -383,6 +530,8 @@ export class ItemPMTTRPG extends Item {
                 configureDialog: false,
                 ammo: chosenAmmo,
                 consumeAmmo: consume,
+                appliedTool: pick.tool,
+                consumeAppliedTool: pick.consume,
                 targetSelection: chosenTarget
               });
             }
@@ -398,6 +547,19 @@ export class ItemPMTTRPG extends Item {
     }
 
     if (this.type == 'weapon') {
+      let tool = appliedTool;
+      let willConsumeTool = consumeAppliedTool;
+
+      if (configureDialog && appliedTool === undefined) {
+        const pick = await promptAppliedToolDialog(this.actor, {
+          applyTo: 'weapon',
+          hostItem: this,
+        });
+        if (pick === null) return;
+        tool = pick.tool;
+        willConsumeTool = pick.consume;
+      }
+
       const targeting = game.projectmoonttrpg?.targeting;
       const chosenTarget = targeting ? await targeting.promptTargetSelection({
         actor: this.actor,
@@ -409,7 +571,35 @@ export class ItemPMTTRPG extends Item {
 
       if (chosenTarget === null) return;
 
-      return PMTTRPGRolls.rollMove({actor: this.actor, data: this, targetSelection: chosenTarget});
+      if (!canConsumeAppliedTool(tool, willConsumeTool)) {
+        ui.notifications.warn(game.i18n.localize('PMTTRPG.Dialog.noToolUses'));
+        return;
+      }
+
+      const title = tool ? `${this.name} · ${tool.name}` : this.name;
+
+      PMTTRPGRolls.rollMove({
+        actor: this.actor,
+        data: this,
+        targetSelection: chosenTarget,
+        templateData: {
+          image: this.img,
+          title,
+          details: this.system.description,
+          rollType: 'damage',
+          damageType: tool?.system?.damageType || this.system?.damageType || null,
+          ...buildAppliedToolTemplateData(tool),
+        },
+        onBeforeChat: buildAppliedToolOnBeforeChat({
+          actor: this.actor,
+          tool,
+          hostItem: this,
+          target: chosenTarget?.actor ?? null,
+          actionType: 'attack',
+          consume: willConsumeTool,
+        }),
+      });
+      return;
     }
 
     PMTTRPGRolls.rollMove({actor: this.actor, data: this});
@@ -501,6 +691,9 @@ export class ItemPMTTRPG extends Item {
                 'system.bonusEP', 'system.bonusLight', 'system.resistances', 'system.effects'],
       skill:   ['name', 'img', 'system.description', 'system.rank', 'system.lightCost',
                 'system.innate', 'system.effects'],
+      tool:    ['name', 'img', 'system.description', 'system.rank', 'system.form',
+                'system.handProperty', 'system.toolKind', 'system.applyTo', 'system.damageType',
+                'system.allowUse', 'system.effects', 'system.easyEffects'],
       augment: ['name', 'img', 'system.description', 'system.effects'],
       status:  ['name', 'img', 'system.description', 'system.proc', 'system.macro'],
       effect:  ['name', 'img', 'system.description', 'system.appliesTo', 'system.canPositive',

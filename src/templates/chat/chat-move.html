@@ -7,6 +7,14 @@
     {{#if flavor}}<div class="row"><em>{{flavor}}</em></div>{{/if}}
     {{#if trigger}}<div class="row"><strong>Trigger:</strong> {{trigger}}</div>{{/if}}
     {{#if details}}<div class="row">{{{details}}}</div>{{/if}}
+    {{#if appliedToolName}}
+      <div class="row">
+        <strong>{{localize "PMTTRPG.Chat.appliedTool"}}:</strong> {{appliedToolName}}
+        {{#if appliedToolDamageType}}
+          <span class="tag">{{appliedToolDamageType}}</span>
+        {{/if}}
+      </div>
+    {{/if}}
     {{#if target}}
       <div class="row target-summary">
         <img class="target-summary__icon" src="{{target.img}}" alt="{{target.name}}"/>
