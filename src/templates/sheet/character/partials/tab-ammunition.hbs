@@ -27,6 +27,9 @@
           {{#if (lookup ../selects.ammoTypes ammo.system.ammoType)}}
           <span class="tag">{{localize (lookup ../selects.ammoTypes ammo.system.ammoType)}}</span>
           {{/if}}
+          {{#if (and (eq ammo.system.ammoType "specialized") (lookup ../selects.inventoryPools ammo.system.inventoryPool))}}
+          <span class="tag">{{localize (lookup ../selects.inventoryPools ammo.system.inventoryPool)}}</span>
+          {{/if}}
         </div>
         {{#if ammo.system.descriptionEnriched}}
         <div class="item-flavor description">{{{ammo.system.descriptionEnriched}}}</div>

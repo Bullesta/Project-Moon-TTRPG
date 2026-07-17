@@ -56,6 +56,12 @@
               <input type="text" name="system.quantity" value="{{system.quantity}}" data-dtype="Number"/>
             </div>
             <div class="resource">
+              <label>{{localize "PMTTRPG.AmmoInventoryPool"}}</label>
+              <select name="system.inventoryPool" data-dtype="String">
+                {{selectOptions selects.inventoryPools selected=system.inventoryPool localize=true}}
+              </select>
+            </div>
+            <div class="resource">
               <label>{{localize "PMTTRPG.Weight"}}</label>
               <input type="text" name="system.weight" value="{{system.weight}}" data-dtype="Number"/>
             </div>

@@ -10,6 +10,7 @@
     "systems/projectmoonttrpg/templates/parts/chat-buttons.html",
     "systems/projectmoonttrpg/templates/parts/initiative-character.html",
     "systems/projectmoonttrpg/templates/parts/effects-list.html",
+    "systems/projectmoonttrpg/templates/parts/easy-effects.html",
     // Character sheet (AppV2) partials referenced by sheet.hbs
     "systems/projectmoonttrpg/templates/sheet/character/partials/tracker.hbs",
     "systems/projectmoonttrpg/templates/sheet/character/partials/resists.hbs",
@@ -23,6 +24,7 @@
     "systems/projectmoonttrpg/templates/sheet/character/partials/tab-weapons.hbs",
     "systems/projectmoonttrpg/templates/sheet/character/partials/tab-outfits.hbs",
     "systems/projectmoonttrpg/templates/sheet/character/partials/tab-ammunition.hbs",
+    "systems/projectmoonttrpg/templates/sheet/character/partials/tab-tools.hbs",
     "systems/projectmoonttrpg/templates/sheet/character/partials/tab-augment.hbs",
     "systems/projectmoonttrpg/templates/sheet/character/partials/tab-bio.hbs",
     "systems/projectmoonttrpg/templates/sheet/character/partials/bios.hbs",
@@ -31,6 +33,7 @@
     "systems/projectmoonttrpg/templates/sheet/character/partials/item-controls-skill.hbs",
     "systems/projectmoonttrpg/templates/sheet/character/partials/item-controls-augment.hbs",
     "systems/projectmoonttrpg/templates/sheet/character/partials/item-controls-ammunition.hbs",
+    "systems/projectmoonttrpg/templates/sheet/character/partials/item-controls-tool.hbs",
     "systems/projectmoonttrpg/templates/sheet/character/partials/damage-type-icon.hbs",
     "systems/projectmoonttrpg/templates/sheet/character/partials/item-thumb.hbs",
     "systems/projectmoonttrpg/templates/sheet/character/partials/item-attack-dice.hbs",
