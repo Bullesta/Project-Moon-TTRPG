@@ -43,7 +43,7 @@ export class ItemPMTTRPG extends Item {
       if (this._source.system.held && changed.system.equipped === undefined) {
         changed.system.equipped = true;
       }
-      changed.system["-=held"] = null;
+      changed.system.held = foundry.data.operators.ForcedDeletion;
     }
     return super._preUpdate(changed, options, userId);
   }

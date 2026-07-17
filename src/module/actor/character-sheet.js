@@ -857,7 +857,7 @@ export class PMTTRPGCharacterSheet extends HandlebarsApplicationMixin(ActorSheet
     const source = item._source?.system ?? {};
     const currentlyOn = !!(source.equipped || source.held || item.system?.equipped);
     const update = { "system.equipped": !currentlyOn };
-    if (item.type === "tool") update["system.-=held"] = null;
+    if (item.type === "tool") update["system.held"] = foundry.data.operators.ForcedDeletion;
     await item.update(update);
   }
 
