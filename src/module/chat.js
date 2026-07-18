@@ -6,12 +6,10 @@ import {
 } from "./damage-application.js";
 
 export const displayChatActionButtons = function(message, html, data) {
-  html = $(html);
-  const chatCard = html.find(".PMTTRPG.chat-card");
+  const chatCard = html.querySelector?.(".PMTTRPG.chat-card") ?? null;
 
-  // Hide damage buttons if necessary.
-  if (!game.user.isGM || !game.settings.get('projectmoonttrpg', 'enableDamageButtons')) {
-    html.find('.chat-damage-buttons').hide();
+  if (!game.user.isGM || !game.settings.get("projectmoonttrpg", "enableDamageButtons")) {
+    html.querySelectorAll?.(".chat-damage-buttons").forEach(el => el.style.display = "none");
   }
 
   // Sync damage type from flags if the card did not include one.
@@ -46,21 +44,26 @@ export const displayChatActionButtons = function(message, html, data) {
       btn.style.display = "none"
     });
   }
-}
+
+  if (chatCard) {
+    const actor = game.actors.get(data.message.speaker.actor);
+    if (game.user.isGM) return;
+    if (data.author.id === game.user.id || (actor && actor.isOwner)) return;
+    chatCard.querySelectorAll("button[data-action], .button-disabled").forEach(btn => {
+      btn.style.display = "none";
+    });
+  }
+};
 
 export const activateChatListeners = function(html) {
-  html = $(html);
-  html.on('click', 'button[data-action]', (event) => _onChatCardAction(event));
-}
+  const el = html instanceof HTMLElement ? html : html[0] ?? html;
+  el.addEventListener("click", _onChatCardAction);
+};
 
 function _onChatCardAction(event) {
-  event.preventDefault();
+  const button = event.target.closest("button[data-action]");
+  if (!button) return;
 
-  // Extract card data
-  const button = event.currentTarget;
-  const card = button.closest(".chat-card");
-  const messageId = button.closest(".message").dataset.messageId;
-  const message =  game.messages.get(messageId);
   const action = button.dataset.action;
 
   if (action === "set-pool") {
@@ -72,15 +75,14 @@ function _onChatCardAction(event) {
     return;
   }
 
-  // Perform the action.
-  if (action == 'xp') {
-    // Recover the actor for the chat card
-    const actor = card ? _getChatCardActor(card) : null;
-    if ( !actor ) return;
+  if (action?.startsWith("clash-")) return;
 
-    button.disabled = true;
-    _chatActionMarkXp(actor, message);
-  }
+  event.preventDefault();
+
+  const card      = button.closest(".chat-card");
+  const messageEl = button.closest(".message");
+  const messageId = messageEl?.dataset?.messageId;
+  const message   = messageId ? game.messages.get(messageId) : null;
 
   if (action === "revert-damage") {
     _chatActionRevertDamage(message, button);
@@ -92,30 +94,24 @@ function _onChatCardAction(event) {
 
   // Chat damage.
   if (action.includes('damage') || action == 'heal') _chatActionDamage(message, action, button);
+  // All remaining actions require user to be a GM.
+  if (!game.user.isGM) return;
+
+  if (action === "damage" || action === "half-damage" || action === "double-damage" || action === "heal") {
+    _chatActionDamage(message, action);
+  }
 }
 
-/**
- * Get the Actor which is the author of a chat card
- * @param {HTMLElement} card    The chat card being used
- * @return {Actor|null}         The Actor entity or null
- * @private
- */
 function _getChatCardActor(card) {
-
-  // Case 1 - a synthetic actor from a Token
   const tokenKey = card.dataset.tokenId;
   if (tokenKey) {
     const [sceneId, tokenId] = tokenKey.split(".");
     const scene = game.scenes.get(sceneId);
     if (!scene) return null;
     const tokenDoc = scene.tokens.get(tokenId);
-    if (!tokenDoc) return null;
-    return tokenDoc.actor;
+    return tokenDoc?.actor ?? null;
   }
-
-  // Case 2 - use Actor ID directory
-  const actorId = card.dataset.actorId;
-  return game.actors.get(actorId) || null;
+  return game.actors.get(card.dataset.actorId) ?? null;
 }
 
 function _readSelectedPools(root) {
@@ -165,32 +161,32 @@ function _chatActionSetDamageType(button) {
 }
 
 async function _chatActionMarkXp(actor, message) {
-  if (!actor.system || !actor.system.attributes.xp) return;
+  if (!actor.system?.attributes?.xp) return;
 
-  let xp = actor.system.attributes.xp.value ?? 0;
-  let updates = {
-    'system.attributes.xp.value': Number(xp) + 1
-  };
+  const xp = actor.system.attributes.xp.value ?? 0;
+  await actor.update({ "system.attributes.xp.value": Number(xp) + 1 });
 
-  // Update the actor.
-  await actor.update(updates);
+  if (!message) return;
 
-  // Update the chat message.
-  let $content = $(message.content);
-  let $button = $content.find('.xp-button');
+  const parser  = new DOMParser();
+  const doc     = parser.parseFromString(message.content, "text/html");
+  const btn     = doc.querySelector(".xp-button");
+  if (btn) {
+    const span = document.createElement("span");
+    span.className   = "xp-button button button-disabled";
+    span.textContent = game.i18n.localize("PMTTRPG.XpMarked") + " ";
+    const icon = document.createElement("i");
+    icon.className = "fas fa-check";
+    span.appendChild(icon);
+    btn.replaceWith(span);
+  }
 
-  // Replace the button.
-  let newButton = `<span class="xp-button button button-disabled">${game.i18n.localize("PMTTRPG.XpMarked")} <i class="fas fa-check"></i></span>`;
-  $button.replaceWith($(newButton));
+  const newContent = doc.body.innerHTML;
 
   if (message.isAuthor || game.user.isGM) {
-    await message.update({'content': $content[0].outerHTML});
-  }
-  else {
-    game.socket.emit('system.projectmoonttrpg', {
-      message: message.id,
-      content: $content[0].outerHTML
-    });
+    await message.update({ content: newContent });
+  } else {
+    game.socket.emit("system.projectmoonttrpg", { message: message.id, content: newContent });
   }
 }
 
