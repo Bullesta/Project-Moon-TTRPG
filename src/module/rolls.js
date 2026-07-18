@@ -1,6 +1,7 @@
 import { PMTTRPGUtility } from "./utility.js";
 import { PMTTRPGTargetingAPI } from "./targeting.js";
 const { renderTemplate } = foundry.applications.handlebars;
+import { initiateAttack } from "./combat/clashing.js";
 
 export class PMTTRPGRolls {
 
@@ -480,10 +481,6 @@ export class PMTTRPGRolls {
           // Update the templateData.
           templateData.resultLabel = resultRanges[resultType]?.label ?? resultType;
           templateData.result = resultType;
-          templateData.resultDetails = null;
-          if (templateData?.moveResults && templateData.moveResults[resultType]?.value) {
-            templateData.resultDetails = templateData.moveResults[resultType].value;
-          }
         }
 
         if (typeof onBeforeChat === "function") {
@@ -497,9 +494,10 @@ export class PMTTRPGRolls {
 
         // Render it.
         templateData.actor = this.actor;
-        roll.render().then(async r => {
-          templateData.rollPMTTRPG = r;
-          templateData.roll = roll;
+        templateData.formula = formula;
+
+        if (formula != null) {
+          // if it's a clash prompt, intercept and prevent the rest.
           if (templateData?.attackRoll && templateData?.target) {
             const attackPayload = PMTTRPGTargetingAPI.buildAttackContextPayload({
               actor: this.actor,
@@ -515,37 +513,62 @@ export class PMTTRPGRolls {
               console.warn('[PMTTRPG] Attack roll hook failed', error);
             }
             try {
-              // Placeholder: treat "attack roll with a target" as a hit until clash can tell us it actually connected.
-              Hooks.callAll("pmttrpg.attackConnected", {
+            // Hand off to the clash system. initiateAttack() posts the attack card (with hidden roll + Retaliate buttons) and 
+            // waits for a retaliator. it does NOT fire attackConnected immediately. That hook only fires after the clash resolves.
+              if (this.item) {
+                await initiateAttack(attackPayload);
+                return;
+              }
+
+
+              /*Hooks.callAll("pmttrpg.attackConnected", {
                 attacker: this.actor,
                 defender: attackPayload.targetActor ?? null,
                 item: this.item,
                 appliedTool: templateData.appliedToolId
                   ? (this.actor?.items.get(templateData.appliedToolId) ?? null)
                   : null,
-              });
+              });*/
             }
             catch (error) {
               console.warn("[EasyEffects] attackConnected hook failed", error);
             }
           }
-          renderTemplate(template, templateData).then(content => {
-            chatData.content = content;
-            chatData.flags = foundry.utils.mergeObject(chatData.flags ?? {}, {
-              projectmoonttrpg: {
-                damageType: templateData.damageType ?? null,
-                rollType: templateData.rollType ?? null,
-              },
+          try{
+            renderTemplate(template, templateData).then(content => {
+              chatData.content = content;
+              chatData.flags = foundry.utils.mergeObject(chatData.flags ?? {}, {
+                projectmoonttrpg: {
+                  damageType: templateData.damageType ?? null,
+                  rollType: templateData.rollType ?? null,
+                },
+              });
+              if (game.dice3d) {
+                game.dice3d.showForRoll(roll, game.user, true, chatData.whisper, chatData.blind).then(displayed => ChatMessage.create(chatData));
+              }
+              else {
+                chatData.sound = CONFIG.sounds.dice;
+                ChatMessage.create(chatData);
+              }
             });
-            if (game.dice3d) {
-              game.dice3d.showForRoll(roll, game.user, true, chatData.whisper, chatData.blind).then(displayed => ChatMessage.create(chatData));
-            }
-            else {
-              chatData.sound = CONFIG.sounds.dice;
-              ChatMessage.create(chatData);
-            }
+          } catch(error) {
+              console.warn('[PMTTRPG] initiateAttack failed', error);
+          }
+
+          roll.render().then(async r => {
+            templateData.rollPMTTRPG = r;
+            templateData.roll = roll;
+            renderTemplate(template, templateData).then(content => {
+              chatData.content = content;
+              if (game.dice3d) {
+                game.dice3d.showForRoll(roll, game.user, true, chatData.whisper, chatData.blind);
+              }
+              else {
+                chatData.sound = CONFIG.sounds.dice;
+              }
+            });
           });
-        });
+        }
       }
     }
     else {

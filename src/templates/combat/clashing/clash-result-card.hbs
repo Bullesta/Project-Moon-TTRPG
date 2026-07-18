@@ -1,0 +1,128 @@
+<div class="clash-card clash-result-card
+  {{#if attackerWon}}clash-result-card--attack-win{{/if}}
+  {{#if defenderWon}}clash-result-card--defense-win{{/if}}"
+  data-phase="{{state.phase}}">
+
+  {{!-- VS Header --}}
+  <div class="clash-result-card__vs">
+    <div class="clash-result-card__side clash-result-card__side--attacker">
+      <img class="clash-card__avatar" src="{{state.attackerImg}}" alt="{{state.attackerName}}">
+      <span class="clash-result-card__name">{{state.attackerName}}</span>
+      <span class="clash-result-card__item">{{state.attackerItemName}}</span>
+      <span class="clash-result-card__roll-total
+        {{#if attackerWon}}clash-result-card__roll-total--winner{{/if}}">
+        {{state.attackRollTotal}}
+      </span>
+    </div>
+
+    <div class="clash-result-card__divider">
+      <span class="clash-result-card__vs-label">VS</span>
+    </div>
+
+    <div class="clash-result-card__side clash-result-card__side--defender">
+      <img class="clash-card__avatar" src="{{state.retaliatorImg}}" alt="{{state.retaliatorName}}">
+      <span class="clash-result-card__name">{{state.retaliatorName}}</span>
+      <span class="clash-result-card__item">{{state.retaliatorItemName}}</span>
+      <span class="clash-result-card__roll-total
+        {{#if defenderWon}}clash-result-card__roll-total--winner{{/if}}">
+        {{state.defenseRollTotal}}
+      </span>
+    </div>
+  </div>
+
+  {{!-- Defense roll breakdown --}}
+  <div class="clash-result-card__defense-roll">
+    {{{defenseRollHtml}}}
+  </div>
+
+  {{!-- Result banner --}}
+  <div class="clash-result-card__result-banner">
+    {{#if evadeWin}}
+      <i class="fa-solid fa-wind"></i>
+      {{i18n.evadeWin}}
+    {{else if defenderWon}}
+      <i class="fa-solid fa-shield"></i>
+      {{i18n.defenseWin}}
+    {{else}}
+      <i class="fa-solid fa-sword"></i>
+      {{i18n.attackWin}}
+    {{/if}}
+  </div>
+
+  {{!-- Damage summary (attack win only) --}}
+  {{#if attackerWon}}
+    <div class="clash-result-card__damage-summary">
+      <div class="clash-damage-line clash-damage-line--hp">
+        <i class="fa-solid fa-heart"></i>
+        {{state.hpDamage}}
+        {{i18n.hpDamage}}
+      </div>
+      <div class="clash-damage-line clash-damage-line--st">
+        <i class="fa-solid fa-shield"></i>
+        {{state.stDamage}}
+        {{i18n.stDamage}}
+      </div>
+      <div class="clash-damage-type-badge clash-damage-type--{{state.damageType}}">
+        {{i18n.damageType}}
+      </div>
+    </div>
+
+    {{!-- Take the Damage button —
+          disabled once phase is "closed" to prevent double-apply --}}
+    <div class="clash-result-card__actions">
+      <button
+        class="clash-btn clash-btn--take-damage
+          {{#if (eq state.phase 'closed')}}clash-btn--disabled{{/if}}"
+        data-action="clash-take-damage"
+        data-message-id="{{state.resultMessageId}}"
+        {{#if (eq state.phase "closed")}}disabled{{/if}}
+      >
+        <i class="fa-solid fa-hand-fist"></i>
+        {{#if (eq state.phase "closed")}}
+          {{localize "PMTTRPG.Clash.DamageApplied"}}
+        {{else}}
+          {{i18n.takeDamage}}
+        {{/if}}
+      </button>
+    </div>
+  {{/if}}
+
+  {{!-- Evade win: ST regen summary --}}
+  {{#if blockWin}}
+    <div class="clash-result-card__regen-summary">
+      <div class="clash-damage-line clash-damage-line--st-regen">
+        <i class="fa-solid fa-shield"></i>
+        {{state.stDamage}}
+        {{i18n.stDamageToAttacker}}
+      </div>
+    </div>
+  {{/if}}
+
+  {{!-- Evade win: ST regen summary --}}
+  {{#if evadeWin}}
+    <div class="clash-result-card__regen-summary">
+      <div class="clash-damage-line clash-damage-line--st-regen">
+        <i class="fa-solid fa-shield-plus"></i>
+        {{state.stRegen}}
+        {{i18n.stRegen}}
+      </div>
+    </div>
+    <div class="clash-result-card__actions">
+      <button
+        class="clash-btn clash-btn--take-damage
+          {{#if (eq state.phase 'closed')}}clash-btn--disabled{{/if}}"
+        data-action="clash-take-damage"
+        data-message-id="{{state.resultMessageId}}"
+        {{#if (eq state.phase "closed")}}disabled{{/if}}
+      >
+        <i class="fa-solid fa-shield-plus"></i>
+        {{#if (eq state.phase "closed")}}
+          {{localize "PMTTRPG.Clash.DamageApplied"}}
+        {{else}}
+          {{localize "PMTTRPG.Clash.ApplyRegen"}}
+        {{/if}}
+      </button>
+    </div>
+  {{/if}}
+
+</div>

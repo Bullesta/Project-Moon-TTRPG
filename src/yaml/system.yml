@@ -37,6 +37,7 @@ styles:
   - styles/lib/character-sheet.css
   - styles/dist/pm-sheet-inventory.css
   - styles/lib/npc-sheet.css
+  - styles/lib/clash.css
 media:
   - type: setup
     url: "systems/projectmoonttrpg/assets/thumbnail.webp"

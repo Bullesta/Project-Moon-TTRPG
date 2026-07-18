@@ -30,6 +30,8 @@ import {
   registerTokenStatusBadges,
   registerTokenStatusBadgeSettings,
 } from "./canvas/token.js";
+import { registerClashChatListeners } from "./combat/clash-chat.js";
+import { PMTTRPGClashAPI } from "./combat/clashing.js";
 
 import * as chat from "./chat.js";
 
@@ -50,6 +52,7 @@ Hooks.once("init", async function() {
     PMTTRPGUtility,
     targeting: PMTTRPGTargetingAPI,
     statusMacros: PMTTRPGStatusMacroAPI,
+    clash: PMTTRPGClashAPI
   };
 
   // TODO: Extend the combat class.
@@ -173,6 +176,7 @@ Hooks.once("init", async function() {
   preloadHandlebarsTemplates();
 
   registerEasyEffectsHooks();
+  registerClashChatListeners();
 });
 
 Hooks.once("ready", async function() {

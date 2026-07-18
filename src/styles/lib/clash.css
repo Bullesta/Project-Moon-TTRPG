@@ -1,0 +1,479 @@
+/* ── Card base ────────────────────────────────────────────────────────────── */
+
+.clash-card {
+  background:     #fff;
+  border:         1px solid #999;
+  border-radius:  4px;
+  padding:        0.75rem;
+  color:          #191813;
+  font-size:      0.875rem;
+  display:        flex;
+  flex-direction: column;
+  gap:            0.5rem;
+  font-family:    "Signika", sans-serif;
+}
+
+/* ── Header ───────────────────────────────────────────────────────────────── */
+
+.clash-card__header {
+  display:     flex;
+  align-items: center;
+  gap:         0.5rem;
+}
+
+.clash-card__avatar {
+  width:         40px;
+  height:        40px;
+  border-radius: 3px;
+  object-fit:    cover;
+  border:        1px solid #999;
+  flex-shrink:   0;
+}
+
+.clash-card__avatar--target {
+  border:        2px solid #ff6400;
+  box-shadow:    0 0 8px rgba(255, 100, 0, 0.4);
+}
+
+.clash-card__header-text {
+  display:        flex;
+  flex-direction: column;
+  flex:           1;
+  min-width:      0;
+}
+
+.clash-card__actor-name {
+  font-weight:   bold;
+  font-size:     0.95rem;
+  color:         #191813;
+  white-space:   nowrap;
+  overflow:      hidden;
+  text-overflow: ellipsis;
+}
+
+.clash-card__item-name {
+  font-size: 0.8rem;
+  color:     #666;
+}
+
+.clash-card__target-line {
+  font-size:  0.8rem;
+  font-style: italic;
+  color:      #999;
+}
+
+/* ── Roll visibility ──────────────────────────────────────────────────────── */
+
+.clash-card__roll-wrapper {
+  position:    relative;
+  background:  #f5f5f5;
+  border:      1px solid #ddd;
+  border-radius: 3px;
+  padding:     0.5rem;
+}
+
+.clash-roll-hidden .clash-card__roll {
+  filter:         blur(5px);
+  pointer-events: none;
+  user-select:    none;
+  opacity:        0.7;
+}
+
+.clash-card__roll-hidden-label {
+  position:        absolute;
+  inset:           0;
+  display:         flex;
+  align-items:     center;
+  justify-content: center;
+  gap:             0.35rem;
+  font-size:       0.75rem;
+  color:           #999;
+  font-style:      italic;
+  pointer-events:  none;
+  font-weight:     bold;
+}
+
+/* ── Damage type badge ────────────────────────────────────────────────────── */
+
+.clash-card__damage-type,
+.clash-damage-type-badge {
+  display:        inline-flex;
+  align-items:    center;
+  gap:            0.3rem;
+  font-size:      0.7rem;
+  font-weight:    bold;
+  padding:        0.25rem 0.6rem;
+  border-radius:  3px;
+  width:          fit-content;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.clash-damage-type--slash  { background: #ffe5e5; color: #cc0000; border: 1px solid #ffb3b3; }
+.clash-damage-type--pierce { background: #e5f5ff; color: #0066cc; border: 1px solid #b3d9ff; }
+.clash-damage-type--blunt  { background: #fffce5; color: #cc6600; border: 1px solid #ffd9b3; }
+
+/* ── Card status lines ────────────────────────────────────────────────────── */
+
+.clash-card__status {
+  display:       flex;
+  align-items:   center;
+  justify-content: center;
+  gap:           0.4rem;
+  font-size:     0.8rem;
+  padding:       0.5rem;
+  border-radius: 3px;
+  font-weight:   600;
+}
+
+.clash-card__status--rolling {
+  background: #fff8e5;
+  color:      #b39600;
+  border:     1px solid #ffd700;
+}
+
+.clash-card__status--resolved {
+  background: #e5ffe5;
+  color:      #006600;
+  border:     1px solid #99ff99;
+}
+
+/* ── Buttons ──────────────────────────────────────────────────────────────── */
+
+.clash-card__actions,
+.clash-result-card__actions {
+  display:   flex;
+  gap:       0.5rem;
+  flex-wrap: wrap;
+}
+
+.clash-btn {
+  display:       inline-flex;
+  align-items:   center;
+  justify-content: center;
+  gap:           0.4rem;
+  padding:       0.4rem 0.85rem;
+  border-radius: 3px;
+  border:        1px solid #999;
+  font-size:     0.8rem;
+  font-weight:   bold;
+  cursor:        pointer;
+  white-space:   nowrap;
+  transition:    background 0.15s, border-color 0.15s, box-shadow 0.15s;
+  background:    #f5f5f5;
+  color:         #191813;
+  font-family:   "Signika", sans-serif;
+}
+
+.clash-btn:hover:not(:disabled) {
+  background: #efefef;
+  box-shadow: 0 0 4px rgba(0, 0, 0, 0.1);
+}
+
+.clash-btn--retaliate,
+.clash-btn--take-damage {
+  background:    #ffe5cc;
+  border-color:  #ff6400;
+  color:         #b34700;
+}
+
+.clash-btn--retaliate:hover:not(:disabled),
+.clash-btn--take-damage:hover:not(:disabled) {
+  background:   #ffcc99;
+  border-color: #cc5200;
+  box-shadow:   0 0 6px rgba(255, 100, 0, 0.3);
+}
+
+/* Primary target gets a bright blue Retaliate button */
+.clash-btn--primary {
+  background:    #cce5ff;
+  border-color:  #0066cc;
+  color:         #003d99;
+}
+
+.clash-btn--primary:hover:not(:disabled) {
+  background:   #99ccff;
+  border-color: #0052a3;
+  box-shadow:   0 0 6px rgba(0, 102, 204, 0.3);
+}
+
+.clash-btn--intercept {
+  background:   #e8e8e8;
+  border-color: #ccc;
+  color:        #666;
+  opacity:      0.85;
+}
+
+.clash-btn--intercept:hover:not(:disabled) {
+  background: #d9d9d9;
+  opacity:    1;
+}
+
+.clash-btn--disabled,
+.clash-btn:disabled {
+  opacity:        0.5;
+  cursor:         not-allowed;
+  pointer-events: none;
+  background:     #e8e8e8;
+  border-color:   #ccc;
+}
+
+/* ── Result card ──────────────────────────────────────────────────────────── */
+
+.clash-result-card {
+  background: #f9f9f9;
+}
+
+.clash-result-card--attack-win {
+  border-color: #cc0000;
+  border-width: 2px;
+}
+
+.clash-result-card--defense-win {
+  border-color: #006600;
+  border-width: 2px;
+}
+
+.clash-result-card__vs {
+  display:     flex;
+  align-items: flex-start;
+  gap:         0.75rem;
+  padding:     0.5rem 0;
+  border-bottom: 1px solid #ddd;
+}
+
+.clash-result-card__side {
+  flex:           1;
+  display:        flex;
+  flex-direction: column;
+  align-items:    center;
+  text-align:     center;
+  gap:            0.25rem;
+}
+
+.clash-result-card__name {
+  font-weight: bold;
+  font-size:   0.9rem;
+  color:       #191813;
+}
+
+.clash-result-card__item {
+  font-size: 0.75rem;
+  color:     #666;
+}
+
+.clash-result-card__roll-total {
+  font-size:      1.8rem;
+  font-weight:    bold;
+  color:          #999;
+  line-height:    1;
+  font-family:    "Courier New", monospace;
+}
+
+.clash-result-card__roll-total--winner {
+  color:      #006600;
+  text-shadow: 0 0 4px rgba(0, 102, 0, 0.3);
+}
+
+.clash-result-card__divider {
+  display:         flex;
+  flex-direction:  column;
+  align-items:     center;
+  justify-content: center;
+  gap:             0.2rem;
+  flex-shrink:     0;
+  padding:         0 0.5rem;
+}
+
+.clash-result-card__vs-label {
+  font-size:      0.7rem;
+  font-weight:    bold;
+  color:          #999;
+  letter-spacing: 0.15em;
+}
+
+.clash-result-card__margin {
+  font-size:  0.75rem;
+  color:      #666;
+  font-style: italic;
+}
+
+.clash-result-card__result-banner {
+  display:         flex;
+  align-items:     center;
+  justify-content: center;
+  gap:             0.4rem;
+  font-weight:     bold;
+  font-size:       0.95rem;
+  padding:         0.5rem;
+  border-radius:   3px;
+  background:      #f5f5f5;
+  border:          1px solid #ddd;
+  margin:          0.5rem 0;
+}
+
+.clash-result-card--attack-win .clash-result-card__result-banner {
+  color:      #cc0000;
+  background: #ffe5e5;
+  border-color: #ffb3b3;
+}
+
+.clash-result-card--defense-win .clash-result-card__result-banner {
+  color:      #006600;
+  background: #e5ffe5;
+  border-color: #99ff99;
+}
+
+.clash-result-card__damage-summary,
+.clash-result-card__regen-summary {
+  display:        flex;
+  flex-direction: column;
+  gap:            0.25rem;
+  padding:        0.5rem;
+  background:     #f9f9f9;
+  border:         1px solid #e0e0e0;
+  border-radius:  3px;
+  margin:         0.5rem 0;
+}
+
+.clash-damage-line {
+  display:     flex;
+  align-items: center;
+  gap:         0.4rem;
+  font-size:   0.85rem;
+  font-weight: 500;
+}
+
+.clash-damage-line--hp {
+  color: #cc0000;
+}
+
+.clash-damage-line--st {
+  color: #cc6600;
+}
+
+.clash-damage-line--st-regen {
+  color: #006600;
+}
+
+/* ── Retaliation dialog ───────────────────────────────────────────────────── */
+
+.clash-retaliation-form {
+  display:        flex;
+  flex-direction: column;
+  gap:            0.75rem;
+  padding:        0.5rem;
+}
+
+.clash-retaliation-form__context {
+  display:     flex;
+  align-items: center;
+  gap:         0.6rem;
+  padding:     0.5rem;
+  background:  #f5f5f5;
+  border:      1px solid #ddd;
+  border-radius: 3px;
+}
+
+.clash-retaliation-form__context-text {
+  display:        flex;
+  flex-direction: column;
+}
+
+.clash-retaliation-form__attacked-by {
+  font-weight: bold;
+  font-size:   0.9rem;
+  color:       #191813;
+}
+
+.clash-retaliation-form__weapon {
+  font-size: 0.75rem;
+  color:     #666;
+}
+
+.clash-retaliation-form__divider {
+  border:     none;
+  border-top: 1px solid #ddd;
+  margin:     0.25rem 0;
+}
+
+.clash-retaliation-form__options {
+  display:        flex;
+  flex-direction: column;
+  gap:            0.4rem;
+}
+
+.clash-option {
+  display:       flex;
+  align-items:   center;
+  gap:           0.5rem;
+  padding:       0.4rem 0.6rem;
+  border-radius: 3px;
+  cursor:        pointer;
+  border:        1px solid #ddd;
+  transition:    background 0.12s, border-color 0.12s;
+  background:    #fff;
+}
+
+.clash-option:hover {
+  background:   #f9f9f9;
+  border-color: #ccc;
+}
+
+.clash-option:has(input:checked) {
+  background:   #cce5ff;
+  border-color: #0066cc;
+}
+
+.clash-option input[type="radio"] {
+  accent-color: #0066cc;
+}
+
+.clash-option__icon {
+  width:       1.2rem;
+  text-align:  center;
+  color:       #0066cc;
+  flex-shrink: 0;
+  font-size:   1.1rem;
+}
+
+.clash-option__label {
+  font-size:   0.85rem;
+  font-weight: 500;
+  color:       #191813;
+}
+
+.clash-item-picker {
+  display:        flex;
+  flex-direction: column;
+  gap:            0.3rem;
+  padding:        0.5rem;
+  background:     #f9f9f9;
+  border-radius:  3px;
+  border:         1px solid #ddd;
+}
+
+.clash-item-picker__label {
+  font-size:   0.75rem;
+  color:       #666;
+  font-weight: bold;
+  display:     flex;
+  gap:         0.35rem;
+  align-items: center;
+}
+
+.clash-item-picker__select {
+  background:      #fff;
+  border:          1px solid #999;
+  border-radius:   3px;
+  color:           #191813;
+  padding:         0.35rem;
+  font-size:       0.85rem;
+  font-family:     "Signika", sans-serif;
+}
+
+.clash-item-picker__select:focus {
+  outline:     none;
+  border-color: #0066cc;
+  box-shadow:  0 0 4px rgba(0, 102, 204, 0.3);
+}
