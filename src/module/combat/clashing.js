@@ -230,7 +230,6 @@ async function _executeClash(state, retaliatorActor, choice) {
 
   // Compute damage using accumulated bonuses.
   const baseDamage = Number(attackerItem?.system?.damageBonus ?? 0);
-
   state.phase    = CLASH_PHASES.RESOLVED;
 
   // Fire clash resolution hooks for EasyEffects.
