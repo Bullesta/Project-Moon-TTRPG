@@ -32,6 +32,8 @@ import {
 } from "./canvas/token.js";
 import { registerClashChatListeners } from "./combat/clash-chat.js";
 import { PMTTRPGClashAPI } from "./combat/clashing.js";
+import ChatMessagePMTTRPG from "./chat/chat-message-pmttrpg.js";
+import { registerSocketHandlers } from "./sockets.js";
 
 import * as chat from "./chat.js";
 
@@ -55,10 +57,8 @@ Hooks.once("init", async function() {
     clash: PMTTRPGClashAPI
   };
 
-  // TODO: Extend the combat class.
-  // CONFIG.Combat.entityClass = CombatPMTTRPG;
-
   CONFIG.PMTTRPG = PMTTRPG;
+  CONFIG.ChatMessage.documentClass = ChatMessagePMTTRPG;
   CONFIG.Actor.documentClass = ActorPMTTRPG;
   CONFIG.Item.documentClass = ItemPMTTRPG;
   registerTokenStatusBadges();
@@ -176,7 +176,7 @@ Hooks.once("init", async function() {
   preloadHandlebarsTemplates();
 
   registerEasyEffectsHooks();
-  registerClashChatListeners();
+  registerClashRenderer();
 });
 
 Hooks.once("ready", async function() {
@@ -239,6 +239,9 @@ Hooks.once("ready", async function() {
       ui.combat.render();
     }
   });
+  
+  registerSocketHandlers();
+  registerClashChatListeners();
 });
 
 Hooks.on('createChatMessage', async (message, options, id) => {
