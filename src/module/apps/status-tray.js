@@ -161,7 +161,7 @@ async function applyStatusToTokenDrop(data) {
   }
 
   const stacks = Math.max(0, Math.trunc(Number(item.system?.stacks ?? 1) || 0));
-  if (stacks > 0) await actor.addStatusStacks(item.name, stacks);
+  if (stacks > 0) await actor.addStatusStacks(item.name, stacks, item);
 }
 
 function registerStatusCanvasDrop() {

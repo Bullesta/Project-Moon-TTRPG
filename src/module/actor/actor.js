@@ -732,9 +732,10 @@ export class ActorPMTTRPG extends Actor {
    * Add status stacks, creating the item from the system pack if needed.
    * @param {string} statusName
    * @param {number} [amount=1]
+   * @param {Item|object|null} [source=null]  Optional template when not already on the actor / in a pack
    * @returns {Promise<Item[]>}
    */
-  async addStatusStacks(statusName, amount = 1) {
+  async addStatusStacks(statusName, amount = 1, source = null) {
     const add = Math.max(0, Math.trunc(Number(amount) || 0));
     if (add <= 0) return [];
 
@@ -746,6 +747,10 @@ export class ActorPMTTRPG extends Actor {
     let itemData;
     if (sourceItem) {
       itemData = sourceItem.toObject();
+    } else if (source) {
+      itemData = typeof source.toObject === "function"
+        ? source.toObject()
+        : foundry.utils.duplicate(source);
     } else {
       itemData = await ActorPMTTRPG._fetchStatusFromCompendium(statusName);
       if (!itemData) {
