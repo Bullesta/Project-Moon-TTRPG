@@ -7,7 +7,6 @@
   <div class="reading">
 
     <input class="num cur" type="text" name="{{tracker.valueName}}" value="{{tracker.value}}" data-dtype="Number"
-
            style="width: {{tracker.curWidth}}px" aria-label="{{tracker.ariaCurrent}}">
 
     {{#if tracker.showTemp}}
@@ -18,7 +17,7 @@
 
     <span class="sep">/</span>
 
-    <span class="maxview">{{tracker.effMax}}</span>
+    <span class="maxview{{#if tracker.eeMaxOverridden}} ee-overridden{{/if}}"{{#if tracker.eeMaxOverridden}} title="{{tracker.eeOverrideTitle}}"{{/if}}>{{tracker.effMax}}</span>
 
   </div>
 

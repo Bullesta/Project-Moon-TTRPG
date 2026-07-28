@@ -227,18 +227,35 @@ export class CombatSidebarPMTTRPG {
       const statusMacros = game.projectmoonttrpg?.statusMacros;
       if (!statusMacros) return;
 
-      const previousCombatant = snapshot.combatantId ? combat.combatants.get(snapshot.combatantId) : null;
       const currentCombatant = combat.combatant ?? null;
+      const prevRound = Number(snapshot.round ?? 0);
+      const nextRound = Number(combat.round ?? 0);
+      const roundEnded = nextRound > prevRound && prevRound >= 1;
 
-      if (previousCombatant?.actor) {
-        await statusMacros.emitTurnEnd({
-          actor: previousCombatant.actor,
-          actorId: previousCombatant.actor.id,
-          combat,
-          combatant: previousCombatant,
-          previous: snapshot,
-          current: { turn: combat.turn, round: combat.round },
-        });
+      if (roundEnded) {
+        const seenActors = new Set();
+        const current = { turn: combat.turn, round: combat.round };
+        for (const combatant of combat.combatants) {
+          const actor = combatant?.actor;
+          if (!actor || seenActors.has(actor.id)) continue;
+          seenActors.add(actor.id);
+
+          const payload = {
+            actor,
+            actorId: actor.id,
+            combat,
+            combatant,
+            previous: snapshot,
+            current,
+          };
+
+          await statusMacros.emitEndOfRound(payload);
+          try {
+            Hooks.callAll("pmttrpg.endOfRound", payload);
+          } catch (error) {
+            console.warn("[EasyEffects] endOfRound hook failed", error);
+          }
+        }
       }
 
       if (currentCombatant?.actor) {

@@ -1,5 +1,11 @@
 import { PMTTRPGUtility } from "../utility.js";
 import { buildEffectSummaryGroups, computeEffectSummary } from "../effects/effect-summary.js";
+import {
+  buildEasyEffectsFromHostEffects,
+  isEasyEffectsSyncDirty,
+  syncEasyEffectsFromHostEffects,
+} from "../easy-effects/sync-from-effects.js";
+import { sluggify } from "../slug.js";
 
 const { ItemSheetV2 } = foundry.applications.sheets;
 const { HandlebarsApplicationMixin } = foundry.applications.api;
@@ -35,10 +41,14 @@ export class PMTTRPGItemSheet extends HandlebarsApplicationMixin(ItemSheetV2) {
       "dismiss-outdated": PMTTRPGItemSheet.prototype._onDismissOutdated,
       syncFromCompendium: PMTTRPGItemSheet.prototype._onSyncFromCompendium,
       dismissOutdated: PMTTRPGItemSheet.prototype._onDismissOutdated,
+      "regenerate-slug": PMTTRPGItemSheet.prototype._onRegenerateSlug,
+      regenerateSlug: PMTTRPGItemSheet.prototype._onRegenerateSlug,
+      "sync-easy-effects": PMTTRPGItemSheet.prototype._onSyncEasyEffects,
+      syncEasyEffects: PMTTRPGItemSheet.prototype._onSyncEasyEffects,
     },
   };
 
-  // No template here — _renderHTML resolves the path dynamically from item type.
+  // _renderHTML resolves the template from the item type.
   // Subclasses override this with their own static PARTS.
   static PARTS = {
     body: {}
@@ -276,6 +286,18 @@ export class PMTTRPGItemSheet extends HandlebarsApplicationMixin(ItemSheetV2) {
 
     context.supportsEasyEffects = this._supportsEasyEffects();
     context.supportsEffects = this._supportsEffects();
+    context.canSyncEasyEffects = this._supportsEffects() && this.isEditable;
+    context.easyEffectsHint = this.document.type === "effect"
+      ? "PMTTRPG.EasyEffectsEffectTemplateHint"
+      : this._supportsEffects()
+        ? "PMTTRPG.EasyEffectsHostSyncHint"
+        : null;
+    context.slugPlaceholder = this.document.slug || "";
+
+    // On an actor the Current Stacks is the actor total accumulative stacks.
+    if (itemData.type === "status" && this.document.parent?.getStatusStacks) {
+      context.system.stacks = this.document.parent.getStatusStacks(this.document.name);
+    }
 
     return context;
   }
@@ -393,6 +415,25 @@ export class PMTTRPGItemSheet extends HandlebarsApplicationMixin(ItemSheetV2) {
     return super._prepareSubmitData(event, form, formData, updateData);
   }
 
+  async _processSubmitData(event, form, submitData, options) {
+    // Route actor-owned stack changes through the status API.
+    if (this.document.type === "status" && this.document.parent?.setStatusStacks) {
+      const hasStacks = Object.prototype.hasOwnProperty.call(submitData.system ?? {}, "stacks");
+      const stacks = hasStacks ? submitData.system.stacks : undefined;
+      if (hasStacks) delete submitData.system.stacks;
+
+      const flat = foundry.utils.flattenObject(submitData);
+      if (Object.keys(flat).length) {
+        await super._processSubmitData(event, form, submitData, options);
+      }
+      if (hasStacks) {
+        await this.document.parent.setStatusStacks(this.document.name, stacks);
+      }
+      return;
+    }
+    return super._processSubmitData(event, form, submitData, options);
+  }
+
   async _onSubmitForm(formConfig, event) {
     if (this.document.type !== "class") {
       return super._onSubmitForm(formConfig, event);
@@ -489,7 +530,66 @@ export class PMTTRPGItemSheet extends HandlebarsApplicationMixin(ItemSheetV2) {
 
   // separated cause effects & EasyEffects are different, though the function is the same currently, may not be the case always
   _supportsEasyEffects() {
-    return ['weapon', 'outfit', 'skill', 'augment', 'tool'].includes(this.document.type);
+    return ['weapon', 'outfit', 'skill', 'augment', 'tool', 'status', 'effect'].includes(this.document.type);
+  }
+
+  async _onRegenerateSlug(event, target) {
+    if (!this.isEditable) return;
+    event.preventDefault();
+    const slug = sluggify(this.document.name ?? "");
+    await this.document.update({ "system.slug": slug });
+  }
+
+  async _onSyncEasyEffects(event, target) {
+    if (!this.isEditable || !this._supportsEffects()) return;
+    event.preventDefault();
+
+    const button = target;
+    const current = String(this.document.system?.easyEffects ?? "");
+    const expectedInner = await buildEasyEffectsFromHostEffects(this.document);
+    const dirty = isEasyEffectsSyncDirty(current, expectedInner);
+    const now = Date.now();
+
+    if (dirty && !(this._eeSyncArmed && now < (this._eeSyncArmedUntil ?? 0))) {
+      this._eeSyncArmed = true;
+      this._eeSyncArmedUntil = now + 3000;
+      button.classList.remove("synced");
+      button.classList.add("armed");
+      button.textContent = game.i18n.localize("PMTTRPG.EasyEffectsSyncConfirm");
+      clearTimeout(this._eeSyncTimer);
+      this._eeSyncTimer = setTimeout(() => {
+        this._eeSyncArmed = false;
+        if (!button.isConnected) return;
+        button.classList.remove("armed");
+        button.textContent = game.i18n.localize("PMTTRPG.EasyEffectsSync");
+      }, 3000);
+      return;
+    }
+
+    this._eeSyncArmed = false;
+    clearTimeout(this._eeSyncTimer);
+    await syncEasyEffectsFromHostEffects(this.document, { force: true });
+
+    button.classList.remove("armed");
+    button.classList.add("synced");
+    button.textContent = game.i18n.localize("PMTTRPG.EasyEffectsSynced");
+    clearTimeout(this._eeSyncDoneTimer);
+    this._eeSyncDoneTimer = setTimeout(() => {
+      if (!button.isConnected) return;
+      button.classList.remove("synced");
+      button.textContent = game.i18n.localize("PMTTRPG.EasyEffectsSync");
+    }, 2500);
+  }
+
+  // Auto-sync only while the managed region is clean/unmodified.
+  async _maybeAutoSyncEasyEffects(previousEffects) {
+    if (!this._supportsEffects()) return;
+    const opts = { force: false };
+    if (previousEffects !== undefined) opts.previousEffects = previousEffects;
+    const result = await syncEasyEffectsFromHostEffects(this.document, opts);
+    if (result?.dirty) {
+      ui.notifications?.warn(game.i18n.localize("PMTTRPG.EasyEffectsSyncDirty"));
+    }
   }
 
   _effectHostType() {
@@ -757,8 +857,10 @@ export class PMTTRPGItemSheet extends HandlebarsApplicationMixin(ItemSheetV2) {
     const effects = foundry.utils.duplicate(this.document.system.effects ?? []);
 
     if (action === 'delete' && index >= 0) {
+      const previousEffects = foundry.utils.duplicate(this.document.system.effects ?? []);
       effects.splice(index, 1);
       await this.document.update({ 'system.effects': effects });
+      await this._maybeAutoSyncEasyEffects(previousEffects);
     }
   }
 
@@ -796,12 +898,14 @@ export class PMTTRPGItemSheet extends HandlebarsApplicationMixin(ItemSheetV2) {
     const stackRaw = Number(event.currentTarget.value ?? 1);
     const stackMax = Math.max(1, Number(row?.dataset?.stackMax ?? 5) || 5);
     const stack = Math.max(1, Math.min(stackMax, Number.isFinite(stackRaw) ? stackRaw : 1));
-    const effects = foundry.utils.duplicate(this.document.system.effects ?? []);
+    const previousEffects = foundry.utils.duplicate(this.document.system.effects ?? []);
+    const effects = foundry.utils.duplicate(previousEffects);
     if (!effects[index]) return;
 
     effects[index].stack = stack;
     effects[index].count = stack;
     await this.document.update({ 'system.effects': effects });
+    await this._maybeAutoSyncEasyEffects(previousEffects);
   }
 
   async _onEffectProcResultChange(event) {
@@ -861,11 +965,13 @@ export class PMTTRPGItemSheet extends HandlebarsApplicationMixin(ItemSheetV2) {
     const index = Number(row?.dataset?.index ?? -1);
     if (index < 0) return;
 
-    const effects = foundry.utils.duplicate(this.document.system.effects ?? []);
+    const previousEffects = foundry.utils.duplicate(this.document.system.effects ?? []);
+    const effects = foundry.utils.duplicate(previousEffects);
     if (!effects[index]) return;
 
     effects[index].mode = `${event.currentTarget.value ?? 'positive'}`;
     await this.document.update({ 'system.effects': effects });
+    await this._maybeAutoSyncEasyEffects(previousEffects);
   }
 
   _onEffectDragOver(event) {
@@ -915,8 +1021,10 @@ export class PMTTRPGItemSheet extends HandlebarsApplicationMixin(ItemSheetV2) {
       mode: effectData.system?.cost < 0 || effectData.system?.canPositive === false ? 'negative' : 'positive'
     });
 
-    const effects = this._mergeHostEffectEntries(this.document.system.effects ?? [], incoming);
+    const previousEffects = foundry.utils.duplicate(this.document.system.effects ?? []);
+    const effects = this._mergeHostEffectEntries(previousEffects, incoming);
     await this.document.update({ 'system.effects': effects });
+    await this._maybeAutoSyncEasyEffects(previousEffects);
   }
 
   async _onDrop(event) {
@@ -934,13 +1042,15 @@ export class PMTTRPGItemSheet extends HandlebarsApplicationMixin(ItemSheetV2) {
 
     if ((droppedItem.system?.appliesTo ?? this._effectHostType()) !== this._effectHostType()) return false;
 
+    const previousEffects = foundry.utils.duplicate(this.document.system.effects ?? []);
     const effects = this._mergeHostEffectEntries(
-      this.document.system.effects ?? [],
+      previousEffects,
       this._createHostEffectEntry(droppedItem, {
         mode: droppedItem.system?.cost < 0 || droppedItem.system?.canPositive === false ? 'negative' : 'positive'
       })
     );
     await this.document.update({ 'system.effects': effects });
+    await this._maybeAutoSyncEasyEffects(previousEffects);
     return false;
   }
 }

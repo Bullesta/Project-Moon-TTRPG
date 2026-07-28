@@ -131,10 +131,23 @@
     }
 
     .chat-damage-buttons {
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+      margin: 5px 0;
+    }
+
+    .chat-damage-apply {
       display: grid;
       grid-template-columns: repeat(4, minmax(0, 1fr));
       gap: 5px;
-      margin: 5px 0;
+    }
+
+    .chat-damage-pools,
+    .chat-damage-types {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 5px;
     }
 
     .row.xp {
@@ -160,6 +173,23 @@
       &.button-disabled:hover {
         background: $c-navy;
         box-shadow: 0 0 2px $c-navy-hover inset;
+      }
+
+      &.pool,
+      &.dtype {
+        background: rgba(0, 0, 0, 0.08);
+        color: $c-black;
+        box-shadow: none;
+
+        &.active {
+          background: $c-navy;
+          color: $c-white;
+        }
+
+        &:hover:not(.active) {
+          background: $c-navy-top;
+          color: $c-black;
+        }
       }
 
       &.damage {
@@ -189,6 +219,87 @@
 
     .button-disabled {
       opacity: 0.5;
+    }
+
+    .damage-taken {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 6px 10px;
+      margin: 4px 0;
+      padding: 6px 8px;
+      border: 1px solid #ccc;
+      border-radius: 3px;
+      background: rgba(0, 0, 0, 0.04);
+
+      .statements {
+        flex: 1 1 auto;
+        min-width: 0;
+      }
+
+      &.reverted .statements {
+        text-decoration: line-through;
+        opacity: 0.65;
+      }
+
+      .damage-taken__pools {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 4px;
+        margin: 0;
+        padding: 0;
+        list-style: none;
+      }
+
+      .damage-taken__pool {
+        display: inline-flex;
+        align-items: baseline;
+        gap: 3px;
+        padding: 1px 6px;
+        border-radius: 3px;
+        font-weight: bold;
+        font-size: 12px;
+
+        &.is-damage {
+          background: rgba($c-failure, 0.15);
+          color: #8a0505;
+        }
+
+        &.is-heal {
+          background: rgba($c-critical, 0.15);
+          color: #185c00;
+        }
+      }
+
+      .damage-breakdown {
+        flex: 0 0 auto;
+        color: #555;
+        cursor: help;
+        font-size: 12px;
+        line-height: 1;
+      }
+
+      .revert-damage {
+        flex: 0 0 auto;
+        width: 28px;
+        height: 28px;
+        padding: 0;
+        line-height: 1;
+        cursor: pointer;
+      }
+    }
+  }
+}
+
+#tooltip.damage-breakdown-tooltip,
+.damage-breakdown-tooltip {
+  .damage-breakdown-list {
+    margin: 0;
+    padding-left: 1.1em;
+    text-align: left;
+
+    li {
+      margin: 0.15em 0;
     }
   }
 }

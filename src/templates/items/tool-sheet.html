@@ -32,6 +32,7 @@
         {{#if supportsEasyEffects}}
         <a class="item{{#if (eq activeTab 'easy-effects')}} active{{/if}}" data-action="tab" data-group="primary" data-tab="easy-effects">{{localize "PMTTRPG.EasyEffects"}}</a>
         {{/if}}
+        <a class="item{{#if (eq activeTab 'advanced')}} active{{/if}}" data-action="tab" data-group="primary" data-tab="advanced">{{localize "PMTTRPG.Advanced"}}</a>
     </nav>
 
     {{!-- Sheet Body --}}
@@ -169,6 +170,16 @@
           {{> "systems/projectmoonttrpg/templates/parts/easy-effects.html"}}
         </div>
         {{/if}}
+
+        <div class="tab{{#if (eq activeTab 'advanced')}} active{{/if}}" data-group="primary" data-tab="advanced">
+          <div class="resource-group">
+            {{> "systems/projectmoonttrpg/templates/parts/item-slug-field.hbs"}}
+            <div class="resource">
+              <label>{{localize "PMTTRPG.CustomNotes"}}</label>
+              <textarea name="system.customNotes" rows="5" data-dtype="String">{{system.customNotes}}</textarea>
+            </div>
+          </div>
+        </div>
     </section>
   </div>
 </div>

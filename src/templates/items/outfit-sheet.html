@@ -134,6 +134,7 @@
 
       <div class="tab{{#if (eq activeTab 'advanced')}} active{{/if}}" data-group="primary" data-tab="advanced">
         <div class="resource-group">
+          {{> "systems/projectmoonttrpg/templates/parts/item-slug-field.hbs"}}
           <div class="resource">
             <label>{{localize "PMTTRPG.CustomNotes"}}</label>
             <textarea name="system.customNotes" rows="6" data-dtype="String">{{system.customNotes}}</textarea>

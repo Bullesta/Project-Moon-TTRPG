@@ -56,32 +56,6 @@
     <header class="tab-section-header">
       <h3 class="tab-section-title">{{localize "PMTTRPG.ActiveStatuses"}}</h3>
     </header>
-    {{#if statuses.length}}
-    <ol class="items-list">
-      {{#each statuses as |status|}}
-      <li class="item item--status collapsed" data-item-id="{{status.representative._id}}" data-status-key="{{status.key}}">
-        <div class="item-title-row">
-          <div class="item-title-row__lead">
-            {{> "systems/projectmoonttrpg/templates/sheet/character/partials/item-thumb.hbs" img=status.img name=status.name}}
-            <strong class="item-name">{{status.name}} <span class="item-count">×{{status.count}}</span></strong>
-          </div>
-          <div class="item-controls">
-            <button type="button" class="item-control" data-action="statusControl" data-control="decrease" title='{{localize "PMTTRPG.RemoveStack"}}' aria-label='{{localize "PMTTRPG.RemoveStack"}}'><i class="fas fa-minus" aria-hidden="true"></i></button>
-            <button type="button" class="item-control" data-action="statusControl" data-control="increase" title='{{localize "PMTTRPG.AddStack"}}' aria-label='{{localize "PMTTRPG.AddStack"}}'><i class="fas fa-plus" aria-hidden="true"></i></button>
-            <button type="button" class="item-control" data-action="itemEdit" data-item-id="{{status.representative._id}}" title="{{localize "PMTTRPG.Common.EditItem"}}" aria-label="{{localize "PMTTRPG.Common.EditItem"}}"><i class="fas fa-edit" aria-hidden="true"></i></button>
-            <button type="button" class="item-control item-toggle-details" data-action="toggleDetails" aria-expanded="false" title="{{localize "PMTTRPG.Common.Details"}}" aria-label="{{localize "PMTTRPG.Common.Details"}}"><i class="fas fa-chevron-down" aria-hidden="true"></i></button>
-          </div>
-        </div>
-        <div class="item-details">
-          {{#if status.system.descriptionEnriched}}
-          <div class="item-flavor description">{{{status.system.descriptionEnriched}}}</div>
-          {{/if}}
-        </div>
-      </li>
-      {{/each}}
-    </ol>
-    {{else}}
-    <p class="tab-empty">{{localize "PMTTRPG.NoStatuses"}}</p>
-    {{/if}}
+    {{> "systems/projectmoonttrpg/templates/sheet/character/partials/status-list.hbs"}}
   </section>
 </div>

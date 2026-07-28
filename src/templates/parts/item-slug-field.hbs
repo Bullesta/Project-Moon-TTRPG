@@ -1,0 +1,19 @@
+<div class="resource item-slug-field">
+  <label>{{localize "PMTTRPG.ItemSlug"}}</label>
+  <div class="item-slug-field__row">
+    <input
+      type="text"
+      name="system.slug"
+      value="{{system.slug}}"
+      data-dtype="String"
+      placeholder="{{slugPlaceholder}}"
+      spellcheck="false"
+    />
+    <button
+      type="button"
+      class="item-slug-field__regen"
+      data-action="regenerate-slug"
+      title="{{localize "PMTTRPG.ItemSlugRegenerate"}}"
+    ><i class="fas fa-sync-alt" inert></i></button>
+  </div>
+</div>

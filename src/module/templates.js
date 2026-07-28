@@ -8,9 +8,13 @@
   // Define template paths to load
   const templatePaths = [
     "systems/projectmoonttrpg/templates/parts/chat-buttons.html",
+    "systems/projectmoonttrpg/templates/chat/damage-taken.hbs",
+    "systems/projectmoonttrpg/templates/chat/damage-breakdown.hbs",
     "systems/projectmoonttrpg/templates/parts/initiative-character.html",
     "systems/projectmoonttrpg/templates/parts/effects-list.html",
     "systems/projectmoonttrpg/templates/parts/easy-effects.html",
+    "systems/projectmoonttrpg/templates/parts/item-slug-field.hbs",
+    "systems/projectmoonttrpg/templates/apps/status-tray.hbs",
     // Character sheet (AppV2) partials referenced by sheet.hbs
     "systems/projectmoonttrpg/templates/sheet/character/partials/tracker.hbs",
     "systems/projectmoonttrpg/templates/sheet/character/partials/resists.hbs",
@@ -36,6 +40,7 @@
     "systems/projectmoonttrpg/templates/sheet/character/partials/item-controls-tool.hbs",
     "systems/projectmoonttrpg/templates/sheet/character/partials/damage-type-icon.hbs",
     "systems/projectmoonttrpg/templates/sheet/character/partials/item-thumb.hbs",
+    "systems/projectmoonttrpg/templates/sheet/character/partials/status-list.hbs",
     "systems/projectmoonttrpg/templates/sheet/character/partials/item-attack-dice.hbs",
     "systems/projectmoonttrpg/templates/sheet/character/partials/item-defense-dice.hbs",
     "systems/projectmoonttrpg/templates/sheet/character/partials/item-resist-tile.hbs",

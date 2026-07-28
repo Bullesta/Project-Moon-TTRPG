@@ -7,6 +7,13 @@
       data-dtype="String"
       {{#unless editable}}disabled{{/unless}}
     >{{system.easyEffects}}</textarea>
+    {{#if canSyncEasyEffects}}
+    <div class="easy-effects-sync-row">
+      <button type="button" class="easy-effects-sync" data-action="sync-easy-effects">
+        {{localize "PMTTRPG.EasyEffectsSync"}}
+      </button>
+    </div>
+    {{/if}}
     {{#if easyEffectsHint}}
     <div class="help-text"><p>{{localize easyEffectsHint}}</p></div>
     {{/if}}

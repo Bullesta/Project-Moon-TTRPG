@@ -149,7 +149,7 @@ Multi-targets loop over `game.combat.combatants`.
 
 ### Status names
 
-Status names are either a bare `IDENT` (single word, no quotes) or a `STRING` (double-quoted, may contain spaces):
+Status names are either a bare `IDENT` (single word, no quotes) or a `STRING` (double-quoted, may contain spaces). Quote reserved EE keywords too (`"Double"`, `"half"`, …):
 
 ```
 do add status Burn 1 on target;
@@ -178,7 +178,7 @@ Anywhere a numeric value is expected — amounts, `per` clauses, condition opera
 | Operator | Meaning | Precedence |
 |----------|---------|-----------|
 | `+` `-` | Addition, subtraction | Low |
-| `*` `/` `%` `//` | Multiply, divide, modulo, floor-div | High |
+| `*` `/` `%` `//` `//f` `//c` | Multiply, divide, modulo, floor-div, ceil-div | High |
 
 Standard operator precedence applies. Parens nest normally.
 
@@ -238,6 +238,13 @@ The natural-language forms are **syntactic sugar** — they parse into the same 
 |-------|------------|
 | `gain N Status [on T]` | `do add status Status N [on T]` |
 | `lose N Status [on T]` | `do remove status Status N [on T]` |
+| `halve Status [on T]` | `do remove status Status (T.status.Status //c 2) on T` |
+| `double Status [on T]` | `do add status Status (T.status.Status) on T` |
+| `lose half [of] Status [on T]` | same as `halve` |
+| `gain double [of] Status [on T]` | same as `double` |
+| bare `Status` in `(…)` / amounts | `self.status.<StatusName>` |
+| `convert [amount] damage to pool\|type` | mutates pending `context.damage` (pool / damageType / amount) |
+| `set maxHp\|maxSt\|maxSp\|maxLight to N` | Always Active absolute max -> `eeMods.overrides` |
 | `require N T Status then X` | `if (T.status.Status) >= N do X` |
 | `require (expr) op rhs then X` | `if (expr) op rhs do X` |
 | `spend N Status [on T] to X` | `if (T.status.Status) >= N do X and remove status Status N on T` |
