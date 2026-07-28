@@ -1,12 +1,17 @@
 import { PMTTRPGTargetingAPI } from "./targeting.js";
+import { uniqueStatusItems } from "./status/group-statuses.js";
 
 const STATUS_EVENTS = {
   onTurnStart: {
     hook: 'projectmoonttrpg.onTurnStart',
     procField: 'turnStart'
   },
+  onEndOfRound: {
+    hook: 'projectmoonttrpg.onEndOfRound',
+    procField: 'endOfRound'
+  },
   onTurnEnd: {
-    hook: 'projectmoonttrpg.onTurnEnd',
+    hook: 'projectmoonttrpg.onEndOfRound',
     procField: 'endOfRound'
   },
   onActionOrReaction: {
@@ -54,23 +59,6 @@ function getStatusItems(actorOrId) {
   const actor = resolveActor(actorOrId);
   if (!actor) return [];
   return actor.items.filter(item => item.type === 'status');
-}
-
-function getStatusKey(statusItem) {
-  return `${statusItem?.name ?? ''}`.trim().toLowerCase();
-}
-
-function getUniqueStatusItems(statusItems = []) {
-  const grouped = new Map();
-
-  for (const statusItem of statusItems) {
-    const key = getStatusKey(statusItem) || statusItem.id;
-    if (!grouped.has(key)) {
-      grouped.set(key, statusItem);
-    }
-  }
-
-  return Array.from(grouped.values());
 }
 
 function resolveStatus(statusOrId) {
@@ -126,7 +114,7 @@ async function emitStatusEvent(eventName, payload = {}, { runMacros = true } = {
 
   const actor = resolveActor(payload.actor ?? payload.actorId);
   const statusItems = getStatusItemsForEvent(actor, eventName);
-  const statuses = getUniqueStatusItems(statusItems);
+  const statuses = uniqueStatusItems(statusItems);
   const context = {
     event: eventName,
     actor,
@@ -201,7 +189,8 @@ export const PMTTRPGStatusMacroAPI = {
   registerManualButtonCallback,
 
   // Convenience wrappers for common macro-development flow.
-  onTurnEnd(callback) { return registerEventCallback('onTurnEnd', callback); },
+  onEndOfRound(callback) { return registerEventCallback('onEndOfRound', callback); },
+  onTurnEnd(callback) { return registerEventCallback('onTurnEnd', callback); }, // alias of onEndOfRound
   onTurnStart(callback) { return registerEventCallback('onTurnStart', callback); },
   onActionOrReaction(callback) { return registerEventCallback('onActionOrReaction', callback); },
   onAttackerBurst(callback) { return registerEventCallback('onAttackerBurst', callback); },
@@ -213,7 +202,8 @@ export const PMTTRPGStatusMacroAPI = {
   onManualButton(callback) { return registerManualButtonCallback(callback); },
 
   emitTurnStart(payload, options) { return emitStatusEvent('onTurnStart', payload, options); },
-  emitTurnEnd(payload, options) { return emitStatusEvent('onTurnEnd', payload, options); },
+  emitEndOfRound(payload, options) { return emitStatusEvent('onEndOfRound', payload, options); },
+  emitTurnEnd(payload, options) { return emitStatusEvent('onEndOfRound', payload, options); }, // alias
   emitActionOrReaction(payload, options) { return emitStatusEvent('onActionOrReaction', payload, options); },
   emitAttackerBurst(payload, options) { return emitStatusEvent('onAttackerBurst', payload, options); },
   emitHitSelf(payload, options) { return emitStatusEvent('onHitSelf', payload, options); },

@@ -235,6 +235,7 @@ Item:
     base:
       name: ''
       description: ''
+      slug: ''
   weapon:
     templates:
       - base
@@ -348,9 +349,14 @@ Item:
     macro:
       uuid: ''
     customNotes: ''
+    easyEffects: ''
   status:
     templates:
       - base
+    stacks: 1
+    stackMax: 0
+    priority: 0
     macro:
       uuid: ''
     customNotes: ''
+    easyEffects: ''

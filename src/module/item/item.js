@@ -4,6 +4,7 @@ import { getRankFromLevel } from "../actor/progression.js";
 import { computeEffectSummary, normalizeEffectEntries } from "../effects/effect-summary.js";
 import { slotCostFromHand } from "../inventory/slots.js";
 import { useTool } from "./tool-use.js";
+import { getItemSlug, sluggify } from "../slug.js";
 import {
   buildAppliedToolOnBeforeChat,
   buildAppliedToolTemplateData,
@@ -26,6 +27,10 @@ function getEffectSignature(entry) {
 }
 
 export class ItemPMTTRPG extends Item {
+  get slug() {
+    return getItemSlug(this);
+  }
+
   /** @override */
   static migrateData(source) {
     source = super.migrateData(source) ?? source;
@@ -33,7 +38,20 @@ export class ItemPMTTRPG extends Item {
       if (source.system.held) source.system.equipped = true;
       delete source.system.held;
     }
+    if (source?.system && (source.system.slug === undefined || source.system.slug === null)) {
+      source.system.slug = "";
+    }
     return source;
+  }
+
+  /** @inheritDoc */
+  async _preCreate(data, options, user) {
+    await super._preCreate(data, options, user);
+    const incoming = data.system?.slug;
+    if (typeof incoming === "string" && incoming.trim()) return;
+    const name = data.name ?? this.name ?? "";
+    const slug = sluggify(name);
+    if (slug) this.updateSource({ "system.slug": slug });
   }
 
   /** @inheritDoc */
@@ -44,6 +62,29 @@ export class ItemPMTTRPG extends Item {
         changed.system.equipped = true;
       }
       changed.system.held = foundry.data.operators.ForcedDeletion;
+    }
+    if (changed.system && Object.hasOwn(changed.system, "slug")) {
+      const raw = changed.system.slug;
+      changed.system.slug = typeof raw === "string" ? sluggify(raw) : "";
+    }
+    if (this.type === "status" && changed.system) {
+      const nextMax = Object.hasOwn(changed.system, "stackMax")
+        ? Math.max(0, Number(changed.system.stackMax) || 0)
+        : Math.max(0, Number(this.system?.stackMax ?? 0) || 0);
+      if (Object.hasOwn(changed.system, "stacks") || nextMax > 0) {
+        const rawStacks = Object.hasOwn(changed.system, "stacks")
+          ? changed.system.stacks
+          : this.system?.stacks;
+        let stacks = Math.max(0, Number(rawStacks ?? 1) || 0);
+        if (nextMax > 0) stacks = Math.min(stacks, nextMax);
+        changed.system.stacks = stacks;
+        if (Object.hasOwn(changed.system, "stackMax")) {
+          changed.system.stackMax = nextMax;
+        }
+      }
+      if (Object.hasOwn(changed.system, "priority")) {
+        changed.system.priority = Math.max(0, Math.min(100, Number(changed.system.priority) || 0));
+      }
     }
     return super._preUpdate(changed, options, userId);
   }
@@ -270,6 +311,11 @@ export class ItemPMTTRPG extends Item {
 
     if (itemData.type == 'status') {
       data.isStatus = true;
+      data.stacks = Math.max(0, Number(data.stacks ?? 1) || 0);
+      // 0 = unlimited; 1 = binary (no quantity UI); otherwise hard cap.
+      data.stackMax = Math.max(0, Number(data.stackMax ?? 0) || 0);
+      if (data.stackMax > 0) data.stacks = Math.min(data.stacks, data.stackMax);
+      data.priority = Math.max(0, Math.min(100, Number(data.priority ?? 0) || 0));
       data.proc = foundry.utils.mergeObject({
         turnStart: false,
         endOfRound: false,

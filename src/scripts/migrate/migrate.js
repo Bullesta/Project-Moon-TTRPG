@@ -29,7 +29,6 @@ const content = [
   { "name": "Two-handed", "type": "tag" },
   { "name": "Worn", "type": "tag" },
   { "name": "Forceful", "type": "tag" },
-  { "name": "Ignores Armor", "type": "tag" },
   { "name": "Messy", "type": "tag" },
   { "name": "Precise", "type": "tag" },
   { "name": "Reload", "type": "tag" },

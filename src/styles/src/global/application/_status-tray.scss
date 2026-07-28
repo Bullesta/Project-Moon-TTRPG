@@ -1,0 +1,145 @@
+/* Keep absolutely positioned elements within the right column. */
+#ui-right-column-1 {
+  position: relative;
+}
+
+#pmttrpg-status-tray {
+  --tray-gold: #c79a4b;
+
+  position: absolute;
+  top: 1rem;
+  right: 0;
+  z-index: 30;
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  height: fit-content;
+  max-height: calc(100% - 165px);
+  overflow: auto;
+  border: 0;
+  background: transparent;
+  box-shadow: none;
+  padding: 0;
+  margin: 0;
+  pointer-events: initial;
+}
+
+#pmttrpg-status-tray[hidden] {
+  display: none !important;
+}
+
+.pmttrpg-status-tray__list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+
+.pmttrpg-status-tray__item {
+  position: relative;
+  width: 2.75rem;
+  height: 2.75rem;
+  border-radius: 4px;
+  overflow: hidden;
+  cursor: pointer;
+  border: 1px solid rgba(243, 194, 103, 0.35);
+  background: rgba(20, 15, 12, 0.55);
+  box-shadow: inset 0 0 4px rgba(0, 0, 0, 0.45);
+}
+
+.pmttrpg-status-tray__item:hover {
+  border-color: rgba(243, 194, 103, 0.7);
+}
+
+.pmttrpg-status-tray__icon {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border: 0;
+  pointer-events: none;
+}
+
+.pmttrpg-status-tray__stack {
+  position: absolute;
+  top: 0.12rem;
+  right: 0.12rem;
+  min-width: 1rem;
+  padding: 0 0.2rem;
+  border-radius: 4px;
+  background: rgba(0, 0, 0, 0.85);
+  border: 1px solid rgba(243, 194, 103, 0.55);
+  color: var(--tray-gold);
+  font-size: 0.7rem;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  line-height: 1.05rem;
+  text-align: center;
+  pointer-events: none;
+}
+
+/* Hover card for status rules text */
+.pmttrpg-status-tip {
+  max-width: 18rem;
+  padding: 0;
+  border: 1px solid rgba(243, 194, 103, 0.35);
+  border-radius: 8px;
+  background: rgba(31, 27, 24, 0.96);
+  box-shadow: 0 8px 22px rgba(0, 0, 0, 0.45);
+  color: #f4ead2;
+  font-family: "Pretendard", system-ui, sans-serif;
+  font-size: 0.78rem;
+  line-height: 1.35;
+  text-align: left;
+}
+
+.pmttrpg-status-tip__inner {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  padding: 0.55rem 0.7rem 0.65rem;
+}
+
+.pmttrpg-status-tip__inner > header {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding-bottom: 0.3rem;
+  border-bottom: 1px solid rgba(243, 194, 103, 0.22);
+  color: #e8c57a;
+  font-size: 0.85rem;
+}
+
+.pmttrpg-status-tip__inner > header span {
+  color: rgba(244, 234, 210, 0.7);
+  font-variant-numeric: tabular-nums;
+}
+
+.pmttrpg-status-tip__body {
+  color: rgba(244, 234, 210, 0.92);
+}
+
+.pmttrpg-status-tip__body p {
+  margin: 0 0 0.35rem;
+}
+
+.pmttrpg-status-tip__body p:last-child {
+  margin-bottom: 0;
+}
+
+.pmttrpg-status-tip__body .notes {
+  color: rgba(244, 234, 210, 0.55);
+  font-style: italic;
+}
+
+.pmttrpg-status-tip__controls {
+  margin-top: 0.15rem;
+  padding-top: 0.35rem;
+  border-top: 1px solid rgba(243, 194, 103, 0.16);
+  color: rgba(244, 234, 210, 0.5);
+  font-size: 0.68rem;
+  line-height: 1.3;
+}

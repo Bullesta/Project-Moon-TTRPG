@@ -33,7 +33,9 @@ export const NOUNS = {
     modKey: "lightBonus",
     label: "PMTTRPG.Light",
     alwaysActive: true,
-    ops: ["gain", "lose"],
+    absoluteSet: true,
+    overrideAttr: "light",
+    ops: ["gain", "lose", "set"],
   },
   maxHp: {
     kind: "resource",
@@ -41,7 +43,9 @@ export const NOUNS = {
     modKey: "maxHp",
     label: "PMTTRPG.TrackerHP",
     alwaysActive: true,
-    ops: ["gain", "lose"],
+    absoluteSet: true,
+    overrideAttr: "hp",
+    ops: ["gain", "lose", "set"],
   },
   maxSt: {
     kind: "resource",
@@ -49,7 +53,9 @@ export const NOUNS = {
     modKey: "maxSt",
     label: "PMTTRPG.Stagger",
     alwaysActive: true,
-    ops: ["gain", "lose"],
+    absoluteSet: true,
+    overrideAttr: "st",
+    ops: ["gain", "lose", "set"],
   },
   maxSp: {
     kind: "resource",
@@ -57,7 +63,9 @@ export const NOUNS = {
     modKey: "maxSp",
     label: "PMTTRPG.Mentality",
     alwaysActive: true,
-    ops: ["gain", "lose"],
+    absoluteSet: true,
+    overrideAttr: "sp",
+    ops: ["gain", "lose", "set"],
   },
   speed: {
     kind: "resource",
@@ -110,6 +118,7 @@ export const NOUNS = {
     ops: ["regen"],
     regenField: "regenST",
     pathShorthand: "st",
+    aliases: ["stagger"],
   },
   sp: {
     kind: "pool",
@@ -117,6 +126,7 @@ export const NOUNS = {
     regenPath: "system.attributes.sp.value",
     regenMaxPath: "system.attributes.sp.max",
     pathShorthand: "sp",
+    aliases: ["sanity"],
   },
   light: {
     kind: "pool",
@@ -170,6 +180,18 @@ export function isRegenNoun(name) {
   return nounAllowsOp(name, "regen");
 }
 
+export function isApplyPoolNoun(name) {
+  const hit = lookupNoun(name);
+  return !!hit && hit.def.kind === "pool" && ["hp", "st", "sp", "light"].includes(hit.id);
+}
+
+export function resolveApplyPool(name) {
+  const hit = lookupNoun(name);
+  if (!hit || hit.def.kind !== "pool") return null;
+  if (!["hp", "st", "sp", "light"].includes(hit.id)) return null;
+  return hit.id;
+}
+
 export function getPowerField(name) {
   return lookupNoun(name)?.def.powerField ?? null;
 }
@@ -218,6 +240,9 @@ export function emptyAlwaysActiveMods() {
     attackPower: 0, blockPower: 0, evadePower: 0, damagePower: 0,
     attackMax:   0, blockMax:   0, evadeMax:   0, damageMax:   0,
     lightBonus:  0,
+    overrides: {},
+    // Item names that supplied the winning override.
+    overrideSources: {},
   };
   for (const def of Object.values(NOUNS)) {
     if (def.kind !== "resource" || !def.alwaysActive) continue;
@@ -236,6 +261,16 @@ export function applyResourceMod(mods, nounId, signedAmount) {
   return true;
 }
 
+export function applyResourceOverride(mods, nounId, value) {
+  const hit = lookupNoun(nounId);
+  if (!hit || hit.def.kind !== "resource") return false;
+  if (!hit.def.alwaysActive || !hit.def.absoluteSet) return false;
+  const key = hit.def.modKey ?? hit.id;
+  if (!mods.overrides) mods.overrides = {};
+  mods.overrides[key] = Math.max(0, Math.round(Number(value) || 0));
+  return true;
+}
+
 export function applyResourceModsToSystem(systemData, eeMods) {
   for (const [id, def] of Object.entries(NOUNS)) {
     if (def.kind !== "resource" || !def.alwaysActive || !def.path) continue;
@@ -251,4 +286,40 @@ export function applyResourceModsToSystem(systemData, eeMods) {
     const leaf = parts[parts.length - 1];
     if (cur && leaf in cur) cur[leaf] = (Number(cur[leaf]) || 0) + amount;
   }
+}
+
+// Apply max overrides and record their sources.
+export function applyResourceOverridesToSystem(systemData, eeMods) {
+  const overrides = eeMods?.overrides;
+  if (!overrides || typeof overrides !== "object") return;
+
+  const sources = eeMods.overrideSources ?? {};
+
+  for (const [id, def] of Object.entries(NOUNS)) {
+    if (def.kind !== "resource" || !def.absoluteSet || !def.overrideAttr) continue;
+    const key = def.modKey ?? id;
+    if (!(key in overrides)) continue;
+
+    const attr = systemData.attributes?.[def.overrideAttr];
+    if (!attr) continue;
+
+    const value = Math.max(0, Math.round(Number(overrides[key]) || 0));
+    attr.max = value;
+    attr.eeMaxOverridden = true;
+    attr.eeMaxOverrideBy = formatOverrideSourceNames(sources[key]);
+    // Clamping here persists after the override is removed.
+    const cur = Number(attr.value) || 0;
+    attr.value = Math.max(0, Math.min(cur, value));
+  }
+}
+
+// Format source names for the override tooltip.
+function formatOverrideSourceNames(names) {
+  const list = (Array.isArray(names) ? names : [])
+    .map((n) => String(n ?? "").trim())
+    .filter(Boolean);
+  if (!list.length) return "";
+  if (list.length === 1) return list[0];
+  if (list.length === 2) return `${list[0]} and ${list[1]}`;
+  return `${list.slice(0, -1).join(", ")}, and ${list[list.length - 1]}`;
 }

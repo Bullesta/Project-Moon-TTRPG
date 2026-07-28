@@ -45,6 +45,9 @@ A trigger tells the system **when** to fire your effect. Write it in square brac
 | `[On Action]` | At the end of an action |
 | `[On Stagger]` | The item's actor becomes Staggered |
 | `[Turn Start]` | The start of the item's actor's turn in combat |
+| `[End of Round]` | When the combat round advances |
+| `[On Taking Damage]` | Before damage is applied to the defender (flat resists, etc.) |
+| `[On Taking <Filter> Damage]` | Same, but only when the hit matches a pool, status source, or damage type (see below) |
 
 One item can have **multiple trigger blocks** — just list them one after another:
 
@@ -60,32 +63,88 @@ lose 1 Charge;
 
 The `[Always Active]` trigger is special. It doesn't wait for combat events, and applies the bonus ONCE when it's equipped, and inverts the bonus when unequipped (bringing it back to normal).
 
-You cannot use math, dice or randomness with `[Always Active]` effects. It is strictly intended for passive effects that do not depend on any other variables, such as :
+You cannot use dice or randomness with `[Always Active]` effects. It is strictly intended for passive effects that do not depend on any other variables.
+
+Allowed here: resource `gain` / `lose` / `set` on maxes, plus `power` / `dice max` passives.
+
+Example:
 
 ```
 [Always Active]
 dice max up attack 2;
+gain 2 maxHp;
+set maxSp to 0;
 ```
+
+- `gain` / `lose` on `maxHp` / `maxSt` / `maxSp` / `maxLight` are **additive** bonuses (misc / light bonus).
+- `set maxSp to 0` (also `maxHp`, `maxSt`, `maxLight`) is an **absolute** override of the effective max.
+- Lowering a max clamps the current value immediately. Removing the item restores the max, but not the points lost to that clamp. Removing an increased max also clamps current to the natural max.
+- If several items `set` the same max, the **lowest** value wins.
+
+### Filtered taking-damage triggers
+
+`[On Taking <Filter> Damage]` is shorthand for "only run this block for matching hits."
+
+| Filter | Matches when… |
+|--------|----------------|
+| *(omit)* / `Any` | Always (same as `[On Taking Damage]`) |
+| `HP` / `ST` / `SP` / `Light` | Pending pool is that resource |
+| A status name (`Burn`, `"Bleed"`) | Damage `source` is that status |
+| Any other word (`Slash`, `Pierce`, `Blunt`, …) | `damageType` equals that string (case-insensitive) |
+
+```
+[On Taking Burn Damage]
+reduce damage by 3;
+
+[On Taking SP Damage]
+deal (incoming.amount * 2) hp damage to self;
+```
+
+Pools win over names: `[On Taking HP Damage]` always means the HP pool, not a status called HP.
 
 ---
 
 # Actions
 
-An action is one thing the effect does. Each action ends with a semicolon `;`.
+An action is one thing the effect does. End it with a semicolon `;` or put the next action on a new line.
+
+```
+[Clash Win]
+gain 1 Charge
+lose 1 Bleed on self;
+```
 
 ## Gaining and losing statuses
 
 ```
 gain 1 Burn on target;
 lose 2 Bleed on self;
+halve Burn on self;
+double Charge;
+lose half of Burn on self;
+gain double of Poise on self;
 ```
 
 - `gain` adds stacks of a status
     - similarly `inflict` adds stacks of a status, but defaults to `target` instead of `self`.
 - `lose` removes stacks of a status
+- `halve <Status>` reduces stacks to half rounded down. (same as `lose half of <Status>`)
+- `double <Status>` adds as many stacks as are already there (2x) (same as `gain double of <Status>`)
 - `on self` / `on target` controls who is affected
 
 If you leave out `on ...`, the effect defaults to `self`, unless using `inflict`.
+
+### Status names in formulas
+
+A bare status name in an amount/`(…)` formula means **that status’s stack count on self** (same as `self.status.Burn`):
+
+```
+deal Burn hp damage to self;
+halve Burn on self;
+power up attack 1 per (Burn);
+```
+
+Use `target.status.Burn` (or `attacker.status.…`) when you need someone else’s stacks.
 
 ### Multi-word status names
 
@@ -96,14 +155,44 @@ gain 1 "Stagger Fragile" on target;
 lose 1 "Stagger Fragile" on self;
 ```
 
-Single-word names don't need quotes, but you can add them if you want.
+Single-word names don't need quotes, but you can add them if you want. Reserved words (`half`, `double`, `halve`, `convert`, `by`, …) must be quoted too: `gain 1 "Double"`.
 
 ## Dealing damage and healing
 
 ```
 do deal damage 5 on target;
+deal (self.rank) hp damage to target;
+deal (incoming.amount) blunt hp damage to attacker;
 do heal 10 on self;
 ```
+
+On `[On Taking Damage]`, you can read the pending hit with `incoming.*` (alias of `damage.*`) and reflect or rewrite it:
+
+```
+[On Taking Damage]
+deal (incoming.amount) hp damage to attacker;
+
+[On Taking HP Damage]
+deal (incoming.amount) blunt hp damage to attacker;
+
+[On Taking SP Damage]
+convert (incoming.amount * 2) damage to hp;
+
+[On Taking Pierce Damage]
+convert damage to blunt;
+```
+
+- `incoming.amount` / `damage.amount` - how much is about to apply
+- `incoming.pool` - `hp`, `st`, `sp`, or `light`
+- `incoming.source` - status name when the damage came from a status (e.g. Burn)
+- `incoming.damageType` - slash / pierce / blunt / whatever was passed in
+- `attacker` - the actor dealing the damage (same as `target` on this trigger)
+
+`deal` accepts an optional damage type before or after the pool: `blunt hp damage` or `hp blunt damage`. If you omit the type and/or pool while reflecting, the new hit keeps `incoming.damageType` and `incoming.pool` (pool still defaults to `hp` outside that context).
+
+`convert` changes the **pending** hit (pool and/or type, optionally amount) without firing another damage event.
+
+Nested `deal` / `heal` from inside `[On Taking Damage]` does **not** re-run that trigger. Status ticks and other top-level `deal`s still run resists normally.
 
 ## Modificating your Combat Bonuses
 
@@ -175,6 +264,57 @@ Full expression form:
 ```
 require (self.status.Charge) >= 3 then gain 1 Poise;
 ```
+
+On `[On Taking Damage]`, you can gate by status source (status **name**), or use a filtered trigger instead:
+
+```
+require damage from Burn then reduce damage by 2;
+
+[On Taking Burn Damage]
+reduce damage by 2;
+```
+
+`reduce` / `increase` take an optional `by` and a full amount formula (`N`, `N*2`, `(N // 2)`, dice, etc.):
+
+```
+reduce damage by N;
+increase damage by N*2;
+```
+
+## Effect templates (`N`, `positive:`, `negative:`)
+
+Catalog **effect** items (Burn Resistance, etc.) can ship an EasyEffects template. Those templates may use:
+
+- bare `N` (also inside math like `N*2`) - equals the number of buyins for that effect on the equipment.
+- `positive:` / `negative:` - keep only the branch that matches the entry's Positive/Negative mode (sticky until the next polarity label or trigger)
+
+Those tokens are **effect-template only**. They do not exist on equipment after sync.
+
+On a weapon / outfit / skill / etc., linked effect templates are stamped into a managed region on the host EasyEffects script:
+
+```
+# >>> synced effects
+# Burn Resistance
+[On Taking Burn Damage]
+reduce damage by 2;
+# <<< synced effects
+```
+
+Adding, removing, or changing an effect's intensity or mode updates only that block. Put custom scripts **outside** the markers so they are not overwritten.
+
+If you edit *inside* the synced block, auto-update pauses and warns you. Use **Sync with current effects** twice to confirm a rebuild; text outside the markers is preserved.
+
+Example template on Burn Resistance:
+
+```
+[On Taking Burn Damage]
+positive:
+reduce damage by N;
+negative:
+increase damage by N;
+```
+
+Combat runs **only** the host's EasyEffects (not the catalog effect document).
 
 ## `spend ... to`
 
@@ -340,10 +480,10 @@ power up attack 1 per (self.status.Burn) on target;
 # Quick Reference Card
 
 ## Triggers
-`[Clash Win]` · `[Clash Lose]` · `[On Hit]` · `[On Stagger]` · `[Turn Start]`
+`[Clash Win]` · `[Clash Lose]` · `[On Hit]` · `[On Stagger]` · `[Turn Start]` · `[On Taking <Filter> Damage]`
 
 ## Targets
-`self` · `target` · `ally` · `enemies` · `allies` · `all`
+`self` · `target` · `ally` · `attacker` · `enemies` · `allies` · `all`
 
 ## Actions
 | Statement | Meaning |
@@ -351,9 +491,16 @@ power up attack 1 per (self.status.Burn) on target;
 | `gain <N> <Status> [on <target>]` | Add N stacks (target defaults to `self`) |
 | `inflict <N> <Status> [on <target>]` | Add N stacks (target defaults to `target`) |
 | `lose <N> <Status> [on <target>]` | Remove N stacks |
+| `halve <Status> [on <target>]` | Reduce stacks to half (floor) |
+| `double <Status> [on <target>]` | Gain stacks equal to current (2x) |
+| `lose half [of] <Status> [on <target>]` | Same as `halve` |
+| `gain double [of] <Status> [on <target>]` | Same as `double` |
 | `spend <N> <Status> [on <target>] to <actions>` | Require + remove + do |
 | `require <condition> then <actions>` | Conditional block |
-| `do deal damage <N> on <target>` | Deal HP damage |
+| `deal <N> [<type>] [hp\|st\|sp\|light] damage [to\|on <target>]` | Deal damage |
+| `do deal damage <N> on <target>` | Deal HP damage (standard form) |
+| `convert [amount] damage to <pool\|type>` | Rewrite pending hit on `[On Taking Damage]` |
+| `set maxHp\|maxSt\|maxSp\|maxLight to <N>` | Absolute max (`[Always Active]` only) |
 | `do heal <N> on <target>` | Restore HP |
 | `power <up/down> <attack/block/evade> <N>` | Flat Bonus/Malus on attack/block/evade. |
 | `dice max <up/down> <attack/block/evade> <N>` | Dice Bonus/Malus on attack/block/evade. |
@@ -369,6 +516,7 @@ power up attack 1 per (self.status.Burn) on target;
 | `self.status.Burn` | Stack count of Burn on self |
 | `clash.margin` | Winning roll − losing roll |
 | `clash.attackerRoll` / `clash.defenderRoll` | Raw clash dice |
+| `incoming.amount` / `.pool` / `.source` / `.damageType` | Pending damage (`damage.*` also works) |
 
 ## Math
-`+` `-` `*` `/` `%` `//` (floor division) — all usable inside `( )`
+`+` `-` `*` `/` `%` `//` or `//f` (floor) · `//c` (ceil) — all usable inside `( )`

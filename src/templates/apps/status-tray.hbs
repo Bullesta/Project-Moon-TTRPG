@@ -1,0 +1,17 @@
+<ul class="pmttrpg-status-tray__list" aria-label="{{localize 'PMTTRPG.ActiveStatuses'}}">
+  {{#each statuses as |status|}}
+    <li
+      class="pmttrpg-status-tray__item"
+      data-action="adjustStatus"
+      data-status-name="{{status.name}}"
+      data-item-id="{{status.itemId}}"
+      data-tooltip-direction="LEFT"
+      data-tooltip-class="pmttrpg-status-tip"
+    >
+      <img class="pmttrpg-status-tray__icon" src="{{status.img}}" alt="" draggable="false" />
+      {{#if status.showCount}}
+      <span class="pmttrpg-status-tray__stack">{{status.count}}</span>
+      {{/if}}
+    </li>
+  {{/each}}
+</ul>

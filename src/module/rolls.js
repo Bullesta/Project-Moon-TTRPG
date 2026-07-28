@@ -306,7 +306,8 @@ export class PMTTRPGRolls {
             title: this.item.name,
             trigger: null,
             details: this.item.system.description,
-            rollType: 'damage'
+            rollType: 'damage',
+            damageType: this.item.system?.damageType ?? null,
           }, templateData
         );
         data.roll = this.item.system.offensiveDiceComputed;
@@ -530,6 +531,12 @@ export class PMTTRPGRolls {
           }
           renderTemplate(template, templateData).then(content => {
             chatData.content = content;
+            chatData.flags = foundry.utils.mergeObject(chatData.flags ?? {}, {
+              projectmoonttrpg: {
+                damageType: templateData.damageType ?? null,
+                rollType: templateData.rollType ?? null,
+              },
+            });
             if (game.dice3d) {
               game.dice3d.showForRoll(roll, game.user, true, chatData.whisper, chatData.blind).then(displayed => ChatMessage.create(chatData));
             }
@@ -544,6 +551,12 @@ export class PMTTRPGRolls {
     else {
       renderTemplate(template, templateData).then(content => {
         chatData.content = content;
+        chatData.flags = foundry.utils.mergeObject(chatData.flags ?? {}, {
+          projectmoonttrpg: {
+            damageType: templateData.damageType ?? null,
+            rollType: templateData.rollType ?? null,
+          },
+        });
         ChatMessage.create(chatData);
       });
     }

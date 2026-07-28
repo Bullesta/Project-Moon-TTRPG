@@ -24,6 +24,12 @@ import { PMTTRPGTargetingAPI } from "./targeting.js";
 import { CombatSidebarPMTTRPG } from "./combat/combat.js";
 import { PMTTRPGStatusMacroAPI } from "./status-macro-api.js";
 import { registerEasyEffectsHooks } from "./easy-effects/registry.js";
+import { registerStatusTray, registerStatusTraySettings } from "./apps/status-tray.js";
+import { getActorWeaponDamageType } from "./damage-application.js";
+import {
+  registerTokenStatusBadges,
+  registerTokenStatusBadgeSettings,
+} from "./canvas/token.js";
 
 import * as chat from "./chat.js";
 
@@ -52,6 +58,7 @@ Hooks.once("init", async function() {
   CONFIG.PMTTRPG = PMTTRPG;
   CONFIG.Actor.documentClass = ActorPMTTRPG;
   CONFIG.Item.documentClass = ItemPMTTRPG;
+  registerTokenStatusBadges();
   CONFIG.Item.typeLabels = foundry.utils.mergeObject(CONFIG.Item.typeLabels ?? {}, {
     status: game.i18n.localize("TYPES.Item.status"),
     skill: game.i18n.localize("TYPES.Item.skill"),
@@ -159,6 +166,9 @@ Hooks.once("init", async function() {
     onChange: () => window.location.reload()
   });
 
+  registerStatusTraySettings();
+  registerTokenStatusBadgeSettings();
+
   // Preload template partials.
   preloadHandlebarsTemplates();
 
@@ -166,6 +176,8 @@ Hooks.once("init", async function() {
 });
 
 Hooks.once("ready", async function() {
+  registerStatusTray();
+
   const clearEffectCatalogCache = (item) => {
     if (item?.type !== 'effect') return;
     if (PMTTRPGEffectItemSheet && PMTTRPGEffectItemSheet._effectCatalogCache) {
@@ -233,18 +245,31 @@ Hooks.on('createChatMessage', async (message, options, id) => {
     if (!game.user.isGM || game.user.id !== firstGM.id) return;
     // Exit early if this is a rollable table.
     if (message?.flags?.core?.RollTable) return;
+    // Since Clash has its own card, don't rewrite content or inject buttons.
+    // To use a damage strip, include chat-buttons.html and set damageType (+ damageButtons: true).
+    if (message?.flags?.projectmoonttrpg?.isClash) return;
+    if (message?.flags?.projectmoonttrpg?.damageButtons) return;
     // Retrieve the roll.
     let r = message.rolls[0] ?? null;
     // Re-render the roll.
     if (r) {
       r.render().then(rTemplate => {
+        const existingType = message.flags?.projectmoonttrpg?.damageType ?? null;
+        let damageType = existingType;
+        if (!damageType) {
+          const speakerActor = ChatMessage.getSpeakerActor?.(message.speaker)
+            ?? game.actors.get(message.speaker?.actor);
+          damageType = getActorWeaponDamageType(speakerActor);
+        }
         // Render the damage buttons.
-        renderTemplate(`systems/projectmoonttrpg/templates/parts/chat-buttons.html`, {}).then(buttonTemplate => {
+        renderTemplate(`systems/projectmoonttrpg/templates/parts/chat-buttons.html`, { damageType }).then(buttonTemplate => {
           if (message?.flags?.projectmoonttrpg?.damageButtons) return;
+          if (message?.flags?.projectmoonttrpg?.isClash) return;
           // Update the chat message with the appended buttons.
           message.update({
             content: rTemplate + buttonTemplate,
             'flags.projectmoonttrpg.damageButtons': true,
+            'flags.projectmoonttrpg.damageType': damageType,
           })
           // Update the chat log scroll position.
             .then(m => {

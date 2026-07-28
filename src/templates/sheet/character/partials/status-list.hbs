@@ -1,0 +1,36 @@
+{{#if statuses.length}}
+<ol class="items-list">
+  {{#each statuses as |status|}}
+  <li class="item item--status collapsed" data-item-id="{{status.representative._id}}" data-status-key="{{status.key}}" data-status-name="{{status.name}}">
+    <div class="item-title-row">
+      <div class="item-title-row__lead">
+        {{> "systems/projectmoonttrpg/templates/sheet/character/partials/item-thumb.hbs" img=status.img name=status.name}}
+        <strong class="item-name">
+          {{status.name}}
+          {{#if status.showCount}}
+          <input class="item-count item-count--stacks" type="number" value="{{status.count}}" min="0" step="1" {{#if status.stackMax}}max="{{status.stackMax}}"{{/if}} aria-label="{{localize "PMTTRPG.StatusStacks"}}" {{#if @root.locked}}readonly{{/if}}/>
+          {{/if}}
+        </strong>
+      </div>
+      <div class="item-controls">
+        {{#if status.showCount}}
+        <button type="button" class="item-control" data-action="statusControl" data-control="decrease" title='{{localize "PMTTRPG.RemoveStack"}}' aria-label='{{localize "PMTTRPG.RemoveStack"}}'><i class="fas fa-minus" aria-hidden="true"></i></button>
+        <button type="button" class="item-control" data-action="statusControl" data-control="increase" title='{{localize "PMTTRPG.AddStack"}}' aria-label='{{localize "PMTTRPG.AddStack"}}'><i class="fas fa-plus" aria-hidden="true"></i></button>
+        {{else}}
+        <button type="button" class="item-control" data-action="statusControl" data-control="remove" title='{{localize "PMTTRPG.Common.DeleteItem"}}' aria-label='{{localize "PMTTRPG.Common.DeleteItem"}}'><i class="fas fa-trash" aria-hidden="true"></i></button>
+        {{/if}}
+        <button type="button" class="item-control" data-action="itemEdit" data-item-id="{{status.representative._id}}" title="{{localize "PMTTRPG.Common.EditItem"}}" aria-label="{{localize "PMTTRPG.Common.EditItem"}}"><i class="fas fa-edit" aria-hidden="true"></i></button>
+        <button type="button" class="item-control item-toggle-details" data-action="toggleDetails" aria-expanded="false" title="{{localize "PMTTRPG.Common.Details"}}" aria-label="{{localize "PMTTRPG.Common.Details"}}"><i class="fas fa-chevron-down" aria-hidden="true"></i></button>
+      </div>
+    </div>
+    <div class="item-details">
+      {{#if status.system.descriptionEnriched}}
+      <div class="item-flavor description">{{{status.system.descriptionEnriched}}}</div>
+      {{/if}}
+    </div>
+  </li>
+  {{/each}}
+</ol>
+{{else}}
+<p class="tab-empty">{{localize "PMTTRPG.NoStatuses"}}</p>
+{{/if}}

@@ -2,6 +2,7 @@ import { parse }                                    from "./parser.js";
 import { execute, executeAlwaysActive }             from "./interpreter.js";
 import { emptyAlwaysActiveMods }                    from "./nouns.js";
 import { isToolPresent }                            from "../inventory/slots.js";
+import { uniqueStatusItems }                        from "../status/group-statuses.js";
 
 // ── Clash context factory ─────────────────────────────────────────────────────
 
@@ -272,6 +273,21 @@ const TRIGGER_HOOKS = [
     },
   },
 
+  // ── [End of Round] ──────────────────────────────────────────────────────────
+  // Fired from combat.js when the round counter advances (once per combatant).
+  {
+    hook: "pmttrpg.endOfRound",
+    triggerName: "End of Round",
+    getItems: ({ actor }) => {
+      if (!actor) return [];
+      return [...getEquippedItems(actor), ...uniqueStatusItems(actor.items)];
+    },
+    buildContext: ({ actor }) => {
+      if (!actor) return null;
+      return { self: actor, target: null, ally: null, clash: null };
+    },
+  },
+
 ];
 
 // ── Hook registration ─────────────────────────────────────────────────────────
@@ -341,12 +357,61 @@ export function applyAlwaysActiveModifiers(actor) {
     if (!hasAlwaysActive) continue;
 
     const mods = executeAlwaysActive(ast, { self: actor, item });
-    for (const key of Object.keys(merged)) {
-      merged[key] += mods[key] ?? 0;
+    const itemName = item.name || item.id;
+    for (const key of Object.keys(mods)) {
+      if (key === "overrides") {
+        for (const [k, v] of Object.entries(mods.overrides ?? {})) {
+          const n = Math.max(0, Math.round(Number(v) || 0));
+          const cur = merged.overrides[k];
+          if (cur === undefined || n < cur) {
+            merged.overrides[k] = n;
+            merged.overrideSources[k] = [itemName];
+          } else if (n === cur) {
+            const list = merged.overrideSources[k] ?? (merged.overrideSources[k] = []);
+            if (!list.includes(itemName)) list.push(itemName);
+          }
+        }
+        continue;
+      }
+      if (key === "overrideSources") continue;
+      merged[key] = (merged[key] ?? 0) + (mods[key] ?? 0);
     }
   }
 
   return merged;
+}
+
+// ── [On Taking Damage] runner ─────────────────────────────────────────────────
+
+/**
+ * Run defender [On Taking Damage] scripts. Mutates `damage.amount`.
+ *
+ * @param {Actor} actor  Defender
+ * @param {{ amount: number, pool: string, source: string, damageType: string }} damage
+ * @param {{ attacker?: Actor|null }} [options]
+ */
+export async function runOnTakingDamage(actor, damage, options = {}) {
+  if (!actor || !damage) return;
+
+  const baseCtx = {
+    self: actor,
+    target: options.attacker ?? null,
+    attacker: options.attacker ?? null,
+    ally: null,
+    clash: null,
+    damage,
+  };
+
+  for (const item of getEquippedItems(actor)) {
+    const ast = getAST(item);
+    if (!ast?.blocks.some((b) => b.trigger === "On Taking Damage")) continue;
+    await execute(ast, "On Taking Damage", {
+      ...baseCtx,
+      item,
+    });
+  }
+
+  Hooks.callAll("pmttrpg.takingDamage", { actor, damage, attacker: options.attacker ?? null });
 }
 
 // ── Helpers ───────────────────────────────────────────────────────────────────

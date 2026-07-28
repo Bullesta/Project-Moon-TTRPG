@@ -1,5 +1,6 @@
 import {
   applyResourceMod,
+  applyResourceOverride,
   emptyAlwaysActiveMods,
   getMaxField,
   getPowerField,
@@ -7,6 +8,7 @@ import {
   recoverPool,
   resolvePathShorthand,
 } from "./nouns.js";
+import { matchesDamageFilter } from "./damage-filter.js";
 
 async function evaluateExpr(node, context) {
   switch (node.type) {
@@ -17,6 +19,8 @@ async function evaluateExpr(node, context) {
       return roll.total;
     }
     case "Path":  return resolvePath(node.segments, context);
+    case "EffectN":
+      return Math.max(0, Number(context.effectN) || 0);
     case "BinOp": {
       const [left, right] = await Promise.all([
         evaluateExpr(node.left, context),
@@ -38,6 +42,8 @@ function evaluateExprSync(node, context) {
       console.warn("[EasyEffects] Dice expressions are not allowed in [Always Active] — returning 0.");
       return 0;
     case "Path": return resolvePath(node.segments, context);
+    case "EffectN":
+      return Math.max(0, Number(context.effectN) || 0);
     case "BinOp":
       return applyMathOp(
         node.op,
@@ -55,7 +61,10 @@ function applyMathOp(op, left, right) {
     case "*":  return left * right;
     case "/":  return right === 0 ? (console.warn("[EasyEffects] Division by zero"), 0) : left / right;
     case "%":  return right === 0 ? (console.warn("[EasyEffects] Modulo by zero"), 0)   : left % right;
-    case "//": return right === 0 ? (console.warn("[EasyEffects] Floor-div by zero"), 0) : Math.floor(left / right);
+    case "//":
+    case "//f":
+      return right === 0 ? (console.warn("[EasyEffects] Floor-div by zero"), 0) : Math.floor(left / right);
+    case "//c": return right === 0 ? (console.warn("[EasyEffects] Ceil-div by zero"), 0) : Math.ceil(left / right);
     default:   console.warn(`[EasyEffects] Unknown operator '${op}'`); return 0;
   }
 }
@@ -100,7 +109,21 @@ function resolvePath(segments, context) {
     return Number(item.system?.[key] ?? 0);
   }
 
-  const actor = context[root] ?? null;
+  // incoming.* == damage.*
+  if (root === "damage" || root === "incoming") {
+    const dmg = context.damage;
+    if (!dmg) {
+      console.warn(`[EasyEffects] '${root}.*' used outside [On Taking Damage] context.`);
+      return 0;
+    }
+    const key = segments[1];
+    if (key === "amount") return Number(dmg.amount) || 0;
+    if (key === "source" || key === "pool" || key === "damageType") return dmg[key] ?? "";
+    console.warn(`[EasyEffects] Unknown ${root} path '${root}.${key}'`);
+    return 0;
+  }
+
+  const actor = (root === "attacker" ? context.attacker : context[root]) ?? null;
   if (!actor) { console.warn(`[EasyEffects] Path root '${root}' not in context.`); return 0; }
 
   const sub = segments.slice(1);
@@ -127,7 +150,8 @@ async function resolveAmount(amountNode, context) {
   switch (amountNode.type) {
     case "NUMBER":   return amountNode.value;
     case "DICE":     { const r = new Roll(amountNode.value); await r.roll(); return r.total; }
-    case "ACCESSOR": return evaluateExpr(amountNode.expr, context);
+    case "ACCESSOR": return Number(await evaluateExpr(amountNode.expr, context)) || 0;
+    case "EFFECT_N": return Math.max(0, Number(context.effectN) || 0);
     case "MULTIPLIEDPATH":
       return resolvePath(amountNode.path.segments, context)
         * await resolveAmount(amountNode.multiplier, context);
@@ -140,7 +164,8 @@ function resolveAmountSync(amountNode, context) {
   switch (amountNode.type) {
     case "NUMBER":   return amountNode.value;
     case "DICE":     console.warn("[EasyEffects] Dice not allowed in [Always Active]"); return 0;
-    case "ACCESSOR": return evaluateExprSync(amountNode.expr, context);
+    case "ACCESSOR": return Number(evaluateExprSync(amountNode.expr, context)) || 0;
+    case "EFFECT_N": return Math.max(0, Number(context.effectN) || 0);
     case "MULTIPLIEDPATH":
       return resolvePath(amountNode.path.segments, context)
         * resolveAmountSync(amountNode.multiplier, context);
@@ -184,22 +209,89 @@ const ACTION_HANDLERS = {
       await actor.removeStatusStacks(action.argument, amount);
   },
 
-  // ── HP / ST ────────────────────────────────────────────────────────────────
+  // ── HP / ST / SP / Light ───────────────────────────────────────────────────
   deal: async (action, context, amount) => {
     if (action.noun !== "damage") throw new InterpretError(`'deal' only supports noun 'damage'`);
-    for (const actor of resolveTargets(action.target, context))
-      await actor.applyDamage(amount, { op: "full", ignoreArmor: false, dmgBonus: 0 });
+    const host = context.item;
+    // Status damage uses the item name as its source.
+    const source = host?.type === "status" ? (host.name || null) : null;
+    // Reflected damage keeps the pending pool and type unless overridden.
+    const pool = action.pool
+      || (context.damage?.pool ? String(context.damage.pool) : null)
+      || "hp";
+    const damageType = action.damageType
+      || (context.damage?.damageType ? String(context.damage.damageType) : null)
+      || null;
+    // Avoid rerunning On Taking Damage for reflected hits.
+    const skipEasyEffects = !!context.damage;
+    for (const actor of resolveTargets(action.target, context)) {
+      await actor.applyDamage(amount, {
+        op: "full",
+        pool,
+        source,
+        damageType,
+        skipEasyEffects,
+      });
+    }
   },
 
   heal: async (action, context, amount) => {
-    for (const actor of resolveTargets(action.target, context))
-      await actor.applyDamage(amount, { op: "heal" });
+    if (action.noun !== "damage") throw new InterpretError(`'heal' only supports noun 'damage'`);
+    const pool = action.pool || "hp";
+    for (const actor of resolveTargets(action.target, context)) {
+      await actor.applyDamage(amount, {
+        op: "heal",
+        pool,
+        skipEasyEffects: !!context.damage,
+      });
+    }
+  },
+
+  reduce: async (action, context, amount) => {
+    if (action.noun !== "damage") throw new InterpretError(`'reduce' only supports noun 'damage'`);
+    if (!context.damage) {
+      console.warn("[EasyEffects] 'reduce damage' used outside [On Taking Damage]; ignored.");
+      return;
+    }
+    const cur = Number(context.damage.amount) || 0;
+    context.damage.amount = Math.max(0, cur - amount);
+  },
+
+  increase: async (action, context, amount) => {
+    if (action.noun !== "damage") throw new InterpretError(`'increase' only supports noun 'damage'`);
+    if (!context.damage) {
+      console.warn("[EasyEffects] 'increase damage' used outside [On Taking Damage]; ignored.");
+      return;
+    }
+    const cur = Number(context.damage.amount) || 0;
+    context.damage.amount = Math.max(0, cur + amount);
+  },
+
+  // Conversion changes the pending hit without applying new damage.
+  convert: async (action, context, amount) => {
+    if (action.noun !== "damage") throw new InterpretError(`'convert' only supports noun 'damage'`);
+    if (!context.damage) {
+      console.warn("[EasyEffects] 'convert damage' used outside [On Taking Damage]; ignored.");
+      return;
+    }
+    if (action.setAmount) {
+      context.damage.amount = Math.max(0, amount);
+    }
+    if (action.convertKind === "pool") {
+      context.damage.pool = action.convertTo;
+    } else if (action.convertKind === "damageType") {
+      context.damage.damageType = action.convertTo;
+    }
   },
 
   set: async (action, context, amount) => {
+    if (action.noun === "resource") {
+      console.warn("[EasyEffects] 'set maxHp/maxSt/maxSp/maxLight' only applies in [Always Active]; ignored.");
+      return;
+    }
     if (action.noun !== "stat") throw new InterpretError(`'set' only supports noun 'stat'`);
     for (const actor of resolveTargets(action.target, context)) {
-      const name = action.noun === "stat" ? action.argument : null;
+      const name = action.argument;
       if (!name) continue;
       if (actor.system.attributes?.[name] !== undefined)
         await actor.update({ [`system.attributes.${name}.value`]: amount });
@@ -262,7 +354,7 @@ const ACTION_HANDLERS = {
 // ── Flag and condition ────────────────────────────────────────────────────────
 
 function resolveFlag(flagNode, context) {
-  const actor = context[flagNode.target] ?? null;
+  const actor = (flagNode.target === "attacker" ? context.attacker : context[flagNode.target]) ?? null;
   if (!actor) return 0;
   switch (flagNode.flag) {
     case "isStaggered": return actor.system.attributes?.staggered?.value ? 1 : 0;
@@ -281,6 +373,7 @@ async function resolveLhs(lhs, context) {
 async function resolveRhs(rhs, context) {
   if (rhs.type === "NUMBER")   return rhs.value;
   if (rhs.type === "ACCESSOR") return evaluateExpr(rhs.expr, context);
+  if (rhs.type === "IDENT" || rhs.type === "STRING") return rhs.value;
   return 0;
 }
 
@@ -300,11 +393,11 @@ async function evaluateCondition(condition, context) {
 
 // ── Target resolution ─────────────────────────────────────────────────────────
 
-const SINGLE_TARGETS = new Set(["self", "target", "ally"]);
+const SINGLE_TARGETS = new Set(["self", "target", "ally", "attacker"]);
 
 function resolveTargets(targetName, context) {
   if (SINGLE_TARGETS.has(targetName)) {
-    const actor = context[targetName] ?? null;
+    const actor = (targetName === "attacker" ? context.attacker : context[targetName]) ?? null;
     if (!actor) { console.warn(`[EasyEffects] Target '${targetName}' not in context.`); return []; }
     return [actor];
   }
@@ -339,8 +432,12 @@ function _isEnemy(other, self) {
 export async function execute(ast, trigger, context) {
   for (const block of ast.blocks) {
     if (block.trigger !== trigger) continue;
+    if (block.damageFilter && !matchesDamageFilter(block.damageFilter, context.damage)) continue;
+
     for (const stmt of block.statements) {
       try {
+        // Skip effect-template branches for the other polarity.
+        if (stmt.polarity && stmt.polarity !== context.effectMode) continue;
         if (stmt.condition && !(await evaluateCondition(stmt.condition, context))) continue;
 
         let inheritedTarget = "self";
@@ -454,6 +551,14 @@ export function executeAlwaysActive(ast, prepareContext) {
                   console.warn(`[EasyEffects] [Always Active] unknown resource '${action.argument}'`);
               } else {
                 console.warn(`[EasyEffects] Verb '${action.verb}' is not supported in [Always Active] for noun '${action.noun}'.`);
+              }
+              break;
+            case "set":
+              if (action.noun === "resource") {
+                if (!applyResourceOverride(mods, action.argument, amount))
+                  console.warn(`[EasyEffects] [Always Active] cannot set '${action.argument}' (use maxHp/maxSt/maxSp/maxLight)`);
+              } else {
+                console.warn(`[EasyEffects] Verb 'set' in [Always Active] only supports resource maxes.`);
               }
               break;
             case "regen": {

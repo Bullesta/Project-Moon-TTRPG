@@ -2,6 +2,7 @@ import { PMTTRPGUtility } from "../utility.js";
 import { PMTTRPGRolls } from "../rolls.js";
 import { PMTTRPGTargetingAPI } from "../targeting.js";
 import { buildEffectSummaryGroups } from "../effects/effect-summary.js";
+import { groupStatuses } from "../status/group-statuses.js";
 
 const { ActorSheetV2 } = foundry.applications.sheets;
 const { HandlebarsApplicationMixin } = foundry.applications.api;
@@ -294,7 +295,8 @@ export class PMTTRPGCharacterSheet extends HandlebarsApplicationMixin(ActorSheet
     const temp = isLight ? 0 : (Number(data.temp) || 0);
     const maxBase = Number(data.maxBase) || 0;
     const maxMisc = Number(data.maxMisc) || 0;
-    const effMax = Number(data.max) || (maxBase + maxMisc);
+    const rawMax = Number(data.max);
+    const effMax = Number.isFinite(rawMax) ? rawMax : (maxBase + maxMisc);
     const bar = this._computeTrackerBar(value, temp, effMax, isLight);
     const segs = isLight ? Math.max(1, Math.min(16, effMax)) : null;
     const curLen = Math.max(1, String(value).length);
@@ -333,6 +335,7 @@ export class PMTTRPGCharacterSheet extends HandlebarsApplicationMixin(ActorSheet
       tempName: `system.attributes.${def.attr}.temp`,
       maxBaseName: `system.attributes.${def.attr}.maxBase`,
       maxMiscName: `system.attributes.${def.attr}.maxMisc`,
+      eeMaxOverridden: !!data.eeMaxOverridden,
       detailLabels,
       showTemp: !isLight,
       ariaCurrent: game.i18n.format("PMTTRPG.TrackerAriaCurrent", { tracker: short }),
@@ -340,6 +343,9 @@ export class PMTTRPGCharacterSheet extends HandlebarsApplicationMixin(ActorSheet
       ariaMax: game.i18n.format("PMTTRPG.TrackerAriaMax", { tracker: short }),
       ariaBonusMax: game.i18n.format("PMTTRPG.TrackerAriaBonusMax", { tracker: short }),
       ariaToggle: game.i18n.format("PMTTRPG.TrackerAriaToggle", { tracker: short }),
+      eeOverrideTitle: data.eeMaxOverrideBy
+        ? game.i18n.format("PMTTRPG.EasyEffectsMaxOverriddenBy", { name: data.eeMaxOverrideBy })
+        : game.i18n.localize("PMTTRPG.EasyEffectsMaxOverridden"),
     };
   }
 
@@ -741,6 +747,16 @@ export class PMTTRPGCharacterSheet extends HandlebarsApplicationMixin(ActorSheet
       for (const el of root.querySelectorAll("[data-action=counterIncrease]")) {
         el.addEventListener("contextmenu", (event) => this._onCounterDecrease(event, el), { signal });
       }
+
+      for (const el of root.querySelectorAll("input.item-count--stacks")) {
+        el.addEventListener("change", (event) => this._onStatusStacksInput(event, el), { signal });
+        el.addEventListener("keydown", (event) => {
+          if (event.key === "Enter") {
+            event.preventDefault();
+            el.blur();
+          }
+        }, { signal });
+      }
     }
 
     if (this.#pendingUIState) {
@@ -956,55 +972,41 @@ export class PMTTRPGCharacterSheet extends HandlebarsApplicationMixin(ActorSheet
     event.stopPropagation();
     const li = target.closest(".item");
     const action = target.dataset.control;
-    const statusKey = li?.dataset?.statusKey;
-    const statusItems = this.actor.items.filter(item => item.type === "status" && this._statusKey(item) === statusKey);
-    const item = statusItems[0];
-    if (!item) return;
+    const statusName = li?.dataset?.statusName
+      || this.actor.items.get(li?.dataset?.itemId)?.name;
+    if (!statusName || !this.actor?.setStatusStacks) return;
 
     if (action === "increase") {
-      const itemData = foundry.utils.duplicate(item.toObject());
-      delete itemData._id; delete itemData.id; delete itemData.uuid;
-      await this.actor.createEmbeddedDocuments("Item", [itemData], {});
+      await this.actor.addStatusStacks(statusName, 1);
     }
     else if (action === "decrease") {
-      if (statusItems.length <= 1) await item.delete();
-      else await statusItems[statusItems.length - 1].delete();
+      await this.actor.removeStatusStacks(statusName, 1);
     }
     else if (action === "remove") {
-      await this.actor.deleteEmbeddedDocuments("Item", statusItems.map(s => s.id));
+      await this.actor.setStatusStacks(statusName, 0);
     }
   }
 
-  _statusKey(item) {
-    return `${item?.name ?? ""}`.trim().toLowerCase();
+  async _onStatusStacksInput(event, target) {
+    event.preventDefault?.();
+    event.stopPropagation?.();
+    const li = target.closest(".item");
+    const statusName = li?.dataset?.statusName
+      || this.actor.items.get(li?.dataset?.itemId)?.name;
+    if (!statusName || !this.actor?.setStatusStacks) return;
+
+    const raw = Number(target.value);
+    const next = Number.isFinite(raw) ? Math.max(0, Math.trunc(raw)) : 0;
+    await this.actor.setStatusStacks(statusName, next);
   }
 
   _prepareStatusItems(items = []) {
-    const grouped = new Map();
-    for (const item of items) {
-      if (item.type !== "status") continue;
-      const key = this._statusKey(item) || item._id || item.id;
-      if (!grouped.has(key)) {
-        grouped.set(key, {
-          key,
-          name: item.name,
-          img: item.img,
-          count: 0,
-          items: [],
-          representative: item,
-          system: foundry.utils.duplicate(item.system ?? {}),
-        });
-      }
-      const group = grouped.get(key);
-      group.count += 1;
-      group.items.push(item);
-      group.representative = group.representative ?? item;
-      group.img = group.img || item.img;
-      if (!group.system.descriptionEnriched && item.system?.descriptionEnriched) {
-        group.system.descriptionEnriched = item.system.descriptionEnriched;
-      }
-    }
-    return Array.from(grouped.values()).sort((a, b) => a.name.localeCompare(b.name));
+    return groupStatuses({ items }, { sort: "name" }).map((status) => {
+      const system = foundry.utils.duplicate(status.representative.system ?? {});
+      const enriched = status.items.find((item) => item.system?.descriptionEnriched);
+      if (enriched) system.descriptionEnriched = enriched.system.descriptionEnriched;
+      return { ...status, system };
+    });
   }
 
   _bindSortDragDrop(root, signal) {

@@ -1,9 +1,18 @@
 import { PMTTRPGUtility } from '../utility.js';
 import { getRankFromLevel } from './progression.js';
 const { renderTemplate } = foundry.applications.handlebars;
-import { applyAlwaysActiveModifiers } from '../easy-effects/registry.js';
-import { applyResourceModsToSystem } from '../easy-effects/nouns.js';
+import { applyAlwaysActiveModifiers, runOnTakingDamage } from '../easy-effects/registry.js';
+import { applyResourceModsToSystem, applyResourceOverridesToSystem } from '../easy-effects/nouns.js';
 import { applyInventorySlotUsage } from '../inventory/slots.js';
+import {
+  APPLY_POOLS,
+  DAMAGE_TYPES,
+  buildAppliedDamage,
+  normalizePools,
+  poolValuePath,
+  postDamageTakenMessage,
+  resolveResistance,
+} from '../damage-application.js';
 
 /**
  * Extends the basic Actor class for Project Moon TTRPG.
@@ -35,7 +44,6 @@ export class ActorPMTTRPG extends Actor {
   _prepareCharacterData(actorData) {
     const data = actorData.system;
 
-    // Legacy NPCs may predate the expanded npc template so we seed required fields.
     if (!data.abilities) {
       if (actorData.type !== 'npc') return;
       data.abilities = {
@@ -208,9 +216,16 @@ export class ActorPMTTRPG extends Actor {
       for (const key of ['hp', 'st', 'sp']) {
         const pool = data.attributes[key];
         if (!pool) continue;
+        pool.eeMaxOverridden = false;
+        pool.eeMaxOverrideBy = "";
         pool.max = (Number(pool.maxBase) || 0) + (Number(pool.maxMisc) || 0);
         pool.value = Math.clamp(Number(pool.value) || 0, 0, pool.max);
       }
+      if (data.attributes.light) {
+        data.attributes.light.eeMaxOverridden = false;
+        data.attributes.light.eeMaxOverrideBy = "";
+      }
+      applyResourceOverridesToSystem(data, eeMods);
       data.attributes.light.value = Math.clamp(
         Number(data.attributes.light.value) || 0, 0, data.attributes.light.max
       );
@@ -381,65 +396,197 @@ export class ActorPMTTRPG extends Actor {
     }
   }
 
-  async applyDamage(amount, options = {op: 'full', ignoreArmor: false, piercing: 0, dmgBonus: 0}) {
-    let newAmount = Number(amount);
-    // Some option objects don't include dmgBonus, so avoid parsing undefined into NaN.
-    const dmgBonus = Number(options?.dmgBonus) || 0;
+  /**
+   * Apply damage or healing to one or more pools.
+   * @param {number|string} amount
+   * @param {object} [options]
+   * @param {"full"|"half"|"double"|"heal"} [options.op="full"]
+   * @param {"hp"|"st"|"sp"|Array<"hp"|"st"|"sp">} [options.pool="hp"]
+   * @returns {Promise<object|null>}
+   */
+  async applyDamage(amount, options = {}) {
+    const op = options.op ?? "full";
+    const pools = normalizePools(options.pool);
+    const createMessage = options.createMessage !== false;
+    const rawDamageType = typeof options.damageType === "string" ? options.damageType.trim() : "";
+    const damageType = DAMAGE_TYPES.includes(rawDamageType.toLowerCase()) ? rawDamageType.toLowerCase() : null;
+    const eeDamageType = damageType || rawDamageType;
+    const source = typeof options.source === "string" && options.source.trim() ? options.source.trim() : null;
+    const afterResistance = Number(options.afterResistance) || 0;
+    const forceSkipResistance = options.skipResistance === true || op === "heal";
+    const useOutfitTypeResists = !source && !forceSkipResistance;
+    const skipEasyEffects = options.skipEasyEffects === true;
 
-    if (options.op !== 'heal') {
-      newAmount += dmgBonus;
-    }
-
-    switch (options.op) {
-      case 'half':
-        newAmount = Math.floor(newAmount / 2);
+    const base = Number(amount) || 0;
+    let sharedAmount = base;
+    switch (op) {
+      case "half":
+        sharedAmount = Math.floor(sharedAmount / 2);
         break;
-
-      case 'double':
-        newAmount = newAmount * 2;
+      case "double":
+        sharedAmount *= 2;
         break;
-
       default:
         break;
     }
 
-    let hp = this.system?.attributes?.hp?.value ?? 0;
-    let hpMax = this.system?.attributes?.hp?.max ?? 1;
-    let armor = this.system?.attributes?.ac?.value ?? 0;
-    let piercing = options?.ignoreArmor ? armor : options?.piercing;
-    let reduced = armor;
+    const breakdown = [{ key: "base", amount: base }];
+    if (op !== "full") breakdown.push({ key: "op", op, from: base, to: sharedAmount });
 
-    if (!hp && !amount) return;
+    let amountAfterSource = sharedAmount;
+    let poolsAfter = pools;
+    let damageTypeForResist = damageType;
 
-    // Reduce armor if needed.
-    if (options.piercing && options.piercing > 0) reduced = Math.max(armor - options.piercing, 0);
-    if (options.ignoreArmor) reduced = 0;
-    if (isNaN(piercing)) piercing = 0;
-
-    // Reduce damage by armor.
-    if (options.op !== 'heal' && !options.ignoreArmor) {
-      newAmount = Math.max(newAmount - reduced, 0);
-    }
-
-    // Adjust hp.
-    let newHp = options.op === 'heal' ? hp + newAmount : hp - newAmount;
-    if (newHp > hpMax) newHp = hpMax;
-
-    if (newHp !== hp) {
-      const update = {'system.attributes.hp.value': newHp};
-      // Set options.PMTTRPG so that we can update scrolling text in
-      // preUpdate and onUpdate.
-      const context = {
-        PMTTRPG: {
-          armor: {
-            reduced: reduced,
-            value: armor,
-            piercing: piercing,
-          },
-        },
+    if (op !== "heal" && !skipEasyEffects) {
+      const beforeEe = amountAfterSource;
+      const damageCtx = {
+        amount: amountAfterSource,
+        pool: pools[0] ?? "hp",
+        source: source ?? "",
+        damageType: eeDamageType,
       };
-      return this.update(update, context);
+      await runOnTakingDamage(this, damageCtx, { attacker: options.attacker ?? null });
+      amountAfterSource = Math.max(0, Number(damageCtx.amount) || 0);
+      poolsAfter = normalizePools(damageCtx.pool);
+
+      const rawAfter = typeof damageCtx.damageType === "string" ? damageCtx.damageType.trim() : "";
+      damageTypeForResist = DAMAGE_TYPES.includes(rawAfter.toLowerCase())
+        ? rawAfter.toLowerCase()
+        : null;
+
+      if (amountAfterSource !== beforeEe) {
+        if (source) {
+          breakdown.push({
+            key: "sourceResistance",
+            source,
+            sourceLabel: source,
+            reduction: beforeEe - amountAfterSource,
+            from: beforeEe,
+            to: amountAfterSource,
+          });
+        } else {
+          breakdown.push({
+            key: "easyEffects",
+            reduction: beforeEe - amountAfterSource,
+            from: beforeEe,
+            to: amountAfterSource,
+          });
+        }
+      }
+
+      const poolChanged = (poolsAfter[0] ?? "hp") !== (pools[0] ?? "hp");
+      const typeChanged = rawAfter !== eeDamageType;
+      if (poolChanged || typeChanged) {
+        breakdown.push({
+          key: "convert",
+          fromPool: pools[0] ?? "hp",
+          toPool: poolsAfter[0] ?? "hp",
+          fromType: eeDamageType || "",
+          toType: rawAfter || "",
+        });
+      }
     }
+
+    const actorUpdates = {};
+    const appliedEntries = [];
+
+    for (const pool of poolsAfter) {
+      const poolData = this.system?.attributes?.[pool];
+      if (!poolData) continue;
+
+      const current = Number(poolData.value) || 0;
+      const max = Number(poolData.max) || 0;
+      let newAmount = amountAfterSource;
+      const skipTypeResist = !useOutfitTypeResists || pool === "sp" || pool === "light";
+
+      if (!skipTypeResist) {
+        const resist = resolveResistance(this, pool, damageTypeForResist);
+        if (resist) {
+          const before = newAmount;
+          newAmount = Math.floor(newAmount * resist.multiplier);
+          breakdown.push({
+            key: "resistance",
+            pool,
+            damageType: resist.damageType,
+            level: resist.key,
+            multiplier: resist.multiplier,
+            reason: resist.reason,
+            from: before,
+            to: newAmount,
+          });
+        }
+        if (afterResistance) {
+          newAmount = Math.max(0, newAmount + afterResistance);
+          breakdown.push({
+            key: "afterResistance",
+            pool,
+            amount: afterResistance,
+            to: newAmount,
+          });
+        }
+      }
+
+      if (newAmount === 0 && op !== "heal") {
+        breakdown.push({ key: "final", amount: 0, pool, heal: false });
+        continue;
+      }
+
+      const uncapped = op === "heal" ? current + newAmount : current - newAmount;
+      const next = Math.clamp(uncapped, 0, max);
+      if (next === current) {
+        breakdown.push({ key: "final", amount: 0, pool, heal: op === "heal" });
+        continue;
+      }
+
+      const path = poolValuePath(pool);
+      actorUpdates[path] = next;
+      appliedEntries.push({ pool, path, pre: current, post: next });
+
+      const applied = Math.abs(current - next);
+      if (uncapped !== next) {
+        breakdown.push({
+          key: "clamp",
+          pool,
+          from: Math.abs(current - uncapped),
+          to: applied,
+          reason: uncapped > max ? "max" : "min",
+        });
+      }
+      breakdown.push({ key: "final", amount: applied, pool, heal: op === "heal" });
+    }
+
+    if (appliedEntries.length) {
+      await this.update(actorUpdates);
+    }
+
+    const appliedDamage = buildAppliedDamage(this, appliedEntries, breakdown);
+    if (createMessage && (appliedEntries.length || breakdown.length)) {
+      if (op === "heal") appliedDamage.isHealing = true;
+      await postDamageTakenMessage(this, appliedDamage);
+    }
+    return appliedEntries.length || breakdown.length ? appliedDamage : null;
+  }
+
+  /**
+   * Reverse a prior applyDamage
+   * @param {object} appliedDamage
+   */
+  async undoDamage(appliedDamage) {
+    if (!appliedDamage?.updates?.length) return;
+
+    const actorUpdates = {};
+    for (const update of appliedDamage.updates) {
+      const currentValue = foundry.utils.getProperty(this, update.path);
+      if (typeof currentValue === "number") {
+        const poolKey = String(update.path).match(/attributes\.(\w+)\.value/)?.[1];
+        const max = poolKey ? Number(this.system?.attributes?.[poolKey]?.max) || null : null;
+        let restored = currentValue + update.value;
+        if (max !== null) restored = Math.clamp(restored, 0, max);
+        actorUpdates[update.path] = restored;
+      }
+    }
+    if (!Object.keys(actorUpdates).length) return;
+    await this.update(actorUpdates, { PMTTRPG: { damageUndo: true } });
   }
 
   /**
@@ -449,19 +596,22 @@ export class ActorPMTTRPG extends Actor {
    * @param {number} max Maximum value to calculate against.
    * @param {string} suffix Text to display
    * @param {object} overrideOptions Override options to pass to the token method.
+   * @param {"hp"|"st"|"sp"|null} [pool=null]
    */
-  showScrollingText(delta, max, suffix="", overrideOptions={}) {
-    // Show scrolling text of hp update
+  showScrollingText(delta, max, suffix="", overrideOptions={}, pool=null) {
     const tokens = this.isToken ? [this.token?.object] : this.getActiveTokens(true);
     if (tokens.length > 0) {
       if (!delta) delta = 0;
 
-      let color = 0x999999;
-      if (delta < 0) {
-        color = 0xcc0000;
-      }
-      else if (delta > 0) {
-        color = 0x00cc00;
+      const poolColors = {
+        st: 0xffcc00,
+        sp: 0x4a9eff,
+      };
+      let color = poolColors[pool];
+      if (color === undefined) {
+        color = 0x999999;
+        if (delta < 0) color = 0xcc0000;
+        else if (delta > 0) color = 0x00cc00;
       }
 
       for ( let token of tokens ) {
@@ -470,11 +620,10 @@ export class ActorPMTTRPG extends Actor {
         let textOptions = {
           anchor: CONST.TEXT_ANCHOR_POINTS.CENTER,
           direction: CONST.TEXT_ANCHOR_POINTS.TOP,
-          fontSize: 16 + (32 * pct), // Range between [16, 48]
+          fontSize: 16 + (32 * pct),
           fill: color,
           stroke: 0x000000,
           strokeThickness: 4,
-          // jitter: 1,
           duration: 3000
         };
         canvas.interface.createScrollingText(token.center, content, foundry.utils.mergeObject(textOptions, overrideOptions));
@@ -519,34 +668,31 @@ export class ActorPMTTRPG extends Actor {
 
     if (!displayText) return;
 
-    // Prepare the scrolling text update.
-    if (updateData.system?.attributes?.hp?.value !== undefined) {
-      let hp = {
-        original: context.system.attributes.hp.value ?? null,
-        current: updateData.system.attributes.hp.value ?? null,
-        max: context.system.attributes.hp?.max ?? updateData.system.attributes.hp.max
-      }
+    const poolAnchors = {
+      hp: CONST.TEXT_ANCHOR_POINTS.TOP,
+      st: CONST.TEXT_ANCHOR_POINTS.CENTER,
+      sp: CONST.TEXT_ANCHOR_POINTS.BOTTOM,
+      light: CONST.TEXT_ANCHOR_POINTS.BOTTOM,
+    };
+    const poolLabels = {
+      hp: "PMTTRPG.TrackerHP",
+      st: "PMTTRPG.TrackerST",
+      sp: "PMTTRPG.TrackerSP",
+      light: "PMTTRPG.Light",
+    };
 
-      if (!isNaN(hp.original) && !isNaN(hp.current)) {
-        hp.delta = hp.current - hp.original;
+    for (const pool of APPLY_POOLS) {
+      if (updateData.system?.attributes?.[pool]?.value === undefined) continue;
+      const original = context.system.attributes?.[pool]?.value ?? null;
+      const current = updateData.system.attributes[pool].value ?? null;
+      const max = context.system.attributes?.[pool]?.max ?? updateData.system.attributes[pool].max;
+      if (isNaN(original) || isNaN(current)) continue;
 
-        if (hp.delta !== 0) {
-          this.showScrollingText(hp.delta, hp.max, game.i18n.localize('PMTTRPG.HP'), {anchor: CONST.TEXT_ANCHOR_POINTS.TOP});
-        }
-
-        if (hp.delta < 0 && options?.PMTTRPG?.armor?.reduced) {
-          let armorContext = {
-            reduced: options.PMTTRPG.armor.reduced,
-            piercing: options.PMTTRPG.armor?.piercing ?? 0
-          };
-
-          let textToShow = game.i18n.format('PMTTRPG.Scrolling.armorReduced', armorContext);
-          if (armorContext.piercing > 0) {
-            textToShow = textToShow + '\r\n' + game.i18n.format('PMTTRPG.Scrolling.armorPiercing', armorContext);
-          }
-          this.showScrollingText(null, null, textToShow, {anchor: CONST.TEXT_ANCHOR_POINTS.CENTER});
-        }
-      }
+      const delta = current - original;
+      if (delta === 0) continue;
+      this.showScrollingText(delta, max, game.i18n.localize(poolLabels[pool]), {
+        anchor: poolAnchors[pool],
+      }, pool);
     }
   }
 
@@ -558,41 +704,81 @@ export class ActorPMTTRPG extends Actor {
    * @returns {number}
    */
   getStatusStacks(statusName) {
-    return this.items.filter(
+    const matching = this.items.filter(
       i => i.type === 'status' && i.name === statusName
-    ).length;
+    );
+    if (!matching.length) return 0;
+
+    const usesStacksField = matching.some(i => i.system?.stacks != null);
+    if (usesStacksField || matching.length === 1) {
+      return matching.reduce(
+        (sum, i) => sum + Math.max(0, Number(i.system?.stacks ?? 1) || 0),
+        0
+      );
+    }
+    return matching.length;
   }
 
   /**
-   * Adds `amount` stacks of a status to this actor.
-   * Pulls the base item from the system compendium if no copy exists yet.
-   *
+   * Max stacks for a status definition (0 = unlimited).
+   * @param {Item|object} source
+   * @returns {number}
+   */
+  static _statusStackMax(source) {
+    return Math.max(0, Number(source?.system?.stackMax ?? 0) || 0);
+  }
+
+  /**
+   * Add status stacks, creating the item from the system pack if needed.
    * @param {string} statusName
    * @param {number} [amount=1]
-   * @returns {Promise<Item[]>}  The newly created Item documents.
+   * @returns {Promise<Item[]>}
    */
   async addStatusStacks(statusName, amount = 1) {
-    // Try to find a template in the actor's own items first (for custom entries),
-    // then fall back to the compendium.
-    let sourceItem = this.items.find(
+    const add = Math.max(0, Math.trunc(Number(amount) || 0));
+    if (add <= 0) return [];
+
+    const matching = this.items.filter(
       i => i.type === 'status' && i.name === statusName
     );
 
+    let sourceItem = matching[0];
     let itemData;
     if (sourceItem) {
       itemData = sourceItem.toObject();
     } else {
       itemData = await ActorPMTTRPG._fetchStatusFromCompendium(statusName);
       if (!itemData) {
-        console.warn(`[EasyEffects] Status '${statusName}' not found in compendium. Cannot add stacks.`);
-        ui.notifications?.warn(`EasyEffects: Status '${statusName}' not found in compendium.`);
+        const warning = game.i18n.format("PMTTRPG.StatusNotFound", { name: statusName });
+        console.warn(`PMTTRPG | ${warning}`);
+        ui.notifications?.warn(warning);
         return [];
       }
     }
 
-    // Create `amount` copies.
-    const copies = Array.from({ length: amount }, () => foundry.utils.duplicate(itemData));
-    return this.createEmbeddedDocuments('Item', copies);
+    const stackMax = ActorPMTTRPG._statusStackMax(itemData);
+    const current = this.getStatusStacks(statusName);
+    const room = stackMax > 0 ? Math.max(0, stackMax - current) : add;
+    const toAdd = stackMax > 0 ? Math.min(add, room) : add;
+    if (toAdd <= 0) return sourceItem ? [sourceItem] : [];
+
+    const nextStacks = current + toAdd;
+
+    if (matching.length === 0) {
+      const created = foundry.utils.duplicate(itemData);
+      delete created._id;
+      created.system = created.system ?? {};
+      created.system.stacks = nextStacks;
+      if (stackMax > 0) created.system.stackMax = stackMax;
+      return this.createEmbeddedDocuments('Item', [created]);
+    }
+
+    // Merge legacy copies into the kept item.
+    const keep = matching[0];
+    const extras = matching.slice(1).map(i => i.id);
+    await keep.update({ 'system.stacks': nextStacks });
+    if (extras.length) await this.deleteEmbeddedDocuments('Item', extras);
+    return [keep];
   }
 
   /**
@@ -604,28 +790,67 @@ export class ActorPMTTRPG extends Actor {
    * @returns {Promise<void>}
    */
   async setStatusStacks(statusName, target) {
+    let desired = Math.max(0, Math.trunc(Number(target) || 0));
+    const matching = this.items.filter(
+      i => i.type === 'status' && i.name === statusName
+    );
+
+    const stackMax = matching[0]
+      ? ActorPMTTRPG._statusStackMax(matching[0])
+      : 0;
+    if (stackMax > 0 && desired > 0) desired = Math.min(desired, stackMax);
+
+    if (desired <= 0) {
+      if (!matching.length) return;
+      await this.deleteEmbeddedDocuments('Item', matching.map(i => i.id));
+      return;
+    }
+
     const current = this.getStatusStacks(statusName);
-    const delta = target - current;
+    if (current === desired && matching.length === 1) {
+      if (Number(matching[0].system?.stacks ?? 1) !== desired) {
+        await matching[0].update({ 'system.stacks': desired });
+      }
+      return;
+    }
+
+    const delta = desired - current;
     if (delta > 0) await this.addStatusStacks(statusName, delta);
     else if (delta < 0) await this.removeStatusStacks(statusName, Math.abs(delta));
+    else if (matching.length > 1) {
+      // The total matches, but legacy copies still need merging.
+      await matching[0].update({ 'system.stacks': desired });
+      await this.deleteEmbeddedDocuments('Item', matching.slice(1).map(i => i.id));
+    }
   }
 
   /**
-   * Removes `amount` stacks of a status from this actor.
-   * Silently clamps to 0 (won't error if fewer stacks exist than requested).
-   *
+   * Remove status stacks, clamping at zero.
    * @param {string} statusName
    * @param {number} [amount=1]
-   * @returns {Promise<string[]>}  IDs of the deleted Item documents.
+   * @returns {Promise<string[]>}
    */
   async removeStatusStacks(statusName, amount = 1) {
-    const matching = this.items
-      .filter(i => i.type === 'status' && i.name === statusName)
-      .slice(0, amount)                          // only remove up to `amount`
-      .map(i => i.id);
+    const remove = Math.max(0, Math.trunc(Number(amount) || 0));
+    if (remove <= 0) return [];
 
-    if (matching.length === 0) return [];
-    return this.deleteEmbeddedDocuments('Item', matching);
+    const matching = this.items.filter(
+      i => i.type === 'status' && i.name === statusName
+    );
+    if (!matching.length) return [];
+
+    const current = this.getStatusStacks(statusName);
+    const next = Math.max(0, current - remove);
+
+    if (next <= 0) {
+      return this.deleteEmbeddedDocuments('Item', matching.map(i => i.id));
+    }
+
+    const keep = matching[0];
+    const extras = matching.slice(1).map(i => i.id);
+    await keep.update({ 'system.stacks': next });
+    if (extras.length) await this.deleteEmbeddedDocuments('Item', extras);
+    return extras;
   }
 
   /**

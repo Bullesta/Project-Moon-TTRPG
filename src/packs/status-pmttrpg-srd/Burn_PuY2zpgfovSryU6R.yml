@@ -10,7 +10,7 @@ system:
     then reduce the Burn stack by half. (Rounded down)</strong></p>
   proc:
     turnStart: false
-    endOfRound: false
+    endOfRound: true
     actionOrReaction: false
     attackerBurst: false
     onHitWhenActorHas: false
@@ -20,6 +20,10 @@ system:
   macro:
     uuid: ''
   customNotes: ''
+  easyEffects: |
+    [End of Round]
+    deal Burn hp damage to self;
+    halve Burn on self;
 effects: []
 ownership:
   default: 0

@@ -23,6 +23,12 @@ system:
     uuid: ''
   customNotes: ''
   allowMultiple: true
+  easyEffects: |
+    [On Taking Sinking Damage]
+    positive:
+    reduce damage by N;
+    negative:
+    increase damage by N;
 effects: []
 sort: 0
 ownership:

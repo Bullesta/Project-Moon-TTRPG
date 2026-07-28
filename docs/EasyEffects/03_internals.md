@@ -46,7 +46,8 @@ The lexer converts raw source text into a flat array of typed tokens. It has **n
 | `DICE` | `1d6` | Checked before NUMBER — starts with digit, contains `d` |
 | `ACCESSOR` | `(self.hp + 2)` | Entire content captured raw (nested parens handled) |
 | `OPERATOR` | `>=`, `!=` | Two-char operators checked before one-char |
-| `SEMICOLON` | `;` | Statement terminator |
+| `SEMICOLON` | `;` | Statement terminator (optional if newline ends the statement) |
+| `NEWLINE` | `\n` | Statement terminator when `;` is omitted |
 | `EOF` | — | Sentinel appended at end |
 
 ### Two-pass accessor handling

@@ -26,6 +26,9 @@
     <nav class="sheet-tabs tabs" data-group="primary">
         <a class="item{{#if (eq activeTab 'description')}} active{{/if}}" data-action="tab" data-group="primary" data-tab="description">{{localize "PMTTRPG.Common.Description"}}</a>
       <a class="item{{#if (eq activeTab 'status')}} active{{/if}}" data-action="tab" data-group="primary" data-tab="status">{{localize "PMTTRPG.Status"}}</a>
+        {{#if supportsEasyEffects}}
+        <a class="item{{#if (eq activeTab 'easy-effects')}} active{{/if}}" data-action="tab" data-group="primary" data-tab="easy-effects">{{localize "PMTTRPG.EasyEffects"}}</a>
+        {{/if}}
         <a class="item{{#if (eq activeTab 'advanced')}} active{{/if}}" data-action="tab" data-group="primary" data-tab="advanced">{{localize "PMTTRPG.Advanced"}}</a>
     </nav>
 
@@ -39,6 +42,23 @@
             <div class="resource">
               <label>{{localize "PMTTRPG.Status"}}</label>
               <div class="help-text"><p>{{localize "PMTTRPG.StatusSheetHint"}}</p></div>
+            </div>
+
+            {{#unless (eq system.stackMax 1)}}
+            <div class="resource">
+              <label>{{localize "PMTTRPG.StatusStacks"}}</label>
+              <input type="number" name="system.stacks" value="{{system.stacks}}" data-dtype="Number" min="0" step="1" {{#unless editable}}readonly{{/unless}}/>
+            </div>
+            {{/unless}}
+
+            <div class="resource">
+              <label data-tooltip="{{localize "PMTTRPG.StatusStackMaxHint"}}">{{localize "PMTTRPG.StatusStackMax"}}</label>
+              <input type="number" name="system.stackMax" value="{{system.stackMax}}" data-dtype="Number" min="0" step="1" {{#unless editable}}readonly{{/unless}}/>
+            </div>
+
+            <div class="resource">
+              <label data-tooltip="{{localize "PMTTRPG.StatusPriorityHint"}}">{{localize "PMTTRPG.StatusPriority"}}</label>
+              <input type="number" name="system.priority" value="{{system.priority}}" data-dtype="Number" min="0" max="100" step="1" {{#unless editable}}readonly{{/unless}}/>
             </div>
 
             <div class="resource">
@@ -66,8 +86,15 @@
           </div>
         </div>
 
+        {{#if supportsEasyEffects}}
+        <div class="tab{{#if (eq activeTab 'easy-effects')}} active{{/if}}" data-group="primary" data-tab="easy-effects">
+          {{> "systems/projectmoonttrpg/templates/parts/easy-effects.html"}}
+        </div>
+        {{/if}}
+
         <div class="tab{{#if (eq activeTab 'advanced')}} active{{/if}}" data-group="primary" data-tab="advanced">
           <div class="resource-group">
+            {{> "systems/projectmoonttrpg/templates/parts/item-slug-field.hbs"}}
             <div class="resource">
               <label>{{localize "PMTTRPG.CustomNotes"}}</label>
               <textarea name="system.customNotes" rows="5" data-dtype="String">{{system.customNotes}}</textarea>
