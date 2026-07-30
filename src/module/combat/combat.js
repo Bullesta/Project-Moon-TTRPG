@@ -279,6 +279,14 @@ export class CombatSidebarPMTTRPG {
         } catch (error) {
           console.warn("[EasyEffects] turnStart hook failed", error);
         }
+        // The Action Economy refreshes at the start of the character's turn.
+        if (currentCombatant.actor.isOwner) {
+          try {
+            await currentCombatant.actor.refreshActionEconomy();
+          } catch (error) {
+            console.warn("[PMTTRPG] action economy refresh failed", error);
+          }
+        }
       }
     });
 
