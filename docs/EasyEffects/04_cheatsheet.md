@@ -11,12 +11,10 @@ double <Status> [on <target>];
 lose half [of] <Status> [on <target>];
 gain double [of] <Status> [on <target>];
 deal <N> [hp|st|sp|light] damage [to|on <target>];
-deal <N> hp and st damage [to|on <target>];
 deal <N> blunt hp damage [to|on <target>];
 deal <N> hp blunt damage [to|on <target>];
 deal (incoming.amount) damage to attacker;
 convert [amount] damage to <pool|type>;
-convert damage to hp and st;
 set maxHp|maxSt|maxSp|maxLight to <N>;
 spend <N> <Status> [on <target>] to <actions>;
 require <N> <target> <Status> then <actions>;
@@ -66,15 +64,12 @@ do remove status <Name> <N> on <target>
 do deal damage <N> on <target>
 do deal hp|st|sp|light damage <N> on <target>
 deal <N> hp|st|sp|light damage to <target>
-deal <N> hp and st damage to <target>
 convert [amount] damage to hp|st|sp|light
-convert [amount] damage to hp and st
 convert [amount] damage to slash|pierce|blunt
 set maxSp to 0
 do heal <N> on <target>
 do heal hp|st|sp damage <N> on <target>
 heal <N> st|sp|light damage to <target>
-heal <N> hp and st damage to <target>
 do set stat <name> <N> on <target>
 reduce damage [by] <amount>
 increase damage [by] <amount>

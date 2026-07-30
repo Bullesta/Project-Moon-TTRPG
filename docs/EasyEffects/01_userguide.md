@@ -177,15 +177,11 @@ Single-word names don't need quotes, but you can add them if you want. Reserved 
 ```
 do deal damage 5 on target;
 deal (self.rank) hp damage to target;
-deal 5 hp and st damage to target;
 deal (incoming.amount) blunt hp damage to attacker;
 do heal 10 on self;
 heal 10 ST damage to self;
-heal 5 hp and st damage to self;
 heal 1 light damage to self;
 ```
-
-You can join multiple resource pools with `and` (`hp and st`, `hp and st and sp`). The same amount applies to each pool. Action chaining still uses `and` between full actions (`deal 5 hp damage to target and heal 3 st damage to self`).
 
 On `[On Taking Damage]`, you can read the pending hit with `incoming.*` (alias of `damage.*`) and reflect or rewrite it:
 
@@ -198,7 +194,6 @@ deal (incoming.amount) blunt hp damage to attacker;
 
 [On Taking SP Damage]
 convert (incoming.amount * 2) damage to hp;
-convert damage to hp and st;
 
 [On Taking Pierce Damage]
 convert damage to blunt;
@@ -212,7 +207,7 @@ convert damage to blunt;
 
 `deal` accepts an optional damage type before or after the pool: `blunt hp damage` or `hp blunt damage`. If you omit the type and/or pool while reflecting, the new hit keeps `incoming.damageType` and `incoming.pool` (pool still defaults to `hp` outside that context).
 
-`convert` changes the **pending** hit (pool and/or type, optionally amount) without firing another damage event. Pool destinations can use `and` the same way as `deal` / `heal` (`convert damage to hp and st`).
+`convert` changes the **pending** hit (pool and/or type, optionally amount) without firing another damage event.
 
 Nested `deal` / `heal` from inside `[On Taking Damage]` does **not** re-run that trigger. Status ticks and other top-level `deal`s still run resists normally.
 

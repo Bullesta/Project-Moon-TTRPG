@@ -51,7 +51,6 @@ function getAST(item) {
     _astCache.set(item.id, { source, ast });
     return ast;
   } catch (err) {
-    console.log(`[EasyEffect] Item has error! Here's the source: ${source}`);
     console.error(`[EasyEffects] Parse error on '${item.name}':`, err.message);
     ui.notifications?.warn(`EasyEffects parse error on '${item.name}': ${err.message}`);
     return null;
@@ -263,7 +262,7 @@ const TRIGGER_HOOKS = [
   },
 
   // ── [On Applied] ────────────────────────────────────────────────────────────
-  // Fires when the status effect is applied.
+  // Fires when the status is applied.
   {
     hook: "pmttrpg.statusApplied",
     triggerName: "On Applied",
@@ -416,7 +415,7 @@ export function applyAlwaysActiveModifiers(actor) {
  * Run defender [On Taking Damage] scripts. Mutates `damage.amount`.
  *
  * @param {Actor} actor  Defender
- * @param {{ amount: number, pool: string|string[], source: string, damageType: string }} damage
+ * @param {{ amount: number, pool: string, source: string, damageType: string }} damage
  * @param {{ attacker?: Actor|null }} [options]
  */
 export async function runOnTakingDamage(actor, damage, options = {}) {

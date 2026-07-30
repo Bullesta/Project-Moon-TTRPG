@@ -604,15 +604,7 @@ class Parser {
 
   // Accept amount-first and noun-first forms, such as "deal 5 hp damage".
   parseNaturalDealAction() {
-    return this._parseNaturalDealOrHealAction("deal");
-  }
-
-  parseNaturalHealAction() {
-    return this._parseNaturalDealOrHealAction("heal");
-  }
-
-  _parseNaturalDealOrHealAction(verb) {
-    this.consume("IDENT", verb);
+    this.consume("IDENT", "deal");
 
     let pool = null;
     let damageType = null;
@@ -636,14 +628,14 @@ class Parser {
       if (!amount) {
         throw new ParseError(`Expected amount after 'deal … damage', got '${this.peek().value}'`, this.peek());
       }
-    } else {
-      pool = this._parseOptionalHealPool();
-      if (this.check("IDENT", "damage") || (this.check("KEYWORD") && this.peek().value === "damage")) {
-        this.advance();
-      }
-      amount = this._parseOptionalAmount();
-      if (!amount) {
-        throw new ParseError(`Expected amount after 'heal', got '${this.peek().value}'`, this.peek());
+    }
+
+    let target = "target";
+    if (this.check("KEYWORD", "on") || this.check("KEYWORD", "to")) {
+      this.consume("KEYWORD");
+      const tok = this.peek();
+      if (!ALL_TARGETS.has(tok.value)) {
+        throw new ParseError(`Expected target after 'on'/'to', got '${tok.value}'`, tok);
       }
     }
 
@@ -662,17 +654,6 @@ class Parser {
       pool,
       damageType,
     };
-  }
-
-  _parseOptionalHealPool() {
-    const tok = this.peek();
-    if ((tok.type === "IDENT" || tok.type === "KEYWORD") && isApplyPoolNoun(tok.value)) {
-      const pools = [resolveApplyPool(tok.value)];
-      this.advance();
-      this._parseAdditionalPools(pools);
-      return this._packPools(pools);
-    }
-    return null;
   }
 
   parseNaturalSetAction() {
