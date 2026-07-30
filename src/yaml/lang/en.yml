@@ -43,6 +43,9 @@ PMTTRPG.Health: "Health"
 PMTTRPG.Stagger: "Stagger Threshold"
 PMTTRPG.Mentality: "Sanity"
 PMTTRPG.Light: "Light"
+PMTTRPG.Actions: "Actions"
+PMTTRPG.Reactions: "Reactions"
+PMTTRPG.Movement: "Movement"
 PMTTRPG.EP: "EP"
 PMTTRPG.Augment: "Augment"
 PMTTRPG.Augments: "Augments"
@@ -250,6 +253,9 @@ PMTTRPG.Dialog.currentTurn: 'Current turn'
 
 PMTTRPG.Notifications.noWeaponWarning: 'No weapon is available to use this skill.'
 PMTTRPG.Notifications.noOutfitWarning: 'No outfit is available to use this skill.'
+PMTTRPG.Notifications.actionEconomyInsufficient: '{name} has insufficient {pool} ({current}/{needed}).'
+PMTTRPG.Notifications.convertNoActions: '{name} has no Actions left to convert.'
+PMTTRPG.Notifications.convertActionsCapped: '{name} only has {available} Action(s); converting that many.'
 
 PMTTRPG.Notifications.noClassWarning: 'You must choose a valid class before you can level up.'
 
