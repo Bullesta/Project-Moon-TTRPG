@@ -44,6 +44,8 @@ A trigger tells the system **when** to fire your effect. Write it in square brac
 | `[On Devastation]` | Devastating Hit |
 | `[On Action]` | At the end of an action |
 | `[On Stagger]` | The item's actor becomes Staggered |
+| `[On Applied]` | This status was created on the actor |
+| `[On Removed]` | This status was cleared from the actor |
 | `[Turn Start]` | The start of the item's actor's turn in combat |
 | `[End of Round]` | When the combat round advances |
 | `[On Taking Damage]` | Before damage is applied to the defender (flat resists, etc.) |
@@ -58,6 +60,19 @@ gain 1 Charge;
 [Turn Start]
 lose 1 Charge;
 ```
+
+`[On Applied]` / `[On Removed]` are for **status** items. They fire when that status first appears or fully clears
+
+```
+[On Applied]
+deal 5 SP damage to self;
+heal 1 light damage to self;
+
+[On Removed]
+heal 10 ST damage to self;
+```
+
+(`gain 1 Light` would add a **status** named Light — use `heal … light damage` to restore the Light pool.)
 
 ## Passive Effects
 
@@ -164,6 +179,8 @@ do deal damage 5 on target;
 deal (self.rank) hp damage to target;
 deal (incoming.amount) blunt hp damage to attacker;
 do heal 10 on self;
+heal 10 ST damage to self;
+heal 1 light damage to self;
 ```
 
 On `[On Taking Damage]`, you can read the pending hit with `incoming.*` (alias of `damage.*`) and reflect or rewrite it:
@@ -480,7 +497,7 @@ power up attack 1 per (self.status.Burn) on target;
 # Quick Reference Card
 
 ## Triggers
-`[Clash Win]` · `[Clash Lose]` · `[On Hit]` · `[On Stagger]` · `[Turn Start]` · `[On Taking <Filter> Damage]`
+`[Clash Win]` · `[Clash Lose]` · `[On Hit]` · `[On Stagger]` · `[On Applied]` · `[On Removed]` · `[Turn Start]` · `[On Taking <Filter> Damage]`
 
 ## Targets
 `self` · `target` · `ally` · `attacker` · `enemies` · `allies` · `all`
