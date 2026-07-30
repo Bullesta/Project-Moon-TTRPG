@@ -144,16 +144,20 @@ export const NOUNS = {
 };
 
 const _byId = new Map();
+const _byIdLower = new Map();
 for (const [id, def] of Object.entries(NOUNS)) {
-  _byId.set(id, { id, def });
+  const entry = { id, def };
+  _byId.set(id, entry);
+  _byIdLower.set(id.toLowerCase(), entry);
   for (const alias of def.aliases ?? []) {
-    _byId.set(alias, { id, def });
+    _byId.set(alias, entry);
+    _byIdLower.set(alias.toLowerCase(), entry);
   }
 }
 
 export function lookupNoun(name) {
   if (!name) return null;
-  return _byId.get(name) ?? null;
+  return _byId.get(name) ?? _byIdLower.get(String(name).toLowerCase()) ?? null;
 }
 
 export function isResourceNoun(name) {

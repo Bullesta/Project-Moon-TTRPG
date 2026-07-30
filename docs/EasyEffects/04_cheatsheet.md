@@ -36,6 +36,7 @@ if (<expr>) <op> <value> do <verb> <noun> <arg> <amount> [per (<expr>)] [on <tar
 ```
 [Clash Win]      [Clash Lose]      [On Hit]
 [On Stagger]     [Turn Start]      [End of Round]
+[On Applied]      [On Removed]
 [On Taking Damage]
 [On Taking Burn Damage]   [On Taking HP Damage]   [On Taking Slash Damage]
 [On Taking SP Damage]     [On Taking Any Damage]
@@ -68,6 +69,7 @@ convert [amount] damage to slash|pierce|blunt
 set maxSp to 0
 do heal <N> on <target>
 do heal hp|st|sp damage <N> on <target>
+heal <N> st|sp|light damage to <target>
 do set stat <name> <N> on <target>
 reduce damage [by] <amount>
 increase damage [by] <amount>

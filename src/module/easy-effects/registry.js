@@ -261,6 +261,34 @@ const TRIGGER_HOOKS = [
     }),
   },
 
+  // ── [On Applied] ────────────────────────────────────────────────────────────
+  // Fires when the status is applied.
+  {
+    hook: "pmttrpg.statusApplied",
+    triggerName: "On Applied",
+    getItems: ({ item }) => item ? [item] : [],
+    buildContext: ({ actor }) => ({
+      self:   actor,
+      target: null,
+      ally:   null,
+      clash:  null,
+    }),
+  },
+
+  // ── [On Removed] ────────────────────────────────────────────────────────────
+  // Fires when the status effect is removed.
+  {
+    hook: "pmttrpg.statusRemoved",
+    triggerName: "On Removed",
+    getItems: ({ item }) => item ? [item] : [],
+    buildContext: ({ actor }) => ({
+      self:   actor,
+      target: null,
+      ally:   null,
+      clash:  null,
+    }),
+  },
+
   // ── [Turn Start] ────────────────────────────────────────────────────────────
   // Fired from combat.js next to statusMacros.emitTurnStart.
   {

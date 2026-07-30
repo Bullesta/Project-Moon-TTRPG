@@ -1,5 +1,4 @@
 import { PMTTRPGUtility } from '../utility.js';
-import { getRankFromLevel } from './progression.js';
 import { getActionEconomyFromRank, getRankFromLevel } from './progression.js';
 const { renderTemplate } = foundry.applications.handlebars;
 import { applyAlwaysActiveModifiers, runOnTakingDamage } from '../easy-effects/registry.js';
@@ -891,22 +890,34 @@ export class ActorPMTTRPG extends Actor {
     if (toAdd <= 0) return sourceItem ? [sourceItem] : [];
 
     const nextStacks = current + toAdd;
+    const wasAbsent = current <= 0;
 
+    let kept;
     if (matching.length === 0) {
       const created = foundry.utils.duplicate(itemData);
       delete created._id;
       created.system = created.system ?? {};
       created.system.stacks = nextStacks;
       if (stackMax > 0) created.system.stackMax = stackMax;
-      return this.createEmbeddedDocuments('Item', [created]);
+      const docs = await this.createEmbeddedDocuments('Item', [created]);
+      kept = docs[0];
+    } else {
+      // Merge legacy copies into the kept item.
+      kept = matching[0];
+      const extras = matching.slice(1).map(i => i.id);
+      await kept.update({ 'system.stacks': nextStacks });
+      if (extras.length) await this.deleteEmbeddedDocuments('Item', extras);
     }
 
-    // Merge legacy copies into the kept item.
-    const keep = matching[0];
-    const extras = matching.slice(1).map(i => i.id);
-    await keep.update({ 'system.stacks': nextStacks });
-    if (extras.length) await this.deleteEmbeddedDocuments('Item', extras);
-    return [keep];
+    if (wasAbsent && kept) {
+      Hooks.callAll("pmttrpg.statusApplied", {
+        actor: this,
+        item: kept,
+        statusName,
+        stacks: nextStacks,
+      });
+    }
+    return kept ? [kept] : [];
   }
 
   /**
@@ -930,7 +941,13 @@ export class ActorPMTTRPG extends Actor {
 
     if (desired <= 0) {
       if (!matching.length) return;
+      const item = matching[0];
       await this.deleteEmbeddedDocuments('Item', matching.map(i => i.id));
+      Hooks.callAll("pmttrpg.statusRemoved", {
+        actor: this,
+        item,
+        statusName,
+      });
       return;
     }
 
@@ -969,14 +986,20 @@ export class ActorPMTTRPG extends Actor {
 
     const current = this.getStatusStacks(statusName);
     const next = Math.max(0, current - remove);
+    const item = matching[0];
 
     if (next <= 0) {
-      return this.deleteEmbeddedDocuments('Item', matching.map(i => i.id));
+      const deleted = await this.deleteEmbeddedDocuments('Item', matching.map(i => i.id));
+      Hooks.callAll("pmttrpg.statusRemoved", {
+        actor: this,
+        item,
+        statusName,
+      });
+      return deleted;
     }
 
-    const keep = matching[0];
     const extras = matching.slice(1).map(i => i.id);
-    await keep.update({ 'system.stacks': next });
+    await item.update({ 'system.stacks': next });
     if (extras.length) await this.deleteEmbeddedDocuments('Item', extras);
     return extras;
   }
