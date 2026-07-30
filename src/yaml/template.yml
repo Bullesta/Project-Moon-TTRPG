@@ -113,6 +113,24 @@ Actor:
         maxBase: 0
         maxMisc: 0
         max: 0
+      actions:
+        value: 0
+        min: 0
+        maxBase: 0
+        maxMisc: 0
+        max: 0
+      reactions:
+        value: 0
+        min: 0
+        maxBase: 0
+        maxMisc: 0
+        max: 0
+      movement:
+        value: 0
+        min: 0
+        maxBase: 0
+        maxMisc: 0
+        max: 0
       attackModifier:
         value: 0
         min: 0
@@ -164,6 +182,24 @@ Actor:
       - base
     attributes:
       light:
+        value: 0
+        min: 0
+        maxBase: 0
+        maxMisc: 0
+        max: 0
+      actions:
+        value: 0
+        min: 0
+        maxBase: 0
+        maxMisc: 0
+        max: 0
+      reactions:
+        value: 0
+        min: 0
+        maxBase: 0
+        maxMisc: 0
+        max: 0
+      movement:
         value: 0
         min: 0
         maxBase: 0

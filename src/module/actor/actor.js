@@ -1,5 +1,6 @@
 import { PMTTRPGUtility } from '../utility.js';
 import { getRankFromLevel } from './progression.js';
+import { getActionEconomyFromRank, getRankFromLevel } from './progression.js';
 const { renderTemplate } = foundry.applications.handlebars;
 import { applyAlwaysActiveModifiers, runOnTakingDamage } from '../easy-effects/registry.js';
 import { applyResourceModsToSystem, applyResourceOverridesToSystem } from '../easy-effects/nouns.js';
@@ -57,6 +58,11 @@ export class ActorPMTTRPG extends Actor {
     }
     if (!data.attributes.light) {
       data.attributes.light = { value: 0, min: 0, maxBase: 0, maxMisc: 0, max: 0 };
+    }
+    for (const key of ['actions', 'reactions', 'movement']) {
+      if (!data.attributes[key]) {
+        data.attributes[key] = { value: 0, min: 0, maxBase: 0, maxMisc: 0, max: 0 };
+      }
     }
     if (!data.details) data.details = {};
     if (!data.details.gmBrief) {
@@ -139,6 +145,25 @@ export class ActorPMTTRPG extends Actor {
       data.attributes.light.value = data.attributes.light.max;
     } else {
       data.attributes.light.value = Number(data.attributes.light.value) || 0;
+    }
+
+    const economy = getActionEconomyFromRank(rank);
+    for (const [key, maxBase] of [
+      ['actions', economy.actions],
+      ['reactions', economy.reactions],
+      ['movement', economy.movement],
+    ]) {
+      const pool = data.attributes[key] || {};
+      data.attributes[key] = pool;
+      pool.min = 0;
+      pool.maxBase = maxBase;
+      pool.maxMisc = Number(pool.maxMisc) || 0;
+      pool.max = pool.maxBase + pool.maxMisc;
+      if (pool.value === undefined || pool.value === null) {
+        pool.value = pool.max;
+      } else {
+        pool.value = Number(pool.value) || 0;
+      }
     }
 
     // Equipped outfit bonuses. NPCs always use their loadout outfits.
@@ -236,11 +261,109 @@ export class ActorPMTTRPG extends Actor {
       console.error('[EasyEffects] Error in Always Active pass:', err);
     }
 
+    for (const key of ['actions', 'reactions', 'movement']) {
+      const pool = data.attributes[key];
+      if (!pool) continue;
+      pool.max = (Number(pool.maxBase) || 0) + (Number(pool.maxMisc) || 0);
+      const raw = Number(pool.value) || 0;
+      pool.value = key === 'reactions'
+        ? Math.max(0, raw)
+        : Math.clamp(raw, 0, pool.max);
+    }
+
     applyInventorySlotUsage(data.attributes, actorData.items);
     for (const key of ['toolSlots', 'narrativeSlots', 'stockSlots']) {
       const pool = data.attributes[key];
       pool.over = Number(pool.used ?? 0) > Number(pool.value ?? 0);
     }
+  }
+
+  async refreshActionEconomy() {
+    const updates = {};
+    for (const key of ['actions', 'reactions', 'movement']) {
+      const pool = this.system.attributes?.[key];
+      if (!pool) continue;
+      const max = Number(pool.max) || 0;
+      if ((Number(pool.value) || 0) !== max) {
+        updates[`system.attributes.${key}.value`] = max;
+      }
+    }
+    if (foundry.utils.isEmpty(updates)) return this;
+    return this.update(updates);
+  }
+
+  /**
+   * Spend from an action-economy pool.
+   * @param {"actions"|"reactions"|"movement"} poolKey
+   * @param {number} [amount=1]
+   */
+  async spendActionEconomy(poolKey, amount = 1) {
+    const allowed = new Set(['actions', 'reactions', 'movement']);
+    if (!allowed.has(poolKey)) {
+      throw new Error(`Invalid action economy pool: ${poolKey}`);
+    }
+    const pool = this.system.attributes?.[poolKey];
+    if (!pool) return this;
+    const spent = Math.max(0, Number(amount) || 0);
+    if (spent === 0) return this;
+    const current = Number(pool.value) || 0;
+    if (current < spent) {
+      ui.notifications.warn(game.i18n.format('PMTTRPG.Notifications.actionEconomyInsufficient', {
+        name: this.name,
+        pool: game.i18n.localize({
+          actions: 'PMTTRPG.Actions',
+          reactions: 'PMTTRPG.Reactions',
+          movement: 'PMTTRPG.Movement',
+        }[poolKey]),
+        current,
+        needed: spent,
+      }));
+    }
+    const next = Math.max(0, current - spent);
+    if (next === current) return this;
+    return this.update({ [`system.attributes.${poolKey}.value`]: next });
+  }
+
+  /**
+   * Convert Actions into Reactions
+   * @param {number} [amount] Defaults to all remaining Actions.
+   */
+  async convertActionsToReactions(amount) {
+    const actionPool = this.system.attributes?.actions;
+    const reactionPool = this.system.attributes?.reactions;
+    if (!actionPool || !reactionPool) return this;
+
+    const available = Math.max(0, Number(actionPool.value) || 0);
+    if (available <= 0) {
+      ui.notifications.warn(game.i18n.format("PMTTRPG.Notifications.convertNoActions", {
+        name: this.name,
+      }));
+      return this;
+    }
+
+    let n = (amount === undefined || amount === null)
+      ? available
+      : Math.max(0, Math.floor(Number(amount) || 0));
+
+    if (n <= 0) {
+      ui.notifications.warn(game.i18n.format("PMTTRPG.Notifications.convertNoActions", {
+        name: this.name,
+      }));
+      return this;
+    }
+
+    if (n > available) {
+      ui.notifications.warn(game.i18n.format("PMTTRPG.Notifications.convertActionsCapped", {
+        name: this.name,
+        available,
+      }));
+      n = available;
+    }
+
+    return this.update({
+      "system.attributes.actions.value": available - n,
+      "system.attributes.reactions.value": (Number(reactionPool.value) || 0) + n,
+    });
   }
 
   /** @override */
