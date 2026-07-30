@@ -153,7 +153,7 @@ class Parser {
     else if (this.checkAny("KEYWORD", ["gain", "lose", "inflict", "reduce", "increase", "halve", "double", "convert"])) {
       stmt = this.parseNaturalStatement();
     }
-    else if (this.check("IDENT", "deal") || this.check("IDENT", "set")) stmt = this.parseNaturalStatement();
+    else if (this.check("IDENT", "deal") || this.check("IDENT", "heal") || this.check("IDENT", "set")) stmt = this.parseNaturalStatement();
     else if (this._isBonusVerbAhead()) stmt = this.parseBonusVerbStatement();
     else stmt = this.parseDoStatement();
 
@@ -569,7 +569,15 @@ class Parser {
 
   // Accept amount-first and noun-first forms, such as "deal 5 hp damage".
   parseNaturalDealAction() {
-    this.consume("IDENT", "deal");
+    return this._parseNaturalDealOrHealAction("deal");
+  }
+  
+  parseNaturalHealAction() {
+    return this._parseNaturalDealOrHealAction("heal");
+  }
+
+  _parseNaturalDealOrHealAction(verb) {
+    this.consume("IDENT", verb);
 
     let pool = null;
     let damageType = null;
@@ -577,18 +585,34 @@ class Parser {
 
     if (this._isAmountAhead()) {
       amount = this._parseOptionalAmount();
-      ({ pool, damageType } = this._parseDealTypeAndPool());
-      this._consumeDamageNoun("deal amount");
-    } else {
+      if (verb === "deal") {
+        ({ pool, damageType } = this._parseDealTypeAndPool());
+        this._consumeDamageNoun("deal amount");
+      } else {
+        pool = this._parseOptionalHealPool();
+        if (this.check("IDENT", "damage") || (this.check("KEYWORD") && this.peek().value === "damage")) {
+          this.advance();
+        }
+      }
+    } else if (verb === "deal") {
       ({ pool, damageType } = this._parseDealTypeAndPool());
       this._consumeDamageNoun("'deal'");
       amount = this._parseOptionalAmount();
       if (!amount) {
         throw new ParseError(`Expected amount after 'deal … damage', got '${this.peek().value}'`, this.peek());
       }
+    } else {
+      pool = this._parseOptionalHealPool();
+      if (this.check("IDENT", "damage") || (this.check("KEYWORD") && this.peek().value === "damage")) {
+        this.advance();
+      }
+      amount = this._parseOptionalAmount();
+      if (!amount) {
+        throw new ParseError(`Expected amount after 'heal', got '${this.peek().value}'`, this.peek());
+      }
     }
 
-    let target = "target";
+    let target = verb === "heal" ? "self" : "target";
     if (this.check("KEYWORD", "on") || this.check("KEYWORD", "to")) {
       this.consume("KEYWORD");
       const tok = this.peek();
@@ -600,7 +624,7 @@ class Parser {
 
     return {
       type: "Action",
-      verb: "deal",
+      verb,
       noun: "damage",
       argument: null,
       amount,
@@ -609,6 +633,16 @@ class Parser {
       pool,
       damageType,
     };
+  }
+
+  _parseOptionalHealPool() {
+    const tok = this.peek();
+    if ((tok.type === "IDENT" || tok.type === "KEYWORD") && isApplyPoolNoun(tok.value)) {
+      const pool = resolveApplyPool(tok.value);
+      this.advance();
+      return pool;
+    }
+    return null;
   }
 
   parseNaturalSetAction() {
@@ -707,12 +741,13 @@ class Parser {
 
   parseNaturalAction() {
     if (this.check("IDENT", "deal")) return this.parseNaturalDealAction();
+    if (this.check("IDENT", "heal")) return this.parseNaturalHealAction();
     if (this.check("IDENT", "set")) return this.parseNaturalSetAction();
     if (this.check("KEYWORD", "convert")) return this.parseNaturalConvertAction();
 
     const verbTok = this.consume("KEYWORD");
     if (!["gain", "lose", "inflict", "reduce", "increase", "halve", "double"].includes(verbTok.value))
-      throw new ParseError(`Expected 'gain', 'lose', 'inflict', 'reduce', 'increase', 'halve', 'double', 'convert', 'set', or 'deal', got '${verbTok.value}'`, verbTok);
+      throw new ParseError(`Expected 'gain', 'lose', 'inflict', 'reduce', 'increase', 'halve', 'double', 'convert', 'set', 'deal', or 'heal', got '${verbTok.value}'`, verbTok);
 
     if (verbTok.value === "halve" || verbTok.value === "double") {
       return this._desugarStatusScaleAction(verbTok.value);
