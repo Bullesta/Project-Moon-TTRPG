@@ -51,7 +51,24 @@ export function poolValuePath(pool) {
   return `system.attributes.${pool}.value`;
 }
 
+export function poolTempPath(pool) {
+  return `system.attributes.${pool}.temp`;
+}
+
+export function tempPoolKey(pool) {
+  if (pool === "hp") return "tempHp";
+  if (pool === "st") return "tempSt";
+  if (pool === "sp") return "tempSp";
+  return null;
+}
+
 export function poolLabel(pool) {
+  if (pool === "tempHp" || pool === "tempSt" || pool === "tempSp") {
+    const base = pool.slice(4).toLowerCase();
+    return game.i18n.format("PMTTRPG.TrackerTemp", {
+      tracker: game.i18n.localize(POOL_LABEL_KEYS[base] ?? base),
+    });
+  }
   return game.i18n.localize(POOL_LABEL_KEYS[pool] ?? pool);
 }
 
@@ -239,6 +256,16 @@ export function formatBreakdownRows(breakdown = []) {
           }),
         };
       }
+      case "temp":
+        return {
+          label: (step.pool ? `${poolLabel(tempPoolKey(step.pool) ?? step.pool)} · ` : "")
+            + game.i18n.localize("PMTTRPG.DamageTaken.Breakdown.Temp"),
+          detail: game.i18n.format("PMTTRPG.DamageTaken.Breakdown.TempDetail", {
+            absorbed: step.absorbed,
+            from: step.from,
+            to: step.to,
+          }),
+        };
       case "final":
         return {
           label: game.i18n.localize("PMTTRPG.DamageTaken.Breakdown.Final"),

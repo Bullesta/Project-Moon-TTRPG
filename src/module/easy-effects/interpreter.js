@@ -1,10 +1,12 @@
 import {
   applyResourceMod,
   applyResourceOverride,
+  applyRuntimeResource,
   emptyAlwaysActiveMods,
   getMaxField,
   getPowerField,
   getRegenField,
+  isRuntimeResource,
   recoverPool,
   resolvePathShorthand,
 } from "./nouns.js";
@@ -191,6 +193,12 @@ const ACTION_HANDLERS = {
   // ── Status / resource ──────────────────────────────────────────────────────
   add: async (action, context, amount) => {
     if (action.noun === "resource") {
+      if (isRuntimeResource(action.argument)) {
+        for (const actor of resolveTargets(action.target, context)) {
+          await applyRuntimeResource(actor, action.argument, { mode: "add", amount });
+        }
+        return;
+      }
       console.warn(`[EasyEffects] Resource gain/lose ('${action.argument}') only applies in [Always Active].`);
       return;
     }
@@ -201,6 +209,12 @@ const ACTION_HANDLERS = {
 
   remove: async (action, context, amount) => {
     if (action.noun === "resource") {
+      if (isRuntimeResource(action.argument)) {
+        for (const actor of resolveTargets(action.target, context)) {
+          await applyRuntimeResource(actor, action.argument, { mode: "remove", amount });
+        }
+        return;
+      }
       console.warn(`[EasyEffects] Resource gain/lose ('${action.argument}') only applies in [Always Active].`);
       return;
     }
@@ -286,6 +300,12 @@ const ACTION_HANDLERS = {
 
   set: async (action, context, amount) => {
     if (action.noun === "resource") {
+      if (isRuntimeResource(action.argument)) {
+        for (const actor of resolveTargets(action.target ?? "self", context)) {
+          await applyRuntimeResource(actor, action.argument, { mode: "set", amount });
+        }
+        return;
+      }
       console.warn("[EasyEffects] 'set maxHp/maxSt/maxSp/maxLight' only applies in [Always Active]; ignored.");
       return;
     }

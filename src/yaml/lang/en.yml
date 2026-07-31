@@ -224,6 +224,8 @@ PMTTRPG.DamageTaken.Breakdown.EasyEffects: "EasyEffects"
 PMTTRPG.DamageTaken.Breakdown.EasyEffectsDetail: "{from} {delta} → {to}"
 PMTTRPG.DamageTaken.Breakdown.Convert: "Converted"
 PMTTRPG.DamageTaken.Breakdown.ConvertDetail: "{fromPool}/{fromType} → {toPool}/{toType}"
+PMTTRPG.DamageTaken.Breakdown.Temp: "Temp absorbed"
+PMTTRPG.DamageTaken.Breakdown.TempDetail: "{absorbed} ({from} → {to})"
 PMTTRPG.DamageTaken.TypeSelect: "Damage type"
 
 PMTTRPG.ItemSlug: "Slug"

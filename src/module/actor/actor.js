@@ -9,9 +9,11 @@ import {
   DAMAGE_TYPES,
   buildAppliedDamage,
   normalizePools,
+  poolTempPath,
   poolValuePath,
   postDamageTakenMessage,
   resolveResistance,
+  tempPoolKey,
 } from '../damage-application.js';
 
 /**
@@ -653,10 +655,59 @@ export class ActorPMTTRPG extends Actor {
         continue;
       }
 
-      const uncapped = op === "heal" ? current + newAmount : current - newAmount;
+      if (op === "heal") {
+        const uncapped = current + newAmount;
+        const next = Math.clamp(uncapped, 0, max);
+        if (next === current) {
+          breakdown.push({ key: "final", amount: 0, pool, heal: true });
+          continue;
+        }
+
+        const path = poolValuePath(pool);
+        actorUpdates[path] = next;
+        appliedEntries.push({ pool, path, pre: current, post: next });
+
+        const applied = Math.abs(current - next);
+        if (uncapped !== next) {
+          breakdown.push({
+            key: "clamp",
+            pool,
+            from: Math.abs(current - uncapped),
+            to: applied,
+            reason: uncapped > max ? "max" : "min",
+          });
+        }
+        breakdown.push({ key: "final", amount: applied, pool, heal: true });
+        continue;
+      }
+
+      // Temp absorbs before the pools (hp/st/sp).
+      let remaining = newAmount;
+      const tempKey = tempPoolKey(pool);
+      if (tempKey) {
+        const temp = Math.max(0, Number(poolData.temp) || 0);
+        if (temp > 0 && remaining > 0) {
+          const absorbed = Math.min(temp, remaining);
+          remaining -= absorbed;
+          const nextTemp = temp - absorbed;
+          const tempPath = poolTempPath(pool);
+          actorUpdates[tempPath] = nextTemp;
+          appliedEntries.push({ pool: tempKey, path: tempPath, pre: temp, post: nextTemp });
+          breakdown.push({
+            key: "temp", pool, absorbed, from: temp, to: nextTemp,
+          });
+        }
+      }
+
+      if (remaining === 0) {
+        breakdown.push({ key: "final", amount: newAmount, pool: tempKey || pool, heal: false });
+        continue;
+      }
+
+      const uncapped = current - remaining;
       const next = Math.clamp(uncapped, 0, max);
       if (next === current) {
-        breakdown.push({ key: "final", amount: 0, pool, heal: op === "heal" });
+        breakdown.push({ key: "final", amount: 0, pool, heal: false });
         continue;
       }
 
@@ -674,7 +725,7 @@ export class ActorPMTTRPG extends Actor {
           reason: uncapped > max ? "max" : "min",
         });
       }
-      breakdown.push({ key: "final", amount: applied, pool, heal: op === "heal" });
+      breakdown.push({ key: "final", amount: applied, pool, heal: false });
     }
 
     if (appliedEntries.length) {

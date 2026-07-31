@@ -67,6 +67,27 @@ export const NOUNS = {
     overrideAttr: "sp",
     ops: ["gain", "lose", "set"],
   },
+  tempHp: {
+    kind: "resource",
+    path: "system.attributes.hp.temp",
+    alwaysActive: false,
+    ops: ["gain", "lose", "set"],
+    pathShorthand: true,
+  },
+  tempSt: {
+    kind: "resource",
+    path: "system.attributes.st.temp",
+    alwaysActive: false,
+    ops: ["gain", "lose", "set"],
+    pathShorthand: true,
+  },
+  tempSp: {
+    kind: "resource",
+    path: "system.attributes.sp.temp",
+    alwaysActive: false,
+    ops: ["gain", "lose", "set"],
+    pathShorthand: true,
+  },
   speed: {
     kind: "resource",
     path: "system.attributes.speed.bonus",
@@ -165,6 +186,41 @@ export function isResourceNoun(name) {
   return !!hit && hit.def.kind === "resource";
 }
 
+export function isAlwaysActiveResource(name) {
+  const hit = lookupNoun(name);
+  return !!hit && hit.def.kind === "resource" && !!hit.def.alwaysActive;
+}
+
+export function isRuntimeResource(name) {
+  const hit = lookupNoun(name);
+  return !!hit && hit.def.kind === "resource" && !hit.def.alwaysActive && !!hit.def.path;
+}
+
+function readActorSystemPath(actor, path) {
+  const parts = String(path).replace(/^system\./, "").split(".");
+  let value = actor.system;
+  for (const part of parts) value = value?.[part];
+  return Number(value) || 0;
+}
+
+export async function applyRuntimeResource(actor, nounId, { mode, amount } = {}) {
+  const hit = lookupNoun(nounId);
+  if (!hit || hit.def.kind !== "resource" || hit.def.alwaysActive || !hit.def.path) return false;
+
+  const path = hit.def.path;
+  const current = readActorSystemPath(actor, path);
+  const n = Math.max(0, Math.round(Number(amount) || 0));
+  let next = current;
+  if (mode === "set") next = n;
+  else if (mode === "add") next = current + n;
+  else if (mode === "remove") next = current - n;
+  else return false;
+
+  next = Math.max(0, next);
+  if (next !== current) await actor.update({ [path]: next });
+  return true;
+}
+
 export function nounAllowsOp(name, op) {
   const hit = lookupNoun(name);
   if (!hit) return false;
@@ -228,8 +284,12 @@ export async function recoverPool(actor, name, amount) {
 
 export function resolvePathShorthand(actor, segment) {
   const hit = lookupNoun(segment);
-  if (!hit?.def.pathShorthand) return null;
+  if (!hit?.def) return null;
+  if (hit.def.pathShorthand === true && hit.def.path) {
+    return readActorSystemPath(actor, hit.def.path);
+  }
   const sh = hit.def.pathShorthand;
+  if (!sh) return null;
   if (sh === "speedBonus") return actor.system.attributes?.speed?.bonus ?? 0;
   if (typeof sh === "string") return actor.system.attributes?.[sh]?.value ?? 0;
   if (Array.isArray(sh) && sh.length === 2) {
