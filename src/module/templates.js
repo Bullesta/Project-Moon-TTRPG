@@ -57,12 +57,7 @@
     "systems/projectmoonttrpg/templates/sheet/npc/partials/item-controls-loadout.hbs",
     "systems/projectmoonttrpg/templates/sheet/npc/partials/item-row-weapon.hbs",
     "systems/projectmoonttrpg/templates/sheet/npc/partials/item-row-outfit.hbs",
-    "systems/projectmoonttrpg/templates/sheet/npc/partials/item-row-augment.hbs",
-
-    // clashing
-    "systems/projectmoonttrpg/templates/combat/clashing/attack-card.hbs",
-    "systems/projectmoonttrpg/templates/combat/clashing/clash-result-card.hbs",
-    "systems/projectmoonttrpg/templates/dialog/clash/retaliation-dialog.hbs",
+    "systems/projectmoonttrpg/templates/sheet/npc/partials/item-row-augment.hbs"
   ];
 
   // Load the template parts

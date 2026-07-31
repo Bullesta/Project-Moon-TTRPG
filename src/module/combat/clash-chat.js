@@ -5,8 +5,6 @@ import {
   deserialiseClashState,
 } from "./clash-state.js";
 
-import ChatMessagePMTTRPG, {VISIBILITY} from "../chat/chat-message-pmttrpg.js";
-
 const { renderTemplate } = foundry.applications.handlebars;
 
 const TEMPLATES = {
@@ -14,142 +12,78 @@ const TEMPLATES = {
   clashResultCard: "systems/projectmoonttrpg/templates/combat/clashing/clash-result-card.hbs",
 };
 
-export function registerClashRenderer() {
-  ChatMessagePMTTRPG.registerRenderer(CLASH_FLAG_KEY, _clashRenderer);
-}
-
-/**
- * Called by ChatMessagePMTTRPG.renderHTML() whenever a message with
- * a clashState flag is rendered. Replaces .message-content with the
- * appropriate clash card template.
- *
- * @param {ChatMessagePMTTRPG} message
- * @param {HTMLElement} html
- * @param {object} pmFlags
- */
-async function _clashRenderer(message, html, pmFlags) {
-  const raw = pmFlags[CLASH_FLAG_KEY];
-  if (!raw) return;
- 
-  const state = deserialiseClashState(raw);
-  const isAttackCard  = !state.resultMessageId || state.attackMessageId === message.id;
-  const isResultCard  = state.resultMessageId  === message.id;
- 
-  let content;
- 
-  if (isResultCard) {
-    const canSeeAttackRoll  = canCurrentUserSeeAttackRoll(state.attackerActorId);
-    const canSeeDefenseRoll = canCurrentUserSeeDefenseRoll(state.retaliatorActorId);
-    const attackerWon       = state.result === "attackWin";
-    const defenderWon       = state.result === "defenseWin";
-    const evadeWin          = defenderWon && state.retaliationType === "evade";
- 
-    // Reconstruct defense roll HTML from stored terms.
-    const defenseRollHtml = await _rerenderRollHtmlFromTerms(state.defenseRollTerms);
- 
-    content = await renderTemplate(TEMPLATES.clashResultCard, {
-      state,
-      defenseRollHtml,
-      attackerWon,
-      defenderWon,
-      evadeWin,
-      canSeeAttackRoll,
-      canSeeDefenseRoll,
-      i18n: _resultCardI18n(state, evadeWin),
-    });
- 
-  } else if (isAttackCard) {
-    // Reconstruct attack roll HTML from stored terms.
-    const rollHtml   = await _rerenderRollHtmlFromTerms(state.attackRollTerms);
-    const canSeeRoll = canCurrentUserSeeAttackRoll(state.attackerActorId);
- 
-    content = await renderTemplate(TEMPLATES.attackCard, {
-      state,
-      rollHtml,
-      canSeeRoll,
-      i18n: _attackCardI18n(state),
-    });
-  }
- 
-  if (!content) return;
- 
-  const messageContent = html.querySelector(".message-content");
-  if (messageContent) messageContent.innerHTML = content;
-}
-
 // ── Card posting ──────────────────────────────────────────────────────────────
 
-/**
- * Creates the initial attack chat card.
- * Creates a placeholder first so the message ID is known, then updates
- * it with the full flags and rendered content.
- *
- * @param {ClashStateData} state     — must have attackMessageId set
- * @param {Roll} attackRoll
- * @param {string} messageId         — the placeholder message ID
- * @returns {Promise<ChatMessage>}
- */
 export async function postAttackCard(state, attackRoll, messageId = null) {
-  const flagUpdate = {
-    content: "<!-- clash attack card -->",
-    rolls: [attackRoll.toJSON()],
-    sound: CONFIG.sounds.dice,
-    [`flags.${CLASH_FLAG_SCOPE}.${CLASH_FLAG_KEY}`]: serialiseClashState(state),
-    [`flags.${CLASH_FLAG_SCOPE}.visibility`]: VISIBILITY.PUBLIC
+  const rollHtml = await attackRoll.render({ isPrivate: false });
+  const content  = await renderTemplate(TEMPLATES.attackCard, {
+    state, rollHtml, isGM: game.user.isGM, i18n: _attackCardI18n(state),
+  });
+
+  const chatData = {
+    content,
+    rolls:   [attackRoll.toJSON()],
+    sound:   CONFIG.sounds.dice,
+    flags: { [CLASH_FLAG_SCOPE]: { [CLASH_FLAG_KEY]: serialiseClashState(state) } },
+  };
+
+  let message;
+  if (messageId) {
+    message = game.messages.get(messageId);
+    if (message) await message.update(chatData);
+  } else {
+    chatData.author = game.user.id;
+    chatData.speaker = ChatMessage.getSpeaker({ actor: game.actors.get(state.attackerActorId) });
+    message = await ChatMessage.create(chatData);
   }
 
-  const message = game.messages.get(messageId);
-  if(message) await message.update(flagUpdate);
-
   return message;
 }
 
-/**
- * Updates the attack card state (phase, retaliator, etc.).
- * Only touches flags — rendering is handled by _clashRenderer on next render.
- *
- * @param {string} messageId
- * @param {ClashStateData} updatedState
- */
 export async function updateAttackCard(messageId, updatedState) {
-  await ChatMessagePMTTRPG.updateViaSocket(messageId, {
+  const message = game.messages.get(messageId);
+  if (!message) return;
+  const rollHtml = await _rerenderRollHtml(message);
+  const content  = await renderTemplate(TEMPLATES.attackCard, {
+    state: updatedState, rollHtml, isGM: game.user.isGM, i18n: _attackCardI18n(updatedState),
+  });
+  await message.update({
+    content,
     [`flags.${CLASH_FLAG_SCOPE}.${CLASH_FLAG_KEY}`]: serialiseClashState(updatedState),
   });
 }
 
-/**
- * Creates the clash result card.
- * Uses the same placeholder pattern as postAttackCard.
- *
- * @param {ClashStateData} state     — must have resultMessageId set
- * @param {Roll} defenseRoll
- * @param {string} messageId         — the placeholder message ID
- * @returns {Promise<ChatMessage>}
- */
-export async function postResultCard(state, defenseRoll, messageId) {
-  const flagUpdate = {
-    content: "<!-- clash result card -->",
-    [`flags.${CLASH_FLAG_SCOPE}.${CLASH_FLAG_KEY}`]: serialiseClashState(state),
-    [`flags.${CLASH_FLAG_SCOPE}.visibility`]: VISIBILITY.PUBLIC,
+export async function postResultCard(state, defenseRoll, messageId = null) {
+  const defenseRollHtml = await defenseRoll.render({ isPrivate: false });
+  const attackerWon     = state.result === "attackWin";
+  const defenderWon     = state.result === "defenseWin";
+  const blockWin        = defenderWon && state.retaliationType === "block";
+  const evadeWin        = defenderWon && state.retaliationType === "evade";
+ 
+  const content = await renderTemplate(TEMPLATES.clashResultCard, {
+    state, defenseRollHtml, attackerWon, defenderWon, blockWin, evadeWin,
+    isGM: game.user.isGM, i18n: _resultCardI18n(state, evadeWin),
+  });
+ 
+  const chatData = {
+    content,
+    flags: { [CLASH_FLAG_SCOPE]: { [CLASH_FLAG_KEY]: serialiseClashState(state) } },
   };
  
-  const message = game.messages.get(messageId);
-  if (message) await message.update(flagUpdate);
- 
-  return message;
-}
+  let message;
+  if (messageId) {
+    message = game.messages.get(messageId);
+    if (message) await message.update(chatData);
+  } else {
+    chatData.author = game.user.id;
+    chatData.speaker = ChatMessage.getSpeaker({ actor: game.actors.get(state.attackerActorId) });
+    message = await ChatMessage.create(chatData);
+  }
 
-/**
- * Updates the result card state (e.g. marking it as closed after damage is taken).
- * Only touches flags.
- *
- * @param {string} messageId
- * @param {ClashStateData} updatedState
- */
-export async function updateResultCard(messageId, updatedState) {
-  await ChatMessagePMTTRPG.updateViaSocket(messageId, {
-    [`flags.${CLASH_FLAG_SCOPE}.${CLASH_FLAG_KEY}`]: serialiseClashState(updatedState),
-  });
+  console.log(state);
+ 
+  if (game.dice3d && message) await game.dice3d.showForRoll(defenseRoll, game.user, true, null, false);
+  return message;
 }
 
 // ── Button click wiring ───────────────────────────────────────────────────────

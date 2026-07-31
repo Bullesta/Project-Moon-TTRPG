@@ -20,11 +20,11 @@
   </div>
 
   {{!-- Roll result — hidden to non-GM until revealed --}}
-  <div class="clash-card__roll-wrapper {{#unless game.user.isGM}}clash-roll-hidden{{/unless}}">
+  <div class="clash-card__roll-wrapper {{#unless isGM}}clash-roll-hidden{{/unless}}">
     <div class="clash-card__roll">
       {{{rollHtml}}}
     </div>
-    {{#unless game.user.isGM}}
+    {{#unless isGM}}
       <div class="clash-card__roll-hidden-label">
         <i class="fa-solid fa-eye-slash"></i>
         {{i18n.rollHidden}}
