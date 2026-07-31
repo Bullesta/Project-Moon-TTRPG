@@ -459,26 +459,11 @@ class Parser {
     return { type: "Action", verb, noun, argument, amount, per, target, pool, damageType: dealDamageType ?? null };
   }
 
-  _packPools(pools) {
-    if (!pools.length) return null;
-    return pools.length === 1 ? pools[0] : pools;
-  }
-
-  // Only consume `and` when another pool follows it. Otherwise it starts the next action.
-  _parseAdditionalPools(pools) {
-    while (this.check("KEYWORD", "and")) {
-      const next = this._peekOffset(1);
-      if (!next || (next.type !== "IDENT" && next.type !== "KEYWORD") || !isApplyPoolNoun(next.value)) break;
-      this.consume("KEYWORD", "and");
-      pools.push(resolveApplyPool(this.advance().value));
-    }
-  }
-
   // Damage type and pool may appear in either order.
   _parseDealTypeAndPool() {
-    const pools = [];
+    let pool = null;
     let damageType = null;
-    for (let n = 0; n < 8; n++) {
+    for (let n = 0; n < 2; n++) {
       const tok = this.peek();
       if (!tok) break;
       if (tok.type === "STRING") {
@@ -488,14 +473,12 @@ class Parser {
       }
       if (tok.type !== "IDENT" && tok.type !== "KEYWORD") break;
       if (tok.value === "damage") break;
-      // The pool helper already consumed `and <pool>`. So we can leave action chains alone.
       if (ALL_TARGETS.has(tok.value) || tok.value === "on" || tok.value === "to" || tok.value === "and") break;
 
       if (isApplyPoolNoun(tok.value)) {
-        if (pools.length) break;
-        pools.push(resolveApplyPool(tok.value));
+        if (pool) break;
+        pool = resolveApplyPool(tok.value);
         this.advance();
-        this._parseAdditionalPools(pools);
         continue;
       }
 
@@ -503,7 +486,7 @@ class Parser {
       damageType = tok.value;
       this.advance();
     }
-    return { pool: this._packPools(pools), damageType };
+    return { pool, damageType };
   }
 
   _consumeDamageNoun(after) {
@@ -514,13 +497,18 @@ class Parser {
     this.advance();
   }
 
+  // Parse the optional type and pool before the damage noun.
   _parseDealHealTail(verb) {
     let pool = null;
     let damageType = null;
     if (verb === "deal") {
       ({ pool, damageType } = this._parseDealTypeAndPool());
     } else {
-      pool = this._parseOptionalHealPool();
+      const tok = this.peek();
+      if ((tok.type === "IDENT" || tok.type === "KEYWORD") && isApplyPoolNoun(tok.value)) {
+        pool = resolveApplyPool(tok.value);
+        this.advance();
+      }
     }
 
     // Heal may omit "damage" when the amount comes next.
@@ -604,7 +592,15 @@ class Parser {
 
   // Accept amount-first and noun-first forms, such as "deal 5 hp damage".
   parseNaturalDealAction() {
-    this.consume("IDENT", "deal");
+    return this._parseNaturalDealOrHealAction("deal");
+  }
+
+  parseNaturalHealAction() {
+    return this._parseNaturalDealOrHealAction("heal");
+  }
+
+  _parseNaturalDealOrHealAction(verb) {
+    this.consume("IDENT", verb);
 
     let pool = null;
     let damageType = null;
@@ -628,14 +624,14 @@ class Parser {
       if (!amount) {
         throw new ParseError(`Expected amount after 'deal … damage', got '${this.peek().value}'`, this.peek());
       }
-    }
-
-    let target = "target";
-    if (this.check("KEYWORD", "on") || this.check("KEYWORD", "to")) {
-      this.consume("KEYWORD");
-      const tok = this.peek();
-      if (!ALL_TARGETS.has(tok.value)) {
-        throw new ParseError(`Expected target after 'on'/'to', got '${tok.value}'`, tok);
+    } else {
+      pool = this._parseOptionalHealPool();
+      if (this.check("IDENT", "damage") || (this.check("KEYWORD") && this.peek().value === "damage")) {
+        this.advance();
+      }
+      amount = this._parseOptionalAmount();
+      if (!amount) {
+        throw new ParseError(`Expected amount after 'heal', got '${this.peek().value}'`, this.peek());
       }
     }
 
@@ -654,6 +650,16 @@ class Parser {
       pool,
       damageType,
     };
+  }
+
+  _parseOptionalHealPool() {
+    const tok = this.peek();
+    if ((tok.type === "IDENT" || tok.type === "KEYWORD") && isApplyPoolNoun(tok.value)) {
+      const pool = resolveApplyPool(tok.value);
+      this.advance();
+      return pool;
+    }
+    return null;
   }
 
   parseNaturalSetAction() {
@@ -724,15 +730,12 @@ class Parser {
       const poolKey = String(raw).toLowerCase();
       if (isApplyPoolNoun(poolKey)) {
         convertKind = "pool";
-        const pools = [resolveApplyPool(poolKey)];
-        this.advance();
-        this._parseAdditionalPools(pools);
-        convertTo = this._packPools(pools);
+        convertTo = resolveApplyPool(poolKey);
       } else {
         convertKind = "damageType";
         convertTo = raw;
-        this.advance();
       }
+      this.advance();
     }
 
     return {
@@ -911,7 +914,6 @@ class Parser {
     }
 
     this.consume("KEYWORD", "to");
-    if (this.check("KEYWORD", "do")) this.consume("KEYWORD", "do");
     const gainActions = this.parseNaturalActionChain();
     this.consumeStatementEnd();
 

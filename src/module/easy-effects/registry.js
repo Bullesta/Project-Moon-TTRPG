@@ -262,7 +262,7 @@ const TRIGGER_HOOKS = [
   },
 
   // ── [On Applied] ────────────────────────────────────────────────────────────
-  // Fires when the status is applied.
+  // Fires when the status effect is applied.
   {
     hook: "pmttrpg.statusApplied",
     triggerName: "On Applied",
