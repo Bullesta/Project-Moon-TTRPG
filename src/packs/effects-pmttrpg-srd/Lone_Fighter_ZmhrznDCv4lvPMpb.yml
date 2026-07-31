@@ -1,0 +1,51 @@
+folder: UxqZGQetb7wFpMgA
+name: Lone Fighter
+type: effect
+img: systems/projectmoonttrpg/assets/icons/Statuses/Prescript_s%20Target.webp
+system:
+  name: ''
+  description: ''
+  slug: lone-fighter
+  cost: 2
+  stackMax: 3
+  appliesTo: augment
+  canPositive: true
+  canNegative: false
+  procOn: alwaysActive
+  procResult: none
+  procResultLocked: false
+  procStat: any
+  procDice: any
+  procAction: any
+  procCondition: ''
+  positive: >-
+    <p>Gain [N] Dice Power during a [Attack/Defense Clash] against an enemy
+    within melee weapon range that has not had an Action taken against them
+    during this round or the previous round by any of this character's
+    allies.</p>
+
+    <p>This Effect cannot be activated if there are any allies within 2 SQRs of
+    the character.</p>
+  negative: ''
+  macro:
+    uuid: ''
+  customNotes: ''
+  easyEffects: ''
+effects: []
+sort: 0
+ownership:
+  default: 0
+  yWsvx4DXrmYcZsue: 3
+flags: {}
+_stats:
+  compendiumSource: null
+  duplicateSource: Item.MOEP4STZqMKBNFNv
+  exportSource: null
+  coreVersion: '14.364'
+  systemId: projectmoonttrpg
+  systemVersion: 0.0.1
+  createdTime: 1785485124306
+  modifiedTime: 1785485124306
+  lastModifiedBy: yWsvx4DXrmYcZsue
+_id: ZmhrznDCv4lvPMpb
+_key: '!items!ZmhrznDCv4lvPMpb'

@@ -1,0 +1,46 @@
+folder: GwkJ2MyPzvY7p0jT
+name: Blood Cycler
+type: effect
+img: systems/projectmoonttrpg/assets/icons/Statuses/Bleed.webp
+system:
+  name: ''
+  description: ''
+  slug: blood-cycler
+  cost: 4
+  stackMax: 1
+  appliesTo: augment
+  canPositive: true
+  canNegative: false
+  procOn: alwaysActive
+  procResult: none
+  procResultLocked: false
+  procStat: any
+  procDice: any
+  procAction: action
+  procCondition: ''
+  positive: >-
+    <p>Whenever another character within 3 SQRs of the character procs an
+    instance of Bleed, recover 2 HP.</p>
+  negative: ''
+  macro:
+    uuid: ''
+  customNotes: ''
+  easyEffects: ''
+effects: []
+sort: 100000
+ownership:
+  default: 0
+  yWsvx4DXrmYcZsue: 3
+flags: {}
+_stats:
+  compendiumSource: Item.WHRdllgcaZ1sVFZV
+  duplicateSource: Item.WHRdllgcaZ1sVFZV
+  exportSource: null
+  coreVersion: '14.364'
+  systemId: projectmoonttrpg
+  systemVersion: 0.0.1
+  createdTime: 1785485141800
+  modifiedTime: 1785485141800
+  lastModifiedBy: yWsvx4DXrmYcZsue
+_id: yh9UoarnvwAhA2QP
+_key: '!items!yh9UoarnvwAhA2QP'

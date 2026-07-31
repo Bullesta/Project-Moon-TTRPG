@@ -1,0 +1,20 @@
+type: Item
+folder: fYhvvApb5HCjDbSz
+name: Dice Manipulation
+color: null
+sorting: a
+_id: ybCK2nCkrWX4wkBy
+description: ''
+sort: 400000
+flags: {}
+_stats:
+  compendiumSource: null
+  duplicateSource: null
+  exportSource: null
+  coreVersion: '14.364'
+  systemId: projectmoonttrpg
+  systemVersion: 0.0.1
+  createdTime: 1785485127228
+  modifiedTime: 1785485127272
+  lastModifiedBy: yWsvx4DXrmYcZsue
+_key: '!folders!ybCK2nCkrWX4wkBy'

@@ -1,0 +1,51 @@
+folder: ybCK2nCkrWX4wkBy
+name: Smoke Overflow
+type: effect
+img: systems/projectmoonttrpg/assets/icons/Statuses/Smoke.webp
+system:
+  name: ''
+  description: ''
+  slug: smoke-overflow
+  cost: 2
+  stackMax: 3
+  appliesTo: augment
+  canPositive: true
+  canNegative: false
+  procOn: alwaysActive
+  procResult: none
+  procResultLocked: false
+  procStat: any
+  procDice: any
+  procAction: action
+  procCondition: ''
+  positive: >-
+    <p>If the character has [4+4*N] or more Smoke stacks, the character gains
+    [N] Dice Power Up on [Attack/Defense].</p>
+
+    <p>The character's Smoke cap is raised to [8+4*N].&nbsp;</p>
+
+    <p>The increased Smoke cap gained from this does not count as being above 10
+    for the purposes of any other Effects for the user.</p>
+  negative: ''
+  macro:
+    uuid: ''
+  customNotes: ''
+  easyEffects: ''
+effects: []
+sort: 0
+ownership:
+  default: 0
+  yWsvx4DXrmYcZsue: 3
+flags: {}
+_stats:
+  compendiumSource: null
+  duplicateSource: Item.DXhQDRYIEMzN689v
+  exportSource: null
+  coreVersion: '14.364'
+  systemId: projectmoonttrpg
+  systemVersion: 0.0.1
+  createdTime: 1785485127260
+  modifiedTime: 1785485127260
+  lastModifiedBy: yWsvx4DXrmYcZsue
+_id: HxwAlbkdiiyRGPHD
+_key: '!items!HxwAlbkdiiyRGPHD'

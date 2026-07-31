@@ -1,0 +1,40 @@
+folder: Jrkv4OCXHWXqQw69
+name: Panic [Freeze]
+type: status
+_id: EalR2vj0v4jIfQx8
+img: systems/projectmoonttrpg/assets/icons/sheet/SanityIcons_Freeze.webp
+system:
+  name: ''
+  description: >-
+    <h4>Panic Behavior</h4><p>On their turn, the Character must convert their
+    Action(s) into Reactions. They cannot use their movement action. They cannot
+    use the Opportunity Attack Reaction.</p><p>When the Character ends their
+    third turn under this effect, immediately unpanic.</p><hr><h4>Goaded
+    Panic</h4><p>The type (Counter, Block or Evade) of the first N reactions the
+    Character uses are selected by the Provoker. N is equal to the Provoker’s
+    Rank.</p>
+  slug: ''
+  stacks: 1
+  stackMax: 0
+  priority: 0
+  macro:
+    uuid: ''
+  customNotes: ''
+  easyEffects: ''
+effects: []
+sort: 0
+ownership:
+  default: 0
+  yWsvx4DXrmYcZsue: 3
+flags: {}
+_stats:
+  coreVersion: '14.364'
+  systemId: projectmoonttrpg
+  systemVersion: 0.0.1
+  createdTime: 1785433164709
+  modifiedTime: 1785433221758
+  lastModifiedBy: yWsvx4DXrmYcZsue
+  compendiumSource: null
+  duplicateSource: null
+  exportSource: null
+_key: '!items!EalR2vj0v4jIfQx8'

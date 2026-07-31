@@ -1,0 +1,46 @@
+folder: 8t5xinoxx4XtmQBl
+name: Throwing Master
+type: effect
+img: systems/projectmoonttrpg/assets/icons/Statuses/Combo.webp
+system:
+  name: ''
+  description: ''
+  slug: throwing-master
+  cost: 2
+  stackMax: 1
+  appliesTo: augment
+  canPositive: true
+  canNegative: true
+  procOn: alwaysActive
+  procResult: none
+  procResultLocked: false
+  procStat: any
+  procDice: any
+  procAction: any
+  procCondition: When throwing melee weapons
+  positive: >-
+    <p>You are not subject to disadvantage or the -2 Power Penalty. You may also
+    throw your weapons +1 Extra SQRs on top of [Rank+Fortitude] range.</p>
+  negative: ''
+  macro:
+    uuid: ''
+  customNotes: ''
+  easyEffects: ''
+effects: []
+sort: 0
+ownership:
+  default: 0
+  yWsvx4DXrmYcZsue: 3
+flags: {}
+_stats:
+  compendiumSource: null
+  duplicateSource: Item.ukXQX4ExObI8H5YN
+  exportSource: null
+  coreVersion: '14.364'
+  systemId: projectmoonttrpg
+  systemVersion: 0.0.1
+  createdTime: 1785485122330
+  modifiedTime: 1785485122330
+  lastModifiedBy: yWsvx4DXrmYcZsue
+_id: p6zSTOaV5QRIO4Br
+_key: '!items!p6zSTOaV5QRIO4Br'

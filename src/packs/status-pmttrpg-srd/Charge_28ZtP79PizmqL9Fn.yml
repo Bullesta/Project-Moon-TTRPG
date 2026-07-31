@@ -1,0 +1,41 @@
+name: Charge
+type: status
+_id: 28ZtP79PizmqL9Fn
+img: >-
+  systems/projectmoonttrpg/assets/icons/limbus_assets/Basic%20Effects/Charge/Charge.webp
+system:
+  name: ''
+  description: >-
+    <p>Resource used by certain Skill Effects. There is no limit to Charge
+    stacks. </p><p>You may not use skills with Charge Effects with insufficient
+    Charge for the entire skill– no partial effects, no selective choices of
+    effects if present on the skill. </p><p>The Charge is consumed with skill
+    use, regardless of result.</p>
+  slug: ''
+  stacks: 1
+  stackMax: 0
+  priority: 0
+  macro:
+    uuid: ''
+  customNotes: ''
+  easyEffects: |-
+    [End of Round]
+    require Charge > 15 then lose 3 Charge per (Charge * 15)
+effects: []
+folder: OMSNi4hdekwHrB1H
+sort: 0
+ownership:
+  default: 0
+  yWsvx4DXrmYcZsue: 3
+flags: {}
+_stats:
+  coreVersion: '14.364'
+  systemId: projectmoonttrpg
+  systemVersion: 0.0.1
+  createdTime: 1785319248810
+  modifiedTime: 1785433355279
+  lastModifiedBy: yWsvx4DXrmYcZsue
+  compendiumSource: null
+  duplicateSource: null
+  exportSource: null
+_key: '!items!28ZtP79PizmqL9Fn'

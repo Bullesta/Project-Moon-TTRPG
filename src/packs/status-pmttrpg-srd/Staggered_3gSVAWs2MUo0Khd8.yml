@@ -1,0 +1,46 @@
+name: Staggered
+type: status
+_id: 3gSVAWs2MUo0Khd8
+img: systems/projectmoonttrpg/assets/icons/Statuses/Staggered.webp
+system:
+  name: ''
+  description: >-
+    <p>When Staggered, the character is unable to act until the end of the Next
+    Round and all their Resistances are set to Fatal.</p><p>At the start of the
+    Round after, recover all ST, and lose Staggered.</p>
+  slug: ''
+  stacks: 1
+  stackMax: 0
+  priority: 0
+  macro:
+    uuid: ''
+  customNotes: ''
+  easyEffects: |-
+    [On Applied]
+    deal 5 sp damage to self;
+    heal 1 light to self;
+
+    [Always Active]
+    set resistances to fatal;
+
+    [On Removed]
+    set st to max;
+    heal 10 st to self;
+effects: []
+folder: null
+sort: 100000
+ownership:
+  default: 0
+  yWsvx4DXrmYcZsue: 3
+flags: {}
+_stats:
+  coreVersion: '14.364'
+  systemId: projectmoonttrpg
+  systemVersion: 0.0.1
+  createdTime: 1785319503000
+  modifiedTime: 1785520712954
+  lastModifiedBy: yWsvx4DXrmYcZsue
+  compendiumSource: null
+  duplicateSource: null
+  exportSource: null
+_key: '!items!3gSVAWs2MUo0Khd8'

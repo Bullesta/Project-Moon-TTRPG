@@ -1,0 +1,42 @@
+name: Slash Fragile
+type: status
+_id: PTIXLGNeiXOyaefW
+img: >-
+  systems/projectmoonttrpg/assets/icons/limbus_assets/Basic%20Effects/Fragility/Slash%20Fragility.webp
+system:
+  name: ''
+  description: >-
+    <p>Take 1 <strong>extra</strong> [HP & ST Damage Before Resistance] from
+    Slash Attacks per Fragile stack.</p><p>At the end of the Round, lose all
+    Slash Fragile.</p>
+  slug: ''
+  stacks: 1
+  stackMax: 0
+  priority: 0
+  macro:
+    uuid: ''
+  customNotes: ''
+  easyEffects: |-
+    [On Taking Slash Damage]
+    increase damage by "Slash Fragile"
+
+    [End of Round]
+    remove "Slash Fragile" "Slash Fragile"
+effects: []
+folder: JLnWNuTpQkOQhr5i
+sort: 100782
+ownership:
+  default: 0
+  yWsvx4DXrmYcZsue: 3
+flags: {}
+_stats:
+  coreVersion: '14.364'
+  systemId: projectmoonttrpg
+  systemVersion: 0.0.1
+  createdTime: 1785318454663
+  modifiedTime: 1785426581700
+  lastModifiedBy: yWsvx4DXrmYcZsue
+  compendiumSource: null
+  duplicateSource: null
+  exportSource: null
+_key: '!items!PTIXLGNeiXOyaefW'

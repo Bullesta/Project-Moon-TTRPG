@@ -5,6 +5,7 @@ img: systems/projectmoonttrpg/assets/icons/Statuses/Protection.webp
 system:
   name: ''
   description: ''
+  slug: ''
   cost: 4
   stackMax: 5
   appliesTo: outfit
@@ -22,6 +23,9 @@ system:
   macro:
     uuid: ''
   customNotes: ''
+  easyEffects: |-
+    [Always Active]
+    dice max up evade N
   allowMultiple: true
 effects: []
 sort: 0
@@ -33,11 +37,11 @@ _stats:
   compendiumSource: null
   duplicateSource: Item.z90Jgus0spFWFggd
   exportSource: null
-  coreVersion: '13.351'
+  coreVersion: '14.364'
   systemId: projectmoonttrpg
   systemVersion: 0.0.1
   createdTime: 1780308624814
-  modifiedTime: 1780308624814
+  modifiedTime: 1785441145047
   lastModifiedBy: yWsvx4DXrmYcZsue
 _id: G6Mn9r6fhwKHwAUx
 _key: '!items!G6Mn9r6fhwKHwAUx'

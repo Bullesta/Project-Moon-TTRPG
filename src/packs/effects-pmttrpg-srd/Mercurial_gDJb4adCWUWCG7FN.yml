@@ -1,0 +1,44 @@
+folder: 5gz3As2gjuDZjjPR
+name: Mercurial
+type: effect
+img: systems/projectmoonttrpg/assets/icons/Statuses/Unlock.webp
+system:
+  name: ''
+  description: ''
+  slug: mercurial
+  cost: 2
+  stackMax: 1
+  appliesTo: augment
+  canPositive: true
+  canNegative: false
+  procOn: alwaysActive
+  procResult: none
+  procResultLocked: false
+  procStat: any
+  procDice: any
+  procAction: any
+  procCondition: At the start of your turn
+  positive: <p>You may change your active Disposition(s).</p>
+  negative: ''
+  macro:
+    uuid: ''
+  customNotes: ''
+  easyEffects: ''
+effects: []
+sort: 0
+ownership:
+  default: 0
+  yWsvx4DXrmYcZsue: 3
+flags: {}
+_stats:
+  compendiumSource: null
+  duplicateSource: Item.HEYDAVMKUDVgfXmn
+  exportSource: null
+  coreVersion: '14.364'
+  systemId: projectmoonttrpg
+  systemVersion: 0.0.1
+  createdTime: 1785485130072
+  modifiedTime: 1785485130072
+  lastModifiedBy: yWsvx4DXrmYcZsue
+_id: gDJb4adCWUWCG7FN
+_key: '!items!gDJb4adCWUWCG7FN'

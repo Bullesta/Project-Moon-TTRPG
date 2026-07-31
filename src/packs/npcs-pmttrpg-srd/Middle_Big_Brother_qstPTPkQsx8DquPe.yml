@@ -1,0 +1,1236 @@
+folder: gChnkAG2xciE74WN
+name: Middle Big Brother
+type: npc
+_id: qstPTPkQsx8DquPe
+img: tokenizer/npc-images/middle_big_brother.Avatar.webp?1785519106858
+system:
+  attributes:
+    hp:
+      value: 200
+      temp: 0
+      min: 0
+      maxBase: 96
+      maxMisc: 0
+      max: 96
+    st:
+      value: 52
+      temp: 0
+      min: 0
+      maxBase: 24
+      maxMisc: 0
+      max: 24
+    sp:
+      value: 15
+      temp: 0
+      min: 0
+      maxBase: 15
+      maxMisc: 0
+      max: 15
+    level:
+      value: 6
+      min: 0
+      max: 21
+    xp:
+      value: 0
+      min: 0
+      max: 8
+    toolSlots:
+      value: 4
+      used: 0
+      over: false
+      min: 0
+    narrativeSlots:
+      value: 4
+      used: 0
+      over: false
+      min: 0
+    stockSlots:
+      value: 4
+      used: 0
+      over: false
+      min: 0
+    light:
+      value: 7
+      min: 0
+      maxBase: 0
+      maxMisc: 0
+      max: 0
+    attackModifier:
+      value: 0
+      min: 0
+    evadeModifier:
+      value: 0
+      min: 0
+    blockModifier:
+      value: 0
+      min: 0
+    speed:
+      dice: 1d6
+      bonus: 0
+  details:
+    biography:
+      occupation: ''
+      age: ''
+      height: ''
+      birthplace: ''
+      residence: ''
+      description: ''
+      background: ''
+      personality: ''
+      ahn: 0
+      relationships: ''
+      notes: ''
+      notableHistory: ''
+    gmBrief:
+      complexityGm: 3
+      complexityPlayers: 6
+      strength: 0.8~4
+      designIntention: >-
+        Surprisingly weak! At first glance that is. This boss excels at
+        preventing players from starting up their builds if fought directly at
+        the start. Additionally, this boss is meant to be teamed up with a bunch
+        of rank 2 Middle Little Brothers/Sisters. These other rank 1s serve as
+        an opportunity for players to get their builds going, but also if they
+        were to be killed, the middle big brother gets permanent strength
+        bonuses. If 3 are killed, the Middle Big Brother goes berserk and starts
+        attacking everyone instead as well!
+
+
+        The Middle Big Brother has large amounts of stagger along with very
+        above average stagger resistances, making staggering him extremely
+        difficult. However, he also takes stagger damage every time he acts and
+        also takes self tremor along with negative tremor resistance. This
+        encourages a focus on surviving and or winning the clash (without
+        necessarily countering) in order to try to get them staggered.
+
+
+        Essentially, players will have to balance not killing any of the little
+        brothers while still fighting them enough to get their builds started to
+        be able to directly fight and kill the big brother first. However, they
+        can also go for killing so many little brothers that the Middle Big
+        Brother goes insane! Alternatively, they can survive and fight back
+        slowly for so long that the Middle Big Brother staggers themself,
+        providing a opportunity to easily kill him.
+      recommendedBehavior: >-
+        Every turn, attack. Dualwields on attack. If attacked? Counter!
+
+        Uses 'Watch Your Back!' If target has no reaction and is within range.
+
+        Uses 'Enough Games!' If it looks like Middle Big Brother has a chance of
+        losing the clash.
+
+        Uses 'Promised Suffering' on the player that kills a middle little
+        brother.
+
+        Uses 'COMPLETE AND TOTAL EXTERMINATION!!!!!!' after reaching half hp or
+        being unstaggered. Only once per combat.
+      lore: >-
+        A quintessential example of what a middle big brother should be to all
+        amongst the middle. Someone who cares deeply about each and every member
+        within their family, all the while fighting with pure direct force and
+        style. Though with how much care this big brother gives to his many
+        brothers and sisters, what will happen if too many were to die...?
+      notes: >-
+        Has 4-5 Rank 1 Middle Little Members along side him.
+
+        Meant for R2 4-5 players. If less players than that, wait till R2 Level
+        2/3 and such.
+
+        Suitable as R3 fodder to show growth once your players are R3.
+
+        Has a homebrew AoE skill.
+  abilities:
+    for:
+      value: 5
+      min: -1
+      mod: 0
+      debility: false
+    pru:
+      value: 0
+      min: -1
+      mod: 0
+      debility: false
+    jus:
+      value: 5
+      min: -1
+      mod: 0
+      debility: false
+    cha:
+      value: 5
+      min: -1
+      mod: 0
+      debility: false
+    ins:
+      value: 2
+      min: -1
+      mod: 0
+      debility: false
+    tem:
+      value: 1
+      min: -1
+      mod: 0
+      debility: false
+prototypeToken:
+  name: Middle Big Brother
+  displayName: 0
+  actorLink: false
+  width: 1
+  height: 1
+  depth: 1
+  texture:
+    src: tokenizer/npc-images/middle_big_brother.Token.webp?1785519106858
+    anchorX: 0.5
+    anchorY: 0.5
+    fit: contain
+    scaleX: 1
+    scaleY: 1
+    tint: '#ffffff'
+    alphaThreshold: 0.75
+  lockRotation: false
+  rotation: 0
+  alpha: 1
+  disposition: -1
+  displayBars: 0
+  bar1:
+    attribute: attributes.hp
+  bar2:
+    attribute: attributes.st
+  light:
+    negative: false
+    priority: 0
+    alpha: 0.5
+    angle: 360
+    bright: 0
+    color: null
+    coloration: 1
+    dim: 0
+    attenuation: 0.5
+    luminosity: 0.5
+    saturation: 0
+    contrast: 0
+    shadows: 0
+    animation:
+      type: null
+      speed: 5
+      intensity: 5
+      reverse: false
+    darkness:
+      min: 0
+      max: 1
+  sight:
+    enabled: false
+    range: 0
+    angle: 360
+    visionMode: basic
+    color: null
+    attenuation: 0.1
+    brightness: 0
+    saturation: 0
+    contrast: 0
+  detectionModes: {}
+  occludable:
+    radius: 0
+  ring:
+    enabled: false
+    colors:
+      ring: null
+      background: null
+    effects: 1
+    subject:
+      scale: 1
+      texture: null
+  turnMarker:
+    mode: 1
+    animation: null
+    src: null
+    disposition: false
+  movementAction: null
+  flags: {}
+  randomImg: false
+  appendNumber: false
+  prependAdjective: false
+items:
+  - name: Punching
+    type: weapon
+    system:
+      name: ''
+      description: ''
+      slug: ''
+      weaponType: melee
+      damageType: blunt
+      damageTypeFixed: false
+      formProperty: null
+      handProperty: off2h
+      offensiveDice: 1d10+0
+      rank: 3
+      effects:
+        - effectUuid: >-
+            Compendium.projectmoonttrpg.effects-pmttrpg-srd.Item.ReehAT7Cllh8QF34
+          name: Dice Max Up
+          cost: 4
+          stackMax: 5
+          stack: 4
+          count: 4
+          mode: positive
+          appliesTo: weapon
+          canPositive: true
+          canNegative: true
+          procOn: alwaysActive
+          procResult: none
+          procResultLocked: false
+          procStat: any
+          procDice: any
+          procAction: any
+          procCondition: ''
+          positive: Increase the Dice Max by [N]
+          negative: >-
+            Reduce the Dice Max by [N]. If the Dice Max is 1, each reduction of
+            Dice Max gives -1 Power instead.
+          macro:
+            uuid: ''
+        - effectUuid: >-
+            Compendium.projectmoonttrpg.effects-pmttrpg-srd.Item.Qwrq1UfhYJMJ4oiN
+          name: Inflict Paralysis
+          cost: 4
+          stackMax: 5
+          stack: 1
+          count: 1
+          mode: positive
+          appliesTo: weapon
+          canPositive: true
+          canNegative: true
+          procOn: onClash
+          procResult: win
+          procResultLocked: false
+          procStat: any
+          procDice: any
+          procAction: any
+          procCondition: ''
+          positive: Apply [N] Paralysis to the target next round
+          negative: Apply [N] Paralysis to the character next round
+          macro:
+            uuid: ''
+        - effectUuid: >-
+            Compendium.projectmoonttrpg.effects-pmttrpg-srd.Item.aHgmC8xy6vHNGnly
+          name: Inflict Tremor
+          cost: 2
+          stackMax: 5
+          stack: 1
+          count: 1
+          mode: negative
+          appliesTo: weapon
+          canPositive: true
+          canNegative: true
+          procOn: onClash
+          procResult: win
+          procResultLocked: false
+          procStat: any
+          procDice: any
+          procAction: any
+          procCondition: ''
+          positive: Apply [N] Tremor to the target
+          negative: Apply [N] Tremor to the character next round
+          macro:
+            uuid: ''
+        - effectUuid: >-
+            Compendium.projectmoonttrpg.effects-pmttrpg-srd.Item.aHgmC8xy6vHNGnly
+          name: Inflict Tremor
+          cost: 2
+          stackMax: 5
+          stack: 4
+          count: 4
+          mode: negative
+          appliesTo: weapon
+          canPositive: true
+          canNegative: true
+          procOn: onClash
+          procResult: lose
+          procResultLocked: false
+          procStat: any
+          procDice: any
+          procAction: any
+          procCondition: ''
+          positive: Apply [N] Tremor to the target
+          negative: Apply [N] Tremor to the character next round
+          macro:
+            uuid: ''
+      equipped: true
+      customNotes: ''
+      easyEffects: |-
+        # >>> synced effects
+        # Dice Max Up
+        [Always Active]
+        dice max up attack 4
+        # <<< synced effects
+    _id: who4rLm9Ps3j675V
+    img: >-
+      systems/projectmoonttrpg/assets/icons/limbus_assets/Basic%20Effects/Factions/Middle/Vendetta%20Mark.webp
+    effects: []
+    folder: null
+    sort: 0
+    ownership:
+      default: 0
+      yWsvx4DXrmYcZsue: 3
+    flags: {}
+    _stats:
+      coreVersion: '14.364'
+      systemId: projectmoonttrpg
+      systemVersion: 0.0.1
+      createdTime: 1785519228591
+      modifiedTime: 1785519430894
+      lastModifiedBy: yWsvx4DXrmYcZsue
+      compendiumSource: null
+      duplicateSource: null
+      exportSource: null
+    _key: '!actors.items!qstPTPkQsx8DquPe.who4rLm9Ps3j675V'
+  - name: Kicking
+    type: weapon
+    system:
+      name: ''
+      description: ''
+      slug: ''
+      weaponType: melee
+      damageType: blunt
+      damageTypeFixed: false
+      formProperty: null
+      handProperty: off2h
+      offensiveDice: 1d10+0
+      rank: 3
+      effects:
+        - effectUuid: >-
+            Compendium.projectmoonttrpg.effects-pmttrpg-srd.Item.ReehAT7Cllh8QF34
+          name: Dice Max Up
+          cost: 4
+          stackMax: 5
+          stack: 4
+          count: 4
+          mode: positive
+          appliesTo: weapon
+          canPositive: true
+          canNegative: true
+          procOn: alwaysActive
+          procResult: none
+          procResultLocked: false
+          procStat: any
+          procDice: any
+          procAction: any
+          procCondition: ''
+          positive: Increase the Dice Max by [N]
+          negative: >-
+            Reduce the Dice Max by [N]. If the Dice Max is 1, each reduction of
+            Dice Max gives -1 Power instead.
+          macro:
+            uuid: ''
+        - effectUuid: >-
+            Compendium.projectmoonttrpg.effects-pmttrpg-srd.Item.Qwrq1UfhYJMJ4oiN
+          name: Inflict Paralysis
+          cost: 4
+          stackMax: 5
+          stack: 1
+          count: 1
+          mode: positive
+          appliesTo: weapon
+          canPositive: true
+          canNegative: true
+          procOn: onClash
+          procResult: win
+          procResultLocked: false
+          procStat: any
+          procDice: any
+          procAction: any
+          procCondition: ''
+          positive: Apply [N] Paralysis to the target next round
+          negative: Apply [N] Paralysis to the character next round
+          macro:
+            uuid: ''
+        - effectUuid: >-
+            Compendium.projectmoonttrpg.effects-pmttrpg-srd.Item.aHgmC8xy6vHNGnly
+          name: Inflict Tremor
+          cost: 2
+          stackMax: 5
+          stack: 1
+          count: 1
+          mode: negative
+          appliesTo: weapon
+          canPositive: true
+          canNegative: true
+          procOn: onClash
+          procResult: win
+          procResultLocked: false
+          procStat: any
+          procDice: any
+          procAction: any
+          procCondition: ''
+          positive: Apply [N] Tremor to the target
+          negative: Apply [N] Tremor to the character next round
+          macro:
+            uuid: ''
+        - effectUuid: >-
+            Compendium.projectmoonttrpg.effects-pmttrpg-srd.Item.aHgmC8xy6vHNGnly
+          name: Inflict Tremor
+          cost: 2
+          stackMax: 5
+          stack: 4
+          count: 4
+          mode: negative
+          appliesTo: weapon
+          canPositive: true
+          canNegative: true
+          procOn: onClash
+          procResult: lose
+          procResultLocked: false
+          procStat: any
+          procDice: any
+          procAction: any
+          procCondition: ''
+          positive: Apply [N] Tremor to the target
+          negative: Apply [N] Tremor to the character next round
+          macro:
+            uuid: ''
+      equipped: true
+      customNotes: ''
+      easyEffects: |-
+        # >>> synced effects
+        # Dice Max Up
+        [Always Active]
+        dice max up attack 4
+        # <<< synced effects
+    _id: yXimjvFdXKct0fR5
+    img: >-
+      systems/projectmoonttrpg/assets/icons/limbus_assets/Basic%20Effects/Factions/Middle/The%20Middle_s%20Vendetta%20Mark.webp
+    effects: []
+    folder: null
+    sort: 0
+    ownership:
+      default: 0
+      yWsvx4DXrmYcZsue: 3
+    flags: {}
+    _stats:
+      coreVersion: '14.364'
+      systemId: projectmoonttrpg
+      systemVersion: 0.0.1
+      createdTime: 1785519498470
+      modifiedTime: 1785519564649
+      lastModifiedBy: yWsvx4DXrmYcZsue
+      compendiumSource: null
+      duplicateSource: null
+      exportSource: null
+    _key: '!actors.items!qstPTPkQsx8DquPe.yXimjvFdXKct0fR5'
+  - name: Payback!
+    type: outfit
+    system:
+      name: ''
+      description: ''
+      slug: ''
+      outfitProperty: balanced
+      rank: 3
+      blockDice: 1d10+0
+      evadeDice: 1d12+0
+      blockDiceComputed: 1d10+0
+      evadeDiceComputed: 1d12+0
+      blockDicePower: 0
+      evadeDicePower: 0
+      bonusLight: 0
+      bonusEP: 0
+      effects:
+        - effectUuid: >-
+            Compendium.projectmoonttrpg.effects-pmttrpg-srd.Item.xmYEYDbDsrDT62TM
+          name: Damage Resistance
+          cost: 4
+          stackMax: 3
+          stack: 3
+          count: 3
+          mode: positive
+          appliesTo: outfit
+          canPositive: true
+          canNegative: true
+          procOn: alwaysActive
+          procResult: none
+          procResultLocked: false
+          procStat: any
+          procDice: any
+          procAction: any
+          procCondition: ''
+          positive: Reduce HP Damage and ST Damage taken from Attacks by [N]
+          negative: Increase HP Damage and ST Damage taken from Attacks by [N]
+          macro:
+            uuid: ''
+        - effectUuid: >-
+            Compendium.projectmoonttrpg.effects-pmttrpg-srd.Item.dYnFrDX2sf5IpEhN
+          name: Shock Absorbant
+          cost: 2
+          stackMax: 5
+          stack: 4
+          count: 4
+          mode: positive
+          appliesTo: outfit
+          canPositive: true
+          canNegative: true
+          procOn: alwaysActive
+          procResult: none
+          procResultLocked: false
+          procStat: any
+          procDice: any
+          procAction: any
+          procCondition: ''
+          positive: When Combat begins, gain [N*3] Temporary ST
+          negative: When Combat begins, take [N*3] ST Damage.
+          macro:
+            uuid: ''
+        - effectUuid: >-
+            Compendium.projectmoonttrpg.effects-pmttrpg-srd.Item.N3wk0YcxwVia8ZXJ
+          name: Tremor Resistance
+          cost: 2
+          stackMax: 5
+          stack: 5
+          count: 5
+          mode: negative
+          appliesTo: outfit
+          canPositive: true
+          canNegative: true
+          procOn: alwaysActive
+          procResult: none
+          procResultLocked: false
+          procStat: any
+          procDice: any
+          procAction: any
+          procCondition: ''
+          positive: Reduce ST Damage taken from Tremor by [N]
+          negative: Increase ST Damage taken from Tremor by [N]
+          macro:
+            uuid: ''
+      resistances:
+        hp:
+          slash: normal
+          pierce: weak
+          blunt: weak
+        st:
+          slash: endured
+          pierce: endured
+          blunt: normal
+      equipped: true
+      customNotes: ''
+      easyEffects: |-
+        # >>> synced effects
+        # Damage Resistance
+        [On Taking Damage]
+        reduce damage by 3;
+
+        # Tremor Resistance
+        [On Taking Tremor Damage]
+        increase damage by 5;
+        # <<< synced effects
+    _id: OPiVrDfFjvI89zYl
+    img: >-
+      systems/projectmoonttrpg/assets/icons/limbus_assets/Basic%20Effects/Factions/Middle/Book%20of%20Vengeance%20%5BSinclair%5D.webp
+    effects: []
+    folder: null
+    sort: 0
+    ownership:
+      default: 0
+      yWsvx4DXrmYcZsue: 3
+    flags: {}
+    _stats:
+      coreVersion: '14.364'
+      systemId: projectmoonttrpg
+      systemVersion: 0.0.1
+      createdTime: 1785519590383
+      modifiedTime: 1785519657213
+      lastModifiedBy: yWsvx4DXrmYcZsue
+      compendiumSource: null
+      duplicateSource: null
+      exportSource: null
+    _key: '!actors.items!qstPTPkQsx8DquPe.OPiVrDfFjvI89zYl'
+  - name: Middle Big Brother's Augmentation Tattoos
+    type: augment
+    system:
+      name: ''
+      description: ''
+      slug: ''
+      rank: 1
+      effects:
+        - effectUuid: >-
+            Compendium.projectmoonttrpg.effects-pmttrpg-srd.Item.moUBFPiq1obXmLKA
+          name: Altered Psyche [Fight]
+          cost: 2
+          stackMax: 1
+          stack: 1
+          count: 1
+          mode: positive
+          appliesTo: augment
+          canPositive: true
+          canNegative: false
+          procOn: alwaysActive
+          procResult: none
+          procResultLocked: false
+          procStat: any
+          procDice: any
+          procAction: any
+          procCondition: Upon entering panic
+          positive: >-
+            <p>You will be forced to take the "Fight" Panic type regardless of
+            your roll.</p>
+          negative: ''
+          macro:
+            uuid: ''
+        - effectUuid: >-
+            Compendium.projectmoonttrpg.effects-pmttrpg-srd.Item.w5qGqNaV2tGRzhvR
+          name: Strong Arm
+          cost: 4
+          stackMax: 2
+          stack: 2
+          count: 2
+          mode: positive
+          appliesTo: augment
+          canPositive: true
+          canNegative: false
+          procOn: alwaysActive
+          procResult: none
+          procResultLocked: false
+          procStat: any
+          procDice: any
+          procAction: any
+          procCondition: ''
+          positive: >-
+            <p>The character may wield a 2-Handed weapon in a single hand. This
+            applies to [N] hands.</p>
+          negative: ''
+          macro:
+            uuid: ''
+        - effectUuid: >-
+            Compendium.projectmoonttrpg.effects-pmttrpg-srd.Item.ZmhrznDCv4lvPMpb
+          name: Lone Fighter
+          cost: 2
+          stackMax: 3
+          stack: 2
+          count: 2
+          mode: positive
+          appliesTo: augment
+          canPositive: true
+          canNegative: false
+          procOn: alwaysActive
+          procResult: none
+          procResultLocked: false
+          procStat: any
+          procDice: any
+          procAction: any
+          procCondition: ''
+          positive: >-
+            <p>Gain [N] Dice Power during a [Attack/Defense Clash] against an
+            enemy within melee weapon range that has not had an Action taken
+            against them during this round or the previous round by any of this
+            character's allies.</p>
+
+            <p>This Effect cannot be activated if there are any allies within 2
+            SQRs of the character.</p>
+          negative: ''
+          macro:
+            uuid: ''
+        - effectUuid: >-
+            Compendium.projectmoonttrpg.effects-pmttrpg-srd.Item.GzkhbJSgMbJNmxdS
+          name: Bloodthirst
+          cost: 2
+          stackMax: 3
+          stack: 2
+          count: 2
+          mode: positive
+          appliesTo: augment
+          canPositive: true
+          canNegative: false
+          procOn: alwaysActive
+          procResult: none
+          procResultLocked: false
+          procStat: any
+          procDice: any
+          procAction: action
+          procCondition: ''
+          positive: >-
+            <p>In the first round of combat, gain [N] Offensive &amp; Defensive
+            Dice Power Up.</p>
+
+            <p>Whenever the character defeats an opponent, apply [N] Strength to
+            the character next round.</p>
+          negative: ''
+          macro:
+            uuid: ''
+        - effectUuid: >-
+            Compendium.projectmoonttrpg.effects-pmttrpg-srd.Item.brhGAWmFnguFc1wH
+          name: Paranoid
+          cost: 4
+          stackMax: 1
+          stack: 1
+          count: 1
+          mode: negative
+          appliesTo: augment
+          canPositive: false
+          canNegative: true
+          procOn: alwaysActive
+          procResult: none
+          procResultLocked: false
+          procStat: any
+          procDice: any
+          procAction: any
+          procCondition: ''
+          positive: ''
+          negative: >-
+            <p>When recovering SP from any source, recover at half
+            efficiency.</p>
+          macro:
+            uuid: ''
+        - effectUuid: >-
+            Compendium.projectmoonttrpg.effects-pmttrpg-srd.Item.MOEP4STZqMKBNFNv
+          name: Caged Strength
+          cost: 6
+          stackMax: 1
+          stack: 1
+          count: 1
+          mode: positive
+          appliesTo: augment
+          canPositive: true
+          canNegative: false
+          procOn: alwaysActive
+          procResult: none
+          procResultLocked: false
+          procStat: any
+          procDice: any
+          procAction: any
+          procCondition: At the start of each round,
+          positive: >-
+            <p>Apply 1 Strength to the character for every 25% Max Sanity Lost
+            (Max of 3). Do not activate when in Panic.</p>
+          negative: ''
+          macro:
+            uuid: ''
+        - effectUuid: >-
+            Compendium.projectmoonttrpg.effects-pmttrpg-srd.Item.JuKl9lvbdTXnnmhW
+          name: Heightened Presence
+          cost: 2
+          stackMax: 1
+          stack: 1
+          count: 1
+          mode: negative
+          appliesTo: augment
+          canPositive: true
+          canNegative: true
+          procOn: alwaysActive
+          procResult: none
+          procResultLocked: false
+          procStat: any
+          procDice: any
+          procAction: any
+          procCondition: ''
+          positive: <p>You count as [Rank+1] for purposes of SP Gain/Loss.</p>
+          negative: <p>You count as [Rank-1] for purposes of SP Gain/Loss.</p>
+          macro:
+            uuid: ''
+        - effectUuid: >-
+            Compendium.projectmoonttrpg.effects-pmttrpg-srd.Item.iO9mn3ap4ldGiWB0
+          name: Regen ST
+          cost: 1
+          stackMax: 5
+          stack: 3
+          count: 3
+          mode: negative
+          appliesTo: augment
+          canPositive: true
+          canNegative: true
+          procOn: onClashResult
+          procResult: win
+          procResultLocked: false
+          procStat: any
+          procDice: any
+          procAction: any
+          procCondition: ''
+          positive: <p>Recover [N] ST to the character.</p>
+          negative: <p>Deal [N] After Resistance ST Damage to the character.</p>
+          macro:
+            uuid: ''
+        - effectUuid: >-
+            Compendium.projectmoonttrpg.effects-pmttrpg-srd.Item.iO9mn3ap4ldGiWB0
+          name: Regen ST
+          cost: 1
+          stackMax: 5
+          stack: 3
+          count: 3
+          mode: negative
+          appliesTo: augment
+          canPositive: true
+          canNegative: true
+          procOn: onClashResult
+          procResult: lose
+          procResultLocked: false
+          procStat: any
+          procDice: any
+          procAction: any
+          procCondition: ''
+          positive: <p>Recover [N] ST to the character.</p>
+          negative: <p>Deal [N] After Resistance ST Damage to the character.</p>
+          macro:
+            uuid: ''
+      customNotes: ''
+      easyEffects: ''
+      equipped: true
+    _id: OmzxNFyUWtP0luAj
+    img: >-
+      systems/projectmoonttrpg/assets/icons/limbus_assets/Basic%20Effects/Factions/Middle/The%20Middle%20Styled%20Augmentation%20Tattoos.webp
+    effects: []
+    folder: null
+    sort: 0
+    ownership:
+      default: 0
+      yWsvx4DXrmYcZsue: 3
+    flags: {}
+    _stats:
+      coreVersion: '14.364'
+      systemId: projectmoonttrpg
+      systemVersion: 0.0.1
+      createdTime: 1785519668965
+      modifiedTime: 1785519775872
+      lastModifiedBy: yWsvx4DXrmYcZsue
+      compendiumSource: null
+      duplicateSource: null
+      exportSource: null
+    _key: '!actors.items!qstPTPkQsx8DquPe.OmzxNFyUWtP0luAj'
+  - name: Watch Your Back
+    type: skill
+    system:
+      name: ''
+      description: <p>Used on targets without reactions.</p>
+      slug: ''
+      skillType: attack
+      rank: 3
+      lightCost: 1
+      innate: false
+      stat: for
+      effects:
+        - effectUuid: Item.aGaCMLipJxlufBKP
+          name: Inflict Paralysis
+          cost: 4
+          stackMax: 5
+          stack: 4
+          count: 4
+          mode: positive
+          appliesTo: skill
+          canPositive: true
+          canNegative: true
+          procOn: onClashResult
+          procResult: win
+          procResultLocked: false
+          procStat: any
+          procDice: any
+          procAction: any
+          procCondition: ''
+          positive: <p>Apply [N] Paralysis to the target next round.</p>
+          negative: <p>Apply [N] Paralysis to the character next round.</p>
+          macro:
+            uuid: ''
+        - effectUuid: Item.8IsI9UrvhkzYgnjn
+          name: Inflict Tremor
+          cost: 2
+          stackMax: 5
+          stack: 4
+          count: 4
+          mode: negative
+          appliesTo: skill
+          canPositive: true
+          canNegative: true
+          procOn: onClashResult
+          procResult: lose
+          procResultLocked: false
+          procStat: any
+          procDice: any
+          procAction: any
+          procCondition: ''
+          positive: <p>Apply [N] Tremor to the target next round.</p>
+          negative: <p>Apply [N] Tremor to the character next round.</p>
+          macro:
+            uuid: ''
+      customNotes: ''
+      easyEffects: ''
+      equipped: true
+    _id: EWqGsIAGJlafTK4j
+    img: >-
+      systems/projectmoonttrpg/assets/icons/limbus_assets/Basic%20Effects/Factions/Middle/Sibling%20Vengeance%20Mark.webp
+    effects: []
+    folder: null
+    sort: 0
+    ownership:
+      default: 0
+      yWsvx4DXrmYcZsue: 3
+    flags: {}
+    _stats:
+      coreVersion: '14.364'
+      systemId: projectmoonttrpg
+      systemVersion: 0.0.1
+      createdTime: 1785519851899
+      modifiedTime: 1785519916186
+      lastModifiedBy: yWsvx4DXrmYcZsue
+      compendiumSource: null
+      duplicateSource: null
+      exportSource: null
+    _key: '!actors.items!qstPTPkQsx8DquPe.EWqGsIAGJlafTK4j'
+  - name: Enough Games
+    type: skill
+    system:
+      name: ''
+      description: ''
+      slug: ''
+      skillType: attack
+      rank: 3
+      lightCost: 1
+      innate: false
+      stat: for
+      effects:
+        - effectUuid: Item.GpGuFr5CIPumA4LX
+          name: Dice Power Up
+          cost: 6
+          stackMax: 5
+          stack: 2
+          count: 2
+          mode: positive
+          appliesTo: skill
+          canPositive: true
+          canNegative: true
+          procOn: alwaysActive
+          procResult: none
+          procResultLocked: false
+          procStat: any
+          procDice: any
+          procAction: any
+          procCondition: ''
+          positive: <p>Increase the Dice Power by [N].</p>
+          negative: <p>Decrease the Dice Power by [N].</p>
+          macro:
+            uuid: ''
+        - effectUuid: Item.aGaCMLipJxlufBKP
+          name: Inflict Paralysis
+          cost: 4
+          stackMax: 5
+          stack: 1
+          count: 1
+          mode: positive
+          appliesTo: skill
+          canPositive: true
+          canNegative: true
+          procOn: onClashResult
+          procResult: win
+          procResultLocked: false
+          procStat: any
+          procDice: any
+          procAction: any
+          procCondition: ''
+          positive: <p>Apply [N] Paralysis to the target next round.</p>
+          negative: <p>Apply [N] Paralysis to the character next round.</p>
+          macro:
+            uuid: ''
+        - effectUuid: Item.8IsI9UrvhkzYgnjn
+          name: Inflict Tremor
+          cost: 2
+          stackMax: 5
+          stack: 4
+          count: 4
+          mode: negative
+          appliesTo: skill
+          canPositive: true
+          canNegative: true
+          procOn: onClashResult
+          procResult: lose
+          procResultLocked: false
+          procStat: any
+          procDice: any
+          procAction: any
+          procCondition: ''
+          positive: <p>Apply [N] Tremor to the target next round.</p>
+          negative: <p>Apply [N] Tremor to the character next round.</p>
+          macro:
+            uuid: ''
+      customNotes: ''
+      easyEffects: ''
+      equipped: true
+    _id: ltgKhLwjCPhvwrBz
+    img: >-
+      systems/projectmoonttrpg/assets/icons/limbus_assets/Basic%20Effects/Factions/Middle/The%20Middle%20-%20Grudge%202.webp
+    effects: []
+    folder: null
+    sort: 0
+    ownership:
+      default: 0
+      yWsvx4DXrmYcZsue: 3
+    flags: {}
+    _stats:
+      coreVersion: '14.364'
+      systemId: projectmoonttrpg
+      systemVersion: 0.0.1
+      createdTime: 1785519852189
+      modifiedTime: 1785519974470
+      lastModifiedBy: yWsvx4DXrmYcZsue
+      compendiumSource: null
+      duplicateSource: null
+      exportSource: null
+    _key: '!actors.items!qstPTPkQsx8DquPe.ltgKhLwjCPhvwrBz'
+  - name: Vengence
+    type: skill
+    system:
+      name: ''
+      description: ''
+      slug: ''
+      skillType: attack
+      rank: 3
+      lightCost: 1
+      innate: false
+      stat: for
+      effects:
+        - effectUuid: Item.dUeAShBWRyiRmCWR
+          name: Multi-hit
+          cost: 6
+          stackMax: 5
+          stack: 2
+          count: 2
+          mode: positive
+          appliesTo: skill
+          canPositive: true
+          canNegative: false
+          procOn: alwaysActive
+          procResult: none
+          procResultLocked: false
+          procStat: any
+          procDice: any
+          procAction: any
+          procCondition: ''
+          positive: >-
+            <p>(Attack Only) Replaces Attack with [N+1] Attacks with -2 Dice
+            Power. </p><p>This stacks with any effects of the same name, to a
+            max of 2 overall.  Cannot be stacked with any other attack
+            replacement.</p><p>Clash [Result] effects only activate once based
+            on the outcome of the First Clash. On Use effects only activate one
+            time.</p><p>Any User Dice Modification to these attacks is based on
+            the conditions of the first Attack, regardless of effects present
+            after the first clash (e.g. Bonus/Vigor activation)</p>
+          negative: ''
+          macro:
+            uuid: ''
+        - effectUuid: Item.aGaCMLipJxlufBKP
+          name: Inflict Paralysis
+          cost: 4
+          stackMax: 5
+          stack: 1
+          count: 1
+          mode: positive
+          appliesTo: skill
+          canPositive: true
+          canNegative: true
+          procOn: onClashResult
+          procResult: win
+          procResultLocked: false
+          procStat: any
+          procDice: any
+          procAction: any
+          procCondition: ''
+          positive: <p>Apply [N] Paralysis to the target next round.</p>
+          negative: <p>Apply [N] Paralysis to the character next round.</p>
+          macro:
+            uuid: ''
+        - effectUuid: Item.8IsI9UrvhkzYgnjn
+          name: Inflict Tremor
+          cost: 2
+          stackMax: 5
+          stack: 4
+          count: 4
+          mode: negative
+          appliesTo: skill
+          canPositive: true
+          canNegative: true
+          procOn: onClashResult
+          procResult: lose
+          procResultLocked: false
+          procStat: any
+          procDice: any
+          procAction: any
+          procCondition: ''
+          positive: <p>Apply [N] Tremor to the target next round.</p>
+          negative: <p>Apply [N] Tremor to the character next round.</p>
+          macro:
+            uuid: ''
+      customNotes: ''
+      easyEffects: ''
+      equipped: true
+    _id: 3KplYlqkXZW2sY8D
+    img: >-
+      systems/projectmoonttrpg/assets/icons/limbus_assets/Basic%20Effects/Factions/Middle/The%20Middle_s%20Vendetta%20Mark.webp
+    effects: []
+    folder: null
+    sort: 0
+    ownership:
+      default: 0
+      yWsvx4DXrmYcZsue: 3
+    flags: {}
+    _stats:
+      coreVersion: '14.364'
+      systemId: projectmoonttrpg
+      systemVersion: 0.0.1
+      createdTime: 1785519852374
+      modifiedTime: 1785520023820
+      lastModifiedBy: yWsvx4DXrmYcZsue
+      compendiumSource: null
+      duplicateSource: null
+      exportSource: null
+    _key: '!actors.items!qstPTPkQsx8DquPe.3KplYlqkXZW2sY8D'
+  - name: COMPLETE AND TOTAL EXTERMINATION!!!!!
+    type: skill
+    system:
+      name: ''
+      description: >-
+        <p><strong>(SPECIAL SKILL)</strong>: Only used after having staggered
+        once or while health is below half. This skill can only be used
+        once.</p><p><strong>AoE that hits all enemies in weapon range</strong>.
+        Does not trigger Dual Wielding.</p><p>If an enemy loses a clash against
+        the AoE, Inflict 1 Paralysis to them.</p><p>If an enemy wins a clash
+        against the AoE, Inflict 1 Paralysis to this unit.</p>
+      slug: ''
+      skillType: attack
+      rank: 3
+      lightCost: 1
+      innate: true
+      stat: for
+      effects: []
+      customNotes: ''
+      easyEffects: ''
+      equipped: true
+    _id: LrM54mEKeTrkntjI
+    img: >-
+      systems/projectmoonttrpg/assets/icons/limbus_assets/Misc%20Enemy%20Exclusive/Canto%205/Undefiable%20Command.webp
+    effects: []
+    folder: null
+    sort: 0
+    ownership:
+      default: 0
+      yWsvx4DXrmYcZsue: 3
+    flags: {}
+    _stats:
+      coreVersion: '14.364'
+      systemId: projectmoonttrpg
+      systemVersion: 0.0.1
+      createdTime: 1785520030142
+      modifiedTime: 1785520576808
+      lastModifiedBy: yWsvx4DXrmYcZsue
+      compendiumSource: null
+      duplicateSource: null
+      exportSource: null
+    _key: '!actors.items!qstPTPkQsx8DquPe.LrM54mEKeTrkntjI'
+effects: []
+sort: 0
+ownership:
+  default: 0
+  yWsvx4DXrmYcZsue: 3
+flags: {}
+_stats:
+  coreVersion: '14.364'
+  systemId: projectmoonttrpg
+  systemVersion: 0.0.1
+  createdTime: 1785519057163
+  modifiedTime: 1785520585484
+  lastModifiedBy: yWsvx4DXrmYcZsue
+  compendiumSource: null
+  duplicateSource: null
+  exportSource: null
+_key: '!actors!qstPTPkQsx8DquPe'

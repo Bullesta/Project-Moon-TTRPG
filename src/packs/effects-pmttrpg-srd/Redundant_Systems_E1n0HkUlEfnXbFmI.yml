@@ -1,0 +1,46 @@
+folder: 7KY5NGWUDSsmXYAn
+name: Redundant Systems
+type: effect
+img: systems/projectmoonttrpg/assets/icons/Statuses/Fortune.webp
+system:
+  name: ''
+  description: ''
+  slug: redundant-systems
+  cost: 2
+  stackMax: 1
+  appliesTo: augment
+  canPositive: true
+  canNegative: false
+  procOn: alwaysActive
+  procResult: none
+  procResultLocked: false
+  procStat: any
+  procDice: any
+  procAction: any
+  procCondition: ''
+  positive: >-
+    <p>You may elect to take a Sacrificial Injury even when the damage would not
+    reduce the character to 0 HP.</p>
+  negative: ''
+  macro:
+    uuid: ''
+  customNotes: ''
+  easyEffects: ''
+effects: []
+sort: 0
+ownership:
+  default: 0
+  yWsvx4DXrmYcZsue: 3
+flags: {}
+_stats:
+  compendiumSource: null
+  duplicateSource: Item.qyuBCznFfz1BkqsN
+  exportSource: null
+  coreVersion: '14.364'
+  systemId: projectmoonttrpg
+  systemVersion: 0.0.1
+  createdTime: 1785485136624
+  modifiedTime: 1785485136624
+  lastModifiedBy: yWsvx4DXrmYcZsue
+_id: E1n0HkUlEfnXbFmI
+_key: '!items!E1n0HkUlEfnXbFmI'

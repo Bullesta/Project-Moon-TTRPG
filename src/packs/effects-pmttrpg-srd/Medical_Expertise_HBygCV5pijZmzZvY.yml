@@ -1,0 +1,51 @@
+folder: 7KY5NGWUDSsmXYAn
+name: Medical Expertise
+type: effect
+img: systems/projectmoonttrpg/assets/icons/Statuses/Heal%20Efficiency.webp
+system:
+  name: ''
+  description: ''
+  slug: medical-expertise
+  cost: 2
+  stackMax: 5
+  appliesTo: augment
+  canPositive: true
+  canNegative: false
+  procOn: alwaysActive
+  procResult: none
+  procResultLocked: false
+  procStat: any
+  procDice: any
+  procAction: any
+  procCondition: ''
+  positive: >-
+    <p>You gain [N+1] uses of Medical Expertise per short rest.</p>
+
+    <p>You can spend a use to double the recovery of an ally or restore 1 limb
+    of an ally, if they are missing one.</p>
+
+    <p>This can be used on the same person twice. Leftover uses do not carry
+    over.</p>
+  negative: ''
+  macro:
+    uuid: ''
+  customNotes: ''
+  easyEffects: ''
+effects: []
+sort: 0
+ownership:
+  default: 0
+  yWsvx4DXrmYcZsue: 3
+flags: {}
+_stats:
+  compendiumSource: null
+  duplicateSource: Item.Wh1wDtD50zh6YF0N
+  exportSource: null
+  coreVersion: '14.364'
+  systemId: projectmoonttrpg
+  systemVersion: 0.0.1
+  createdTime: 1785485136624
+  modifiedTime: 1785485136624
+  lastModifiedBy: yWsvx4DXrmYcZsue
+_id: HBygCV5pijZmzZvY
+_key: '!items!HBygCV5pijZmzZvY'

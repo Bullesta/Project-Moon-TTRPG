@@ -1,0 +1,48 @@
+folder: 8t5xinoxx4XtmQBl
+name: Reposition
+type: effect
+img: systems/projectmoonttrpg/assets/icons/Statuses/Haste.webp
+system:
+  name: ''
+  description: ''
+  slug: reposition
+  cost: 1
+  stackMax: 5
+  appliesTo: augment
+  canPositive: true
+  canNegative: false
+  procOn: alwaysActive
+  procResult: none
+  procResultLocked: false
+  procStat: any
+  procDice: any
+  procAction: any
+  procCondition: Once per combat
+  positive: >-
+    <p>You may move up to [N] SQRs without provoking Opportunity Attacks.</p>
+
+    <p>This movement can be spread across multiple instances/movement actions as
+    applicable.</p>
+  negative: ''
+  macro:
+    uuid: ''
+  customNotes: ''
+  easyEffects: ''
+effects: []
+sort: 0
+ownership:
+  default: 0
+  yWsvx4DXrmYcZsue: 3
+flags: {}
+_stats:
+  compendiumSource: null
+  duplicateSource: Item.cOpO9IaVKw4iEeOU
+  exportSource: null
+  coreVersion: '14.364'
+  systemId: projectmoonttrpg
+  systemVersion: 0.0.1
+  createdTime: 1785485122327
+  modifiedTime: 1785485122327
+  lastModifiedBy: yWsvx4DXrmYcZsue
+_id: p980eyvqnY4FVazl
+_key: '!items!p980eyvqnY4FVazl'

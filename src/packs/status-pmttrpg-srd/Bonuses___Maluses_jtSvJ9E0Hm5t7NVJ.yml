@@ -1,0 +1,20 @@
+type: Item
+folder: null
+name: Bonuses & Maluses
+color: '#bd0000'
+sorting: a
+_id: jtSvJ9E0Hm5t7NVJ
+description: ''
+sort: 0
+flags: {}
+_stats:
+  coreVersion: '14.364'
+  systemId: projectmoonttrpg
+  systemVersion: 0.0.1
+  createdTime: 1785426677973
+  modifiedTime: 1785426677973
+  lastModifiedBy: yWsvx4DXrmYcZsue
+  compendiumSource: null
+  duplicateSource: null
+  exportSource: null
+_key: '!folders!jtSvJ9E0Hm5t7NVJ'

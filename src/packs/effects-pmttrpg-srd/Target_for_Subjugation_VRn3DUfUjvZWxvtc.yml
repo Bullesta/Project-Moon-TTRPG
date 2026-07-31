@@ -1,0 +1,50 @@
+folder: qhqkh6Rd3YcrmXWj
+name: Target for Subjugation
+type: effect
+img: systems/projectmoonttrpg/assets/icons/Statuses/Karmic%20Consequence.webp
+system:
+  name: ''
+  description: ''
+  slug: target-for-subjugation
+  cost: 4
+  stackMax: 5
+  appliesTo: augment
+  canPositive: true
+  canNegative: false
+  procOn: alwaysActive
+  procResult: none
+  procResultLocked: false
+  procStat: any
+  procDice: any
+  procAction: any
+  procCondition: ''
+  positive: >-
+    <p>As an Action you may Mark 1 Target.</p>
+
+    <p>On Clash Win against your Marked target, deal 2 SP Damage and regen 2
+    SP.</p>
+
+    <p>This counts as [N] source(s) of Mark.</p>
+  negative: ''
+  macro:
+    uuid: ''
+  customNotes: ''
+  easyEffects: ''
+effects: []
+sort: 0
+ownership:
+  default: 0
+  yWsvx4DXrmYcZsue: 3
+flags: {}
+_stats:
+  compendiumSource: null
+  duplicateSource: Item.ax0FMQ7cGkVL5PEE
+  exportSource: null
+  coreVersion: '14.364'
+  systemId: projectmoonttrpg
+  systemVersion: 0.0.1
+  createdTime: 1785485132690
+  modifiedTime: 1785485132690
+  lastModifiedBy: yWsvx4DXrmYcZsue
+_id: VRn3DUfUjvZWxvtc
+_key: '!items!VRn3DUfUjvZWxvtc'

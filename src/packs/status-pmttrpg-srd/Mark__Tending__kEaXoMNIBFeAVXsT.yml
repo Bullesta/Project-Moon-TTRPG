@@ -1,0 +1,35 @@
+folder: OsS83U82yvcIdkjc
+name: Mark [Tending]
+type: status
+_id: kEaXoMNIBFeAVXsT
+img: systems/projectmoonttrpg/assets/icons/Statuses/Mark.webp
+system:
+  name: ''
+  description: >-
+    <p>During your turn, you can spend 1 Reaction to use the Reduce Status
+    Effect action on the Marked target regardless of distance.</p>
+  slug: ''
+  stacks: 1
+  stackMax: 0
+  priority: 0
+  macro:
+    uuid: ''
+  customNotes: ''
+  easyEffects: ''
+effects: []
+sort: 0
+ownership:
+  default: 0
+  yWsvx4DXrmYcZsue: 3
+flags: {}
+_stats:
+  coreVersion: '14.364'
+  systemId: projectmoonttrpg
+  systemVersion: 0.0.1
+  createdTime: 1785432641093
+  modifiedTime: 1785432656581
+  lastModifiedBy: yWsvx4DXrmYcZsue
+  compendiumSource: null
+  duplicateSource: null
+  exportSource: null
+_key: '!items!kEaXoMNIBFeAVXsT'

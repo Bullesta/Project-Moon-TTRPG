@@ -1,0 +1,601 @@
+folder: zvmwwdVdZDwl2Qec
+name: Zwei West Grade 8 Fixer
+type: npc
+_id: XB8dtTJ9OfEOkUYe
+img: tokenizer/npc-images/zwei_west_grade_8_fixer.Avatar.webp?1785512586472
+system:
+  attributes:
+    hp:
+      value: 112
+      temp: 0
+      min: 0
+      maxBase: 96
+      maxMisc: 0
+      max: 96
+    st:
+      value: 28
+      temp: 0
+      min: 0
+      maxBase: 24
+      maxMisc: 0
+      max: 24
+    sp:
+      value: 15
+      temp: 0
+      min: 0
+      maxBase: 15
+      maxMisc: 0
+      max: 15
+    level:
+      value: 1
+      min: 0
+      max: 21
+    xp:
+      value: 0
+      min: 0
+      max: 8
+    toolSlots:
+      value: 4
+      used: 0
+      over: false
+      min: 0
+    narrativeSlots:
+      value: 4
+      used: 0
+      over: false
+      min: 0
+    stockSlots:
+      value: 4
+      used: 0
+      over: false
+      min: 0
+    light:
+      value: 4
+      min: 0
+      maxBase: 0
+      maxMisc: 0
+      max: 0
+    attackModifier:
+      value: 0
+      min: 0
+    evadeModifier:
+      value: 0
+      min: 0
+    blockModifier:
+      value: 0
+      min: 0
+    speed:
+      dice: 1d6
+      bonus: 0
+  details:
+    biography:
+      occupation: ''
+      age: ''
+      height: ''
+      birthplace: ''
+      residence: ''
+      description: ''
+      background: ''
+      personality: ''
+      ahn: 0
+      relationships: ''
+      notes: ''
+      notableHistory: ''
+    gmBrief:
+      complexityGm: 0
+      complexityPlayers: 0
+      strength: ''
+      designIntention: ''
+      recommendedBehavior: ''
+      lore: ''
+      notes: ''
+  abilities:
+    for:
+      value: 2
+      min: -1
+      mod: 0
+      debility: false
+    pru:
+      value: 0
+      min: -1
+      mod: 0
+      debility: false
+    jus:
+      value: 1
+      min: -1
+      mod: 0
+      debility: false
+    cha:
+      value: 1
+      min: -1
+      mod: 0
+      debility: false
+    ins:
+      value: 0
+      min: -1
+      mod: 0
+      debility: false
+    tem:
+      value: 2
+      min: -1
+      mod: 0
+      debility: false
+prototypeToken:
+  name: Zwei West Grade 8
+  displayName: 0
+  actorLink: false
+  width: 1
+  height: 1
+  depth: 1
+  texture:
+    src: tokenizer/npc-images/zwei_west_grade_8_fixer.Token.webp?1785512586472
+    anchorX: 0.5
+    anchorY: 0.5
+    fit: contain
+    scaleX: 1
+    scaleY: 1
+    tint: '#ffffff'
+    alphaThreshold: 0.75
+  lockRotation: false
+  rotation: 0
+  alpha: 1
+  disposition: -1
+  displayBars: 0
+  bar1:
+    attribute: attributes.hp
+  bar2:
+    attribute: attributes.st
+  light:
+    negative: false
+    priority: 0
+    alpha: 0.5
+    angle: 360
+    bright: 0
+    color: null
+    coloration: 1
+    dim: 0
+    attenuation: 0.5
+    luminosity: 0.5
+    saturation: 0
+    contrast: 0
+    shadows: 0
+    animation:
+      type: null
+      speed: 5
+      intensity: 5
+      reverse: false
+    darkness:
+      min: 0
+      max: 1
+  sight:
+    enabled: false
+    range: 0
+    angle: 360
+    visionMode: basic
+    color: null
+    attenuation: 0.1
+    brightness: 0
+    saturation: 0
+    contrast: 0
+  detectionModes: {}
+  occludable:
+    radius: 0
+  ring:
+    enabled: false
+    colors:
+      ring: null
+      background: null
+    effects: 1
+    subject:
+      scale: 1
+      texture: null
+  turnMarker:
+    mode: 1
+    animation: null
+    src: null
+    disposition: false
+  movementAction: null
+  flags: {}
+  randomImg: false
+  appendNumber: false
+  prependAdjective: false
+items:
+  - name: Standard Issue West Zwei Greatsword
+    type: weapon
+    system:
+      name: ''
+      description: ''
+      slug: ''
+      weaponType: melee
+      damageType: blunt
+      damageTypeFixed: false
+      formProperty: sturdy
+      handProperty: def2h
+      offensiveDice: 1d10+0
+      rank: 1
+      effects:
+        - effectUuid: >-
+            Compendium.projectmoonttrpg.effects-pmttrpg-srd.Item.EoljjQUO4ECn86wS
+          name: '[M] Increase Range'
+          cost: 4
+          stackMax: 1
+          stack: 1
+          count: 1
+          mode: positive
+          appliesTo: weapon
+          canPositive: true
+          canNegative: false
+          procOn: alwaysActive
+          procResult: none
+          procResultLocked: false
+          procStat: any
+          procDice: any
+          procAction: any
+          procCondition: ''
+          positive: Increase the Range of this weapon by 1 SQR.
+          negative: ''
+          macro:
+            uuid: ''
+        - effectUuid: >-
+            Compendium.projectmoonttrpg.effects-pmttrpg-srd.Item.aHgmC8xy6vHNGnly
+          name: Inflict Tremor
+          cost: 2
+          stackMax: 5
+          stack: 4
+          count: 4
+          mode: positive
+          appliesTo: weapon
+          canPositive: true
+          canNegative: true
+          procOn: onClash
+          procResult: win
+          procResultLocked: false
+          procStat: any
+          procDice: any
+          procAction: any
+          procCondition: ''
+          positive: Apply [N] Tremor to the target
+          negative: Apply [N] Tremor to the character next round
+          macro:
+            uuid: ''
+        - effectUuid: >-
+            Compendium.projectmoonttrpg.effects-pmttrpg-srd.Item.aHgmC8xy6vHNGnly
+          name: Inflict Tremor
+          cost: 2
+          stackMax: 5
+          stack: 3
+          count: 3
+          mode: negative
+          appliesTo: weapon
+          canPositive: true
+          canNegative: true
+          procOn: onClash
+          procResult: lose
+          procResultLocked: false
+          procStat: any
+          procDice: any
+          procAction: any
+          procCondition: ''
+          positive: Apply [N] Tremor to the target
+          negative: Apply [N] Tremor to the character next round
+          macro:
+            uuid: ''
+      equipped: true
+      customNotes: ''
+      easyEffects: ''
+    _id: xdPDYU9v8Sq8e9YG
+    img: >-
+      systems/projectmoonttrpg/assets/icons/limbus_assets/Misc%20ID%20EGO%20Specific/When%20cleaving%20through%20the%20shoulder%20and%20the%20skull%20with%20a%20bastard%20sword....webp
+    effects: []
+    folder: null
+    sort: 0
+    ownership:
+      default: 0
+      yWsvx4DXrmYcZsue: 3
+    flags: {}
+    _stats:
+      coreVersion: '14.364'
+      systemId: projectmoonttrpg
+      systemVersion: 0.0.1
+      createdTime: 1785512604771
+      modifiedTime: 1785512695485
+      lastModifiedBy: yWsvx4DXrmYcZsue
+      compendiumSource: null
+      duplicateSource: null
+      exportSource: null
+    _key: '!actors.items!XB8dtTJ9OfEOkUYe.xdPDYU9v8Sq8e9YG'
+  - name: Zwei West Basic Armor
+    type: outfit
+    system:
+      name: ''
+      description: ''
+      slug: ''
+      outfitProperty: armored
+      rank: 1
+      blockDice: 1d10+0
+      evadeDice: 1d12+0
+      blockDiceComputed: 1d10+0
+      evadeDiceComputed: 1d12+0
+      blockDicePower: 0
+      evadeDicePower: 0
+      bonusLight: 0
+      bonusEP: 0
+      effects:
+        - effectUuid: >-
+            Compendium.projectmoonttrpg.effects-pmttrpg-srd.Item.RK57F698iqerGQzJ
+          name: Block Dice Power Up
+          cost: 8
+          stackMax: 5
+          stack: 1
+          count: 1
+          mode: positive
+          appliesTo: outfit
+          canPositive: true
+          canNegative: false
+          procOn: alwaysActive
+          procResult: none
+          procResultLocked: false
+          procStat: any
+          procDice: any
+          procAction: any
+          procCondition: ''
+          positive: Increase the Block Dice Power by [N]
+          negative: ''
+          macro:
+            uuid: ''
+        - effectUuid: >-
+            Compendium.projectmoonttrpg.effects-pmttrpg-srd.Item.F3sKYXOtpDn7ak2y
+          name: Inflict Tremor
+          cost: 2
+          stackMax: 5
+          stack: 2
+          count: 2
+          mode: negative
+          appliesTo: outfit
+          canPositive: true
+          canNegative: true
+          procOn: onClash
+          procResult: lose
+          procResultLocked: false
+          procStat: any
+          procDice: any
+          procAction: any
+          procCondition: ''
+          positive: Apply [N] Tremor to the target next round
+          negative: Apply [N] Tremor to the character next round
+          macro:
+            uuid: ''
+      resistances:
+        hp:
+          slash: normal
+          pierce: weak
+          blunt: normal
+        st:
+          slash: weak
+          pierce: weak
+          blunt: normal
+      equipped: true
+      customNotes: ''
+      easyEffects: |-
+        # >>> synced effects
+        # Block Dice Power Up
+        [Always Active]
+        power up block 1
+        # <<< synced effects
+    _id: aDrCI3e0Ubu6xZTW
+    img: >-
+      systems/projectmoonttrpg/assets/icons/limbus_assets/Basic%20Effects/Shield%20or%20Defense/Defensive%20Stance.webp
+    effects: []
+    folder: null
+    sort: 0
+    ownership:
+      default: 0
+      yWsvx4DXrmYcZsue: 3
+    flags: {}
+    _stats:
+      coreVersion: '14.364'
+      systemId: projectmoonttrpg
+      systemVersion: 0.0.1
+      createdTime: 1785512704223
+      modifiedTime: 1785512748642
+      lastModifiedBy: yWsvx4DXrmYcZsue
+      compendiumSource: null
+      duplicateSource: null
+      exportSource: null
+    _key: '!actors.items!XB8dtTJ9OfEOkUYe.aDrCI3e0Ubu6xZTW'
+  - name: Group Protection Training
+    type: augment
+    system:
+      name: ''
+      description: ''
+      slug: ''
+      rank: 1
+      effects:
+        - effectUuid: >-
+            Compendium.projectmoonttrpg.effects-pmttrpg-srd.Item.xvN6fPGdOOlrmVJL
+          name: Additional Block
+          cost: 2
+          stackMax: 5
+          stack: 4
+          count: 4
+          mode: positive
+          appliesTo: augment
+          canPositive: true
+          canNegative: false
+          procOn: alwaysActive
+          procResult: none
+          procResultLocked: false
+          procStat: any
+          procDice: any
+          procAction: any
+          procCondition: ''
+          positive: <p>Gain [N] additional Block Reaction(s).</p>
+          negative: ''
+          macro:
+            uuid: ''
+        - effectUuid: >-
+            Compendium.projectmoonttrpg.effects-pmttrpg-srd.Item.6pWoxy0929stHKpc
+          name: Remembrance [Strength]
+          cost: 4
+          stackMax: 1
+          stack: 1
+          count: 1
+          mode: negative
+          appliesTo: augment
+          canPositive: true
+          canNegative: true
+          procOn: alwaysActive
+          procResult: none
+          procResultLocked: false
+          procStat: any
+          procDice: any
+          procAction: any
+          procCondition: >-
+            At the end of round, if any allies are out of combat due to reaching
+            0 HP
+          positive: <p>Apply 2 Strength to the character next round.</p>
+          negative: <p>Apply 2 Feeble to the character next round.</p>
+          macro:
+            uuid: ''
+      customNotes: ''
+      easyEffects: ''
+      equipped: true
+    _id: vGWqDwjmWPefQ0zl
+    img: >-
+      systems/projectmoonttrpg/assets/icons/limbus_assets/Basic%20Effects/Shield%20or%20Defense/Assist%20Defense%202.webp
+    effects: []
+    folder: null
+    sort: 0
+    ownership:
+      default: 0
+      yWsvx4DXrmYcZsue: 3
+    flags: {}
+    _stats:
+      coreVersion: '14.364'
+      systemId: projectmoonttrpg
+      systemVersion: 0.0.1
+      createdTime: 1785512764718
+      modifiedTime: 1785512984415
+      lastModifiedBy: yWsvx4DXrmYcZsue
+      compendiumSource: null
+      duplicateSource: null
+      exportSource: null
+    _key: '!actors.items!XB8dtTJ9OfEOkUYe.vGWqDwjmWPefQ0zl'
+  - name: Focused Block
+    type: skill
+    system:
+      name: ''
+      description: ''
+      slug: ''
+      skillType: block
+      rank: 1
+      lightCost: 1
+      innate: false
+      stat: for
+      effects:
+        - effectUuid: Item.GpGuFr5CIPumA4LX
+          name: Dice Power Up
+          cost: 6
+          stackMax: 5
+          stack: 1
+          count: 1
+          mode: positive
+          appliesTo: skill
+          canPositive: true
+          canNegative: true
+          procOn: alwaysActive
+          procResult: none
+          procResultLocked: false
+          procStat: any
+          procDice: any
+          procAction: any
+          procCondition: ''
+          positive: <p>Increase the Dice Power by [N].</p>
+          negative: <p>Decrease the Dice Power by [N].</p>
+          macro:
+            uuid: ''
+        - effectUuid: Item.8IsI9UrvhkzYgnjn
+          name: Inflict Tremor
+          cost: 2
+          stackMax: 5
+          stack: 2
+          count: 2
+          mode: negative
+          appliesTo: skill
+          canPositive: true
+          canNegative: true
+          procOn: onClashResult
+          procResult: lose
+          procResultLocked: false
+          procStat: any
+          procDice: any
+          procAction: any
+          procCondition: ''
+          positive: <p>Apply [N] Tremor to the target next round.</p>
+          negative: <p>Apply [N] Tremor to the character next round.</p>
+          macro:
+            uuid: ''
+        - effectUuid: Item.Goxgnk05av8S342J
+          name: Tremor Bonus
+          cost: 2
+          stackMax: 5
+          stack: 1
+          count: 1
+          mode: positive
+          appliesTo: skill
+          canPositive: true
+          canNegative: false
+          procOn: alwaysActive
+          procResult: none
+          procResultLocked: false
+          procStat: any
+          procDice: any
+          procAction: any
+          procCondition: ''
+          positive: >-
+            <p>If the target has [N+3] or more Tremor stacks, increase Dice
+            Power by [N].</p>
+          negative: ''
+          macro:
+            uuid: ''
+      customNotes: ''
+      easyEffects: ''
+      equipped: true
+    _id: VX6RV6vGnW71Sobi
+    img: >-
+      systems/projectmoonttrpg/assets/icons/limbus_assets/Basic%20Effects/Shield%20or%20Defense/Defensive%20Stance.webp
+    effects: []
+    folder: null
+    sort: 0
+    ownership:
+      default: 0
+      yWsvx4DXrmYcZsue: 3
+    flags: {}
+    _stats:
+      coreVersion: '14.364'
+      systemId: projectmoonttrpg
+      systemVersion: 0.0.1
+      createdTime: 1785512999955
+      modifiedTime: 1785513211623
+      lastModifiedBy: yWsvx4DXrmYcZsue
+      compendiumSource: null
+      duplicateSource: null
+      exportSource: null
+    _key: '!actors.items!XB8dtTJ9OfEOkUYe.VX6RV6vGnW71Sobi'
+effects: []
+sort: 0
+ownership:
+  default: 0
+  yWsvx4DXrmYcZsue: 3
+flags: {}
+_stats:
+  coreVersion: '14.364'
+  systemId: projectmoonttrpg
+  systemVersion: 0.0.1
+  createdTime: 1785505855783
+  modifiedTime: 1785513236139
+  lastModifiedBy: yWsvx4DXrmYcZsue
+  compendiumSource: null
+  duplicateSource: null
+  exportSource: null
+_key: '!actors!XB8dtTJ9OfEOkUYe'

@@ -44,7 +44,7 @@
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
-    "@foundryvtt/foundryvtt-cli": "^1.0.2",
+    "@foundryvtt/foundryvtt-cli": "^3.0.4",
     "eslint": "^10.6.0",
     "globals": "^17.7.0",
     "gulp-shell": "^0.8.0"

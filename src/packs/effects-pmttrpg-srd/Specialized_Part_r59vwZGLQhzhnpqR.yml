@@ -1,0 +1,47 @@
+folder: I2aow8ga44XQdKA3
+name: Specialized Part
+type: effect
+_id: r59vwZGLQhzhnpqR
+img: systems/projectmoonttrpg/assets/icons/Statuses/Overcharge.webp
+system:
+  name: ''
+  description: ''
+  slug: specialized-part
+  cost: 1
+  stackMax: 4
+  appliesTo: augment
+  canPositive: true
+  canNegative: false
+  procOn: alwaysActive
+  procResult: none
+  procResultLocked: false
+  procStat: any
+  procDice: any
+  procAction: any
+  procCondition: ''
+  positive: >-
+    <p>Part of the Body is replaced with a machine that functions as a Reusable
+    Tool of [Rank+N-2]. This Tool refreshes its uses per combat, rather than per
+    day, and does not take up a Tool Slot.</p>
+  negative: ''
+  macro:
+    uuid: ''
+  customNotes: ''
+  easyEffects: ''
+effects: []
+sort: 0
+ownership:
+  default: 0
+  yWsvx4DXrmYcZsue: 3
+flags: {}
+_stats:
+  compendiumSource: null
+  duplicateSource: null
+  exportSource: null
+  coreVersion: '14.364'
+  systemId: projectmoonttrpg
+  systemVersion: 0.0.1
+  createdTime: 1785485111466
+  modifiedTime: 1785485111466
+  lastModifiedBy: yWsvx4DXrmYcZsue
+_key: '!items!r59vwZGLQhzhnpqR'

@@ -1,0 +1,35 @@
+folder: 3sjq9ewlVQZPIpzC
+name: Slayer Stance
+type: status
+_id: aNjTFm0z5SAyadmo
+img: systems/projectmoonttrpg/assets/icons/Statuses/Slayer%20Stance.webp
+system:
+  name: ''
+  description: >-
+    <p><strong>[On Crit]</strong> with this Stance active, <strong>roll your
+    Critical damage twice, then take the higher result</strong>.</p>
+  slug: ''
+  stacks: 1
+  stackMax: 0
+  priority: 0
+  macro:
+    uuid: ''
+  customNotes: ''
+  easyEffects: ''
+effects: []
+sort: 0
+ownership:
+  default: 0
+  yWsvx4DXrmYcZsue: 3
+flags: {}
+_stats:
+  coreVersion: '14.364'
+  systemId: projectmoonttrpg
+  systemVersion: 0.0.1
+  createdTime: 1785433535438
+  modifiedTime: 1785433889154
+  lastModifiedBy: yWsvx4DXrmYcZsue
+  compendiumSource: null
+  duplicateSource: null
+  exportSource: null
+_key: '!items!aNjTFm0z5SAyadmo'

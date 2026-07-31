@@ -1,0 +1,39 @@
+name: Charge Barrier [MANUAL]
+type: status
+_id: uApTcXCg46nyvlVa
+img: >-
+  systems/projectmoonttrpg/assets/icons/limbus_assets/Basic%20Effects/Charge/Charge%20Barrier.webp
+system:
+  name: ''
+  description: >-
+    <p>At the start of the Round, gain Temp. HP equal to Charge Barrier x 3. For
+    every 3 Temp. HP lost that was sourced from this status, reduce Charge
+    Barrier by 1. </p><p>At the end of the Round, gain Charge equal to Charge
+    Barrier, then lose all Charge Barrier & Temp. HP gained from this status.
+    </p>
+  slug: ''
+  stacks: 1
+  stackMax: 0
+  priority: 0
+  macro:
+    uuid: ''
+  customNotes: ''
+  easyEffects: ''
+effects: []
+folder: OMSNi4hdekwHrB1H
+sort: 100000
+ownership:
+  default: 0
+  yWsvx4DXrmYcZsue: 3
+flags: {}
+_stats:
+  coreVersion: '14.364'
+  systemId: projectmoonttrpg
+  systemVersion: 0.0.1
+  createdTime: 1785319269473
+  modifiedTime: 1785426730677
+  lastModifiedBy: yWsvx4DXrmYcZsue
+  compendiumSource: null
+  duplicateSource: null
+  exportSource: null
+_key: '!items!uApTcXCg46nyvlVa'

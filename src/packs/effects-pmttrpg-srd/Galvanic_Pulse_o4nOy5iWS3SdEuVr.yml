@@ -17,7 +17,10 @@ system:
   procDice: any
   procAction: any
   procCondition: ''
-  positive: You can choose to consume 10 Charge to inflict 1 Feeble or Disarm to the target next round, chosen on use. If you spend 1 Overcharge instead, apply both.
+  positive: >-
+    You can choose to consume 10 Charge to inflict 1 Feeble or Disarm to the
+    target next round, chosen on use. If you spend 1 Overcharge instead, apply
+    both.
   negative: ''
   macro:
     uuid: ''

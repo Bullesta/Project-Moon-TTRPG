@@ -1,0 +1,44 @@
+folder: D0Fdq2brTzfHbYM5
+name: Weak Heart
+type: effect
+img: systems/projectmoonttrpg/assets/icons/Statuses/Bleed.webp
+system:
+  name: ''
+  description: ''
+  slug: weak-heart
+  cost: 8
+  stackMax: 2
+  appliesTo: augment
+  canPositive: false
+  canNegative: true
+  procOn: alwaysActive
+  procResult: none
+  procResultLocked: false
+  procStat: any
+  procDice: any
+  procAction: any
+  procCondition: ''
+  positive: ''
+  negative: <p>Your Bleed Out timer is [N] rounds less.</p>
+  macro:
+    uuid: ''
+  customNotes: ''
+  easyEffects: ''
+effects: []
+sort: 0
+ownership:
+  default: 0
+  yWsvx4DXrmYcZsue: 3
+flags: {}
+_stats:
+  compendiumSource: null
+  duplicateSource: Item.FBY0UqgyGRiJU4Kp
+  exportSource: null
+  coreVersion: '14.364'
+  systemId: projectmoonttrpg
+  systemVersion: 0.0.1
+  createdTime: 1785485134517
+  modifiedTime: 1785485134517
+  lastModifiedBy: yWsvx4DXrmYcZsue
+_id: ZchlStCRzHuZVXi9
+_key: '!items!ZchlStCRzHuZVXi9'

@@ -1,0 +1,960 @@
+folder: PQ8oN50QoMuTgLeX
+name: Multicrack Office Grade 6 Fixer
+type: npc
+_id: kW2eZ7oftwhF2m6B
+img: tokenizer/npc-images/multicrack_office_grade_6_fixer.Avatar.webp?1785514494579
+system:
+  attributes:
+    hp:
+      value: 192
+      temp: 0
+      min: 0
+      maxBase: 96
+      maxMisc: 0
+      max: 96
+    st:
+      value: 40
+      temp: 0
+      min: 0
+      maxBase: 24
+      maxMisc: 0
+      max: 24
+    sp:
+      value: 24
+      temp: 0
+      min: 0
+      maxBase: 15
+      maxMisc: 0
+      max: 15
+    level:
+      value: 6
+      min: 0
+      max: 21
+    xp:
+      value: 0
+      min: 0
+      max: 8
+    toolSlots:
+      value: 4
+      used: 0
+      over: false
+      min: 0
+    narrativeSlots:
+      value: 4
+      used: 0
+      over: false
+      min: 0
+    stockSlots:
+      value: 4
+      used: 0
+      over: false
+      min: 0
+    light:
+      value: 6
+      min: 0
+      maxBase: 0
+      maxMisc: 0
+      max: 0
+    attackModifier:
+      value: 0
+      min: 0
+    evadeModifier:
+      value: 0
+      min: 0
+    blockModifier:
+      value: 0
+      min: 0
+    speed:
+      dice: 1d6
+      bonus: 0
+  details:
+    biography:
+      occupation: ''
+      age: ''
+      height: ''
+      birthplace: ''
+      residence: ''
+      description: ''
+      background: ''
+      personality: ''
+      ahn: 0
+      relationships: ''
+      notes: ''
+      notableHistory: ''
+    gmBrief:
+      complexityGm: 2
+      complexityPlayers: 2
+      strength: '2'
+      designIntention: >-
+        A slightly less straightforward offensive unit which focuses on staying
+        just outside of most characters attack ranges and attempting to pepper
+        them with dual wield attacks to build up charge for their powerful
+        multihitting skill. However, they typically do not have many reactions
+        after spending them on dual wielding attacks, and once someone manages
+        to close the gap with them they have no options to avoid opportunity
+        attacks.
+      recommendedBehavior: >-
+        - Whenever possible, they will attempt to trigger Cavalry Charge, but
+        will not risk an Opportunity Attack to do so.
+
+        - Whenever they are attacked, they will respond with a Block defensive
+        reaction.
+
+        - This Unit will never take the Disengage action.
+
+        - This Unit does not use Overcharge.
+      lore: >-
+        A standard fixer from MultiCrack Office, an Office that only accepts
+        Fixers who have augmented themselves with prosthetics. These Fixers find
+        themselves with the liberty to fight much more recklessly in battle,
+        with many of their limbs being able to be reattached or replaced
+        entirely when severely damaged in their line of work.
+      notes: ''
+  abilities:
+    for:
+      value: 4
+      min: -1
+      mod: 0
+      debility: false
+    pru:
+      value: 3
+      min: -1
+      mod: 0
+      debility: false
+    jus:
+      value: 3
+      min: -1
+      mod: 0
+      debility: false
+    cha:
+      value: 2
+      min: -1
+      mod: 0
+      debility: false
+    ins:
+      value: 2
+      min: -1
+      mod: 0
+      debility: false
+    tem:
+      value: 4
+      min: -1
+      mod: 0
+      debility: false
+prototypeToken:
+  name: Multicrack Office Grade 6 Fixer
+  displayName: 0
+  actorLink: false
+  width: 1
+  height: 1
+  depth: 1
+  texture:
+    src: >-
+      tokenizer/npc-images/multicrack_office_grade_6_fixer.Token.webp?1785514494579
+    anchorX: 0.5
+    anchorY: 0.5
+    fit: contain
+    scaleX: 1
+    scaleY: 1
+    tint: '#ffffff'
+    alphaThreshold: 0.75
+  lockRotation: false
+  rotation: 0
+  alpha: 1
+  disposition: -1
+  displayBars: 0
+  bar1:
+    attribute: attributes.hp
+  bar2:
+    attribute: attributes.st
+  light:
+    negative: false
+    priority: 0
+    alpha: 0.5
+    angle: 360
+    bright: 0
+    color: null
+    coloration: 1
+    dim: 0
+    attenuation: 0.5
+    luminosity: 0.5
+    saturation: 0
+    contrast: 0
+    shadows: 0
+    animation:
+      type: null
+      speed: 5
+      intensity: 5
+      reverse: false
+    darkness:
+      min: 0
+      max: 1
+  sight:
+    enabled: false
+    range: 0
+    angle: 360
+    visionMode: basic
+    color: null
+    attenuation: 0.1
+    brightness: 0
+    saturation: 0
+    contrast: 0
+  detectionModes: {}
+  occludable:
+    radius: 0
+  ring:
+    enabled: false
+    colors:
+      ring: null
+      background: null
+    effects: 1
+    subject:
+      scale: 1
+      texture: null
+  turnMarker:
+    mode: 1
+    animation: null
+    src: null
+    disposition: false
+  movementAction: null
+  flags: {}
+  randomImg: false
+  appendNumber: false
+  prependAdjective: false
+items:
+  - name: 40S-2 Photoelectric Harpoon
+    type: weapon
+    system:
+      name: ''
+      description: >-
+        <p>This character usually dualwields Harpoons.</p><p>NOTE : This
+        character usually inflicts Blunt Fragility. Therefore, it was chosen as
+        the type to inflict on EasyEffects. Feel free to change it.</p>
+      slug: ''
+      weaponType: melee
+      damageType: blunt
+      damageTypeFixed: false
+      formProperty: long
+      handProperty: null
+      offensiveDice: 1d10+0
+      rank: 3
+      effects:
+        - effectUuid: >-
+            Compendium.projectmoonttrpg.effects-pmttrpg-srd.Item.ZLFCJRojDWm6IxpB
+          name: Inflict Type Fragile
+          cost: 4
+          stackMax: 5
+          stack: 1
+          count: 1
+          mode: positive
+          appliesTo: weapon
+          canPositive: true
+          canNegative: false
+          procOn: onClashResult
+          procResult: win
+          procResultLocked: false
+          procStat: any
+          procDice: any
+          procAction: any
+          procCondition: ''
+          positive: >-
+            <p>Apply [N] [Type] Fragile to the target next round. The Fragile
+            Type is chosen on use.</p>
+          negative: ''
+          macro:
+            uuid: ''
+        - effectUuid: >-
+            Compendium.projectmoonttrpg.effects-pmttrpg-srd.Item.yxwlH6NbaIz8GJ7h
+          name: '[M] Haste'
+          cost: 3
+          stackMax: 5
+          stack: 2
+          count: 2
+          mode: positive
+          appliesTo: weapon
+          canPositive: true
+          canNegative: true
+          procOn: onClashResult
+          procResult: win
+          procResultLocked: false
+          procStat: any
+          procDice: any
+          procAction: any
+          procCondition: ''
+          positive: Apply [N] Haste to the character next round.
+          negative: Apply [N] Bind to the character next round.
+          macro:
+            uuid: ''
+        - effectUuid: >-
+            Compendium.projectmoonttrpg.effects-pmttrpg-srd.Item.8zErLlYNkUsqabtp
+          name: '[M] Gain Charge'
+          cost: 1
+          stackMax: 6
+          stack: 4
+          count: 4
+          mode: positive
+          appliesTo: weapon
+          canPositive: true
+          canNegative: false
+          procOn: onUse
+          procResult: none
+          procResultLocked: false
+          procStat: any
+          procDice: any
+          procAction: any
+          procCondition: ''
+          positive: Apply [N] Charge to the character.
+          negative: ''
+          macro:
+            uuid: ''
+        - effectUuid: >-
+            Compendium.projectmoonttrpg.effects-pmttrpg-srd.Item.45Svoe05Y63LG8lw
+          name: Inflict Smoke
+          cost: 2
+          stackMax: 5
+          stack: 4
+          count: 4
+          mode: negative
+          appliesTo: weapon
+          canPositive: true
+          canNegative: true
+          procOn: onClash
+          procResult: lose
+          procResultLocked: false
+          procStat: any
+          procDice: any
+          procAction: any
+          procCondition: ''
+          positive: Apply [N] Smoke to the target
+          negative: Apply [N] Smoke to the character
+          macro:
+            uuid: ''
+      equipped: true
+      customNotes: ''
+      easyEffects: |-
+        # >>> synced effects
+        # [M] Gain Charge
+        [On Use]
+        gain 4 Charge
+        # <<< synced effects
+    _id: C9e6A190r98qfdqV
+    img: >-
+      systems/projectmoonttrpg/assets/icons/limbus_assets/Misc%20Enemy%20Exclusive/Canto%205/Prey%20Mark.webp
+    effects: []
+    folder: null
+    sort: 0
+    ownership:
+      default: 0
+      yWsvx4DXrmYcZsue: 3
+    flags: {}
+    _stats:
+      coreVersion: '14.364'
+      systemId: projectmoonttrpg
+      systemVersion: 0.0.1
+      createdTime: 1785514988201
+      modifiedTime: 1785515135756
+      lastModifiedBy: yWsvx4DXrmYcZsue
+      compendiumSource: null
+      duplicateSource: null
+      exportSource: null
+    _key: '!actors.items!kW2eZ7oftwhF2m6B.C9e6A190r98qfdqV'
+  - name: 40S-2 Photoelectric Harpoon
+    type: weapon
+    system:
+      name: ''
+      description: ''
+      slug: ''
+      weaponType: melee
+      damageType: blunt
+      damageTypeFixed: false
+      formProperty: long
+      handProperty: null
+      offensiveDice: 1d10+0
+      rank: 3
+      effects:
+        - effectUuid: >-
+            Compendium.projectmoonttrpg.effects-pmttrpg-srd.Item.8zErLlYNkUsqabtp
+          name: '[M] Gain Charge'
+          cost: 1
+          stackMax: 6
+          stack: 4
+          count: 4
+          mode: positive
+          appliesTo: weapon
+          canPositive: true
+          canNegative: false
+          procOn: onUse
+          procResult: none
+          procResultLocked: false
+          procStat: any
+          procDice: any
+          procAction: any
+          procCondition: ''
+          positive: Apply [N] Charge to the character.
+          negative: ''
+          macro:
+            uuid: ''
+        - effectUuid: >-
+            Compendium.projectmoonttrpg.effects-pmttrpg-srd.Item.yxwlH6NbaIz8GJ7h
+          name: '[M] Haste'
+          cost: 3
+          stackMax: 5
+          stack: 2
+          count: 2
+          mode: positive
+          appliesTo: weapon
+          canPositive: true
+          canNegative: true
+          procOn: onClashResult
+          procResult: win
+          procResultLocked: false
+          procStat: any
+          procDice: any
+          procAction: any
+          procCondition: ''
+          positive: Apply [N] Haste to the character next round.
+          negative: Apply [N] Bind to the character next round.
+          macro:
+            uuid: ''
+        - effectUuid: >-
+            Compendium.projectmoonttrpg.effects-pmttrpg-srd.Item.ZLFCJRojDWm6IxpB
+          name: Inflict Type Fragile
+          cost: 4
+          stackMax: 5
+          stack: 1
+          count: 1
+          mode: positive
+          appliesTo: weapon
+          canPositive: true
+          canNegative: false
+          procOn: onClashResult
+          procResult: win
+          procResultLocked: false
+          procStat: any
+          procDice: any
+          procAction: any
+          procCondition: ''
+          positive: >-
+            <p>Apply [N] [Type] Fragile to the target next round. The Fragile
+            Type is chosen on use.</p>
+          negative: ''
+          macro:
+            uuid: ''
+        - effectUuid: >-
+            Compendium.projectmoonttrpg.effects-pmttrpg-srd.Item.45Svoe05Y63LG8lw
+          name: Inflict Smoke
+          cost: 2
+          stackMax: 5
+          stack: 4
+          count: 4
+          mode: negative
+          appliesTo: weapon
+          canPositive: true
+          canNegative: true
+          procOn: onClash
+          procResult: lose
+          procResultLocked: false
+          procStat: any
+          procDice: any
+          procAction: any
+          procCondition: ''
+          positive: Apply [N] Smoke to the target
+          negative: Apply [N] Smoke to the character
+          macro:
+            uuid: ''
+      equipped: true
+      customNotes: ''
+      easyEffects: |-
+        # >>> synced effects
+        # [M] Gain Charge
+        [On Use]
+        gain 4 Charge
+        # <<< synced effects
+    _id: I7Pyu4rT5nLzq10y
+    img: >-
+      systems/projectmoonttrpg/assets/icons/limbus_assets/Misc%20Enemy%20Exclusive/Canto%205/Prey%20Mark.webp
+    effects: []
+    folder: null
+    sort: 0
+    ownership:
+      default: 0
+      yWsvx4DXrmYcZsue: 3
+    flags: {}
+    _stats:
+      coreVersion: '14.364'
+      systemId: projectmoonttrpg
+      systemVersion: 0.0.1
+      createdTime: 1785515141593
+      modifiedTime: 1785515201824
+      lastModifiedBy: yWsvx4DXrmYcZsue
+      compendiumSource: null
+      duplicateSource: null
+      exportSource: null
+    _key: '!actors.items!kW2eZ7oftwhF2m6B.I7Pyu4rT5nLzq10y'
+  - name: Multicrack Fixer Equipment
+    type: outfit
+    system:
+      name: ''
+      description: ''
+      slug: ''
+      outfitProperty: armored
+      rank: 3
+      blockDice: 1d10+0
+      evadeDice: 1d12+0
+      blockDiceComputed: 1d10+0
+      evadeDiceComputed: 1d12+0
+      blockDicePower: 0
+      evadeDicePower: 0
+      bonusLight: 0
+      bonusEP: 0
+      effects:
+        - effectUuid: >-
+            Compendium.projectmoonttrpg.effects-pmttrpg-srd.Item.D8z3BVjE79O0ElAs
+          name: Gain Charge
+          cost: 1
+          stackMax: 6
+          stack: 6
+          count: 6
+          mode: positive
+          appliesTo: outfit
+          canPositive: true
+          canNegative: false
+          procOn: onUse
+          procResult: none
+          procResultLocked: false
+          procStat: any
+          procDice: any
+          procAction: any
+          procCondition: ''
+          positive: >-
+            Apply [N] Charge to the character. If this reaction is Recycled, the
+            gain is halved.
+          negative: ''
+          macro:
+            uuid: ''
+        - effectUuid: >-
+            Compendium.projectmoonttrpg.effects-pmttrpg-srd.Item.YsuhsW76IoaHnCwl
+          name: Barrier Ionization
+          cost: 2
+          stackMax: 1
+          stack: 1
+          count: 1
+          mode: positive
+          appliesTo: outfit
+          canPositive: true
+          canNegative: false
+          procOn: onClash
+          procResult: lose
+          procResultLocked: false
+          procStat: any
+          procDice: any
+          procAction: any
+          procCondition: ''
+          positive: >-
+            You can choose to consume 3 Charge to apply 1 Charge Barrier to the
+            character next round. If you spend 1 Overcharge instead, this effect
+            is tripled.
+          negative: ''
+          macro:
+            uuid: ''
+      resistances:
+        hp:
+          slash: normal
+          pierce: normal
+          blunt: endured
+        st:
+          slash: normal
+          pierce: weak
+          blunt: endured
+      equipped: true
+      customNotes: ''
+      easyEffects: ''
+    _id: JjRCcXUuDzWCTt84
+    img: >-
+      systems/projectmoonttrpg/assets/icons/limbus_assets/EGO%20Gifts/Near-light%20Superbattery.webp
+    effects: []
+    folder: null
+    sort: 0
+    ownership:
+      default: 0
+      yWsvx4DXrmYcZsue: 3
+    flags: {}
+    _stats:
+      coreVersion: '14.364'
+      systemId: projectmoonttrpg
+      systemVersion: 0.0.1
+      createdTime: 1785515205480
+      modifiedTime: 1785515272664
+      lastModifiedBy: yWsvx4DXrmYcZsue
+      compendiumSource: null
+      duplicateSource: null
+      exportSource: null
+    _key: '!actors.items!kW2eZ7oftwhF2m6B.JjRCcXUuDzWCTt84'
+  - name: Charge Model L37
+    type: augment
+    system:
+      name: ''
+      description: ''
+      slug: ''
+      rank: 1
+      effects:
+        - effectUuid: >-
+            Compendium.projectmoonttrpg.effects-pmttrpg-srd.Item.xKcaBpc7kyse98PC
+          name: Systems Online
+          cost: 1
+          stackMax: 5
+          stack: 5
+          count: 5
+          mode: positive
+          appliesTo: augment
+          canPositive: true
+          canNegative: false
+          procOn: alwaysActive
+          procResult: none
+          procResultLocked: false
+          procStat: any
+          procDice: offensive
+          procAction: action
+          procCondition: At the start of the first round of combat
+          positive: <p>Gain [N*3] Charge.</p>
+          negative: ''
+          macro:
+            uuid: ''
+        - effectUuid: >-
+            Compendium.projectmoonttrpg.effects-pmttrpg-srd.Item.e38DB69OduAOalbs
+          name: Regen HP
+          cost: 1
+          stackMax: 5
+          stack: 3
+          count: 3
+          mode: negative
+          appliesTo: augment
+          canPositive: true
+          canNegative: true
+          procOn: onClashResult
+          procResult: lose
+          procResultLocked: false
+          procStat: any
+          procDice: any
+          procAction: any
+          procCondition: ''
+          positive: <p>Recover [N] HP to the character.</p>
+          negative: <p>Deal [N] After Resistance HP Damage to the character.</p>
+          macro:
+            uuid: ''
+        - effectUuid: >-
+            Compendium.projectmoonttrpg.effects-pmttrpg-srd.Item.nvc9Si81nNVpdRE4
+          name: Cavalry Charge
+          cost: 4
+          stackMax: 1
+          stack: 1
+          count: 1
+          mode: positive
+          appliesTo: augment
+          canPositive: true
+          canNegative: false
+          procOn: alwaysActive
+          procResult: none
+          procResultLocked: false
+          procStat: any
+          procDice: any
+          procAction: any
+          procCondition: >-
+            If you do a Melee Attack Action immediately after moving 3 or more
+            SQRs in a straight line
+          positive: <p>The enemy Clash is rolled with Disadvantage.</p>
+          negative: ''
+          macro:
+            uuid: ''
+        - effectUuid: >-
+            Compendium.projectmoonttrpg.effects-pmttrpg-srd.Item.iLQUyf3i85duhnN4
+          name: Haste Vigor
+          cost: 6
+          stackMax: 1
+          stack: 1
+          count: 1
+          mode: positive
+          appliesTo: augment
+          canPositive: true
+          canNegative: false
+          procOn: alwaysActive
+          procResult: none
+          procResultLocked: false
+          procStat: any
+          procDice: any
+          procAction: action
+          procCondition: ''
+          positive: >-
+            <p>Gain 1 Dice Power Up for every 2 Haste the character has at the
+            moment of [Attack/Defense] (Max 3).</p>
+          negative: ''
+          macro:
+            uuid: ''
+      customNotes: ''
+      easyEffects: ''
+      equipped: true
+    _id: UxFRHOq7NAlk2mpQ
+    img: >-
+      systems/projectmoonttrpg/assets/icons/limbus_assets/EGO%20Gifts/Near-light%20Superbattery.webp
+    effects: []
+    folder: null
+    sort: 0
+    ownership:
+      default: 0
+      yWsvx4DXrmYcZsue: 3
+    flags: {}
+    _stats:
+      coreVersion: '14.364'
+      systemId: projectmoonttrpg
+      systemVersion: 0.0.1
+      createdTime: 1785515281227
+      modifiedTime: 1785515402210
+      lastModifiedBy: yWsvx4DXrmYcZsue
+      compendiumSource: null
+      duplicateSource: null
+      exportSource: null
+    _key: '!actors.items!kW2eZ7oftwhF2m6B.UxFRHOq7NAlk2mpQ'
+  - name: 40S-2 Activation
+    type: skill
+    system:
+      name: ''
+      description: ''
+      slug: ''
+      skillType: attack
+      rank: 3
+      lightCost: 1
+      innate: false
+      stat: for
+      effects:
+        - effectUuid: Item.B2oMDP0t0CT351p8
+          name: Charge - Dice Power Up
+          cost: 2
+          stackMax: 5
+          stack: 1
+          count: 1
+          mode: positive
+          appliesTo: skill
+          canPositive: true
+          canNegative: false
+          procOn: alwaysActive
+          procResult: none
+          procResultLocked: false
+          procStat: any
+          procDice: any
+          procAction: any
+          procCondition: ''
+          positive: <p>Consume [N*6] Charge to increase the Dice Power by [N].</p>
+          negative: ''
+          macro:
+            uuid: ''
+        - effectUuid: Item.8K2y427WOCCXv5wm
+          name: Gain Charge
+          cost: 1
+          stackMax: 6
+          stack: 6
+          count: 6
+          mode: positive
+          appliesTo: skill
+          canPositive: true
+          canNegative: true
+          procOn: onUse
+          procResult: none
+          procResultLocked: false
+          procStat: any
+          procDice: any
+          procAction: any
+          procCondition: ''
+          positive: <p>Apply [N] Charge to the character.</p>
+          negative: <p>Consume [N] Charge to use this skill.</p>
+          macro:
+            uuid: ''
+        - effectUuid: Item.ek88S9hxUUz1uHfB
+          name: Inflict Smoke
+          cost: 2
+          stackMax: 5
+          stack: 4
+          count: 4
+          mode: negative
+          appliesTo: skill
+          canPositive: true
+          canNegative: true
+          procOn: onClashResult
+          procResult: lose
+          procResultLocked: false
+          procStat: any
+          procDice: any
+          procAction: any
+          procCondition: ''
+          positive: <p>Apply [N] Smoke to the target.</p>
+          negative: <p>Apply [N] Smoke to the character.</p>
+          macro:
+            uuid: ''
+      customNotes: ''
+      easyEffects: ''
+      equipped: true
+    _id: K2Vp74S2iTfQBatw
+    img: >-
+      systems/projectmoonttrpg/assets/icons/limbus_assets/Basic%20Effects/Charge/High-voltage%20Exoskeleton.webp
+    effects: []
+    folder: null
+    sort: 0
+    ownership:
+      default: 0
+      yWsvx4DXrmYcZsue: 3
+    flags: {}
+    _stats:
+      coreVersion: '14.364'
+      systemId: projectmoonttrpg
+      systemVersion: 0.0.1
+      createdTime: 1785515421513
+      modifiedTime: 1785515850641
+      lastModifiedBy: yWsvx4DXrmYcZsue
+      compendiumSource: null
+      duplicateSource: null
+      exportSource: null
+    _key: '!actors.items!kW2eZ7oftwhF2m6B.K2Vp74S2iTfQBatw'
+  - name: Photoelectric Harpoon
+    type: skill
+    system:
+      name: ''
+      description: ''
+      slug: ''
+      skillType: attack
+      rank: 3
+      lightCost: 1
+      innate: false
+      stat: for
+      effects:
+        - effectUuid: Item.V5NlBKABo45KDASK
+          name: Inflict [Type] Fragile
+          cost: 4
+          stackMax: 5
+          stack: 2
+          count: 2
+          mode: positive
+          appliesTo: skill
+          canPositive: true
+          canNegative: false
+          procOn: onClashResult
+          procResult: win
+          procResultLocked: false
+          procStat: any
+          procDice: any
+          procAction: any
+          procCondition: ''
+          positive: >-
+            <p>Apply [N] [Type] Fragile to the target next round. The Type of
+            Fragile is chosen on use.</p>
+          negative: ''
+          macro:
+            uuid: ''
+        - effectUuid: Item.ek88S9hxUUz1uHfB
+          name: Inflict Smoke
+          cost: 2
+          stackMax: 5
+          stack: 5
+          count: 5
+          mode: negative
+          appliesTo: skill
+          canPositive: true
+          canNegative: true
+          procOn: onClashResult
+          procResult: lose
+          procResultLocked: false
+          procStat: any
+          procDice: any
+          procAction: any
+          procCondition: ''
+          positive: <p>Apply [N] Smoke to the target.</p>
+          negative: <p>Apply [N] Smoke to the character.</p>
+          macro:
+            uuid: ''
+        - effectUuid: Item.iKbee3Ltmq9NonBJ
+          name: Charge - Multihit
+          cost: 4
+          stackMax: 2
+          stack: 2
+          count: 2
+          mode: positive
+          appliesTo: skill
+          canPositive: true
+          canNegative: false
+          procOn: alwaysActive
+          procResult: none
+          procResultLocked: false
+          procStat: any
+          procDice: any
+          procAction: any
+          procCondition: ''
+          positive: >-
+            <p>Consume [N*6] Charge to replace the Attack with [N+1] consecutive
+            Attacks with -2 Dice Power. This stacks with any effects of the same
+            name, to a max of 2 overall. Cannot be stacked with any other attack
+            replacement.</p><p>Clash [Result] effects only activate once based
+            on the outcome of the First Clash. On Use effects only activate one
+            time.</p>
+          negative: ''
+          macro:
+            uuid: ''
+        - effectUuid: Item.B2oMDP0t0CT351p8
+          name: Charge - Dice Power Up
+          cost: 2
+          stackMax: 5
+          stack: 2
+          count: 2
+          mode: positive
+          appliesTo: skill
+          canPositive: true
+          canNegative: false
+          procOn: alwaysActive
+          procResult: none
+          procResultLocked: false
+          procStat: any
+          procDice: any
+          procAction: any
+          procCondition: ''
+          positive: <p>Consume [N*6] Charge to increase the Dice Power by [N].</p>
+          negative: ''
+          macro:
+            uuid: ''
+      customNotes: ''
+      easyEffects: ''
+      equipped: true
+    _id: 2acZHCb2hPOFKqoT
+    img: >-
+      systems/projectmoonttrpg/assets/icons/limbus_assets/Basic%20Effects/Charge/Charged%20Sting.webp
+    effects: []
+    folder: null
+    sort: 0
+    ownership:
+      default: 0
+      yWsvx4DXrmYcZsue: 3
+    flags: {}
+    _stats:
+      coreVersion: '14.364'
+      systemId: projectmoonttrpg
+      systemVersion: 0.0.1
+      createdTime: 1785515466681
+      modifiedTime: 1785515795326
+      lastModifiedBy: yWsvx4DXrmYcZsue
+      compendiumSource: null
+      duplicateSource: null
+      exportSource: null
+    _key: '!actors.items!kW2eZ7oftwhF2m6B.2acZHCb2hPOFKqoT'
+effects: []
+sort: 0
+ownership:
+  default: 0
+  yWsvx4DXrmYcZsue: 3
+flags: {}
+_stats:
+  coreVersion: '14.364'
+  systemId: projectmoonttrpg
+  systemVersion: 0.0.1
+  createdTime: 1785514463124
+  modifiedTime: 1785516035997
+  lastModifiedBy: yWsvx4DXrmYcZsue
+  compendiumSource: null
+  duplicateSource: null
+  exportSource: null
+_key: '!actors!kW2eZ7oftwhF2m6B'

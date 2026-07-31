@@ -5,6 +5,7 @@ img: systems/projectmoonttrpg/assets/icons/Statuses/Feeble.webp
 system:
   name: ''
   description: ''
+  slug: ''
   cost: 8
   stackMax: 5
   appliesTo: outfit
@@ -22,6 +23,12 @@ system:
   macro:
     uuid: ''
   customNotes: ''
+  easyEffects: |-
+    [On Clash Start]
+    positive:
+    dice power down N on target
+    negative:
+    dice power up N on target
   allowMultiple: true
 effects: []
 sort: 0
@@ -33,11 +40,11 @@ _stats:
   compendiumSource: null
   duplicateSource: Item.z90Jgus0spFWFggd
   exportSource: null
-  coreVersion: '13.351'
+  coreVersion: '14.364'
   systemId: projectmoonttrpg
   systemVersion: 0.0.1
   createdTime: 1780308624814
-  modifiedTime: 1780308624814
+  modifiedTime: 1785441186205
   lastModifiedBy: yWsvx4DXrmYcZsue
 _id: 73u6iuL0fqoqW7OD
 _key: '!items!73u6iuL0fqoqW7OD'

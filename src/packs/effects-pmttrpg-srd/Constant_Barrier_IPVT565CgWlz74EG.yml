@@ -1,0 +1,46 @@
+folder: GwkJ2MyPzvY7p0jT
+name: Constant Barrier
+type: effect
+img: systems/projectmoonttrpg/assets/icons/Statuses/Charge%20Barrier.webp
+system:
+  name: ''
+  description: ''
+  slug: constant-barrier
+  cost: 3
+  stackMax: 5
+  appliesTo: augment
+  canPositive: true
+  canNegative: false
+  procOn: alwaysActive
+  procResult: none
+  procResultLocked: false
+  procStat: any
+  procDice: offensive
+  procAction: action
+  procCondition: At the start of each round
+  positive: >-
+    <p>Spend up to [N*3] Charge; gain 1 Charge Barrier for every 3 Charge spent
+    this way.</p>
+  negative: ''
+  macro:
+    uuid: ''
+  customNotes: ''
+  easyEffects: ''
+effects: []
+sort: 100000
+ownership:
+  default: 0
+  yWsvx4DXrmYcZsue: 3
+flags: {}
+_stats:
+  compendiumSource: Item.WHRdllgcaZ1sVFZV
+  duplicateSource: Item.xKcaBpc7kyse98PC
+  exportSource: null
+  coreVersion: '14.364'
+  systemId: projectmoonttrpg
+  systemVersion: 0.0.1
+  createdTime: 1785485141801
+  modifiedTime: 1785485141801
+  lastModifiedBy: yWsvx4DXrmYcZsue
+_id: IPVT565CgWlz74EG
+_key: '!items!IPVT565CgWlz74EG'

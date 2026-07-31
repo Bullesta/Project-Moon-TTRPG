@@ -1,0 +1,35 @@
+folder: OsS83U82yvcIdkjc
+name: Mark [Subjugation]
+type: status
+_id: FWtcEeoWbcd1fU9o
+img: systems/projectmoonttrpg/assets/icons/Statuses/Mark_Subjugation.webp
+system:
+  name: ''
+  description: >-
+    <p>On Clash Win against your Marked target, deal 2 SP Damage and regen 2
+    SP.</p>
+  slug: ''
+  stacks: 1
+  stackMax: 0
+  priority: 0
+  macro:
+    uuid: ''
+  customNotes: ''
+  easyEffects: ''
+effects: []
+sort: 0
+ownership:
+  default: 0
+  yWsvx4DXrmYcZsue: 3
+flags: {}
+_stats:
+  coreVersion: '14.364'
+  systemId: projectmoonttrpg
+  systemVersion: 0.0.1
+  createdTime: 1785432616943
+  modifiedTime: 1785432630641
+  lastModifiedBy: yWsvx4DXrmYcZsue
+  compendiumSource: null
+  duplicateSource: null
+  exportSource: null
+_key: '!items!FWtcEeoWbcd1fU9o'

@@ -1,4 +1,4 @@
-folder: null
+folder: fMFB6OnVCAkgdA96
 name: Rupture
 type: status
 img: systems/projectmoonttrpg/assets/icons/Statuses/Rupture.webp
@@ -15,6 +15,20 @@ system:
     <p dir="ltr">At the end of Round, remove all Rupture.</p>
 
     <p>&nbsp;</p>
+  slug: ''
+  stacks: 1
+  stackMax: 0
+  priority: 0
+  macro:
+    uuid: ''
+  customNotes: ''
+  easyEffects: |-
+    [On Burst]
+    deal Rupture hp damage to self
+    lose Rupture Rupture on self
+
+    [End of Round]
+    lose Rupture Rupture on self
   proc:
     turnStart: false
     endOfRound: false
@@ -24,9 +38,6 @@ system:
     onHitWhenTargetHas: false
     alwaysActive: false
     skillEffect: false
-  macro:
-    uuid: ''
-  customNotes: ''
 effects: []
 ownership:
   default: 0
@@ -36,13 +47,12 @@ _stats:
   compendiumSource: null
   duplicateSource: null
   exportSource: null
-  coreVersion: '13.351'
+  coreVersion: '14.364'
   systemId: projectmoonttrpg
   systemVersion: 0.0.1
   createdTime: 1779621127770
-  modifiedTime: 1779621127824
+  modifiedTime: 1785426651998
   lastModifiedBy: yWsvx4DXrmYcZsue
 _id: kwLai3pbY9rDaH9B
-sort: 200000
+sort: 125000
 _key: '!items!kwLai3pbY9rDaH9B'
-

@@ -8,6 +8,23 @@ system:
     time the character takes an Action or Reaction, they take HP Damage equal to
     the number of Bleed stacks, then reduce the Bleed stack by half. (Rounded
     down)</strong></p>
+  slug: ''
+  stacks: 1
+  stackMax: 0
+  priority: 0
+  macro:
+    uuid: Macro.gxzFTfebUE0aHl7D
+    preset: onHitWhenActorHas
+  customNotes: ''
+  easyEffects: >-
+    [On Action]
+
+    deal Bleed hp damage on self
+
+    require hasStatus "Bleed - Hemorrhage" self == 0 then halve Bleed on self;
+
+    require hasStatus "Bleed - Hemorrhage" self == 1 then lose 1 "Bleed -
+    Hemorrhage" on self
   proc:
     turnStart: false
     endOfRound: false
@@ -17,13 +34,8 @@ system:
     onHitWhenTargetHas: false
     alwaysActive: false
     skillEffect: false
-  macro:
-    uuid: Macro.gxzFTfebUE0aHl7D
-    preset: onHitWhenActorHas
-  customNotes: ''
-  stacks: 1
 effects: []
-folder: null
+folder: fMFB6OnVCAkgdA96
 ownership:
   default: 0
   yWsvx4DXrmYcZsue: 3
@@ -32,13 +44,12 @@ _stats:
   compendiumSource: null
   duplicateSource: null
   exportSource: null
-  coreVersion: '13.351'
+  coreVersion: '14.364'
   systemId: projectmoonttrpg
   systemVersion: 0.0.1
   createdTime: 1779621114674
-  modifiedTime: 1779621127824
+  modifiedTime: 1785435131741
   lastModifiedBy: yWsvx4DXrmYcZsue
 _id: lf1naNM7yqQkVV64
-sort: 700000
+sort: 100000
 _key: '!items!lf1naNM7yqQkVV64'
-

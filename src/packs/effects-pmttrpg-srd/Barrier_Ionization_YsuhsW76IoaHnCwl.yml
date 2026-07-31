@@ -17,7 +17,10 @@ system:
   procDice: any
   procAction: any
   procCondition: ''
-  positive: You can choose to consume 3 Charge to apply 1 Charge Barrier to the character next round. If you spend 1 Overcharge instead, this effect is tripled.
+  positive: >-
+    You can choose to consume 3 Charge to apply 1 Charge Barrier to the
+    character next round. If you spend 1 Overcharge instead, this effect is
+    tripled.
   negative: ''
   macro:
     uuid: ''

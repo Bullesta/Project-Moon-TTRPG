@@ -1,0 +1,46 @@
+folder: GwkJ2MyPzvY7p0jT
+name: Rapid Fumes
+type: effect
+img: systems/projectmoonttrpg/assets/icons/Statuses/Smoke.webp
+system:
+  name: ''
+  description: ''
+  slug: rapid-fumes
+  cost: 1
+  stackMax: 5
+  appliesTo: augment
+  canPositive: true
+  canNegative: false
+  procOn: onClash
+  procResult: none
+  procResultLocked: false
+  procStat: any
+  procDice: offensive
+  procAction: action
+  procCondition: In the first round of combat
+  positive: >-
+    <p>All successful Attacks/Counters made by the character inflict +[N]
+    Smoke.</p>
+  negative: ''
+  macro:
+    uuid: ''
+  customNotes: ''
+  easyEffects: ''
+effects: []
+sort: 100000
+ownership:
+  default: 0
+  yWsvx4DXrmYcZsue: 3
+flags: {}
+_stats:
+  compendiumSource: Item.WHRdllgcaZ1sVFZV
+  duplicateSource: Item.TCMTDCBIiK6hkhWb
+  exportSource: null
+  coreVersion: '14.364'
+  systemId: projectmoonttrpg
+  systemVersion: 0.0.1
+  createdTime: 1785485141812
+  modifiedTime: 1785485141812
+  lastModifiedBy: yWsvx4DXrmYcZsue
+_id: DjY25OGDzpLLPrsc
+_key: '!items!DjY25OGDzpLLPrsc'

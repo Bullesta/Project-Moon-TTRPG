@@ -61,6 +61,11 @@ packs:
     path: packs/items-pmttrpg-srd
     type: Item
     private: false
+  - name: npcs-pmttrpg-srd
+    label: NPC Compendium
+    path: packs/npcs-pmttrpg-srd
+    type: Actor
+    private: false
   - name: macro-pmttrpg-srd
     label: Macros SRD
     path: packs/macro-pmttrpg-srd

@@ -1,0 +1,44 @@
+folder: 7KY5NGWUDSsmXYAn
+name: Unrelenting
+type: effect
+img: systems/projectmoonttrpg/assets/icons/Statuses/Frenzy.webp
+system:
+  name: ''
+  description: ''
+  slug: unrelenting
+  cost: 4
+  stackMax: 1
+  appliesTo: augment
+  canPositive: true
+  canNegative: false
+  procOn: alwaysActive
+  procResult: none
+  procResultLocked: false
+  procStat: any
+  procDice: any
+  procAction: any
+  procCondition: When you elect to take a Sacrificial Injury
+  positive: <p>You may ignore the associated Limb Loss (Once per Combat).</p>
+  negative: ''
+  macro:
+    uuid: ''
+  customNotes: ''
+  easyEffects: ''
+effects: []
+sort: 0
+ownership:
+  default: 0
+  yWsvx4DXrmYcZsue: 3
+flags: {}
+_stats:
+  compendiumSource: null
+  duplicateSource: Item.RY5iDvxifRiUIUTW
+  exportSource: null
+  coreVersion: '14.364'
+  systemId: projectmoonttrpg
+  systemVersion: 0.0.1
+  createdTime: 1785485136629
+  modifiedTime: 1785485136629
+  lastModifiedBy: yWsvx4DXrmYcZsue
+_id: oHqBq5oUfW6MzTFu
+_key: '!items!oHqBq5oUfW6MzTFu'

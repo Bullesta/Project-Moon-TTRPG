@@ -1,0 +1,44 @@
+folder: ybCK2nCkrWX4wkBy
+name: Bind Bonus
+type: effect
+img: systems/projectmoonttrpg/assets/icons/Statuses/Bind.webp
+system:
+  name: ''
+  description: ''
+  slug: bind-bonus
+  cost: 2
+  stackMax: 1
+  appliesTo: augment
+  canPositive: true
+  canNegative: false
+  procOn: alwaysActive
+  procResult: none
+  procResultLocked: false
+  procStat: any
+  procDice: any
+  procAction: action
+  procCondition: ''
+  positive: <p>If the target has Bind, gain 1 Dice Power Up.</p>
+  negative: ''
+  macro:
+    uuid: ''
+  customNotes: ''
+  easyEffects: ''
+effects: []
+sort: 0
+ownership:
+  default: 0
+  yWsvx4DXrmYcZsue: 3
+flags: {}
+_stats:
+  compendiumSource: null
+  duplicateSource: Item.HfpXATtO7J3LuXj2
+  exportSource: null
+  coreVersion: '14.364'
+  systemId: projectmoonttrpg
+  systemVersion: 0.0.1
+  createdTime: 1785485127253
+  modifiedTime: 1785485127253
+  lastModifiedBy: yWsvx4DXrmYcZsue
+_id: aqPsF7OpSNPGqkh1
+_key: '!items!aqPsF7OpSNPGqkh1'

@@ -6,10 +6,15 @@ img: systems/projectmoonttrpg/assets/icons/Statuses/Charge.webp
 system:
   name: ''
   description: ''
+  slug: ''
   cost: 1
-  allowMultiple: true
+  stackMax: 6
+  appliesTo: weapon
+  canPositive: true
+  canNegative: false
   procOn: onUse
   procResult: none
+  procResultLocked: false
   procStat: any
   procDice: any
   procAction: any
@@ -19,11 +24,10 @@ system:
   macro:
     uuid: ''
   customNotes: ''
-  appliesTo: weapon
-  canPositive: true
-  canNegative: false
-  stackMax: 6
-  procResultLocked: false
+  easyEffects: |-
+    [On Use]
+    gain N Charge
+  allowMultiple: true
 effects: []
 sort: 0
 ownership:
@@ -34,11 +38,10 @@ _stats:
   compendiumSource: null
   duplicateSource: null
   exportSource: null
-  coreVersion: '13.351'
+  coreVersion: '14.364'
   systemId: projectmoonttrpg
   systemVersion: 0.0.1
   createdTime: 1779651087474
-  modifiedTime: 1779651087474
+  modifiedTime: 1785440990843
   lastModifiedBy: yWsvx4DXrmYcZsue
 _key: '!items!8zErLlYNkUsqabtp'
-

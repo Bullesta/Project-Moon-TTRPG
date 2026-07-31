@@ -1,0 +1,46 @@
+folder: UxqZGQetb7wFpMgA
+name: Cavalry Charge
+type: effect
+img: systems/projectmoonttrpg/assets/icons/Statuses/Haste.webp
+system:
+  name: ''
+  description: ''
+  slug: cavalry-charge
+  cost: 4
+  stackMax: 1
+  appliesTo: augment
+  canPositive: true
+  canNegative: false
+  procOn: alwaysActive
+  procResult: none
+  procResultLocked: false
+  procStat: any
+  procDice: any
+  procAction: any
+  procCondition: >-
+    If you do a Melee Attack Action immediately after moving 3 or more SQRs in a
+    straight line
+  positive: <p>The enemy Clash is rolled with Disadvantage.</p>
+  negative: ''
+  macro:
+    uuid: ''
+  customNotes: ''
+  easyEffects: ''
+effects: []
+sort: 0
+ownership:
+  default: 0
+  yWsvx4DXrmYcZsue: 3
+flags: {}
+_stats:
+  compendiumSource: null
+  duplicateSource: Item.6pWoxy0929stHKpc
+  exportSource: null
+  coreVersion: '14.364'
+  systemId: projectmoonttrpg
+  systemVersion: 0.0.1
+  createdTime: 1785485124305
+  modifiedTime: 1785485124305
+  lastModifiedBy: yWsvx4DXrmYcZsue
+_id: nvc9Si81nNVpdRE4
+_key: '!items!nvc9Si81nNVpdRE4'

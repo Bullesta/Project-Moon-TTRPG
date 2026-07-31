@@ -1,0 +1,48 @@
+folder: 8t5xinoxx4XtmQBl
+name: Featherstride Technique
+type: effect
+img: systems/projectmoonttrpg/assets/icons/Statuses/Haste.webp
+system:
+  name: ''
+  description: ''
+  slug: featherstride-technique
+  cost: 4
+  stackMax: 1
+  appliesTo: augment
+  canPositive: true
+  canNegative: false
+  procOn: alwaysActive
+  procResult: none
+  procResultLocked: false
+  procStat: any
+  procDice: any
+  procAction: any
+  procCondition: When you would take an Opportunity Attack from an enemy
+  positive: >-
+    <p>If you have additional movement remaining granted by Haste, you may use
+    this movement to move out of the enemy's range and nullify the Opportunity
+    Attack. This does not waste the Reaction of the attacker. This can be
+    activated [Haste/2] times in a round.</p>
+  negative: ''
+  macro:
+    uuid: ''
+  customNotes: ''
+  easyEffects: ''
+effects: []
+sort: 0
+ownership:
+  default: 0
+  yWsvx4DXrmYcZsue: 3
+flags: {}
+_stats:
+  compendiumSource: null
+  duplicateSource: Item.vNNHzmSXDcWcfEzi
+  exportSource: null
+  coreVersion: '14.364'
+  systemId: projectmoonttrpg
+  systemVersion: 0.0.1
+  createdTime: 1785485122325
+  modifiedTime: 1785485122325
+  lastModifiedBy: yWsvx4DXrmYcZsue
+_id: uJq9luSEuOG6HNBU
+_key: '!items!uJq9luSEuOG6HNBU'

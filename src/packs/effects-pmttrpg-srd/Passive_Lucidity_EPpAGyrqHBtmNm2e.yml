@@ -1,0 +1,46 @@
+folder: 7KY5NGWUDSsmXYAn
+name: Passive Lucidity
+type: effect
+img: systems/projectmoonttrpg/assets/icons/Statuses/Fortune.webp
+system:
+  name: ''
+  description: ''
+  slug: passive-lucidity
+  cost: 4
+  stackMax: 1
+  appliesTo: augment
+  canPositive: true
+  canNegative: false
+  procOn: alwaysActive
+  procResult: none
+  procResultLocked: false
+  procStat: any
+  procDice: any
+  procAction: any
+  procCondition: At the start of the Round
+  positive: |-
+    <p>The character regains 2 SP.</p>
+    <p>This effect is deactivated when in Panic.</p>
+  negative: ''
+  macro:
+    uuid: ''
+  customNotes: ''
+  easyEffects: ''
+effects: []
+sort: 0
+ownership:
+  default: 0
+  yWsvx4DXrmYcZsue: 3
+flags: {}
+_stats:
+  compendiumSource: null
+  duplicateSource: Item.iO9mn3ap4ldGiWB0
+  exportSource: null
+  coreVersion: '14.364'
+  systemId: projectmoonttrpg
+  systemVersion: 0.0.1
+  createdTime: 1785485136624
+  modifiedTime: 1785485136624
+  lastModifiedBy: yWsvx4DXrmYcZsue
+_id: EPpAGyrqHBtmNm2e
+_key: '!items!EPpAGyrqHBtmNm2e'

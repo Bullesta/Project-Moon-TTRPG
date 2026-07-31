@@ -17,8 +17,12 @@ system:
   procDice: any
   procAction: any
   procCondition: ''
-  positive: Reduce HP Damage taken from Force Damage to Xd(8-[N]). Decrease the number of dice rolled for Falling Damage by [N/2].
-  negative: Increase HP Damage taken from Force Damage to Xd(8+[N]). Increase the number of dice rolled for Falling Damage by [N/2].
+  positive: >-
+    Reduce HP Damage taken from Force Damage to Xd(8-[N]). Decrease the number
+    of dice rolled for Falling Damage by [N/2].
+  negative: >-
+    Increase HP Damage taken from Force Damage to Xd(8+[N]). Increase the number
+    of dice rolled for Falling Damage by [N/2].
   macro:
     uuid: ''
   customNotes: ''
