@@ -1,5 +1,5 @@
 import { tokenize, tokenizeExpression, LexError } from "./lexer.js";
-import { isApplyPoolNoun, isBonusNoun, isRegenNoun, isReservedNoun, isResourceNoun, lookupNoun, nounAllowsOp, resolveApplyPool} from "./nouns.js";
+import { isAlwaysActiveResource, isApplyPoolNoun, isBonusNoun, isRegenNoun, isReservedNoun, isResourceNoun, lookupNoun, nounAllowsOp, resolveApplyPool} from "./nouns.js";
 import { normalizeTakingDamageTrigger } from "./damage-filter.js";
 
 const SINGLE_TARGETS = new Set(["self", "target", "ally", "attacker"]);
@@ -37,6 +37,16 @@ class Parser {
   }
 
   peek() { return this._peekOffset(); }
+
+  _parseOptionalOnOrToTarget() {
+    if (!(this.check("KEYWORD", "on") || this.check("KEYWORD", "to"))) return null;
+    this.consume("KEYWORD");
+    const tok = this.peek();
+    if (!ALL_TARGETS.has(tok.value)) {
+      throw new ParseError(`Expected target after 'on'/'to', got '${tok.value}'`, tok);
+    }
+    return this.consume("KEYWORD").value;
+  }
 
   consume(type, value) {
     this.skipNewlines();
@@ -133,8 +143,24 @@ class Parser {
     const okBonus = new Set(["power up", "power down", "dice max up", "dice max down"]);
     for (const action of stmt.actions ?? []) {
       if (okBonus.has(action.verb)) continue;
-      if ((action.verb === "add" || action.verb === "remove") && action.noun === "resource") continue;
-      if (action.verb === "set" && action.noun === "resource") continue;
+      if ((action.verb === "add" || action.verb === "remove") && action.noun === "resource") {
+        if (!isAlwaysActiveResource(action.argument)) {
+          throw new ParseError(
+            `[Always Active] cannot use '${action.argument}' (use an event trigger)`,
+            this.peek()
+          );
+        }
+        continue;
+      }
+      if (action.verb === "set" && action.noun === "resource") {
+        if (!isAlwaysActiveResource(action.argument)) {
+          throw new ParseError(
+            `[Always Active] cannot set '${action.argument}' (use an event trigger)`,
+            this.peek()
+          );
+        }
+        continue;
+      }
       throw new ParseError(
         `[Always Active] does not allow '${action.verb}'`
         + (action.noun === "status" ? " (status stacks)" : "")
@@ -427,10 +453,7 @@ class Parser {
 
     let target = null;
     if (this.check("KEYWORD", "on") || this.check("KEYWORD", "to")) {
-      this.consume("KEYWORD");
-      const tok = this.peek();
-      if (!ALL_TARGETS.has(tok.value)) throw new ParseError(`Expected target after 'on'/'to', got '${tok.value}'`, tok);
-      target = this.consume("KEYWORD").value;
+      target = this._parseOptionalOnOrToTarget();
     }
 
     return { type: "Action", verb, noun, argument, amount, per, target, pool, damageType: dealDamageType ?? null };
@@ -571,7 +594,7 @@ class Parser {
   parseNaturalDealAction() {
     return this._parseNaturalDealOrHealAction("deal");
   }
-  
+
   parseNaturalHealAction() {
     return this._parseNaturalDealOrHealAction("heal");
   }
@@ -613,14 +636,8 @@ class Parser {
     }
 
     let target = verb === "heal" ? "self" : "target";
-    if (this.check("KEYWORD", "on") || this.check("KEYWORD", "to")) {
-      this.consume("KEYWORD");
-      const tok = this.peek();
-      if (!ALL_TARGETS.has(tok.value)) {
-        throw new ParseError(`Expected target after 'on'/'to', got '${tok.value}'`, tok);
-      }
-      target = this.consume("KEYWORD").value;
-    }
+    const explicitTarget = this._parseOptionalOnOrToTarget();
+    if (explicitTarget) target = explicitTarget;
 
     return {
       type: "Action",
@@ -648,18 +665,17 @@ class Parser {
   parseNaturalSetAction() {
     this.consume("IDENT", "set");
 
-    const nameTok = this.peek();
-    if ((nameTok.type !== "IDENT" && nameTok.type !== "KEYWORD") || !isResourceNoun(nameTok.value)) {
-      throw new ParseError(`Expected resource noun after 'set' (maxHp/maxSt/maxSp/maxLight), got '${nameTok.value}'`, nameTok);
-    }
-    if (!nounAllowsOp(nameTok.value, "set")) {
-      throw new ParseError(`'set' is not allowed on '${nameTok.value}'; use maxHp, maxSt, maxSp, or maxLight`, nameTok);
-    }
-    const resourceHit = lookupNoun(nameTok.value);
-    this.advance();
+    let amount;
+    let resourceHit;
 
-    this.consume("KEYWORD", "to");
-    const amount = this._parseAmountExpr({ required: true });
+    if (this._isAmountAhead() || this._isUnaryMinusAhead()) {
+      amount = this._parseAmountExpr({ required: true });
+      resourceHit = this._parseSetResourceNoun();
+    } else {
+      resourceHit = this._parseSetResourceNoun();
+      this.consume("KEYWORD", "to");
+      amount = this._parseAmountExpr({ required: true });
+    }
 
     return {
       type: "Action",
@@ -668,9 +684,22 @@ class Parser {
       argument: resourceHit.id,
       amount,
       per: null,
-      target: "self",
+      target: this._parseOptionalOnOrToTarget() ?? "self",
       pool: null,
     };
+  }
+
+  _parseSetResourceNoun() {
+    const nameTok = this.peek();
+    if ((nameTok.type !== "IDENT" && nameTok.type !== "KEYWORD") || !isResourceNoun(nameTok.value)) {
+      throw new ParseError(`Expected resource noun for 'set' (maxHp/tempHp/…), got '${nameTok.value}'`, nameTok);
+    }
+    if (!nounAllowsOp(nameTok.value, "set")) {
+      throw new ParseError(`'set' is not allowed on '${nameTok.value}'`, nameTok);
+    }
+    const resourceHit = lookupNoun(nameTok.value);
+    this.advance();
+    return resourceHit;
   }
 
   parseNaturalConvertAction() {
@@ -796,13 +825,7 @@ class Parser {
         throw new ParseError(`'${verbTok.value}' is not allowed on resource '${resourceHit.id}'`, verbTok);
       this.advance();
 
-      let target = "self";
-      if (this.check("KEYWORD", "on")) {
-        this.consume("KEYWORD", "on");
-        const tok = this.peek();
-        if (!ALL_TARGETS.has(tok.value)) throw new ParseError(`Expected target after 'on', got '${tok.value}'`, tok);
-        target = this.consume("KEYWORD").value;
-      }
+      let target = this._parseOptionalOnOrToTarget() ?? "self";
 
       const verb = verbTok.value === "lose" ? "remove" : "add";
       return {
@@ -820,14 +843,7 @@ class Parser {
 
     // inflict defaults to "target"; gain/lose default to "self"
     const defaultTarget = verbTok.value === "inflict" ? "target" : "self";
-
-    let target = null;
-    if (this.check("KEYWORD", "on")) {
-      this.consume("KEYWORD", "on");
-      const tok = this.peek();
-      if (!ALL_TARGETS.has(tok.value)) throw new ParseError(`Expected target after 'on', got '${tok.value}'`, tok);
-      target = this.consume("KEYWORD").value;
-    }
+    const target = this._parseOptionalOnOrToTarget() ?? defaultTarget;
 
     // Resolve verb → add/remove, baking in the default target
     const verb = verbTok.value === "lose" ? "remove" : "add";
@@ -839,20 +855,14 @@ class Parser {
       argument: statusName,
       amount,
       per: null,
-      target: target ?? defaultTarget,
+      target,
     };
   }
 
   // Halving removes ceil(stacks / 2); doubling adds the current stack count.
   _desugarStatusScaleAction(kind) {
     const statusName = this.parseStatusName();
-    let target = "self";
-    if (this.check("KEYWORD", "on")) {
-      this.consume("KEYWORD", "on");
-      const tok = this.peek();
-      if (!ALL_TARGETS.has(tok.value)) throw new ParseError(`Expected target after 'on', got '${tok.value}'`, tok);
-      target = this.consume("KEYWORD").value;
-    }
+    const target = this._parseOptionalOnOrToTarget() ?? "self";
 
     const stackPath = { type: "Path", segments: [target, "status", statusName] };
     const amount = kind === "halve"
