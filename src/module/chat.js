@@ -5,6 +5,8 @@ import {
   getActorWeaponDamageType,
 } from "./damage-application.js";
 
+import { getClashStateFromMessage } from "./combat/clash-chat.js"
+
 export const displayChatActionButtons = function(message, html, data) {
   const chatCard = html.querySelector?.(".PMTTRPG.chat-card") ?? null;
 
@@ -75,8 +77,6 @@ function _onChatCardAction(event) {
     return;
   }
 
-  if (action?.startsWith("clash-")) return;
-
   event.preventDefault();
 
   const card      = button.closest(".chat-card");
@@ -94,6 +94,7 @@ function _onChatCardAction(event) {
 
   // Chat damage.
   if (action.includes('damage') || action == 'heal') _chatActionDamage(message, action, button);
+  if (action.includes('clash-damage') || action.includes('clash-heal')) _clashActionDamage(message, action, button);
   // All remaining actions require user to be a GM.
   if (!game.user.isGM) return;
 
@@ -137,15 +138,12 @@ function _chatActionSetPool(button, event) {
   if (!DAMAGE_POOLS.includes(pool)) return;
 
   let pools = _readSelectedPools(root);
-  if (event?.shiftKey) {
-    if (pools.includes(pool)) {
-      if (pools.length > 1) pools = pools.filter((p) => p !== pool);
-    } else {
-      pools = [...pools, pool];
-    }
+  if (pools.includes(pool)) {
+    if (pools.length > 1) pools = pools.filter((p) => p !== pool);
   } else {
-    pools = [pool];
+    pools = [...pools, pool];
   }
+
   _writeSelectedPools(root, pools);
 }
 
@@ -202,6 +200,43 @@ function _resolveDamageType(message, root) {
   return getActorWeaponDamageType(speakerActor);
 }
 
+async function _clashActionDamage(message, action, button) {
+  let actors = canvas.tokens.controlled.map(t => t.document.actor).filter(Boolean);
+  if (!actors.length) {
+    return;
+  }
+
+  if(!message._id);
+  const state = getClashStateFromMessage(message._id);
+
+  const root = button?.closest?.(".chat-damage-buttons");
+  const pools = _readSelectedPools(root);
+  const damageType = _resolveDamageType(message, root);
+  let rollTotal = Number($(message.content).find(".clash-damage-line")?.first()?.text()?.trim().match(/\d+/)[0]) || 0;
+
+  const opByAction = {
+    "clash-damage": "full",
+    "clash-half-damage": "half",
+    "clash-double-damage": "double",
+    "clash-heal": "heal",
+  };
+  const op = opByAction[action];
+  if (!op) return;
+
+
+  for (const actor of actors) {
+    await actor.applyDamage(
+      rollTotal, 
+      {
+        pool: pools,
+        op,
+        damageType,
+        attacker: op === "heal" ? null : state.attacker,
+      }
+    );
+  }
+}
+
 async function _chatActionDamage(message, action, button) {
   let actors = canvas.tokens.controlled.map(t => t.document.actor).filter(Boolean);
   if (!actors.length) return;
@@ -209,7 +244,7 @@ async function _chatActionDamage(message, action, button) {
   const root = button?.closest?.(".chat-damage-buttons");
   const pools = _readSelectedPools(root);
   const damageType = _resolveDamageType(message, root);
-  const rollTotal = Number($(message.content).find('.dice-total')?.first()?.text()?.trim()) || 0;
+  let rollTotal = Number($(message.content).find('.dice-total')?.first()?.text()?.trim()) || 0;
   const attacker = ChatMessage.getSpeakerActor?.(message.speaker) ?? game.actors.get(message?.speaker?.actor) ?? null;
 
   const opByAction = {

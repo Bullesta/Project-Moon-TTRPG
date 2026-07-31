@@ -9,6 +9,10 @@ export class PMTTRPGRegisterHelpers {
       return arg1 == arg2 ? options.fn(this) : options.inverse(this);
     });
 
+    Handlebars.registerHelper("ifNotEquals", function(arg1, arg2, options) {
+      return arg1 != arg2 ? options.fn(this) : options.inverse(this);
+    });
+
     Handlebars.registerHelper("eq", (a, b) => a === b);
 
     Handlebars.registerHelper("concat", (...args) => {

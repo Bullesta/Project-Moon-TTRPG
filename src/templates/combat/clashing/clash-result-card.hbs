@@ -54,45 +54,36 @@
     <div class="clash-result-card__damage-summary">
       <div class="clash-damage-line clash-damage-line--hp">
         <i class="fa-solid fa-heart"></i>
-        {{state.hpDamage}}
+        {{#ifEquals state.retaliationType "evade"}}
+          {{state.attackRollTotal}}
+        {{/ifEquals}}
+        {{#ifNotEquals state.retaliationType "evade"}}
+          {{state.margin}}
+        {{/ifNotEquals}}
         {{i18n.hpDamage}}
       </div>
       <div class="clash-damage-line clash-damage-line--st">
         <i class="fa-solid fa-shield"></i>
-        {{state.stDamage}}
+        {{#ifEquals state.retaliationType "evade"}}
+          {{state.attackRollTotal}}
+        {{/ifEquals}}
+        {{#ifNotEquals state.retaliationType "evade"}}
+          {{state.margin}}
+        {{/ifNotEquals}}
         {{i18n.stDamage}}
       </div>
       <div class="clash-damage-type-badge clash-damage-type--{{state.damageType}}">
         {{i18n.damageType}}
       </div>
     </div>
-
-    {{!-- Take the Damage button —
-          disabled once phase is "closed" to prevent double-apply --}}
-    <div class="clash-result-card__actions">
-      <button
-        class="clash-btn clash-btn--take-damage
-          {{#if (eq state.phase 'closed')}}clash-btn--disabled{{/if}}"
-        data-action="clash-take-damage"
-        data-message-id="{{state.resultMessageId}}"
-        {{#if (eq state.phase "closed")}}disabled{{/if}}
-      >
-        <i class="fa-solid fa-hand-fist"></i>
-        {{#if (eq state.phase "closed")}}
-          {{localize "PMTTRPG.Clash.DamageApplied"}}
-        {{else}}
-          {{i18n.takeDamage}}
-        {{/if}}
-      </button>
-    </div>
   {{/if}}
 
-  {{!-- Evade win: ST regen summary --}}
+  {{!-- Block win: ST damage to attacker summary --}}
   {{#if blockWin}}
     <div class="clash-result-card__regen-summary">
       <div class="clash-damage-line clash-damage-line--st-regen">
         <i class="fa-solid fa-shield"></i>
-        {{state.stDamage}}
+        {{state.margin}}
         {{i18n.stDamageToAttacker}}
       </div>
     </div>
@@ -103,26 +94,28 @@
     <div class="clash-result-card__regen-summary">
       <div class="clash-damage-line clash-damage-line--st-regen">
         <i class="fa-solid fa-shield-plus"></i>
-        {{state.stRegen}}
+        {{state.defenseRollTotal}}
         {{i18n.stRegen}}
       </div>
     </div>
-    <div class="clash-result-card__actions">
-      <button
-        class="clash-btn clash-btn--take-damage
-          {{#if (eq state.phase 'closed')}}clash-btn--disabled{{/if}}"
-        data-action="clash-take-damage"
-        data-message-id="{{state.resultMessageId}}"
-        {{#if (eq state.phase "closed")}}disabled{{/if}}
-      >
-        <i class="fa-solid fa-shield-plus"></i>
-        {{#if (eq state.phase "closed")}}
-          {{localize "PMTTRPG.Clash.DamageApplied"}}
-        {{else}}
-          {{localize "PMTTRPG.Clash.ApplyRegen"}}
-        {{/if}}
-      </button>
-    </div>
   {{/if}}
 
+  <div class="chat-damage-buttons" data-pool="hp" data-pools="hp" data-damage-type="{{state.damageType}}">
+    <div class="chat-damage-types" role="group" aria-label="{{localize "PMTTRPG.DamageTaken.TypeSelect"}}">
+      <button type="button" class="button dtype{{#ifEquals state.damageType "slash"}} active{{/ifEquals}}" data-action="set-damage-type" data-damage-type="slash" title="{{localize "PMTTRPG.DamageTypeSlash"}}">{{localize "PMTTRPG.DamageTypeSlash"}}</button>
+      <button type="button" class="button dtype{{#ifEquals state.damageType "pierce"}} active{{/ifEquals}}" data-action="set-damage-type" data-damage-type="pierce" title="{{localize "PMTTRPG.DamageTypePierce"}}">{{localize "PMTTRPG.DamageTypePierce"}}</button>
+      <button type="button" class="button dtype{{#ifEquals state.damageType "blunt"}} active{{/ifEquals}}" data-action="set-damage-type" data-damage-type="blunt" title="{{localize "PMTTRPG.DamageTypeBlunt"}}">{{localize "PMTTRPG.DamageTypeBlunt"}}</button>
+    </div>
+    <div class="chat-damage-pools" role="group" aria-label="{{localize "PMTTRPG.DamageTaken.PoolSelect"}}" title="{{localize "PMTTRPG.DamageTaken.PoolHint"}}">
+      <button type="button" class="button pool active" data-action="set-pool" data-pool="hp">{{localize "PMTTRPG.TrackerHP"}}</button>
+      <button type="button" class="button pool" data-action="set-pool" data-pool="st">{{localize "PMTTRPG.TrackerST"}}</button>
+      <button type="button" class="button pool" data-action="set-pool" data-pool="sp">{{localize "PMTTRPG.TrackerSP"}}</button>
+    </div>
+    <div class="chat-damage-apply">
+      <button type="button" class="button damage full-damage" data-action="clash-damage" title="{{localize "PMTTRPG.DamageTaken.ApplyFull"}}"><i class="fas fa-user-minus"></i></button>
+      <button type="button" class="button damage half-damage" data-action="clash-half-damage" title="{{localize "PMTTRPG.DamageTaken.ApplyHalf"}}"><i class="fas fa-user-minus"></i> 1/2</button>
+      <button type="button" class="button damage double-damage" data-action="clash-double-damage" title="{{localize "PMTTRPG.DamageTaken.ApplyDouble"}}"><i class="fas fa-user-minus"></i> 2X</button>
+      <button type="button" class="button heal heal-damage" data-action="clash-heal" title="{{localize "PMTTRPG.DamageTaken.ApplyHeal"}}"><i class="fas fa-user-plus"></i></button>
+    </div>
+  </div>
 </div>

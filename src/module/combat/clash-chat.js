@@ -114,12 +114,11 @@ async function _clashButtonHandler(event) {
   if (!raw) return;
 
   const state = deserialiseClashState(raw);
-  const { handleRetaliateClick, handleTakeDamageClick } = await import("./clashing.js");
+  const { handleRetaliateClick } = await import("./clashing.js");
 
   switch (action) {
     case "clash-retaliate":  await handleRetaliateClick(state, { isIntercept: false }); break;
     case "clash-intercept":  await handleRetaliateClick(state, { isIntercept: true  }); break;
-    case "clash-take-damage": await handleTakeDamageClick(state, messageId);            break;
   }
 }
 

@@ -4,7 +4,6 @@
  *   1. initiateAttack()         — attacker rolls, attack card posted
  *   2. handleRetaliateClick()   — retaliator chosen, dialog shown
  *   3. _executeClash()          — both rolls made, result computed
- *   4. handleTakeDamageClick()  — damage applied from result card
  *
  * EasyEffects hooks fired here:
  *   pmttrpg.clashStarted       { attacker, defender, attackerItem, defenderItem, clash }
@@ -34,13 +33,6 @@ import {
   rollBlock,
   resolveClash,
 } from "./clash-rolls.js";
-
-import {
-  computeClashDamage,
-  applyHPDamage,
-  applySTDamage,
-  applySTRegen,
-} from "./clash-damage.js";
 
 import {
   postAttackCard,
@@ -238,21 +230,7 @@ async function _executeClash(state, retaliatorActor, choice) {
 
   // Compute damage using accumulated bonuses.
   const baseDamage = Number(attackerItem?.system?.damageBonus ?? 0);
-  const { hpDamage, stDamage, stRegen } = computeClashDamage({
-    attacker:          attackerActor,
-    defender:          retaliatorActor,
-    retaliationType:   choice.type,
-    result,
-    attackRollTotal:   state.attackRollTotal,
-    defenseRollTotal:  defenseResult.total,
-    damageType:        state.damageType,
-    clashBonuses:      clashCtx.bonuses,
-    baseDamage,
-  });
 
-  state.hpDamage = hpDamage;
-  state.stDamage = stDamage;
-  state.stRegen  = stRegen;
   state.phase    = CLASH_PHASES.RESOLVED;
 
   // Fire clash resolution hooks for EasyEffects.
@@ -301,66 +279,6 @@ async function _executeClash(state, retaliatorActor, choice) {
   await updateAttackCard(state.attackMessageId, state);
 }
 
-// ── Phase 4: Take the Damage ──────────────────────────────────────────────────
-
-/**
- * Handles the "Take the Damage" button on the result card.
- * Applies pre-computed HP, ST, and ST regen to the appropriate actors.
- *
- * @param {ClashStateData} state
- * @param {string}         resultMessageId
- * @returns {Promise<void>}
- */
-export async function handleTakeDamageClick(state, resultMessageId) {
-  if (state.phase === CLASH_PHASES.CLOSED) {
-    ui.notifications.warn(game.i18n.localize("PMTTRPG.Clash.AlreadyApplied"));
-    return;
-  }
-
-  const defenderActor  = game.actors.get(state.retaliatorActorId);
-  const attackerActor  = game.actors.get(state.attackerActorId);
-
-  if (!defenderActor) {
-    ui.notifications.error(game.i18n.localize("PMTTRPG.Clash.ActorNotFound"));
-    return;
-  }
-
-  // Apply HP damage to defender.
-  if (state.hpDamage > 0) {
-    await applyHPDamage(defenderActor, state.hpDamage, {
-      damageType: state.damageType,
-      source:     "clash",
-      attacker:   attackerActor,
-    });
-  }
-
-  // Apply ST damage to defender.
-  if (state.stDamage > 0) {
-    await applySTDamage(defenderActor, state.stDamage, {
-      source:   "clash",
-      attacker: attackerActor,
-    });
-  }
-
-  // Apply ST regen to defender (evade win).
-  if (state.stRegen > 0) {
-    await applySTRegen(defenderActor, state.stRegen, { source: "clash-evade" });
-  }
-
-  // Mark clash as closed and disable the button.
-  state.phase = CLASH_PHASES.CLOSED;
-  const resultMsg = game.messages.get(resultMessageId);
-  if (resultMsg) {
-    await resultMsg.update({
-      [`flags.${CLASH_FLAG_SCOPE}.${CLASH_FLAG_KEY}`]: serialiseClashState(state),
-    });
-  }
-
-  // Re-render the result card with the closed state (disables the button).
-  const attackMsg = game.messages.get(state.attackMessageId);
-  if (attackMsg) await updateAttackCard(state.attackMessageId, state);
-}
-
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
 /**
@@ -381,5 +299,4 @@ function _getOwnedActor() {
 export const PMTTRPGClashAPI = {
   initiateAttack,
   handleRetaliateClick,
-  handleTakeDamageClick,
 };
