@@ -223,33 +223,33 @@
 
     .damage-taken {
       margin: 4px 0;
-      padding: 6px 8px;
+      padding: 5px 7px;
       border: 1px solid #ccc;
       border-radius: 3px;
       background: rgba(0, 0, 0, 0.04);
 
       .damage-taken__summary {
-        display: flex;
-        flex-wrap: wrap;
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) auto;
         align-items: center;
-        gap: 5px 6px;
+        gap: 4px 6px;
+      }
+
+      .statements {
+        grid-column: 1;
+        grid-row: 1;
       }
 
       &.reverted .statements,
-      &.reverted .damage-taken__outcome {
+      &.reverted .damage-taken__pools {
         text-decoration: line-through;
         opacity: 0.55;
       }
 
-      .damage-taken__outcome {
-        display: inline-flex;
-        flex-wrap: wrap;
-        align-items: center;
-        gap: 4px;
-      }
-
       .damage-taken__pools {
-        display: inline-flex;
+        display: flex;
+        grid-column: 1 / -1;
+        grid-row: 2;
         flex-wrap: wrap;
         gap: 4px;
         margin: 0;
@@ -279,16 +279,17 @@
 
       .damage-taken__actions {
         display: inline-flex;
+        grid-column: 2;
+        grid-row: 1;
         flex: 0 0 auto;
-        gap: 4px;
-        margin-left: auto;
+        gap: 2px;
       }
 
       .damage-breakdown {
         display: inline-grid;
         place-items: center;
-        width: 26px;
-        height: 26px;
+        width: 22px;
+        height: 22px;
         margin: 0;
         padding: 0;
         border: 1px solid transparent;
@@ -309,12 +310,29 @@
       }
 
       .revert-damage {
-        width: 28px;
-        height: 28px;
+        display: inline-grid;
+        place-items: center;
+        min-width: 0;
+        min-height: 0;
+        width: 22px;
+        height: 22px;
         margin: 0;
         padding: 0;
+        border: 1px solid transparent;
+        border-radius: 3px;
+        background: transparent;
+        box-shadow: none;
+        color: #555;
+        font-size: 12px;
         line-height: 1;
         cursor: pointer;
+
+        &:hover,
+        &:focus-visible {
+          border-color: #aaa;
+          background: rgba(0, 0, 0, 0.08);
+          color: $c-black;
+        }
       }
     }
   }
