@@ -161,6 +161,11 @@ export function formatBreakdownRows(breakdown = []) {
           label: game.i18n.localize("PMTTRPG.DamageTaken.Breakdown.Source"),
           detail: String(step.source ?? ""),
         };
+      case "damageType":
+        return {
+          label: game.i18n.localize("PMTTRPG.DamageTaken.Breakdown.DamageType"),
+          detail: step.damageType ? damageTypeLabel(step.damageType) : "-",
+        };
       case "base":
         return {
           label: game.i18n.localize("PMTTRPG.DamageTaken.Breakdown.Base"),
@@ -179,7 +184,7 @@ export function formatBreakdownRows(breakdown = []) {
         };
       }
       case "resistance": {
-        const typeLabel = step.damageType ? damageTypeLabel(step.damageType) : "—";
+        const typeLabel = step.damageType ? damageTypeLabel(step.damageType) : "-";
         const levelLabel = game.i18n.localize(RESISTANCE_LABEL_KEYS[step.level] ?? step.level);
         let reason = "";
         if (step.reason === "staggered") reason = ` (${game.i18n.localize("PMTTRPG.DamageTaken.Breakdown.Staggered")})`;
@@ -234,7 +239,7 @@ export function formatBreakdownRows(breakdown = []) {
           const list = Array.isArray(raw)
             ? raw
             : String(raw ?? "").split(",").map((p) => p.trim()).filter(Boolean);
-          if (!list.length) return "—";
+          if (!list.length) return "-";
           return list.map((p) => poolLabel(p) || p).join(", ");
         };
         return {
@@ -242,8 +247,8 @@ export function formatBreakdownRows(breakdown = []) {
           detail: game.i18n.format("PMTTRPG.DamageTaken.Breakdown.ConvertDetail", {
             fromPool: formatPools(step.fromPool),
             toPool: formatPools(step.toPool),
-            fromType: step.fromType ? damageTypeLabel(step.fromType) : "—",
-            toType: step.toType ? damageTypeLabel(step.toType) : "—",
+            fromType: step.fromType ? damageTypeLabel(step.fromType) : "-",
+            toType: step.toType ? damageTypeLabel(step.toType) : "-",
           }),
         };
       }
@@ -346,7 +351,6 @@ export async function postDamageTakenMessage(actor, appliedDamage) {
   const changes = appliedDamage.changes ?? [];
   const hasChanges = changes.length > 0;
   let statements;
-  let suffix = "";
   if (!hasChanges) {
     statements = game.i18n.format(
       appliedDamage.isHealing ? "PMTTRPG.DamageTaken.NoHeal" : "PMTTRPG.DamageTaken.NoDamage",
@@ -359,7 +363,6 @@ export async function postDamageTakenMessage(actor, appliedDamage) {
       statements = game.i18n.format("PMTTRPG.DamageTaken.RecoversSummary", { name });
     } else if (allLoss) {
       statements = game.i18n.format("PMTTRPG.DamageTaken.TakesSummary", { name });
-      suffix = game.i18n.localize("PMTTRPG.DamageTaken.DamageSuffix");
     } else {
       statements = game.i18n.format("PMTTRPG.DamageTaken.MixedSummary", { name });
     }
@@ -367,7 +370,6 @@ export async function postDamageTakenMessage(actor, appliedDamage) {
 
   const content = await renderTemplate("systems/projectmoonttrpg/templates/chat/damage-taken.hbs", {
     statements,
-    suffix,
     canUndoDamage: hasChanges && !appliedDamage.isReverted,
     hasBreakdown: !!appliedDamage.breakdown?.length,
     changes: changes.map((c) => ({
