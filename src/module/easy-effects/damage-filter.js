@@ -32,7 +32,10 @@ export function matchesDamageFilter(filter, damage) {
   if (!filter) return true;
   if (!damage) return false;
   if (filter.kind === "pool") {
-    return String(damage.pool ?? "").toLowerCase() === String(filter.value).toLowerCase();
+    const want = String(filter.value).toLowerCase();
+    const raw = damage.pool;
+    const list = Array.isArray(raw) ? raw : [raw];
+    return list.some((p) => String(p ?? "").toLowerCase() === want);
   }
   if (filter.kind === "sourceOrType") {
     const want = String(filter.value);

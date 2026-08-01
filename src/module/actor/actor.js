@@ -526,6 +526,7 @@ export class ActorPMTTRPG extends Actor {
    * @param {object} [options]
    * @param {"full"|"half"|"double"|"heal"} [options.op="full"]
    * @param {"hp"|"st"|"sp"|Array<"hp"|"st"|"sp">} [options.pool="hp"]
+   * @param {string} [options.sourceLabel]
    * @returns {Promise<object|null>}
    */
   async applyDamage(amount, options = {}) {
@@ -536,6 +537,10 @@ export class ActorPMTTRPG extends Actor {
     const damageType = DAMAGE_TYPES.includes(rawDamageType.toLowerCase()) ? rawDamageType.toLowerCase() : null;
     const eeDamageType = damageType || rawDamageType;
     const source = typeof options.source === "string" && options.source.trim() ? options.source.trim() : null;
+    const explicitSourceLabel = typeof options.sourceLabel === "string" && options.sourceLabel.trim()
+      ? options.sourceLabel.trim()
+      : null;
+    const sourceLabel = explicitSourceLabel ?? source ?? options.attacker?.name ?? null;
     const afterResistance = Number(options.afterResistance) || 0;
     const forceSkipResistance = options.skipResistance === true || op === "heal";
     const useOutfitTypeResists = !source && !forceSkipResistance;
@@ -554,7 +559,9 @@ export class ActorPMTTRPG extends Actor {
         break;
     }
 
-    const breakdown = [{ key: "base", amount: base }];
+    const breakdown = [];
+    if (sourceLabel) breakdown.push({ key: "source", source: sourceLabel });
+    breakdown.push({ key: "base", amount: base });
     if (op !== "full") breakdown.push({ key: "op", op, from: base, to: sharedAmount });
 
     let amountAfterSource = sharedAmount;
@@ -565,7 +572,7 @@ export class ActorPMTTRPG extends Actor {
       const beforeEe = amountAfterSource;
       const damageCtx = {
         amount: amountAfterSource,
-        pool: pools[0] ?? "hp",
+        pool: pools.length === 1 ? (pools[0] ?? "hp") : pools.slice(),
         source: source ?? "",
         damageType: eeDamageType,
       };
@@ -598,13 +605,13 @@ export class ActorPMTTRPG extends Actor {
         }
       }
 
-      const poolChanged = (poolsAfter[0] ?? "hp") !== (pools[0] ?? "hp");
+      const poolChanged = poolsAfter.join(",") !== pools.join(",");
       const typeChanged = rawAfter !== eeDamageType;
       if (poolChanged || typeChanged) {
         breakdown.push({
           key: "convert",
-          fromPool: pools[0] ?? "hp",
-          toPool: poolsAfter[0] ?? "hp",
+          fromPool: pools.join(","),
+          toPool: poolsAfter.join(","),
           fromType: eeDamageType || "",
           toType: rawAfter || "",
         });
