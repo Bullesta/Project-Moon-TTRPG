@@ -25,7 +25,7 @@ export const RETALIATION_TYPES = Object.freeze({
   EVADE:     "evade",
   BLOCK:     "block",
   COUNTER:   "counter",
-  INTERCEPT: "intercept",
+  ONESIDED:  "onesided"
 });
 
 export const CLASH_RESULTS = Object.freeze({

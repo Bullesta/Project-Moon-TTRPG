@@ -81,6 +81,7 @@ export async function showRetaliationDialog(actor, state, { isIntercept = false 
       block:      game.i18n.localize("PMTTRPG.Clash.Block"),
       counter:    game.i18n.localize("PMTTRPG.Clash.Counter"),
       useSkill:   game.i18n.localize("PMTTRPG.Clash.UseSkill"),
+      onesided:   game.i18n.localize("PMTTRPG.Clash.OneSided"),
       attackedBy: game.i18n.format("PMTTRPG.Clash.AttackedBy", { name: state.attackerName }),
       outfit:     game.i18n.localize("PMTTRPG.Clash.ChooseOutfit"),
       weapon:     game.i18n.localize("PMTTRPG.Clash.ChooseWeapon"),
@@ -126,31 +127,37 @@ function _buildRetaliationOptions(weapons, outfits, skills) {
     ...(outfits.length ? [{
       type: RETALIATION_TYPES.EVADE,
       label: "PMTTRPG.Clash.Evade",
-      icon: "fa-solid fa-wind",
+      icon: "systems/projectmoonttrpg/assets/icons/sheet/01_evade",
       requiresItem: true,
       items: outfits,
     }] : []),
     ...(outfits.length ? [{
       type: RETALIATION_TYPES.BLOCK,
       label: "PMTTRPG.Clash.Block",
-      icon: "fa-solid fa-shield",
+      icon: "systems/projectmoonttrpg/assets/icons/sheet/01_defense",
       requiresItem: true,
       items: outfits,
     }] : []),
     ...(weapons.length ? [{
       type: RETALIATION_TYPES.COUNTER,
       label: "PMTTRPG.Clash.Counter",
-      icon: "fa-solid fa-sword",
+      icon: "systems/projectmoonttrpg/assets/icons/sheet/00_slash",
       requiresItem: true,
       items: weapons,
     }] : []),
     ...(skills.length ? [{
       type: "skill",
       label: "PMTTRPG.Clash.UseSkill",
-      icon: "fa-solid fa-bolt",
+      icon: "systems/projectmoonttrpg/assets/icons/sheet/00_light",
       requiresItem: true,
       items: skills,
     }] : []),
+    {
+      type: "onesided",
+      label: "PMTTRPG.Clash.OneSided",
+      icon: "systems/projectmoonttrpg/assets/icons/sheet/03_danger1",
+      requiresItem: false,
+    }
   ];
 }
 
@@ -193,7 +200,7 @@ function _bindRetaliationDialogListeners(dialog) {
 
   const refreshPicker = () => {
     const selected = el.querySelector("[name='retaliationType']:checked")?.value;
-    const needsItem = true;
+    const needsItem = [RETALIATION_TYPES.BLOCK, RETALIATION_TYPES.EVADE, RETALIATION_TYPES.COUNTER, "skill"].includes(selected);
     if (itemPicker) itemPicker.style.display = needsItem ? "" : "none";
 
     // Populate item picker options based on type

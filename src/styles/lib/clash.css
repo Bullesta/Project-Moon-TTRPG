@@ -2,7 +2,6 @@
 
 .clash-card {
   padding:        0.75rem;
-  color:          #191813;
   font-size:      0.875rem;
   display:        flex;
   flex-direction: column;
@@ -22,13 +21,6 @@
   height:        40px;
   border-radius: 3px;
   object-fit:    cover;
-  border:        1px solid #999;
-  flex-shrink:   0;
-}
-
-.clash-card__avatar--target {
-  border:        2px solid #ff6400;
-  box-shadow:    0 0 8px rgba(255, 100, 0, 0.4);
 }
 
 .clash-card__header-text {
@@ -41,7 +33,6 @@
 .clash-card__actor-name {
   font-weight:   bold;
   font-size:     0.95rem;
-  color:         #191813;
   white-space:   nowrap;
   overflow:      hidden;
   text-overflow: ellipsis;
@@ -62,31 +53,8 @@
 
 .clash-card__roll-wrapper {
   position:    relative;
-  background:  #f5f5f5;
-  border:      1px solid #ddd;
   border-radius: 3px;
-  padding:     0.5rem;
-}
-
-.clash-roll-hidden .clash-card__roll {
-  filter:         blur(5px);
-  pointer-events: none;
-  user-select:    none;
-  opacity:        0.7;
-}
-
-.clash-card__roll-hidden-label {
-  position:        absolute;
-  inset:           0;
-  display:         flex;
-  align-items:     center;
-  justify-content: center;
-  gap:             0.35rem;
-  font-size:       0.75rem;
-  color:           #999;
-  font-style:      italic;
-  pointer-events:  none;
-  font-weight:     bold;
+  padding:     0.5rem 0 0.5rem 0;
 }
 
 /* ── Damage type badge ────────────────────────────────────────────────────── */
@@ -140,7 +108,6 @@
 .clash-result-card__actions {
   display:   flex;
   gap:       0.5rem;
-  flex-wrap: wrap;
 }
 
 .clash-btn {
@@ -158,6 +125,7 @@
   transition:    background 0.15s, border-color 0.15s, box-shadow 0.15s;
   background:    #f5f5f5;
   color:         #191813;
+  width:         100%;
 }
 
 .clash-btn:hover:not(:disabled) {
@@ -364,9 +332,6 @@
   align-items: center;
   gap:         0.6rem;
   padding:     0.5rem;
-  background:  #f5f5f5;
-  border:      1px solid #ddd;
-  border-radius: 3px;
 }
 
 .clash-retaliation-form__context-text {
@@ -377,17 +342,13 @@
 .clash-retaliation-form__attacked-by {
   font-weight: bold;
   font-size:   0.9rem;
-  color:       #191813;
 }
 
 .clash-retaliation-form__weapon {
   font-size: 0.75rem;
-  color:     #666;
 }
 
 .clash-retaliation-form__divider {
-  border:     none;
-  border-top: 1px solid #ddd;
   margin:     0.25rem 0;
 }
 
@@ -404,18 +365,15 @@
   padding:       0.4rem 0.6rem;
   border-radius: 3px;
   cursor:        pointer;
-  border:        1px solid #ddd;
   transition:    background 0.12s, border-color 0.12s;
-  background:    #fff;
 }
 
 .clash-option:hover {
-  background:   #f9f9f9;
   border-color: #ccc;
 }
 
 .clash-option:has(input:checked) {
-  background:   #cce5ff;
+  background:   rgba(255, 255, 255, 0.1);
   border-color: #0066cc;
 }
 
@@ -426,7 +384,6 @@
 .clash-option__icon {
   width:       1.2rem;
   text-align:  center;
-  color:       #0066cc;
   flex-shrink: 0;
   font-size:   1.1rem;
 }
@@ -434,7 +391,6 @@
 .clash-option__label {
   font-size:   0.85rem;
   font-weight: 500;
-  color:       #191813;
 }
 
 .clash-item-picker {
@@ -442,14 +398,10 @@
   flex-direction: column;
   gap:            0.3rem;
   padding:        0.5rem;
-  background:     #f9f9f9;
-  border-radius:  3px;
-  border:         1px solid #ddd;
 }
 
 .clash-item-picker__label {
   font-size:   0.75rem;
-  color:       #666;
   font-weight: bold;
   display:     flex;
   gap:         0.35rem;
@@ -457,8 +409,6 @@
 }
 
 .clash-item-picker__select {
-  background:      #fff;
-  border:          1px solid #999;
   border-radius:   3px;
   color:           #191813;
   padding:         0.35rem;

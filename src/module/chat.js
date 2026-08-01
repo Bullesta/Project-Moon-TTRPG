@@ -10,7 +10,7 @@ import { getClashStateFromMessage } from "./combat/clash-chat.js"
 export const displayChatActionButtons = function(message, html, data) {
   const chatCard = html.querySelector?.(".PMTTRPG.chat-card") ?? null;
 
-  if (!game.user.isGM || !game.settings.get("projectmoonttrpg", "enableDamageButtons")) {
+  if (!game.settings.get("projectmoonttrpg", "enableDamageButtons")) {
     html.querySelectorAll?.(".chat-damage-buttons").forEach(el => el.style.display = "none");
   }
 
@@ -88,9 +88,6 @@ function _onChatCardAction(event) {
     _chatActionRevertDamage(message, button);
     return;
   }
-
-  // Validate permission to proceed with the roll
-  if ( !( game.user.isGM ) ) return;
 
   // Chat damage.
   if (action.includes('damage') || action == 'heal') _chatActionDamage(message, action, button);
