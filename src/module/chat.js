@@ -16,7 +16,7 @@ export const displayChatActionButtons = function(message, html, data) {
 
   // Sync damage type from flags if the card did not include one.
   const flaggedType = message?.flags?.projectmoonttrpg?.damageType;
-  html.find(".chat-damage-buttons").each((_, el) => {
+  $(html).find(".chat-damage-buttons").each((_, el) => {
     if (!el.dataset.damageType && DAMAGE_TYPES.includes(flaggedType)) {
       el.dataset.damageType = flaggedType;
       el.querySelectorAll("button.dtype").forEach((btn) => {
@@ -30,12 +30,12 @@ export const displayChatActionButtons = function(message, html, data) {
     const actor = fromUuidSync(appliedDamage.uuid);
     const canRevert = game.user.isGM || actor?.isOwner;
     if (appliedDamage.isReverted || !canRevert || !appliedDamage.updates?.length) {
-      html.find('button[data-action="revert-damage"]').remove();
+      $(html).find('button[data-action="revert-damage"]').remove();
     }
     enhanceDamageTakenCard(message, html[0] ?? html);
   }
 
-  if ( chatCard.length > 0 ) {
+  if ( chatCard && chatCard.length > 0 ) {
     // If the user is the message author or the actor owner, proceed.
     let actor = game.actors.get(data.message.speaker.actor);
     // Exit early from further operations if this is a GM user.
@@ -223,12 +223,11 @@ async function _clashActionDamage(message, action, button) {
   const op = opByAction[action];
   if (!op) return;
 
-
   for (const actor of actors) {
     await actor.applyDamage(
       rollTotal, 
       {
-        pool: pools,
+        pool: pools.length === 1 ? pools[0] : pools,
         op,
         damageType,
         attacker: op === "heal" ? null : state.attacker,

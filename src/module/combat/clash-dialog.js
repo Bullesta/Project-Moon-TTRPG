@@ -57,6 +57,10 @@ export async function showRetaliationDialog(actor, state, { isIntercept = false 
     .filter(i => i.type === "weapon" && i.system?.equipped)
     .map(i => ({ id: i.id, name: i.name, img: i.img, type: "weapon" }));
 
+  const equippedOutfits = actor.items
+    .filter(i => i.type === "outfit" && i.system?.equipped)
+    .map(i => ({ id: i.id, name: i.name, img: i.img, type: "outfit" }));
+
   const equippedSkills = actor.items
     .filter(i => i.type === "skill" && i.system?.equipped)
     .map(i => ({ id: i.id, name: i.name, img: i.img, skillType: i.system?.skillType ?? "attack" }));
@@ -66,8 +70,9 @@ export async function showRetaliationDialog(actor, state, { isIntercept = false 
     state,
     isIntercept,
     equippedWeapons,
+    equippedOutfits,
     equippedSkills,
-    options: _buildRetaliationOptions(equippedWeapons, equippedSkills),
+    options: _buildRetaliationOptions(equippedWeapons, equippedOutfits, equippedSkills),
     i18n: {
       title:      isIntercept
         ? game.i18n.localize("PMTTRPG.Clash.InterceptTitle")
@@ -77,6 +82,7 @@ export async function showRetaliationDialog(actor, state, { isIntercept = false 
       counter:    game.i18n.localize("PMTTRPG.Clash.Counter"),
       useSkill:   game.i18n.localize("PMTTRPG.Clash.UseSkill"),
       attackedBy: game.i18n.format("PMTTRPG.Clash.AttackedBy", { name: state.attackerName }),
+      outfit:     game.i18n.localize("PMTTRPG.Clash.ChooseOutfit"),
       weapon:     game.i18n.localize("PMTTRPG.Clash.ChooseWeapon"),
       skill:      game.i18n.localize("PMTTRPG.Clash.ChooseSkill"),
       confirm:    game.i18n.localize("PMTTRPG.Clash.Confirm"),
@@ -115,20 +121,22 @@ export async function showRetaliationDialog(actor, state, { isIntercept = false 
 /**
  * Builds the ordered list of retaliation options for the template.
  */
-function _buildRetaliationOptions(weapons, skills) {
+function _buildRetaliationOptions(weapons, outfits, skills) {
   return [
-    {
+    ...(outfits.length ? [{
       type: RETALIATION_TYPES.EVADE,
       label: "PMTTRPG.Clash.Evade",
       icon: "fa-solid fa-wind",
-      requiresItem: false,
-    },
-    {
+      requiresItem: true,
+      items: outfits,
+    }] : []),
+    ...(outfits.length ? [{
       type: RETALIATION_TYPES.BLOCK,
       label: "PMTTRPG.Clash.Block",
       icon: "fa-solid fa-shield",
-      requiresItem: false,
-    },
+      requiresItem: true,
+      items: outfits,
+    }] : []),
     ...(weapons.length ? [{
       type: RETALIATION_TYPES.COUNTER,
       label: "PMTTRPG.Clash.Counter",
@@ -185,7 +193,7 @@ function _bindRetaliationDialogListeners(dialog) {
 
   const refreshPicker = () => {
     const selected = el.querySelector("[name='retaliationType']:checked")?.value;
-    const needsItem = [RETALIATION_TYPES.COUNTER, "skill"].includes(selected);
+    const needsItem = true;
     if (itemPicker) itemPicker.style.display = needsItem ? "" : "none";
 
     // Populate item picker options based on type
