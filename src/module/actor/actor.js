@@ -561,6 +561,7 @@ export class ActorPMTTRPG extends Actor {
 
     const breakdown = [];
     if (sourceLabel) breakdown.push({ key: "source", source: sourceLabel });
+    if (eeDamageType) breakdown.push({ key: "damageType", damageType: eeDamageType });
     breakdown.push({ key: "base", amount: base });
     if (op !== "full") breakdown.push({ key: "op", op, from: base, to: sharedAmount });
 
