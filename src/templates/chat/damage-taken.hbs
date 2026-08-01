@@ -1,21 +1,33 @@
 <section class="damage-taken{{#if isReverted}} reverted{{/if}}">
-  <span class="statements">{{{statements}}}</span>
-  {{#if hasBreakdown}}
-    <span class="damage-breakdown"><i class="fas fa-circle-info" inert></i></span>
-  {{/if}}
-  {{#if changes.length}}
-    <ul class="damage-taken__pools">
-      {{#each changes as |c|}}
-        <li class="damage-taken__pool{{#if c.heal}} is-heal{{else}} is-damage{{/if}}">
-          <span class="amount">{{#if c.heal}}+{{else}}−{{/if}}{{c.amount}}</span>
-          <span class="pool">{{c.label}}</span>
-        </li>
-      {{/each}}
-    </ul>
-  {{/if}}
-  {{#if canUndoDamage}}
-    <button type="button" class="revert-damage" data-action="revert-damage" title="{{localize "PMTTRPG.DamageTaken.RevertTooltip"}}">
-      <i class="fas fa-rotate-left"></i>
-    </button>
-  {{/if}}
+  <div class="damage-taken__summary">
+    <span class="statements">{{{statements}}}</span>
+    {{#if changes.length}}
+      <span class="damage-taken__outcome">
+        <ul class="damage-taken__pools">
+          {{#each changes as |c|}}
+            <li class="damage-taken__pool{{#if c.heal}} is-heal{{else}} is-damage{{/if}}">
+              <span class="amount">{{#if c.heal}}+{{else}}−{{/if}}{{c.amount}}</span>
+              <span class="pool">{{c.label}}</span>
+            </li>
+          {{/each}}
+        </ul>
+        {{#if suffix}}<span class="damage-taken__suffix">{{suffix}}</span>{{/if}}
+      </span>
+    {{/if}}
+    <div class="damage-taken__actions">
+      {{#if hasBreakdown}}
+        <span class="damage-breakdown" tabindex="0"
+          aria-label="{{localize "PMTTRPG.DamageTaken.Breakdown.Title"}}">
+          <i class="fas fa-circle-info" aria-hidden="true"></i>
+        </span>
+      {{/if}}
+      {{#if canUndoDamage}}
+        <button type="button" class="revert-damage" data-action="revert-damage"
+          aria-label="{{localize "PMTTRPG.DamageTaken.RevertTooltip"}}"
+          title="{{localize "PMTTRPG.DamageTaken.RevertTooltip"}}">
+          <i class="fas fa-rotate-left" aria-hidden="true"></i>
+        </button>
+      {{/if}}
+    </div>
+  </div>
 </section>
