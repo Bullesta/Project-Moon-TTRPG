@@ -51,6 +51,7 @@ function getAST(item) {
     _astCache.set(item.id, { source, ast });
     return ast;
   } catch (err) {
+    console.log(`[EasyEffect] Item has error! Here's the source: ${source}`);
     console.error(`[EasyEffects] Parse error on '${item.name}':`, err.message);
     ui.notifications?.warn(`EasyEffects parse error on '${item.name}': ${err.message}`);
     return null;

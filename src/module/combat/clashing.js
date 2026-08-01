@@ -143,6 +143,8 @@ export async function handleRetaliateClick(state, { isIntercept = false } = {}) 
   const choice = await showRetaliationDialog(retaliatorActor, state, { isIntercept });
   if (!choice) return;
 
+  console.log(choice);
+
   // Lock the card immediately so no one else retaliates.
   state.phase               = CLASH_PHASES.ROLLING;
   state.retaliatorActorId   = retaliatorActor.id;
@@ -214,6 +216,10 @@ async function _executeClash(state, retaliatorActor, choice) {
   // Resolve winner.
   const { result, margin } = resolveClash(state.attackRollTotal, defenseResult.total);
 
+  if(result === CLASH_RESULTS.TIE) {
+    // TODO: Handle Ties
+  }
+
   state.defenseRollTotal   = defenseResult.total;
   state.defenseRollFormula = defenseResult.formula;
   state.defenseRollTerms   = defenseResult.terms;
@@ -236,12 +242,14 @@ async function _executeClash(state, retaliatorActor, choice) {
   // Fire clash resolution hooks for EasyEffects.
   const winner = result === CLASH_RESULTS.ATTACK_WIN ? attackerActor  : retaliatorActor;
   const loser  = result === CLASH_RESULTS.ATTACK_WIN ? retaliatorActor : attackerActor;
+  const winnerItem = result === CLASH_RESULTS.ATTACK_WIN ? attackerItem : (choice.item ?? null);
+  const loserItem = result === CLASH_RESULTS.ATTACK_WIN ? (choice.item ?? null) : attackerItem;
 
   Hooks.callAll("pmttrpg.clashResolved", {
     winner,
     loser,
-    attackerItem,
-    defenderItem:  choice.item ?? null,
+    attackerItem:  winnerItem,
+    defenderItem:  loserItem,
     attackerRoll:  state.attackRollTotal,
     defenderRoll:  defenseResult.total,
     clash:         clashCtx,
