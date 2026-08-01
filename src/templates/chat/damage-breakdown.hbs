@@ -1,5 +1,11 @@
-<ul class="damage-breakdown-list">
-  {{#each rows as |row|}}
-    <li><strong>{{row.label}}</strong> {{row.detail}}</li>
-  {{/each}}
-</ul>
+<div class="damage-breakdown-content">
+  <div class="damage-breakdown-title">{{localize "PMTTRPG.DamageTaken.Breakdown.Title"}}</div>
+  <dl class="damage-breakdown-list">
+    {{#each rows as |row|}}
+      <div class="damage-breakdown-row{{#if row.final}} is-final{{/if}}">
+        <dt>{{row.label}}</dt>
+        <dd>{{row.detail}}</dd>
+      </div>
+    {{/each}}
+  </dl>
+</div>

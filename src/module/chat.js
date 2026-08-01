@@ -231,6 +231,7 @@ async function _chatActionDamage(message, action, button) {
       op,
       damageType,
       attacker: op === "heal" ? null : attacker,
+      sourceLabel: message.speaker?.alias ?? attacker?.name ?? null,
     });
   }
 }
