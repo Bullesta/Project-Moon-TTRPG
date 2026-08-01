@@ -459,11 +459,26 @@ class Parser {
     return { type: "Action", verb, noun, argument, amount, per, target, pool, damageType: dealDamageType ?? null };
   }
 
+  _packPools(pools) {
+    if (!pools.length) return null;
+    return pools.length === 1 ? pools[0] : pools;
+  }
+
+  // Only consume `and` when another pool follows it. Otherwise it starts the next action.
+  _parseAdditionalPools(pools) {
+    while (this.check("KEYWORD", "and")) {
+      const next = this._peekOffset(1);
+      if (!next || (next.type !== "IDENT" && next.type !== "KEYWORD") || !isApplyPoolNoun(next.value)) break;
+      this.consume("KEYWORD", "and");
+      pools.push(resolveApplyPool(this.advance().value));
+    }
+  }
+
   // Damage type and pool may appear in either order.
   _parseDealTypeAndPool() {
-    let pool = null;
+    const pools = [];
     let damageType = null;
-    for (let n = 0; n < 2; n++) {
+    for (let n = 0; n < 8; n++) {
       const tok = this.peek();
       if (!tok) break;
       if (tok.type === "STRING") {
@@ -473,12 +488,14 @@ class Parser {
       }
       if (tok.type !== "IDENT" && tok.type !== "KEYWORD") break;
       if (tok.value === "damage") break;
+      // The pool helper already consumed `and <pool>`. So we can leave action chains alone.
       if (ALL_TARGETS.has(tok.value) || tok.value === "on" || tok.value === "to" || tok.value === "and") break;
 
       if (isApplyPoolNoun(tok.value)) {
-        if (pool) break;
-        pool = resolveApplyPool(tok.value);
+        if (pools.length) break;
+        pools.push(resolveApplyPool(tok.value));
         this.advance();
+        this._parseAdditionalPools(pools);
         continue;
       }
 
@@ -486,7 +503,7 @@ class Parser {
       damageType = tok.value;
       this.advance();
     }
-    return { pool, damageType };
+    return { pool: this._packPools(pools), damageType };
   }
 
   _consumeDamageNoun(after) {
@@ -497,18 +514,13 @@ class Parser {
     this.advance();
   }
 
-  // Parse the optional type and pool before the damage noun.
   _parseDealHealTail(verb) {
     let pool = null;
     let damageType = null;
     if (verb === "deal") {
       ({ pool, damageType } = this._parseDealTypeAndPool());
     } else {
-      const tok = this.peek();
-      if ((tok.type === "IDENT" || tok.type === "KEYWORD") && isApplyPoolNoun(tok.value)) {
-        pool = resolveApplyPool(tok.value);
-        this.advance();
-      }
+      pool = this._parseOptionalHealPool();
     }
 
     // Heal may omit "damage" when the amount comes next.
@@ -655,9 +667,10 @@ class Parser {
   _parseOptionalHealPool() {
     const tok = this.peek();
     if ((tok.type === "IDENT" || tok.type === "KEYWORD") && isApplyPoolNoun(tok.value)) {
-      const pool = resolveApplyPool(tok.value);
+      const pools = [resolveApplyPool(tok.value)];
       this.advance();
-      return pool;
+      this._parseAdditionalPools(pools);
+      return this._packPools(pools);
     }
     return null;
   }
@@ -730,12 +743,15 @@ class Parser {
       const poolKey = String(raw).toLowerCase();
       if (isApplyPoolNoun(poolKey)) {
         convertKind = "pool";
-        convertTo = resolveApplyPool(poolKey);
+        const pools = [resolveApplyPool(poolKey)];
+        this.advance();
+        this._parseAdditionalPools(pools);
+        convertTo = this._packPools(pools);
       } else {
         convertKind = "damageType";
         convertTo = raw;
+        this.advance();
       }
-      this.advance();
     }
 
     return {
@@ -914,6 +930,7 @@ class Parser {
     }
 
     this.consume("KEYWORD", "to");
+    if (this.check("KEYWORD", "do")) this.consume("KEYWORD", "do");
     const gainActions = this.parseNaturalActionChain();
     this.consumeStatementEnd();
 

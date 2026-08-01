@@ -156,6 +156,11 @@ export function buildAppliedDamage(actor, applied, breakdown = []) {
 export function formatBreakdownRows(breakdown = []) {
   return breakdown.map((step) => {
     switch (step.key) {
+      case "source":
+        return {
+          label: game.i18n.localize("PMTTRPG.DamageTaken.Breakdown.Source"),
+          detail: String(step.source ?? ""),
+        };
       case "base":
         return {
           label: game.i18n.localize("PMTTRPG.DamageTaken.Breakdown.Base"),
@@ -224,16 +229,24 @@ export function formatBreakdownRows(breakdown = []) {
           }),
         };
       }
-      case "convert":
+      case "convert": {
+        const formatPools = (raw) => {
+          const list = Array.isArray(raw)
+            ? raw
+            : String(raw ?? "").split(",").map((p) => p.trim()).filter(Boolean);
+          if (!list.length) return "—";
+          return list.map((p) => poolLabel(p) || p).join(", ");
+        };
         return {
           label: game.i18n.localize("PMTTRPG.DamageTaken.Breakdown.Convert"),
           detail: game.i18n.format("PMTTRPG.DamageTaken.Breakdown.ConvertDetail", {
-            fromPool: poolLabel(step.fromPool) || step.fromPool || "—",
-            toPool: poolLabel(step.toPool) || step.toPool || "—",
+            fromPool: formatPools(step.fromPool),
+            toPool: formatPools(step.toPool),
             fromType: step.fromType ? damageTypeLabel(step.fromType) : "—",
             toType: step.toType ? damageTypeLabel(step.toType) : "—",
           }),
         };
+      }
       case "afterResistance":
         return {
           label: (step.pool ? `${poolLabel(step.pool)} · ` : "")
@@ -258,8 +271,9 @@ export function formatBreakdownRows(breakdown = []) {
       }
       case "temp":
         return {
-          label: (step.pool ? `${poolLabel(tempPoolKey(step.pool) ?? step.pool)} · ` : "")
-            + game.i18n.localize("PMTTRPG.DamageTaken.Breakdown.Temp"),
+          label: game.i18n.format("PMTTRPG.DamageTaken.Breakdown.Temp", {
+            pool: step.pool ? poolLabel(tempPoolKey(step.pool) ?? step.pool) : "",
+          }),
           detail: game.i18n.format("PMTTRPG.DamageTaken.Breakdown.TempDetail", {
             absorbed: step.absorbed,
             from: step.from,
@@ -273,6 +287,7 @@ export function formatBreakdownRows(breakdown = []) {
             amount: step.amount,
             pool: poolLabel(step.pool),
           }),
+          final: true,
         };
       default:
         return {
@@ -305,10 +320,11 @@ export async function enhanceDamageTakenCard(message, html) {
     return;
   }
 
-  info.dataset.tooltipHtml = await renderTemplate(
+  const breakdownHtml = await renderTemplate(
     "systems/projectmoonttrpg/templates/chat/damage-breakdown.hbs",
     { rows }
   );
+  info.dataset.tooltipHtml = breakdownHtml;
   info.dataset.tooltipClass = "projectmoonttrpg damage-breakdown-tooltip";
   info.dataset.tooltipDirection = "UP";
 }
@@ -330,26 +346,28 @@ export async function postDamageTakenMessage(actor, appliedDamage) {
   const changes = appliedDamage.changes ?? [];
   const hasChanges = changes.length > 0;
   let statements;
+  let suffix = "";
   if (!hasChanges) {
     statements = game.i18n.format(
       appliedDamage.isHealing ? "PMTTRPG.DamageTaken.NoHeal" : "PMTTRPG.DamageTaken.NoDamage",
       { name }
     );
   } else {
-    const parts = formatDamageTakenParts(changes);
     const allHeal = changes.every((c) => c.delta < 0);
     const allLoss = changes.every((c) => c.delta > 0);
     if (allHeal) {
-      statements = game.i18n.format("PMTTRPG.DamageTaken.Recovers", { name, parts });
+      statements = game.i18n.format("PMTTRPG.DamageTaken.RecoversSummary", { name });
     } else if (allLoss) {
-      statements = game.i18n.format("PMTTRPG.DamageTaken.Takes", { name, parts });
+      statements = game.i18n.format("PMTTRPG.DamageTaken.TakesSummary", { name });
+      suffix = game.i18n.localize("PMTTRPG.DamageTaken.DamageSuffix");
     } else {
-      statements = game.i18n.format("PMTTRPG.DamageTaken.Mixed", { name, parts });
+      statements = game.i18n.format("PMTTRPG.DamageTaken.MixedSummary", { name });
     }
   }
 
   const content = await renderTemplate("systems/projectmoonttrpg/templates/chat/damage-taken.hbs", {
     statements,
+    suffix,
     canUndoDamage: hasChanges && !appliedDamage.isReverted,
     hasBreakdown: !!appliedDamage.breakdown?.length,
     changes: changes.map((c) => ({

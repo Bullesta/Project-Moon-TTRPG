@@ -2,14 +2,17 @@
   <div class="damage-taken__summary">
     <span class="statements">{{{statements}}}</span>
     {{#if changes.length}}
-      <ul class="damage-taken__pools">
-        {{#each changes as |c|}}
-          <li class="damage-taken__pool{{#if c.heal}} is-heal{{else}} is-damage{{/if}}">
-            <span class="amount">{{#if c.heal}}+{{else}}-{{/if}}{{c.amount}}</span>
-            <span class="pool">{{c.label}}</span>
-          </li>
-        {{/each}}
-      </ul>
+      <span class="damage-taken__outcome">
+        <ul class="damage-taken__pools">
+          {{#each changes as |c|}}
+            <li class="damage-taken__pool{{#if c.heal}} is-heal{{else}} is-damage{{/if}}">
+              <span class="amount">{{#if c.heal}}+{{else}}−{{/if}}{{c.amount}}</span>
+              <span class="pool">{{c.label}}</span>
+            </li>
+          {{/each}}
+        </ul>
+        {{#if suffix}}<span class="damage-taken__suffix">{{suffix}}</span>{{/if}}
+      </span>
     {{/if}}
     <div class="damage-taken__actions">
       {{#if hasBreakdown}}
