@@ -261,6 +261,34 @@ const TRIGGER_HOOKS = [
     }),
   },
 
+  // ── [On Applied] ────────────────────────────────────────────────────────────
+  // Fires when the status effect is applied.
+  {
+    hook: "pmttrpg.statusApplied",
+    triggerName: "On Applied",
+    getItems: ({ item }) => item ? [item] : [],
+    buildContext: ({ actor }) => ({
+      self:   actor,
+      target: null,
+      ally:   null,
+      clash:  null,
+    }),
+  },
+
+  // ── [On Removed] ────────────────────────────────────────────────────────────
+  // Fires when the status effect is removed.
+  {
+    hook: "pmttrpg.statusRemoved",
+    triggerName: "On Removed",
+    getItems: ({ item }) => item ? [item] : [],
+    buildContext: ({ actor }) => ({
+      self:   actor,
+      target: null,
+      ally:   null,
+      clash:  null,
+    }),
+  },
+
   // ── [Turn Start] ────────────────────────────────────────────────────────────
   // Fired from combat.js next to statusMacros.emitTurnStart.
   {
@@ -387,7 +415,7 @@ export function applyAlwaysActiveModifiers(actor) {
  * Run defender [On Taking Damage] scripts. Mutates `damage.amount`.
  *
  * @param {Actor} actor  Defender
- * @param {{ amount: number, pool: string, source: string, damageType: string }} damage
+ * @param {{ amount: number, pool: string|string[], source: string, damageType: string }} damage
  * @param {{ attacker?: Actor|null }} [options]
  */
 export async function runOnTakingDamage(actor, damage, options = {}) {

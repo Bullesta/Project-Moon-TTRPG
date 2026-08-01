@@ -43,6 +43,9 @@ PMTTRPG.Health: "Health"
 PMTTRPG.Stagger: "Stagger Threshold"
 PMTTRPG.Mentality: "Sanity"
 PMTTRPG.Light: "Light"
+PMTTRPG.Actions: "Actions"
+PMTTRPG.Reactions: "Reactions"
+PMTTRPG.Movement: "Movement"
 PMTTRPG.EP: "EP"
 PMTTRPG.Augment: "Augment"
 PMTTRPG.Augments: "Augments"
@@ -185,6 +188,9 @@ PMTTRPG.XpMarked: "XP marked"
 PMTTRPG.DamageTaken.Takes: "{name} takes {parts}"
 PMTTRPG.DamageTaken.Recovers: "{name} recovers {parts}"
 PMTTRPG.DamageTaken.Mixed: "{name}: {parts}"
+PMTTRPG.DamageTaken.TakesSummary: "{name} takes damage"
+PMTTRPG.DamageTaken.RecoversSummary: "{name} recovers"
+PMTTRPG.DamageTaken.MixedSummary: "{name}:"
 PMTTRPG.DamageTaken.NoDamage: "{name} took no damage"
 PMTTRPG.DamageTaken.NoHeal: "{name} was not healed"
 PMTTRPG.DamageTaken.LossPart: "{amount} {pool}"
@@ -221,6 +227,11 @@ PMTTRPG.DamageTaken.Breakdown.EasyEffects: "EasyEffects"
 PMTTRPG.DamageTaken.Breakdown.EasyEffectsDetail: "{from} {delta} → {to}"
 PMTTRPG.DamageTaken.Breakdown.Convert: "Converted"
 PMTTRPG.DamageTaken.Breakdown.ConvertDetail: "{fromPool}/{fromType} → {toPool}/{toType}"
+PMTTRPG.DamageTaken.Breakdown.Title: "Damage breakdown"
+PMTTRPG.DamageTaken.Breakdown.Source: "Source"
+PMTTRPG.DamageTaken.Breakdown.DamageType: "Damage type"
+PMTTRPG.DamageTaken.Breakdown.Temp: "{pool} absorbed"
+PMTTRPG.DamageTaken.Breakdown.TempDetail: "{absorbed} · {from} → {to}"
 PMTTRPG.DamageTaken.TypeSelect: "Damage type"
 
 PMTTRPG.ItemSlug: "Slug"
@@ -250,6 +261,9 @@ PMTTRPG.Dialog.currentTurn: 'Current turn'
 
 PMTTRPG.Notifications.noWeaponWarning: 'No weapon is available to use this skill.'
 PMTTRPG.Notifications.noOutfitWarning: 'No outfit is available to use this skill.'
+PMTTRPG.Notifications.actionEconomyInsufficient: '{name} has insufficient {pool} ({current}/{needed}).'
+PMTTRPG.Notifications.convertNoActions: '{name} has no Actions left to convert.'
+PMTTRPG.Notifications.convertActionsCapped: '{name} only has {available} Action(s); converting that many.'
 
 PMTTRPG.Notifications.noClassWarning: 'You must choose a valid class before you can level up.'
 
