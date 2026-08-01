@@ -30,7 +30,14 @@ export async function postAttackCard(state, attackRoll, messageId = null) {
   let message;
   if (messageId) {
     message = game.messages.get(messageId);
-    if (message) await message.update(chatData);
+    if (message) {
+      if (message.isAuthor || game.user.isGM) {
+        await message.update(chatData);
+      } else {
+        game.socket.emit("system.projectmoonttrpg", { message: messageId, content: chatData.content, flags: chatData.flags });
+      }
+      //await message.update(chatData);
+    }
   } else {
     chatData.author = game.user.id;
     chatData.speaker = ChatMessage.getSpeaker({ actor: game.actors.get(state.attackerActorId) });
@@ -47,14 +54,23 @@ export async function updateAttackCard(messageId, updatedState) {
   const content  = await renderTemplate(TEMPLATES.attackCard, {
     state: updatedState, rollHtml, isGM: game.user.isGM, i18n: _attackCardI18n(updatedState),
   });
-  await message.update({
-    content,
-    [`flags.${CLASH_FLAG_SCOPE}.${CLASH_FLAG_KEY}`]: serialiseClashState(updatedState),
-  });
+
+  if (message.isAuthor || game.user.isGM) {
+    await message.update({
+      content: content, 
+      [`flags.${CLASH_FLAG_SCOPE}.${CLASH_FLAG_KEY}`]: serialiseClashState(updatedState) }
+    );
+  } else {
+    game.socket.emit("system.projectmoonttrpg", { 
+      message: messageId, 
+      content: content, 
+      [`flags.${CLASH_FLAG_SCOPE}.${CLASH_FLAG_KEY}`]: serialiseClashState(updatedState) }
+    );
+  }
 }
 
 export async function postResultCard(state, defenseRoll, messageId = null) {
-  const defenseRollHtml = await defenseRoll.render({ isPrivate: false });
+  const defenseRollHtml = await defenseRoll?.render({ isPrivate: false });
   const attackerWon     = state.result === "attackWin";
   const defenderWon     = state.result === "defenseWin";
   const blockWin        = defenderWon && state.retaliationType === "block";
@@ -73,7 +89,14 @@ export async function postResultCard(state, defenseRoll, messageId = null) {
   let message;
   if (messageId) {
     message = game.messages.get(messageId);
-    if (message) await message.update(chatData);
+    if (message) {
+      if (message.isAuthor || game.user.isGM) {
+        await message.update(chatData);
+      } else {
+        game.socket.emit("system.projectmoonttrpg", { message: messageId, content: chatData.content, flags: chatData.flags });
+      }
+      //await message.update(chatData);
+    }
   } else {
     chatData.author = game.user.id;
     chatData.speaker = ChatMessage.getSpeaker({ actor: game.actors.get(state.attackerActorId) });
@@ -142,6 +165,7 @@ function _attackCardI18n(state) {
   return {
     retaliate:    game.i18n.localize("PMTTRPG.Clash.Retaliate"),
     intercept:    game.i18n.localize("PMTTRPG.Clash.Intercept"),
+    using:        game.i18n.localize("PMTTRPG.Clash.Using"),
     attackBy:     game.i18n.format("PMTTRPG.Clash.AttackBy",     { name: state.attackerName }),
     targeting:    state.targetName
       ? game.i18n.format("PMTTRPG.Clash.Targeting",   { name: state.targetName })

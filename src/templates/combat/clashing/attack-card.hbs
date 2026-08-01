@@ -5,10 +5,10 @@
     <img class="clash-card__avatar" src="{{state.attackerImg}}" alt="{{state.attackerName}}">
     <div class="clash-card__header-text">
       <span class="clash-card__actor-name">{{state.attackerName}}</span>
-      <span class="clash-card__item-name">{{state.attackerItemName}}</span>
+      <span class="clash-card__item-name">{{i18n.using}} {{state.attackerItemName}}</span>
       <span class="clash-card__target-line">
         {{#if state.targetName}}
-          {{i18n.targeting}}
+          {{i18n.targeting}} {{state.targetName}}
         {{else}}
           {{i18n.targeting}}
         {{/if}}
@@ -20,22 +20,10 @@
   </div>
 
   {{!-- Roll result — hidden to non-GM until revealed --}}
-  <div class="clash-card__roll-wrapper {{#unless isGM}}clash-roll-hidden{{/unless}}">
+  <div class="clash-card__roll-wrapper">
     <div class="clash-card__roll">
       {{{rollHtml}}}
     </div>
-    {{#unless isGM}}
-      <div class="clash-card__roll-hidden-label">
-        <i class="fa-solid fa-eye-slash"></i>
-        {{i18n.rollHidden}}
-      </div>
-    {{/unless}}
-  </div>
-
-  {{!-- Damage type badge --}}
-  <div class="clash-card__damage-type clash-damage-type--{{state.damageType}}">
-    <i class="clash-damage-icon clash-damage-icon--{{state.damageType}}"></i>
-    {{localize (concat "PMTTRPG.DamageType." state.damageType)}}
   </div>
 
   {{!-- State: pending — show retaliate buttons --}}

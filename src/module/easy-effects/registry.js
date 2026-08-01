@@ -106,8 +106,19 @@ const TRIGGER_HOOKS = [
   {
     hook: "pmttrpg.clashResolved",
     triggerName: "Clash Win",
-    getItems: ({ attackerItem, appliedTool }) =>
-      [attackerItem, appliedTool].filter(Boolean),
+    getItems: ({
+      winner,
+      attacker,
+      attackerItem,
+      defenderItem,
+      appliedTool,
+      defenderAppliedTool,
+    }) => {
+      const attackerWon = winner === attacker;
+      return attackerWon
+        ? [attackerItem, appliedTool].filter(Boolean)
+        : [defenderItem, defenderAppliedTool].filter(Boolean);
+    },
     buildContext: ({ winner, loser, attackerRoll, defenderRoll, clash }) => ({
       self:   winner,
       target: loser,
@@ -120,16 +131,18 @@ const TRIGGER_HOOKS = [
   {
     hook: "pmttrpg.clashResolved",
     triggerName: "Clash Lose",
-    getItems: ({ defenderItem, defenderAppliedTool }) =>
-      [defenderItem, defenderAppliedTool].filter(Boolean),
+    getItems: ({ winner, attacker, attackerItem, defenderItem, appliedTool, defenderAppliedTool }) => {
+      const attackerWon = winner === attacker;
+      return attackerWon
+        ? [defenderItem, defenderAppliedTool].filter(Boolean)
+        : [attackerItem, appliedTool].filter(Boolean);
+    },
     buildContext: ({ winner, loser, attackerRoll, defenderRoll, clash }) => ({
       self:   loser,
       target: winner,
       ally:   null,
       // margin from loser's POV
-      clash:  clash
-        ? { ...clash, margin: (defenderRoll ?? 0) - (attackerRoll ?? 0) }
-        : createClashContext(defenderRoll, attackerRoll),
+      clash:  clash ?? createClashContext(defenderRoll, attackerRoll),
     }),
   },
 

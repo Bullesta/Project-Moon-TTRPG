@@ -78,8 +78,6 @@ export async function initiateAttack(attackPayload) {
   clashCtx.defenderRoll  = 0;
   clashCtx.margin        = 0;
 
-  console.log(attackPayload);
-
   // Create a temporary message to get an ID, then use that ID in the state.
   // This way the buttons have data-message-id when they render.
   const tempMessage = await ChatMessage.create({
@@ -105,6 +103,9 @@ export async function initiateAttack(attackPayload) {
     damageType:        attackPayload.item.system?.damageType ?? "slash",
     attackMessageId:   tempMessage.id,
   });
+
+
+  console.log(state);
 
   await postAttackCard(state, attackPayload.roll, tempMessage.id);
 }
@@ -171,8 +172,14 @@ export async function handleRetaliateClick(state, { isIntercept = false } = {}) 
  * @returns {Promise<void>}
  */
 async function _executeClash(state, retaliatorActor, choice) {
-  const attackerActor  = game.actors.get(state.attackerActorId);
-  const attackerItem   = attackerActor?.items.get(state.attackerItemId) ?? null;
+  const attackerActor  = canvas.tokens.get(state?.attackerTokenId ?? null).actor ?? game.actors.get(state.attackerActorId);
+  let attackerItem   = attackerActor?.items.get(state.attackerItemId) ?? null;
+
+  if(choice.type === RETALIATION_TYPES.ONESIDED) {
+    choice.item = null;
+    state.retaliationItemId = null;
+    state.retaliatorItemName = null;
+  }
 
   // Skill lifecycle — fire Always Active start if retaliating with a skill.
   const isSkill = choice.type === "skill" && choice.item;
@@ -201,9 +208,15 @@ async function _executeClash(state, retaliatorActor, choice) {
       defenseResult = await rollBlock(retaliatorActor, clashCtx.bonuses);
       break;
     case RETALIATION_TYPES.COUNTER:
-    case RETALIATION_TYPES.INTERCEPT:
     case "skill":
       defenseResult = await rollCounter(retaliatorActor, choice.item ?? attackerItem, clashCtx.bonuses);
+      break;
+    case RETALIATION_TYPES.ONESIDED:
+      defenseResult = {
+        total:   0,
+        formula: "1d1-1",
+        terms:   [],
+      };
       break;
     default:
       defenseResult = await rollEvade(retaliatorActor, clashCtx.bonuses);
@@ -242,14 +255,13 @@ async function _executeClash(state, retaliatorActor, choice) {
   // Fire clash resolution hooks for EasyEffects.
   const winner = result === CLASH_RESULTS.ATTACK_WIN ? attackerActor  : retaliatorActor;
   const loser  = result === CLASH_RESULTS.ATTACK_WIN ? retaliatorActor : attackerActor;
-  const winnerItem = result === CLASH_RESULTS.ATTACK_WIN ? attackerItem : (choice.item ?? null);
-  const loserItem = result === CLASH_RESULTS.ATTACK_WIN ? (choice.item ?? null) : attackerItem;
 
   Hooks.callAll("pmttrpg.clashResolved", {
     winner,
     loser,
-    attackerItem:  winnerItem,
-    defenderItem:  loserItem,
+    attacker:      attackerActor,
+    attackerItem:  attackerItem,
+    defenderItem:  choice.item ?? null,
     attackerRoll:  state.attackRollTotal,
     defenderRoll:  defenseResult.total,
     clash:         clashCtx,
