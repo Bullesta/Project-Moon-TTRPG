@@ -1,4 +1,4 @@
-name: Haste [MANUAL]
+name: Haste
 type: status
 _id: PlDRULSweu7CXNXh
 img: systems/projectmoonttrpg/assets/icons/limbus_assets/Basic%20Effects/Haste.webp
@@ -27,7 +27,7 @@ _stats:
   systemId: projectmoonttrpg
   systemVersion: 0.0.1
   createdTime: 1785318840364
-  modifiedTime: 1785426699393
+  modifiedTime: 1785575323026
   lastModifiedBy: yWsvx4DXrmYcZsue
   compendiumSource: null
   duplicateSource: null

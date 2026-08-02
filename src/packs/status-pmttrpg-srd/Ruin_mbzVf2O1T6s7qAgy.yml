@@ -1,5 +1,5 @@
 folder: fMFB6OnVCAkgdA96
-name: Ruin [MANUAL]
+name: Ruin
 type: status
 img: systems/projectmoonttrpg/assets/icons/Statuses/Ruin.webp
 system:
@@ -35,7 +35,7 @@ _stats:
   systemId: projectmoonttrpg
   systemVersion: 0.0.1
   createdTime: 1779621125369
-  modifiedTime: 1785426647541
+  modifiedTime: 1785575297961
   lastModifiedBy: yWsvx4DXrmYcZsue
 _id: mbzVf2O1T6s7qAgy
 sort: 193750

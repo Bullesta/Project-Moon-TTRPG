@@ -1,0 +1,764 @@
+folder: PQ8oN50QoMuTgLeX
+name: Fanghunt Office Grade 7 Fixer
+type: npc
+_id: qOmoRo4BrRyN8JxL
+img: >-
+  systems/projectmoonttrpg/assets/npc_tokens/fanghunt_office_grade_7_fixer.Avatar.webp?1785666730852
+system:
+  attributes:
+    hp:
+      value: 96
+      temp: 0
+      min: 0
+      maxBase: 96
+      maxMisc: 0
+      max: 96
+    st:
+      value: 24
+      temp: 0
+      min: 0
+      maxBase: 24
+      maxMisc: 0
+      max: 24
+    sp:
+      value: 15
+      temp: 0
+      min: 0
+      maxBase: 15
+      maxMisc: 0
+      max: 15
+    level:
+      value: 3
+      min: 0
+      max: 21
+    xp:
+      value: 0
+      min: 0
+      max: 8
+    toolSlots:
+      value: 4
+      used: 0
+      over: false
+      min: 0
+    narrativeSlots:
+      value: 4
+      used: 0
+      over: false
+      min: 0
+    stockSlots:
+      value: 4
+      used: 0
+      over: false
+      min: 0
+    light:
+      value: 0
+      min: 0
+      maxBase: 0
+      maxMisc: 0
+      max: 0
+    actions:
+      value: 0
+      min: 0
+      maxBase: 0
+      maxMisc: 0
+      max: 0
+    reactions:
+      value: 0
+      min: 0
+      maxBase: 0
+      maxMisc: 0
+      max: 0
+    movement:
+      value: 0
+      min: 0
+      maxBase: 0
+      maxMisc: 0
+      max: 0
+    attackModifier:
+      value: 0
+      min: 0
+    evadeModifier:
+      value: 0
+      min: 0
+    blockModifier:
+      value: 0
+      min: 0
+    speed:
+      dice: 1d6
+      bonus: 0
+  details:
+    biography:
+      occupation: ''
+      age: ''
+      height: ''
+      birthplace: ''
+      residence: ''
+      description: ''
+      background: ''
+      personality: ''
+      ahn: 0
+      relationships: ''
+      notes: ''
+      notableHistory: ''
+    gmBrief:
+      complexityGm: 0
+      complexityPlayers: 0
+      strength: ''
+      designIntention: ''
+      recommendedBehavior: ''
+      lore: ''
+      notes: ''
+  abilities:
+    for:
+      value: 2
+      min: -1
+      mod: 0
+      debility: false
+    pru:
+      value: 3
+      min: -1
+      mod: 0
+      debility: false
+    jus:
+      value: 1
+      min: -1
+      mod: 0
+      debility: false
+    cha:
+      value: 3
+      min: -1
+      mod: 0
+      debility: false
+    ins:
+      value: 1
+      min: -1
+      mod: 0
+      debility: false
+    tem:
+      value: 2
+      min: -1
+      mod: 0
+      debility: false
+prototypeToken:
+  name: Fanghunt Office Grade 7 Fixer
+  displayName: 0
+  actorLink: false
+  width: 1
+  height: 1
+  depth: 1
+  texture:
+    src: >-
+      systems/projectmoonttrpg/assets/npc_tokens/fanghunt_office_grade_7_fixer.Token.webp?1785666730852
+    anchorX: 0.5
+    anchorY: 0.5
+    fit: contain
+    scaleX: 1
+    scaleY: 1
+    tint: '#ffffff'
+    alphaThreshold: 0.75
+  lockRotation: false
+  rotation: 0
+  alpha: 1
+  disposition: -1
+  displayBars: 0
+  bar1:
+    attribute: attributes.hp
+  bar2:
+    attribute: attributes.st
+  light:
+    negative: false
+    priority: 0
+    alpha: 0.5
+    angle: 360
+    bright: 0
+    color: null
+    coloration: 1
+    dim: 0
+    attenuation: 0.5
+    luminosity: 0.5
+    saturation: 0
+    contrast: 0
+    shadows: 0
+    animation:
+      type: null
+      speed: 5
+      intensity: 5
+      reverse: false
+    darkness:
+      min: 0
+      max: 1
+  sight:
+    enabled: false
+    range: 0
+    angle: 360
+    visionMode: basic
+    color: null
+    attenuation: 0.1
+    brightness: 0
+    saturation: 0
+    contrast: 0
+  detectionModes: {}
+  occludable:
+    radius: 0
+  ring:
+    enabled: false
+    colors:
+      ring: null
+      background: null
+    effects: 1
+    subject:
+      scale: 1
+      texture: null
+  turnMarker:
+    mode: 1
+    animation: null
+    src: null
+    disposition: false
+  movementAction: null
+  flags: {}
+  randomImg: false
+  appendNumber: false
+  prependAdjective: false
+items:
+  - name: Anti-Bloodfiend Hammer
+    type: weapon
+    system:
+      name: ''
+      description: ''
+      slug: ''
+      weaponType: melee
+      damageType: blunt
+      damageTypeFixed: false
+      formProperty: medium
+      handProperty: off2h
+      offensiveDice: 1d10+0
+      rank: 2
+      effects:
+        - effectUuid: >-
+            Compendium.projectmoonttrpg.effects-pmttrpg-srd.Item.rcvmgXiTeAdqKJpZ
+          name: Inflict Rupture
+          cost: 1
+          stackMax: 6
+          stack: 4
+          count: 4
+          mode: positive
+          appliesTo: weapon
+          canPositive: true
+          canNegative: true
+          procOn: onClash
+          procResult: win
+          procResultLocked: false
+          procStat: any
+          procDice: any
+          procAction: any
+          procCondition: ''
+          positive: Apply [N] Rupture to the target next round
+          negative: Apply [N] Rupture to the character next round
+          macro:
+            uuid: ''
+        - effectUuid: >-
+            Compendium.projectmoonttrpg.effects-pmttrpg-srd.Item.sJxGlT6vnMdEHoLg
+          name: Inflict Fragile
+          cost: 3
+          stackMax: 5
+          stack: 2
+          count: 2
+          mode: positive
+          appliesTo: weapon
+          canPositive: true
+          canNegative: true
+          procOn: onClash
+          procResult: win
+          procResultLocked: false
+          procStat: any
+          procDice: any
+          procAction: any
+          procCondition: ''
+          positive: Apply [N] Fragile to the target
+          negative: Apply [N] Fragile to the character next round
+          macro:
+            uuid: ''
+        - effectUuid: >-
+            Compendium.projectmoonttrpg.effects-pmttrpg-srd.Item.rcvmgXiTeAdqKJpZ
+          name: Inflict Rupture
+          cost: 1
+          stackMax: 6
+          stack: 4
+          count: 4
+          mode: negative
+          appliesTo: weapon
+          canPositive: true
+          canNegative: true
+          procOn: onClash
+          procResult: lose
+          procResultLocked: false
+          procStat: any
+          procDice: any
+          procAction: any
+          procCondition: ''
+          positive: Apply [N] Rupture to the target next round
+          negative: Apply [N] Rupture to the character next round
+          macro:
+            uuid: ''
+      equipped: true
+      customNotes: ''
+      easyEffects: ''
+    _id: 3erMksd8NB0gbp5o
+    img: >-
+      systems/projectmoonttrpg/assets/icons/limbus_assets/Misc%20ID%20EGO%20Specific/When%20caving%20in%20the%20back%20of%20the%20skull%20with%20a%20hammer....webp
+    effects: []
+    folder: null
+    sort: 0
+    ownership:
+      default: 0
+      yWsvx4DXrmYcZsue: 3
+    flags: {}
+    _stats:
+      coreVersion: '14.364'
+      systemId: projectmoonttrpg
+      systemVersion: 0.0.1
+      createdTime: 1785666765963
+      modifiedTime: 1785666843707
+      lastModifiedBy: yWsvx4DXrmYcZsue
+      compendiumSource: null
+      duplicateSource: null
+      exportSource: null
+    _key: '!actors.items!qOmoRo4BrRyN8JxL.3erMksd8NB0gbp5o'
+  - name: Fanghunt Office Equipment
+    type: outfit
+    system:
+      name: ''
+      description: ''
+      slug: ''
+      outfitProperty: swift
+      rank: 2
+      blockDice: 1d10+0
+      evadeDice: 1d12+0
+      blockDiceComputed: 1d10+0
+      evadeDiceComputed: 1d12+0
+      blockDicePower: 0
+      evadeDicePower: 0
+      bonusLight: 0
+      bonusEP: 0
+      effects:
+        - effectUuid: >-
+            Compendium.projectmoonttrpg.effects-pmttrpg-srd.Item.JxVDSLuef8TcyzKx
+          name: Bleed Resistance
+          cost: 3
+          stackMax: 5
+          stack: 2
+          count: 2
+          mode: positive
+          appliesTo: outfit
+          canPositive: true
+          canNegative: true
+          procOn: alwaysActive
+          procResult: none
+          procResultLocked: false
+          procStat: any
+          procDice: any
+          procAction: any
+          procCondition: ''
+          positive: Reduce HP Damage taken from Bleed by [N]
+          negative: Increase HP Damage taken from Bleed by [N]
+          macro:
+            uuid: ''
+        - effectUuid: >-
+            Compendium.projectmoonttrpg.effects-pmttrpg-srd.Item.VztdPpAJTU9fmulE
+          name: Light Material
+          cost: 3
+          stackMax: 5
+          stack: 2
+          count: 2
+          mode: negative
+          appliesTo: outfit
+          canPositive: true
+          canNegative: true
+          procOn: alwaysActive
+          procResult: none
+          procResultLocked: false
+          procStat: any
+          procDice: any
+          procAction: any
+          procCondition: ''
+          positive: Increase your Dash movement by [N]
+          negative: Decrease your Dash movement by [N]
+          macro:
+            uuid: ''
+        - effectUuid: >-
+            Compendium.projectmoonttrpg.effects-pmttrpg-srd.Item.lUN4krDU8qO5d9Kd
+          name: Insulated Fabric
+          cost: 3
+          stackMax: 5
+          stack: 2
+          count: 2
+          mode: positive
+          appliesTo: outfit
+          canPositive: true
+          canNegative: true
+          procOn: alwaysActive
+          procResult: none
+          procResultLocked: false
+          procStat: any
+          procDice: any
+          procAction: any
+          procCondition: ''
+          positive: When taking the Reduce Status Action, clear [N*2] more status.
+          negative: When taking the Reduce Status Action, clear [N*2] less status.
+          macro:
+            uuid: ''
+      resistances:
+        hp:
+          slash: weak
+          pierce: normal
+          blunt: normal
+        st:
+          slash: weak
+          pierce: normal
+          blunt: normal
+      equipped: true
+      customNotes: ''
+      easyEffects: |-
+        # >>> synced effects
+        # Bleed Resistance
+        [On Taking Bleed Damage]
+        reduce damage by 2;
+        # <<< synced effects
+    _id: cTacVfd2vHYTa5zZ
+    img: >-
+      systems/projectmoonttrpg/assets/icons/limbus_assets/Misc%20Enemy%20Exclusive/Canto%207/Irresponsible%20Dream.webp
+    effects: []
+    folder: null
+    sort: 0
+    ownership:
+      default: 0
+      yWsvx4DXrmYcZsue: 3
+    flags: {}
+    _stats:
+      coreVersion: '14.364'
+      systemId: projectmoonttrpg
+      systemVersion: 0.0.1
+      createdTime: 1785666849389
+      modifiedTime: 1785666978131
+      lastModifiedBy: yWsvx4DXrmYcZsue
+      compendiumSource: null
+      duplicateSource: null
+      exportSource: null
+    _key: '!actors.items!qOmoRo4BrRyN8JxL.cTacVfd2vHYTa5zZ'
+  - name: Styptics
+    type: augment
+    system:
+      name: ''
+      description: ''
+      slug: ''
+      rank: 1
+      effects:
+        - effectUuid: >-
+            Compendium.projectmoonttrpg.effects-pmttrpg-srd.Item.yatEpxtAtip7tJv9
+          name: Rupture Bonus
+          cost: 2
+          stackMax: 1
+          stack: 1
+          count: 1
+          mode: positive
+          appliesTo: augment
+          canPositive: true
+          canNegative: false
+          procOn: alwaysActive
+          procResult: none
+          procResultLocked: false
+          procStat: any
+          procDice: any
+          procAction: action
+          procCondition: ''
+          positive: <p>If the target has Rupture, gain 1 Dice Power Up.</p>
+          negative: ''
+          macro:
+            uuid: ''
+        - effectUuid: >-
+            Compendium.projectmoonttrpg.effects-pmttrpg-srd.Item.VeFFv0mLQSbaihHw
+          name: Bleed Resistance
+          cost: 1
+          stackMax: 5
+          stack: 4
+          count: 4
+          mode: positive
+          appliesTo: augment
+          canPositive: true
+          canNegative: true
+          procOn: alwaysActive
+          procResult: none
+          procResultLocked: false
+          procStat: any
+          procDice: any
+          procAction: any
+          procCondition: ''
+          positive: <p>Reduce HP Damage taken from Bleed by [N]</p>
+          negative: <p>Increases HP Damage taken from Bleed by [N]</p>
+          macro:
+            uuid: ''
+        - effectUuid: >-
+            Compendium.projectmoonttrpg.effects-pmttrpg-srd.Item.cppjR9uMe8fm6Cxx
+          name: Inflict Rupture
+          cost: 1
+          stackMax: 6
+          stack: 2
+          count: 2
+          mode: positive
+          appliesTo: augment
+          canPositive: true
+          canNegative: false
+          procOn: onClash
+          procResult: win
+          procResultLocked: false
+          procStat: any
+          procDice: any
+          procAction: action
+          procCondition: ''
+          positive: <p>Apply [N] Rupture to the target next round.</p>
+          negative: ''
+          macro:
+            uuid: ''
+      customNotes: ''
+      easyEffects: ''
+      equipped: true
+    _id: muu6AP1tSTCrDF66
+    img: >-
+      systems/projectmoonttrpg/assets/icons/limbus_assets/Ally%20Unit/Blinding%20Blood%20%5B%E7%9B%B2%E8%A1%80%5D.webp
+    effects: []
+    folder: null
+    sort: 0
+    ownership:
+      default: 0
+      yWsvx4DXrmYcZsue: 3
+    flags: {}
+    _stats:
+      coreVersion: '14.364'
+      systemId: projectmoonttrpg
+      systemVersion: 0.0.1
+      createdTime: 1785666986571
+      modifiedTime: 1785667056683
+      lastModifiedBy: yWsvx4DXrmYcZsue
+      compendiumSource: null
+      duplicateSource: null
+      exportSource: null
+    _key: '!actors.items!qOmoRo4BrRyN8JxL.muu6AP1tSTCrDF66'
+  - name: Crush Wounds
+    type: skill
+    system:
+      name: ''
+      description: ''
+      slug: ''
+      skillType: attack
+      rank: 2
+      lightCost: 1
+      innate: false
+      stat: for
+      effects:
+        - effectUuid: Item.AJw18BNflIyYZeup
+          name: Inflict Rupture
+          cost: 1
+          stackMax: 6
+          stack: 4
+          count: 4
+          mode: positive
+          appliesTo: skill
+          canPositive: true
+          canNegative: true
+          procOn: onClashResult
+          procResult: win
+          procResultLocked: false
+          procStat: any
+          procDice: any
+          procAction: any
+          procCondition: ''
+          positive: <p>Apply [N] Rupture to the target next round.</p>
+          negative: <p>Apply [N] Rupture to the character next round.</p>
+          macro:
+            uuid: ''
+        - effectUuid: Item.XOyaiGQGMtbB0Aq6
+          name: Rupture Bonus
+          cost: 2
+          stackMax: 5
+          stack: 1
+          count: 1
+          mode: positive
+          appliesTo: skill
+          canPositive: true
+          canNegative: false
+          procOn: alwaysActive
+          procResult: none
+          procResultLocked: false
+          procStat: any
+          procDice: any
+          procAction: any
+          procCondition: ''
+          positive: >-
+            <p>If the target has [N*2+2] or more Rupture stacks, increase Dice
+            Power by [N].</p>
+          negative: ''
+          macro:
+            uuid: ''
+        - effectUuid: Item.AJw18BNflIyYZeup
+          name: Inflict Rupture
+          cost: 1
+          stackMax: 6
+          stack: 3
+          count: 3
+          mode: negative
+          appliesTo: skill
+          canPositive: true
+          canNegative: true
+          procOn: onClashResult
+          procResult: lose
+          procResultLocked: false
+          procStat: any
+          procDice: any
+          procAction: any
+          procCondition: ''
+          positive: <p>Apply [N] Rupture to the target next round.</p>
+          negative: <p>Apply [N] Rupture to the character next round.</p>
+          macro:
+            uuid: ''
+      customNotes: ''
+      easyEffects: ''
+      equipped: true
+    _id: cmNQOcyhxuGDoGDd
+    img: >-
+      systems/projectmoonttrpg/assets/icons/limbus_assets/Misc%20ID%20EGO%20Specific/When%20caving%20in%20the%20back%20of%20the%20skull%20with%20a%20hammer....webp
+    effects: []
+    folder: null
+    sort: 0
+    ownership:
+      default: 0
+      yWsvx4DXrmYcZsue: 3
+    flags: {}
+    _stats:
+      coreVersion: '14.364'
+      systemId: projectmoonttrpg
+      systemVersion: 0.0.1
+      createdTime: 1785667063544
+      modifiedTime: 1785667197708
+      lastModifiedBy: yWsvx4DXrmYcZsue
+      compendiumSource: null
+      duplicateSource: null
+      exportSource: null
+    _key: '!actors.items!qOmoRo4BrRyN8JxL.cmNQOcyhxuGDoGDd'
+  - name: Wild Swinging
+    type: skill
+    system:
+      name: ''
+      description: ''
+      slug: ''
+      skillType: attack
+      rank: 2
+      lightCost: 1
+      innate: false
+      stat: for
+      effects:
+        - effectUuid: Item.XOyaiGQGMtbB0Aq6
+          name: Rupture Bonus
+          cost: 2
+          stackMax: 5
+          stack: 2
+          count: 2
+          mode: positive
+          appliesTo: skill
+          canPositive: true
+          canNegative: false
+          procOn: alwaysActive
+          procResult: none
+          procResultLocked: false
+          procStat: any
+          procDice: any
+          procAction: any
+          procCondition: ''
+          positive: >-
+            <p>If the target has [N*2+2] or more Rupture stacks, increase Dice
+            Power by [N].</p>
+          negative: ''
+          macro:
+            uuid: ''
+        - effectUuid: Item.AJw18BNflIyYZeup
+          name: Inflict Rupture
+          cost: 1
+          stackMax: 6
+          stack: 2
+          count: 2
+          mode: positive
+          appliesTo: skill
+          canPositive: true
+          canNegative: true
+          procOn: onClashResult
+          procResult: win
+          procResultLocked: false
+          procStat: any
+          procDice: any
+          procAction: any
+          procCondition: ''
+          positive: <p>Apply [N] Rupture to the target next round.</p>
+          negative: <p>Apply [N] Rupture to the character next round.</p>
+          macro:
+            uuid: ''
+        - effectUuid: Item.AJw18BNflIyYZeup
+          name: Inflict Rupture
+          cost: 1
+          stackMax: 6
+          stack: 6
+          count: 6
+          mode: negative
+          appliesTo: skill
+          canPositive: true
+          canNegative: true
+          procOn: onClashResult
+          procResult: lose
+          procResultLocked: false
+          procStat: any
+          procDice: any
+          procAction: any
+          procCondition: ''
+          positive: <p>Apply [N] Rupture to the target next round.</p>
+          negative: <p>Apply [N] Rupture to the character next round.</p>
+          macro:
+            uuid: ''
+      customNotes: ''
+      easyEffects: ''
+      equipped: true
+    _id: UDqIcXdA1p6PCSA9
+    img: >-
+      systems/projectmoonttrpg/assets/icons/limbus_assets/Basic%20Effects/Unfocused%20Volley.webp
+    effects: []
+    folder: null
+    sort: 0
+    ownership:
+      default: 0
+      yWsvx4DXrmYcZsue: 3
+    flags: {}
+    _stats:
+      coreVersion: '14.364'
+      systemId: projectmoonttrpg
+      systemVersion: 0.0.1
+      createdTime: 1785667063692
+      modifiedTime: 1785667317078
+      lastModifiedBy: yWsvx4DXrmYcZsue
+      compendiumSource: null
+      duplicateSource: null
+      exportSource: null
+    _key: '!actors.items!qOmoRo4BrRyN8JxL.UDqIcXdA1p6PCSA9'
+effects: []
+sort: 0
+ownership:
+  default: 0
+  yWsvx4DXrmYcZsue: 3
+flags: {}
+_stats:
+  coreVersion: '14.364'
+  systemId: projectmoonttrpg
+  systemVersion: 0.0.1
+  createdTime: 1785666690279
+  modifiedTime: 1785666755509
+  lastModifiedBy: yWsvx4DXrmYcZsue
+  compendiumSource: null
+  duplicateSource: null
+  exportSource: null
+_key: '!actors!qOmoRo4BrRyN8JxL'

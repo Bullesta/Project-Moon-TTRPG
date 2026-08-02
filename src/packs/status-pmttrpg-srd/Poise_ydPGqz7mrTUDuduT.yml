@@ -1,5 +1,5 @@
 folder: fMFB6OnVCAkgdA96
-name: Poise [MANUAL]
+name: Poise
 type: status
 img: systems/projectmoonttrpg/assets/icons/Statuses/Poise.webp
 system:
@@ -35,7 +35,7 @@ _stats:
   systemId: projectmoonttrpg
   systemVersion: 0.0.1
   createdTime: 1779621123777
-  modifiedTime: 1785426643022
+  modifiedTime: 1785575290448
   lastModifiedBy: yWsvx4DXrmYcZsue
 _id: ydPGqz7mrTUDuduT
 sort: 300000

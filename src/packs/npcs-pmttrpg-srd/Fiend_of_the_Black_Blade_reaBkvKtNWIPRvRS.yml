@@ -1,0 +1,968 @@
+folder: 5ZGY3Bwkp14wrZzA
+name: Fiend of the Black Blade
+type: npc
+_id: reaBkvKtNWIPRvRS
+img: >-
+  systems/projectmoonttrpg/assets/npc_tokens/fiend_of_the_black_blade.Avatar.webp?1785665412754
+system:
+  attributes:
+    hp:
+      value: 999
+      temp: 0
+      min: 0
+      maxBase: 96
+      maxMisc: 0
+      max: 96
+    st:
+      value: 99
+      temp: 0
+      min: 0
+      maxBase: 24
+      maxMisc: 0
+      max: 24
+    sp:
+      value: 99
+      temp: 0
+      min: 0
+      maxBase: 15
+      maxMisc: 0
+      max: 15
+    level:
+      value: 6
+      min: 0
+      max: 21
+    xp:
+      value: 0
+      min: 0
+      max: 8
+    toolSlots:
+      value: 4
+      used: 0
+      over: false
+      min: 0
+    narrativeSlots:
+      value: 4
+      used: 0
+      over: false
+      min: 0
+    stockSlots:
+      value: 4
+      used: 0
+      over: false
+      min: 0
+    light:
+      value: 99
+      min: 0
+      maxBase: 0
+      maxMisc: 0
+      max: 0
+    actions:
+      value: 0
+      min: 0
+      maxBase: 0
+      maxMisc: 0
+      max: 0
+    reactions:
+      value: 0
+      min: 0
+      maxBase: 0
+      maxMisc: 0
+      max: 0
+    movement:
+      value: 0
+      min: 0
+      maxBase: 0
+      maxMisc: 0
+      max: 0
+    attackModifier:
+      value: 0
+      min: 0
+    evadeModifier:
+      value: 0
+      min: 0
+    blockModifier:
+      value: 0
+      min: 0
+    speed:
+      dice: 1d6
+      bonus: 0
+  details:
+    biography:
+      occupation: ''
+      age: ''
+      height: ''
+      birthplace: ''
+      residence: ''
+      description: ''
+      background: ''
+      personality: ''
+      ahn: 0
+      relationships: ''
+      notes: ''
+      notableHistory: ''
+    gmBrief:
+      complexityGm: 0
+      complexityPlayers: 0
+      strength: ''
+      designIntention: >-
+        This is supposed to be an elite enemy, utilising poise for defensive
+        purpouses and ruin offensively, with all his skills providing instant
+        status, he is ready to react as needed, while maintaning pressure. The
+        Fiend should not use both his weapons immidietly, rather, it should be
+        unsheathed only against those he deems "worthy". When dual weilding,
+        Utilise skills on secondary attacks, eather on second action or off hand
+        attack to maximise poise/ruin use before utilising instant effects for
+        rapid trigger. Additionally, due to Striker stance, it is possible to
+        perform an attack off of a succesfull critical hit with Bulwark Defence,
+        providing additional offensive pressure options
+      recommendedBehavior: ''
+      lore: >-
+        A roaming swordsman, a lone fixer of some renown. Where most fixers are
+        contracted, The Fiend has ever only chosen himself what contracts to
+        complete, appearing with no warning and disapearing just as suddenly,
+        his record is immaculate but many suspect there is a deeper malice
+        within the swordsman, as such noone works with him willingly due to fear
+        and suspicion.
+      notes: ''
+  abilities:
+    for:
+      value: 3
+      min: -1
+      mod: 0
+      debility: false
+    pru:
+      value: 4
+      min: -1
+      mod: 0
+      debility: false
+    jus:
+      value: 3
+      min: -1
+      mod: 0
+      debility: false
+    cha:
+      value: 3
+      min: -1
+      mod: 0
+      debility: false
+    ins:
+      value: 3
+      min: -1
+      mod: 0
+      debility: false
+    tem:
+      value: 4
+      min: -1
+      mod: 0
+      debility: false
+prototypeToken:
+  name: Fiend of the Black Blade
+  displayName: 0
+  actorLink: false
+  width: 1
+  height: 1
+  depth: 1
+  texture:
+    src: >-
+      systems/projectmoonttrpg/assets/npc_tokens/fiend_of_the_black_blade.Token.webp?1785665412754
+    anchorX: 0.5
+    anchorY: 0.5
+    fit: contain
+    scaleX: 1
+    scaleY: 1
+    tint: '#ffffff'
+    alphaThreshold: 0.75
+  lockRotation: false
+  rotation: 0
+  alpha: 1
+  disposition: -1
+  displayBars: 0
+  bar1:
+    attribute: attributes.hp
+  bar2:
+    attribute: attributes.st
+  light:
+    negative: false
+    priority: 0
+    alpha: 0.5
+    angle: 360
+    bright: 0
+    color: null
+    coloration: 1
+    dim: 0
+    attenuation: 0.5
+    luminosity: 0.5
+    saturation: 0
+    contrast: 0
+    shadows: 0
+    animation:
+      type: null
+      speed: 5
+      intensity: 5
+      reverse: false
+    darkness:
+      min: 0
+      max: 1
+  sight:
+    enabled: false
+    range: 0
+    angle: 360
+    visionMode: basic
+    color: null
+    attenuation: 0.1
+    brightness: 0
+    saturation: 0
+    contrast: 0
+  detectionModes: {}
+  occludable:
+    radius: 0
+  ring:
+    enabled: false
+    colors:
+      ring: null
+      background: null
+    effects: 1
+    subject:
+      scale: 1
+      texture: null
+  turnMarker:
+    mode: 1
+    animation: null
+    src: null
+    disposition: false
+  movementAction: null
+  flags: {}
+  randomImg: false
+  appendNumber: false
+  prependAdjective: false
+items:
+  - name: Karmic Blade
+    type: weapon
+    system:
+      name: ''
+      description: ''
+      slug: ''
+      weaponType: melee
+      damageType: slash
+      damageTypeFixed: false
+      formProperty: long
+      handProperty: off2h
+      offensiveDice: 1d10+0
+      rank: 3
+      effects:
+        - effectUuid: >-
+            Compendium.projectmoonttrpg.effects-pmttrpg-srd.Item.AFwz3GTa6tiSUntR
+          name: Inflict Ruin
+          cost: 2
+          stackMax: 5
+          stack: 3
+          count: 3
+          mode: positive
+          appliesTo: weapon
+          canPositive: true
+          canNegative: true
+          procOn: onClash
+          procResult: win
+          procResultLocked: false
+          procStat: any
+          procDice: any
+          procAction: any
+          procCondition: ''
+          positive: Apply [N] Ruin to the target
+          negative: Apply [N] Ruin to the character
+          macro:
+            uuid: ''
+        - effectUuid: >-
+            Compendium.projectmoonttrpg.effects-pmttrpg-srd.Item.EF8SLWIy9aIaZnrk
+          name: Gain Poise
+          cost: 2
+          stackMax: 5
+          stack: 2
+          count: 2
+          mode: positive
+          appliesTo: weapon
+          canPositive: true
+          canNegative: true
+          procOn: onClash
+          procResult: lose
+          procResultLocked: false
+          procStat: any
+          procDice: any
+          procAction: any
+          procCondition: ''
+          positive: Apply [N] Poise to the character
+          negative: Apply [N] Poise to the target
+          macro:
+            uuid: ''
+      equipped: true
+      customNotes: ''
+      easyEffects: ''
+    _id: U3tbAJL8oy26UGyG
+    img: >-
+      systems/projectmoonttrpg/assets/icons/limbus_assets/Misc%20ID%20EGO%20Specific/Dark%20Cloud%20Blade.webp
+    effects: []
+    folder: null
+    sort: 0
+    ownership:
+      default: 0
+      yWsvx4DXrmYcZsue: 3
+    flags: {}
+    _stats:
+      coreVersion: '14.364'
+      systemId: projectmoonttrpg
+      systemVersion: 0.0.1
+      createdTime: 1785665454724
+      modifiedTime: 1785665530060
+      lastModifiedBy: yWsvx4DXrmYcZsue
+      compendiumSource: null
+      duplicateSource: null
+      exportSource: null
+    _key: '!actors.items!reaBkvKtNWIPRvRS.U3tbAJL8oy26UGyG'
+  - name: The Black Blade
+    type: weapon
+    system:
+      name: ''
+      description: ''
+      slug: ''
+      weaponType: melee
+      damageType: slash
+      damageTypeFixed: false
+      formProperty: null
+      handProperty: null
+      offensiveDice: 1d10+0
+      rank: 3
+      effects:
+        - effectUuid: >-
+            Compendium.projectmoonttrpg.effects-pmttrpg-srd.Item.sJxGlT6vnMdEHoLg
+          name: Inflict Fragile
+          cost: 3
+          stackMax: 5
+          stack: 3
+          count: 3
+          mode: positive
+          appliesTo: weapon
+          canPositive: true
+          canNegative: true
+          procOn: onClash
+          procResult: win
+          procResultLocked: false
+          procStat: any
+          procDice: any
+          procAction: any
+          procCondition: ''
+          positive: Apply [N] Fragile to the target
+          negative: Apply [N] Fragile to the character next round
+          macro:
+            uuid: ''
+        - effectUuid: >-
+            Compendium.projectmoonttrpg.effects-pmttrpg-srd.Item.rcvmgXiTeAdqKJpZ
+          name: Inflict Rupture
+          cost: 1
+          stackMax: 6
+          stack: 1
+          count: 1
+          mode: negative
+          appliesTo: weapon
+          canPositive: true
+          canNegative: true
+          procOn: onClash
+          procResult: lose
+          procResultLocked: false
+          procStat: any
+          procDice: any
+          procAction: any
+          procCondition: ''
+          positive: Apply [N] Rupture to the target next round
+          negative: Apply [N] Rupture to the character next round
+          macro:
+            uuid: ''
+      equipped: true
+      customNotes: ''
+      easyEffects: ''
+    _id: HMn7IC0t3uS7ORzu
+    img: >-
+      systems/projectmoonttrpg/assets/icons/limbus_assets/Misc%20ID%20EGO%20Specific/Exalted%20Command.webp
+    effects: []
+    folder: null
+    sort: 0
+    ownership:
+      default: 0
+      yWsvx4DXrmYcZsue: 3
+    flags: {}
+    _stats:
+      coreVersion: '14.364'
+      systemId: projectmoonttrpg
+      systemVersion: 0.0.1
+      createdTime: 1785665539453
+      modifiedTime: 1785665582453
+      lastModifiedBy: yWsvx4DXrmYcZsue
+      compendiumSource: null
+      duplicateSource: null
+      exportSource: null
+    _key: '!actors.items!reaBkvKtNWIPRvRS.HMn7IC0t3uS7ORzu'
+  - name: Reaper Robes
+    type: outfit
+    system:
+      name: ''
+      description: ''
+      slug: ''
+      outfitProperty: balanced
+      rank: 3
+      blockDice: 1d10+0
+      evadeDice: 1d12+0
+      blockDiceComputed: 1d10+0
+      evadeDiceComputed: 1d12+0
+      blockDicePower: 0
+      evadeDicePower: 0
+      bonusLight: 0
+      bonusEP: 0
+      effects:
+        - effectUuid: >-
+            Compendium.projectmoonttrpg.effects-pmttrpg-srd.Item.XkvUThgKklZLl3wh
+          name: Inflict Ruin
+          cost: 2
+          stackMax: 5
+          stack: 2
+          count: 2
+          mode: positive
+          appliesTo: outfit
+          canPositive: true
+          canNegative: true
+          procOn: onClash
+          procResult: win
+          procResultLocked: false
+          procStat: any
+          procDice: any
+          procAction: any
+          procCondition: ''
+          positive: Apply [N] Ruin to the target
+          negative: Apply [N] Ruin to the character
+          macro:
+            uuid: ''
+        - effectUuid: >-
+            Compendium.projectmoonttrpg.effects-pmttrpg-srd.Item.CXpSbx19tOjM9N2I
+          name: Gain Poise
+          cost: 2
+          stackMax: 5
+          stack: 3
+          count: 3
+          mode: positive
+          appliesTo: outfit
+          canPositive: true
+          canNegative: true
+          procOn: onClash
+          procResult: lose
+          procResultLocked: false
+          procStat: any
+          procDice: any
+          procAction: any
+          procCondition: ''
+          positive: Apply [N] Poise to the character
+          negative: Apply [N] Poise to the target
+          macro:
+            uuid: ''
+      resistances:
+        hp:
+          slash: endured
+          pierce: normal
+          blunt: weak
+        st:
+          slash: endured
+          pierce: normal
+          blunt: weak
+      equipped: true
+      customNotes: ''
+      easyEffects: ''
+    _id: 8HuzaJelRaDIErdP
+    img: >-
+      systems/projectmoonttrpg/assets/icons/limbus_assets/Misc%20ID%20EGO%20Specific/Leash-holder%20of%20All%20Heishou.webp
+    effects: []
+    folder: null
+    sort: 0
+    ownership:
+      default: 0
+      yWsvx4DXrmYcZsue: 3
+    flags: {}
+    _stats:
+      coreVersion: '14.364'
+      systemId: projectmoonttrpg
+      systemVersion: 0.0.1
+      createdTime: 1785665589016
+      modifiedTime: 1785665663310
+      lastModifiedBy: yWsvx4DXrmYcZsue
+      compendiumSource: null
+      duplicateSource: null
+      exportSource: null
+    _key: '!actors.items!reaBkvKtNWIPRvRS.8HuzaJelRaDIErdP'
+  - name: Black Fiend Augments
+    type: augment
+    system:
+      name: ''
+      description: ''
+      slug: ''
+      rank: 1
+      effects:
+        - effectUuid: >-
+            Compendium.projectmoonttrpg.effects-pmttrpg-srd.Item.tOtLeSB40s3L2sRE
+          name: Ruin Bonus
+          cost: 2
+          stackMax: 1
+          stack: 1
+          count: 1
+          mode: positive
+          appliesTo: augment
+          canPositive: true
+          canNegative: false
+          procOn: alwaysActive
+          procResult: none
+          procResultLocked: false
+          procStat: any
+          procDice: any
+          procAction: action
+          procCondition: ''
+          positive: <p>If the target has 4 or more Ruin, gain 1 Dice Power Up.</p>
+          negative: ''
+          macro:
+            uuid: ''
+        - effectUuid: >-
+            Compendium.projectmoonttrpg.effects-pmttrpg-srd.Item.zVMPbUdMCnX2bQNB
+          name: Poise Bonus
+          cost: 2
+          stackMax: 1
+          stack: 1
+          count: 1
+          mode: positive
+          appliesTo: augment
+          canPositive: true
+          canNegative: false
+          procOn: alwaysActive
+          procResult: none
+          procResultLocked: false
+          procStat: any
+          procDice: any
+          procAction: action
+          procCondition: ''
+          positive: <p>If the character has 4 or more Poise, gain 1 Dice Power Up.</p>
+          negative: ''
+          macro:
+            uuid: ''
+        - effectUuid: >-
+            Compendium.projectmoonttrpg.effects-pmttrpg-srd.Item.QKkR4jBReemYWQet
+          name: Striker Stance
+          cost: 4
+          stackMax: 1
+          stack: 1
+          count: 1
+          mode: positive
+          appliesTo: augment
+          canPositive: true
+          canNegative: false
+          procOn: alwaysActive
+          procResult: none
+          procResultLocked: false
+          procStat: any
+          procDice: any
+          procAction: any
+          procCondition: ''
+          positive: >-
+            <p>By spending 1 Reaction, you may activate/swap to Striker
+            Stance.</p><p>[On Crit] with this Stance active, you may perform an
+            additional Attack, once per round.</p><p>This additional Attack must
+            use the same weapon, cannot use Skills, and rolls with -2 Dice
+            Power. If the Critical Hit was a result of a Defensive Reaction,
+            this Attack may be performed with any applicable held weapon.</p>
+          negative: ''
+          macro:
+            uuid: ''
+        - effectUuid: >-
+            Compendium.projectmoonttrpg.effects-pmttrpg-srd.Item.w5qGqNaV2tGRzhvR
+          name: Strong Arm
+          cost: 4
+          stack: 1
+          count: 1
+          mode: positive
+          appliesTo: augment
+          canPositive: true
+          canNegative: false
+          allowModeToggle: false
+          procOn: alwaysActive
+          procResult: none
+          procResultLocked: false
+          procStat: any
+          procDice: any
+          procAction: any
+          procCondition: ''
+          stackMax: 2
+          positive: >-
+            <p>The character may wield a 2-Handed weapon in a single hand. This
+            applies to [N] hands.</p>
+          negative: ''
+          macro:
+            uuid: ''
+      customNotes: ''
+      easyEffects: ''
+      equipped: true
+    _id: 8XfCfUm3sPjlOp69
+    img: >-
+      systems/projectmoonttrpg/assets/icons/limbus_assets/Basic%20Effects/Factions/Heishou/Serpent%20Arm.webp
+    effects: []
+    folder: null
+    sort: 0
+    ownership:
+      default: 0
+      yWsvx4DXrmYcZsue: 3
+    flags: {}
+    _stats:
+      coreVersion: '14.364'
+      systemId: projectmoonttrpg
+      systemVersion: 0.0.1
+      createdTime: 1785665675631
+      modifiedTime: 1785665749017
+      lastModifiedBy: yWsvx4DXrmYcZsue
+      compendiumSource: null
+      duplicateSource: null
+      exportSource: null
+    _key: '!actors.items!reaBkvKtNWIPRvRS.8XfCfUm3sPjlOp69'
+  - name: Perfect Stance
+    type: skill
+    system:
+      name: ''
+      description: ''
+      slug: ''
+      skillType: block
+      rank: 3
+      lightCost: 1
+      innate: false
+      stat: for
+      effects:
+        - effectUuid: Item.67cevuDVu7Rbs0fj
+          name: Bulwark Defense
+          cost: 4
+          stackMax: 1
+          stack: 1
+          count: 1
+          mode: positive
+          appliesTo: skill
+          canPositive: true
+          canNegative: false
+          procOn: alwaysActive
+          procResult: none
+          procResultLocked: false
+          procStat: any
+          procDice: any
+          procAction: any
+          procCondition: ''
+          positive: >-
+            <p>Block can roll Poise to check for Critical Hit. The character
+            doesn't deal Critical Damage with this skill.</p>
+
+            <p>[On Crit] Reduce HP &amp; ST Damage taken this clash by the
+            result of your Critical Hit.</p>
+          negative: ''
+          macro:
+            uuid: ''
+        - effectUuid: Item.hmEBHlVWm0BmxHNi
+          name: Instant Crit
+          cost: 4
+          stack: 1
+          count: 1
+          mode: positive
+          appliesTo: skill
+          canPositive: true
+          canNegative: false
+          allowModeToggle: false
+          procOn: alwaysActive
+          procResult: none
+          procResultLocked: false
+          procStat: any
+          procDice: any
+          procAction: any
+          procCondition: ''
+          stackMax: 1
+          positive: >-
+            <p>"Gain Poise" and "Gain Critical" from other Effects and this
+            Skill are applied before rolling to Critically Hit.</p>
+          negative: ''
+          macro:
+            uuid: ''
+      customNotes: ''
+      easyEffects: ''
+      equipped: true
+    _id: ACYsGMp1jtz2pUAs
+    img: >-
+      systems/projectmoonttrpg/assets/icons/limbus_assets/Misc%20Enemy%20Exclusive/Canto%208/Inner%20Strength%20%5B%E5%BA%95%E5%8A%9B%5D.webp
+    effects: []
+    folder: null
+    sort: 0
+    ownership:
+      default: 0
+      yWsvx4DXrmYcZsue: 3
+    flags: {}
+    _stats:
+      coreVersion: '14.364'
+      systemId: projectmoonttrpg
+      systemVersion: 0.0.1
+      createdTime: 1785665767741
+      modifiedTime: 1785665873530
+      lastModifiedBy: yWsvx4DXrmYcZsue
+      compendiumSource: null
+      duplicateSource: null
+      exportSource: null
+    _key: '!actors.items!reaBkvKtNWIPRvRS.ACYsGMp1jtz2pUAs'
+  - name: Pureheart Rebutal
+    type: skill
+    system:
+      name: ''
+      description: ''
+      slug: ''
+      skillType: block
+      rank: 3
+      lightCost: 1
+      innate: false
+      stat: for
+      effects:
+        - effectUuid: Item.hmEBHlVWm0BmxHNi
+          name: Instant Crit
+          cost: 4
+          stackMax: 1
+          stack: 1
+          count: 1
+          mode: positive
+          appliesTo: skill
+          canPositive: true
+          canNegative: false
+          procOn: alwaysActive
+          procResult: none
+          procResultLocked: false
+          procStat: any
+          procDice: any
+          procAction: any
+          procCondition: ''
+          positive: >-
+            <p>"Gain Poise" and "Gain Critical" from other Effects and this
+            Skill are applied before rolling to Critically Hit.</p>
+          negative: ''
+          macro:
+            uuid: ''
+        - effectUuid: Item.Cz5VZPFyrKzW0jbE
+          name: Gain Critical
+          cost: 4
+          stackMax: 5
+          stack: 1
+          count: 1
+          mode: positive
+          appliesTo: skill
+          canPositive: true
+          canNegative: false
+          procOn: onClashResult
+          procResult: lose
+          procResultLocked: false
+          procStat: any
+          procDice: any
+          procAction: any
+          procCondition: ''
+          positive: <p>Apply [N] Critical to the character.</p>
+          negative: ''
+          macro:
+            uuid: ''
+      customNotes: ''
+      easyEffects: ''
+      equipped: true
+    _id: U5snTeSwxOi1iFFJ
+    img: >-
+      systems/projectmoonttrpg/assets/icons/limbus_assets/Misc%20Enemy%20Exclusive/Canto%208/Unrelenting%20Spirit%20%5B%E5%89%9B%E6%B0%A3%5D.webp
+    effects: []
+    folder: null
+    sort: 0
+    ownership:
+      default: 0
+      yWsvx4DXrmYcZsue: 3
+    flags: {}
+    _stats:
+      coreVersion: '14.364'
+      systemId: projectmoonttrpg
+      systemVersion: 0.0.1
+      createdTime: 1785665876729
+      modifiedTime: 1785665917493
+      lastModifiedBy: yWsvx4DXrmYcZsue
+      compendiumSource: null
+      duplicateSource: null
+      exportSource: null
+    _key: '!actors.items!reaBkvKtNWIPRvRS.U5snTeSwxOi1iFFJ'
+  - name: Utmost Rend
+    type: skill
+    system:
+      name: ''
+      description: ''
+      slug: ''
+      skillType: attack
+      rank: 3
+      lightCost: 1
+      innate: false
+      stat: for
+      effects:
+        - effectUuid: Item.QCyw39FzIJfEAtAi
+          name: Instant Devastation
+          cost: 4
+          stackMax: 1
+          stack: 1
+          count: 1
+          mode: positive
+          appliesTo: skill
+          canPositive: true
+          canNegative: false
+          procOn: alwaysActive
+          procResult: none
+          procResultLocked: false
+          procStat: any
+          procDice: any
+          procAction: any
+          procCondition: ''
+          positive: >-
+            <p>"Inflict Ruin" and "Increase Devastation" from Effects and this
+            Skill are applied before rolling to Devastatingly Hit.</p>
+          negative: ''
+          macro:
+            uuid: ''
+        - effectUuid: Item.XmdANtsAGwYwdqbF
+          name: Ruination
+          cost: 4
+          stackMax: 1
+          stack: 1
+          count: 1
+          mode: positive
+          appliesTo: skill
+          canPositive: true
+          canNegative: false
+          procOn: onClashResult
+          procResult: win
+          procResultLocked: false
+          procStat: any
+          procDice: offensive
+          procAction: any
+          procCondition: ''
+          positive: <p>Roll another D10 to check if the attack is a Devastating Hit.</p>
+          negative: ''
+          macro:
+            uuid: ''
+      customNotes: ''
+      easyEffects: ''
+      equipped: true
+    _id: PRM5dZyENxVhdSy1
+    img: >-
+      systems/projectmoonttrpg/assets/icons/limbus_assets/Misc%20Enemy%20Exclusive/Canto%208/Severing%20Slash%20%5B%E5%88%87%E6%96%AC%5D.webp
+    effects: []
+    folder: null
+    sort: 0
+    ownership:
+      default: 0
+      yWsvx4DXrmYcZsue: 3
+    flags: {}
+    _stats:
+      coreVersion: '14.364'
+      systemId: projectmoonttrpg
+      systemVersion: 0.0.1
+      createdTime: 1785665922149
+      modifiedTime: 1785665955745
+      lastModifiedBy: yWsvx4DXrmYcZsue
+      compendiumSource: null
+      duplicateSource: null
+      exportSource: null
+    _key: '!actors.items!reaBkvKtNWIPRvRS.PRM5dZyENxVhdSy1'
+  - name: Devastation of Vice
+    type: skill
+    system:
+      name: ''
+      description: ''
+      slug: ''
+      skillType: attack
+      rank: 1
+      lightCost: 1
+      innate: false
+      stat: for
+      effects:
+        - effectUuid: Item.QCyw39FzIJfEAtAi
+          name: Instant Devastation
+          cost: 4
+          stackMax: 1
+          stack: 1
+          count: 1
+          mode: positive
+          appliesTo: skill
+          canPositive: true
+          canNegative: false
+          procOn: alwaysActive
+          procResult: none
+          procResultLocked: false
+          procStat: any
+          procDice: any
+          procAction: any
+          procCondition: ''
+          positive: >-
+            <p>"Inflict Ruin" and "Increase Devastation" from Effects and this
+            Skill are applied before rolling to Devastatingly Hit.</p>
+          negative: ''
+          macro:
+            uuid: ''
+        - effectUuid: Item.BzW8O3Nj9tfjmDgH
+          name: Increase Devastation
+          cost: 4
+          stackMax: 5
+          stack: 1
+          count: 1
+          mode: positive
+          appliesTo: skill
+          canPositive: true
+          canNegative: true
+          procOn: onClashResult
+          procResult: win
+          procResultLocked: false
+          procStat: any
+          procDice: any
+          procAction: any
+          procCondition: ''
+          positive: <p>Apply [N] Devastation to the target.</p>
+          negative: <p>Apply [N] Devastation to the character.</p>
+          macro:
+            uuid: ''
+      customNotes: ''
+      easyEffects: ''
+      equipped: true
+    _id: y2NmyuLhvF66oSNa
+    img: >-
+      systems/projectmoonttrpg/assets/icons/limbus_assets/Misc%20Enemy%20Exclusive/Canto%208/A%20Sliver%20of%20Anticipation.webp
+    effects: []
+    folder: null
+    sort: 0
+    ownership:
+      default: 0
+      yWsvx4DXrmYcZsue: 3
+    flags: {}
+    _stats:
+      coreVersion: '14.364'
+      systemId: projectmoonttrpg
+      systemVersion: 0.0.1
+      createdTime: 1785665963250
+      modifiedTime: 1785665990925
+      lastModifiedBy: yWsvx4DXrmYcZsue
+      compendiumSource: null
+      duplicateSource: null
+      exportSource: null
+    _key: '!actors.items!reaBkvKtNWIPRvRS.y2NmyuLhvF66oSNa'
+effects: []
+sort: 0
+ownership:
+  default: 0
+  yWsvx4DXrmYcZsue: 3
+flags: {}
+_stats:
+  coreVersion: '14.364'
+  systemId: projectmoonttrpg
+  systemVersion: 0.0.1
+  createdTime: 1785665360331
+  modifiedTime: 1785665450314
+  lastModifiedBy: yWsvx4DXrmYcZsue
+  compendiumSource: null
+  duplicateSource: null
+  exportSource: null
+_key: '!actors!reaBkvKtNWIPRvRS'

@@ -1,4 +1,4 @@
-name: Charge Barrier [MANUAL]
+name: Charge Barrier
 type: status
 _id: uApTcXCg46nyvlVa
 img: >-
@@ -31,7 +31,7 @@ _stats:
   systemId: projectmoonttrpg
   systemVersion: 0.0.1
   createdTime: 1785319269473
-  modifiedTime: 1785426730677
+  modifiedTime: 1785575312994
   lastModifiedBy: yWsvx4DXrmYcZsue
   compendiumSource: null
   duplicateSource: null

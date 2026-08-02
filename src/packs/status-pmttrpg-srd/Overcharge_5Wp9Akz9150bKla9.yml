@@ -1,4 +1,4 @@
-name: Overcharge [MANUAL]
+name: Overcharge
 type: status
 _id: 5Wp9Akz9150bKla9
 img: >-
@@ -36,7 +36,7 @@ _stats:
   systemId: projectmoonttrpg
   systemVersion: 0.0.1
   createdTime: 1785319357408
-  modifiedTime: 1785426732385
+  modifiedTime: 1785575316156
   lastModifiedBy: yWsvx4DXrmYcZsue
   compendiumSource: null
   duplicateSource: null
