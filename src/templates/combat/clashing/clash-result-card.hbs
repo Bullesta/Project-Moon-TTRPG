@@ -54,22 +54,12 @@
     <div class="clash-result-card__damage-summary">
       <div class="clash-damage-line clash-damage-line--hp">
         <i class="fa-solid fa-heart"></i>
-        {{#ifEquals state.retaliationType "evade"}}
-          {{state.attackRollTotal}}
-        {{/ifEquals}}
-        {{#ifNotEquals state.retaliationType "evade"}}
-          {{state.margin}}
-        {{/ifNotEquals}}
+        {{state.hpDamage}}
         {{i18n.hpDamage}}
       </div>
       <div class="clash-damage-line clash-damage-line--st">
         <i class="fa-solid fa-shield"></i>
-        {{#ifEquals state.retaliationType "evade"}}
-          {{state.attackRollTotal}}
-        {{/ifEquals}}
-        {{#ifNotEquals state.retaliationType "evade"}}
-          {{state.margin}}
-        {{/ifNotEquals}}
+        {{state.stDamage}}
         {{i18n.stDamage}}
       </div>
       <div class="clash-damage-type-badge clash-damage-type--{{state.damageType}}">
