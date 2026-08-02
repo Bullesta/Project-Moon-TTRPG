@@ -198,40 +198,25 @@ async function _executeClash(state, retaliatorActor, choice) {
     clash:        clashCtx,
   });
 
-  // Make the defense roll.
-  let defenseResult;
-  switch (choice.type) {
-    case RETALIATION_TYPES.EVADE:
-      defenseResult = await rollEvade(retaliatorActor, clashCtx.bonuses);
-      break;
-    case RETALIATION_TYPES.BLOCK:
-      defenseResult = await rollBlock(retaliatorActor, clashCtx.bonuses);
-      break;
-    case RETALIATION_TYPES.COUNTER:
-    case "skill":
-      defenseResult = await rollCounter(retaliatorActor, choice.item ?? attackerItem, clashCtx.bonuses);
-      break;
-    case RETALIATION_TYPES.ONESIDED:
-      defenseResult = {
-        total:   0,
-        formula: "1d1-1",
-        terms:   [],
-      };
-      break;
-    default:
-      defenseResult = await rollEvade(retaliatorActor, clashCtx.bonuses);
+  // Roll defense, then reroll both sides on ties.
+  let attackTotal = state.attackRollTotal;
+  let defenseResult = await _rollDefense(retaliatorActor, choice, attackerItem, clashCtx.bonuses);
+  let { result, margin } = resolveClash(attackTotal, defenseResult.total);
+
+  while (result === CLASH_RESULTS.TIE && choice.type !== RETALIATION_TYPES.ONESIDED) {
+    const attackReroll = await rollAttack(attackerActor, attackerItem, clashCtx.bonuses);
+    defenseResult = await _rollDefense(retaliatorActor, choice, attackerItem, clashCtx.bonuses);
+    attackTotal = attackReroll.total;
+    state.attackRollTotal = attackTotal;
+    state.attackRollFormula = attackReroll.formula;
+    state.attackRollTerms = attackReroll.terms;
+    ({ result, margin } = resolveClash(attackTotal, defenseResult.total));
   }
 
   // Update clash context with final rolls.
+  clashCtx.attackerRoll = attackTotal;
   clashCtx.defenderRoll = defenseResult.total;
-  clashCtx.margin       = Math.abs(state.attackRollTotal - defenseResult.total);
-
-  // Resolve winner.
-  const { result, margin } = resolveClash(state.attackRollTotal, defenseResult.total);
-
-  if(result === CLASH_RESULTS.TIE) {
-    // TODO: Handle Ties
-  }
+  clashCtx.margin       = margin;
 
   state.defenseRollTotal   = defenseResult.total;
   state.defenseRollFormula = defenseResult.formula;
@@ -300,6 +285,34 @@ async function _executeClash(state, retaliatorActor, choice) {
 }
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
+
+/**
+ * Rolls the defender's side of a clash for the chosen retaliation type.
+ * @param {ActorPMTTRPG} retaliatorActor
+ * @param {RetaliationChoice} choice
+ * @param {Item|null} attackerItem
+ * @param {object} bonuses
+ * @returns {Promise<object>}
+ */
+async function _rollDefense(retaliatorActor, choice, attackerItem, bonuses) {
+  switch (choice.type) {
+    case RETALIATION_TYPES.EVADE:
+      return rollEvade(retaliatorActor, bonuses);
+    case RETALIATION_TYPES.BLOCK:
+      return rollBlock(retaliatorActor, bonuses);
+    case RETALIATION_TYPES.COUNTER:
+    case "skill":
+      return rollCounter(retaliatorActor, choice.item ?? attackerItem, bonuses);
+    case RETALIATION_TYPES.ONESIDED:
+      return {
+        total:   0,
+        formula: "1d1-1",
+        terms:   [],
+      };
+    default:
+      return rollEvade(retaliatorActor, bonuses);
+  }
+}
 
 /**
  * Returns the first actor owned by the current user that is a character.

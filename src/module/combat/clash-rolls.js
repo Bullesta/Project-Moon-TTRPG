@@ -154,7 +154,8 @@ export async function rollCounter(actor, weaponItem, bonuses = {}) {
  *
  * Rules:
  *   Attack wins  → attackTotal > defenseTotal
- *   Defense wins → defenseTotal >= attackTotal (tie goes to defender)
+ *   Defense wins → defenseTotal > attackTotal
+ *   Tie          → equal totals (rerolls both sides)
  *
  * @param {number} attackTotal
  * @param {number} defenseTotal
@@ -162,6 +163,9 @@ export async function rollCounter(actor, weaponItem, bonuses = {}) {
  */
 export function resolveClash(attackTotal, defenseTotal) {
   const margin = Math.abs(attackTotal - defenseTotal);
+  if (attackTotal === defenseTotal) {
+    return { result: "tie", margin: 0 };
+  }
   if (attackTotal > defenseTotal) {
     return { result: "attackWin", margin };
   }
