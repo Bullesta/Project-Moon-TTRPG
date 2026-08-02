@@ -233,7 +233,11 @@ async function _executeClash(state, retaliatorActor, choice) {
   });
 
   // Compute damage using accumulated bonuses.
-  const baseDamage = Number(attackerItem?.system?.damageBonus ?? 0);
+  if (result === CLASH_RESULTS.ATTACK_WIN) {
+    const finalResult = state.retaliationType === RETALIATION_TYPES.BLOCK ? margin : attackTotal;
+    state.hpDamage = finalResult;
+    state.stDamage = finalResult;
+  }
 
   state.phase    = CLASH_PHASES.RESOLVED;
 
