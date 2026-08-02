@@ -115,6 +115,12 @@ export function createClashState({
     hpDamage:  null,
     stDamage:  null,
 
+    // Counter Win range gate
+    counterInRange: null,
+
+    // Ranged attackers take no Block Win ST rebound
+    blockWinStExempt: null,
+
     // Linked chat messages
     attackMessageId,
     resultMessageId: null,

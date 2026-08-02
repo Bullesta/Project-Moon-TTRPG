@@ -11,8 +11,11 @@
  *     Returns true (confirmed) or false.
  *
  * @typedef {object} RetaliationChoice
- * @property {"evade"|"block"|"counter"|"intercept"} type
+ * @property {"evade"|"block"|"counter"|"intercept"|"skill"|"onesided"} type
  * @property {Item|null} item   — chosen weapon/skill for counter/skill options
+ * @property {Item|null} [ammo]
+ * @property {boolean} [consumeAmmo]
+ * @property {boolean} [dryFire]
  */
 
 import { PMTTRPGUtility } from "../utility.js";
@@ -21,6 +24,7 @@ import { RETALIATION_TYPES } from "./clash-state.js";
 const { renderTemplate } = foundry.applications.handlebars;
 
 const TEMPLATE_RETALIATION = "systems/projectmoonttrpg/templates/dialog/clash/retaliation-dialog.hbs";
+const TEMPLATE_AMMO = "systems/projectmoonttrpg/templates/dialog/weapon-ammo-dialog.html";
 
 // ── Intercept confirmation ────────────────────────────────────────────────────
 
@@ -186,6 +190,88 @@ function _readRetaliationForm(dialog, actor) {
   }
 
   return { type, item };
+}
+
+/**
+ * Prompt ammo (or dry-fire) for a ranged Counter.
+ *
+ * @param {ActorPMTTRPG} actor
+ * @param {Item} weapon
+ * @returns {Promise<{ ammo: Item|null, consumeAmmo: boolean, dryFire: boolean }|null>}
+ */
+export async function promptRangedCounterAmmo(actor, weapon) {
+  const ammoOptions = (actor.items ?? [])
+    .filter(i => i.type === "ammunition" && Number(i.system?.quantity ?? 0) > 0)
+    .map((item, index) => ({
+      id: item.id,
+      name: item.name,
+      img: item.img,
+      quantity: Number(item.system?.quantity ?? 0),
+      ammoType: item.system?.ammoType ?? null,
+      damageType: item.system?.damageType ?? null,
+      isDefault: index === 0,
+      ammoTypeLabel: item.system?.ammoType
+        ? game.i18n.localize(`PMTTRPG.Ammo${item.system.ammoType[0].toUpperCase()}${item.system.ammoType.slice(1)}`)
+        : null,
+      damageTypeLabel: item.system?.damageType
+        ? game.i18n.localize(`PMTTRPG.DamageType${item.system.damageType[0].toUpperCase()}${item.system.damageType.slice(1)}`)
+        : null,
+    }));
+
+  const html = await renderTemplate(TEMPLATE_AMMO, {
+    weapon: {
+      name: weapon.name,
+      img: weapon.img,
+      offensiveDiceComputed: weapon.system?.offensiveDiceComputed,
+      system: { damageType: weapon.system?.damageType },
+    },
+    ammoOptions,
+  });
+
+  const buttons = [];
+  if (ammoOptions.length) {
+    buttons.push({
+      action: "shoot",
+      label: game.i18n.localize("PMTTRPG.Clash.Counter"),
+      icon: "fa-solid fa-bullseye",
+      default: true,
+      callback: (event, button, dialog) => {
+        const form = dialog.element?.querySelector("form");
+        const ammoId = form?.ammoId?.value;
+        const ammo = ammoId ? actor.items.get(ammoId) ?? null : null;
+        if (!ammo) {
+          ui.notifications.warn(game.i18n.localize("PMTTRPG.Clash.NoAmmoSelected"));
+          return null;
+        }
+        return {
+          ammo,
+          consumeAmmo: form?.consumeAmmo?.checked !== false,
+          dryFire: false,
+        };
+      },
+    });
+  }
+  buttons.push({
+    action: "dryfire",
+    label: game.i18n.localize("PMTTRPG.Clash.DryFire"),
+    icon: "fa-solid fa-triangle-exclamation",
+    default: !ammoOptions.length,
+    callback: () => ({ ammo: null, consumeAmmo: false, dryFire: true }),
+  });
+  buttons.push({
+    action: "cancel",
+    label: game.i18n.localize("PMTTRPG.Dialog.cancel"),
+    icon: "fa-solid fa-xmark",
+    callback: () => null,
+  });
+
+  return foundry.applications.api.DialogV2.wait({
+    window: { title: game.i18n.localize("PMTTRPG.Dialog.chooseAmmunition") },
+    classes: _dialogClasses(),
+    content: html,
+    buttons,
+    rejectClose: false,
+  });
 }
 
 /**
