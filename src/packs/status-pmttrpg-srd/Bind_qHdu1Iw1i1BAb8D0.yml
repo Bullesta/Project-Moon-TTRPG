@@ -1,0 +1,35 @@
+name: Bind
+type: status
+_id: qHdu1Iw1i1BAb8D0
+img: systems/projectmoonttrpg/assets/icons/limbus_assets/Basic%20Effects/Bind.webp
+system:
+  name: ''
+  description: >-
+    <p>Decrease Sqr(s) of movement equal to the number of Bind stack.</p><p>At
+    the end of the Round, lose all Bind.</p>
+  slug: ''
+  stacks: 1
+  stackMax: 0
+  priority: 0
+  macro:
+    uuid: ''
+  customNotes: ''
+  easyEffects: ''
+effects: []
+folder: jtSvJ9E0Hm5t7NVJ
+sort: 200000
+ownership:
+  default: 0
+  yWsvx4DXrmYcZsue: 3
+flags: {}
+_stats:
+  coreVersion: '14.364'
+  systemId: projectmoonttrpg
+  systemVersion: 0.0.1
+  createdTime: 1785318900475
+  modifiedTime: 1785575319654
+  lastModifiedBy: yWsvx4DXrmYcZsue
+  compendiumSource: null
+  duplicateSource: null
+  exportSource: null
+_key: '!items!qHdu1Iw1i1BAb8D0'

@@ -111,13 +111,13 @@ export function buildEffectSummaryGroups(effects = []) {
     addLine(groupKey, groupLabel, groupSort, "", "", lineText);
   }
 
-  const renderLines = (lines = []) => lines.map(line => `<span class="effect-summary-line">- ${line}</span>`).join("<br>");
+  const renderLines = (lines = []) => lines.map(line => `<span class="effect-summary-line">${foundry.utils.unescapeHTML(line)}</span>`);
   const renderGroup = (group) => {
     const groupClass = toCssToken(group.key || group.heading || "group");
-    const parts = [`<span class="effect-summary-tag effect-summary-tag--${groupClass}">[${foundry.utils.escapeHTML(group.heading)}]</span>`];
+    const parts = [`<span class="effect-summary-tag effect-summary-tag--${groupClass}">${foundry.utils.escapeHTML(group.heading)}</span>`];
 
     if (group.lines.length) {
-      parts.push(renderLines(group.lines));
+      parts.push(renderLines(group.lines).join("<br/>"));
     }
 
     for (const subKey of group.subgroupOrder) {
@@ -125,15 +125,12 @@ export function buildEffectSummaryGroups(effects = []) {
       const subgroupClass = toCssToken(subgroup.key || subgroup.heading || "subgroup");
       parts.push(`
         <div class="effect-summary-subgroup">
-          <span class="effect-summary-tag effect-summary-tag--sub effect-summary-tag--${subgroupClass}">
-            [${foundry.utils.escapeHTML(subgroup.heading)}]
-          </span>
-          <br>
+          <span class="effect-summary-tag effect-summary-tag--sub effect-summary-tag--${subgroupClass}">${foundry.utils.escapeHTML(subgroup.heading).trim()}</span>
           ${renderLines(subgroup.lines)}
         </div>`);
     }
 
-    return `<div class="effect-summary-block">${parts.join("<br>")}</div>`;
+    return `<div class="effect-summary-block">${parts.join("<br/>")}</div>`;
   };
 
   const orderedKeys = Array.from(topGroups.values())

@@ -1,0 +1,20 @@
+type: Actor
+folder: null
+name: Others
+color: null
+sorting: a
+_id: 5ZGY3Bwkp14wrZzA
+description: ''
+sort: 0
+flags: {}
+_stats:
+  coreVersion: '14.364'
+  systemId: projectmoonttrpg
+  systemVersion: 0.0.1
+  createdTime: 1785665353511
+  modifiedTime: 1785665353511
+  lastModifiedBy: yWsvx4DXrmYcZsue
+  compendiumSource: null
+  duplicateSource: null
+  exportSource: null
+_key: '!folders!5ZGY3Bwkp14wrZzA'

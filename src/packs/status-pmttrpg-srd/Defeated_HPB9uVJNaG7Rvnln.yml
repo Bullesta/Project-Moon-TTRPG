@@ -1,0 +1,36 @@
+name: Defeated
+type: status
+_id: HPB9uVJNaG7Rvnln
+img: systems/projectmoonttrpg/assets/icons/Statuses/Defeated.webp
+system:
+  name: ''
+  description: >-
+    <p>When Defeated, the character becomes incapable of action and leaves
+    combat. Aside from special recovery measures, this status remains until the
+    end of combat.</p>
+  slug: ''
+  stacks: 1
+  stackMax: 0
+  priority: 0
+  macro:
+    uuid: ''
+  customNotes: ''
+  easyEffects: ''
+effects: []
+folder: null
+sort: 400000
+ownership:
+  default: 0
+  yWsvx4DXrmYcZsue: 3
+flags: {}
+_stats:
+  coreVersion: '14.364'
+  systemId: projectmoonttrpg
+  systemVersion: 0.0.1
+  createdTime: 1785426370278
+  modifiedTime: 1785426713261
+  lastModifiedBy: yWsvx4DXrmYcZsue
+  compendiumSource: null
+  duplicateSource: null
+  exportSource: null
+_key: '!items!HPB9uVJNaG7Rvnln'

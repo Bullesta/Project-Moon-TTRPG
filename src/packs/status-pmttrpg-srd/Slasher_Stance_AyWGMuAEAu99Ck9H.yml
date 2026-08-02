@@ -1,0 +1,36 @@
+folder: 3sjq9ewlVQZPIpzC
+name: Slasher Stance
+type: status
+_id: AyWGMuAEAu99Ck9H
+img: systems/projectmoonttrpg/assets/icons/Statuses/Slasher%20Stance.webp
+system:
+  name: ''
+  description: >-
+    <p><strong>[On Crit]</strong> with this Stance active, <strong>gain 2
+    Critical</strong> after spending your current Critical (and 1 Poise, as per
+    status). </p><p><strong>Your Critical dice becomes a D6.</strong></p>
+  slug: ''
+  stacks: 1
+  stackMax: 0
+  priority: 0
+  macro:
+    uuid: ''
+  customNotes: ''
+  easyEffects: ''
+effects: []
+sort: 0
+ownership:
+  default: 0
+  yWsvx4DXrmYcZsue: 3
+flags: {}
+_stats:
+  coreVersion: '14.364'
+  systemId: projectmoonttrpg
+  systemVersion: 0.0.1
+  createdTime: 1785433578152
+  modifiedTime: 1785433876820
+  lastModifiedBy: yWsvx4DXrmYcZsue
+  compendiumSource: null
+  duplicateSource: null
+  exportSource: null
+_key: '!items!AyWGMuAEAu99Ck9H'

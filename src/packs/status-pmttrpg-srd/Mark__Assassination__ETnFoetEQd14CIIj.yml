@@ -1,0 +1,37 @@
+folder: OsS83U82yvcIdkjc
+name: Mark [Assassination]
+type: status
+_id: ETnFoetEQd14CIIj
+img: systems/projectmoonttrpg/assets/icons/Statuses/Mark_Assassin.webp
+system:
+  name: ''
+  description: >-
+    <p>On Hit against your Marked Target, deal 3 extra HP Damage [After
+    Resistance]. This additional damage applies once more for effects of Rupture
+    and Tremor Burst, as well as Critical and Devastating Hits, additively per
+    effect.</p>
+  slug: ''
+  stacks: 1
+  stackMax: 0
+  priority: 0
+  macro:
+    uuid: ''
+  customNotes: ''
+  easyEffects: ''
+effects: []
+sort: 0
+ownership:
+  default: 0
+  yWsvx4DXrmYcZsue: 3
+flags: {}
+_stats:
+  coreVersion: '14.364'
+  systemId: projectmoonttrpg
+  systemVersion: 0.0.1
+  createdTime: 1785432177823
+  modifiedTime: 1785432199511
+  lastModifiedBy: yWsvx4DXrmYcZsue
+  compendiumSource: null
+  duplicateSource: null
+  exportSource: null
+_key: '!items!ETnFoetEQd14CIIj'

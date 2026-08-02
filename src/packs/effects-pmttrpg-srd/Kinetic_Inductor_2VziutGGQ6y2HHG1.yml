@@ -18,7 +18,10 @@ system:
   procAction: any
   procCondition: ''
   positive: When hit by an Attack, gain [N] Charge
-  negative: When hit by an Attack, consume [N] Charge. If the character doesn't have Charge, deal [N*2] After Resistance HP Damage to the character for every missing Charge.
+  negative: >-
+    When hit by an Attack, consume [N] Charge. If the character doesn't have
+    Charge, deal [N*2] After Resistance HP Damage to the character for every
+    missing Charge.
   macro:
     uuid: ''
   customNotes: ''

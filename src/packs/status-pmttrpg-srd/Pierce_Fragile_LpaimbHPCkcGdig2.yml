@@ -1,0 +1,42 @@
+name: Pierce Fragile
+type: status
+_id: LpaimbHPCkcGdig2
+img: >-
+  systems/projectmoonttrpg/assets/icons/limbus_assets/Basic%20Effects/Fragility/Pierce%20Fragility.webp
+system:
+  name: ''
+  description: >-
+    <p>Take 1 <strong>extra</strong> [HP & ST Damage Before Resistance] from
+    Pierce Attacks per Fragile stack.</p><p>At the end of the Round, lose all
+    Pierce Fragile.</p>
+  slug: ''
+  stacks: 1
+  stackMax: 0
+  priority: 0
+  macro:
+    uuid: ''
+  customNotes: ''
+  easyEffects: |-
+    [On Taking Pierce Damage]
+    increase damage by "Pierce Fragile"
+
+    [End of Round]
+    remove "Pierce Fragile" "Pierce Fragile"
+effects: []
+folder: JLnWNuTpQkOQhr5i
+sort: 103125
+ownership:
+  default: 0
+  yWsvx4DXrmYcZsue: 3
+flags: {}
+_stats:
+  coreVersion: '14.364'
+  systemId: projectmoonttrpg
+  systemVersion: 0.0.1
+  createdTime: 1785318408735
+  modifiedTime: 1785426574680
+  lastModifiedBy: yWsvx4DXrmYcZsue
+  compendiumSource: null
+  duplicateSource: null
+  exportSource: null
+_key: '!items!LpaimbHPCkcGdig2'

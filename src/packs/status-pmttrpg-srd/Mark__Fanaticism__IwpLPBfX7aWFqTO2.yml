@@ -1,0 +1,36 @@
+folder: OsS83U82yvcIdkjc
+name: Mark [Fanaticism]
+type: status
+_id: IwpLPBfX7aWFqTO2
+img: systems/projectmoonttrpg/assets/icons/Statuses/Mark_Fanatical.webp
+system:
+  name: ''
+  description: >-
+    <p>When your Marked Target takes the Reduce Status Action, the amount of
+    Status they can reduce is halved.</p><p>Your Marked Target cannot reduce
+    Renewed Blaze/Deep Chill/Hemorrhage with the Reduce Status Action.</p>
+  slug: ''
+  stacks: 1
+  stackMax: 0
+  priority: 0
+  macro:
+    uuid: ''
+  customNotes: ''
+  easyEffects: ''
+effects: []
+sort: 0
+ownership:
+  default: 0
+  yWsvx4DXrmYcZsue: 3
+flags: {}
+_stats:
+  coreVersion: '14.364'
+  systemId: projectmoonttrpg
+  systemVersion: 0.0.1
+  createdTime: 1785432587124
+  modifiedTime: 1785432602238
+  lastModifiedBy: yWsvx4DXrmYcZsue
+  compendiumSource: null
+  duplicateSource: null
+  exportSource: null
+_key: '!items!IwpLPBfX7aWFqTO2'

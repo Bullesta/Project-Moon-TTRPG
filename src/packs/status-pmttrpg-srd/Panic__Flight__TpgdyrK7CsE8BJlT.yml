@@ -1,0 +1,43 @@
+folder: Jrkv4OCXHWXqQw69
+name: Panic [Flight]
+type: status
+_id: TpgdyrK7CsE8BJlT
+img: systems/projectmoonttrpg/assets/icons/sheet/SanityIcons_Flight.webp
+system:
+  name: ''
+  description: >-
+    <h4>Panic Behavior</h4><p>On their turn, the Character must use the
+    Disengage Action and move as far away as they can from any enemies. If the
+    furthest they can move takes them through a hazard, they must move through
+    it. If they have any additional Actions, they must use them to Dash and
+    increase their movement.</p><p>When this Character ends their turn 9 SQRs
+    away from any other Targets (including allies), immediately
+    unpanic.</p><hr><h4>Goaded Panic</h4><p>The Character can be forced to move
+    in a specific direction by the Provoker. This doesn’t specify complicated
+    directions, but simple linear orders like ‘go north’, ‘go to that wall’, or
+    ‘go away’.</p>
+  slug: ''
+  stacks: 1
+  stackMax: 0
+  priority: 0
+  macro:
+    uuid: ''
+  customNotes: ''
+  easyEffects: ''
+effects: []
+sort: 0
+ownership:
+  default: 0
+  yWsvx4DXrmYcZsue: 3
+flags: {}
+_stats:
+  coreVersion: '14.364'
+  systemId: projectmoonttrpg
+  systemVersion: 0.0.1
+  createdTime: 1785432803967
+  modifiedTime: 1785432870957
+  lastModifiedBy: yWsvx4DXrmYcZsue
+  compendiumSource: null
+  duplicateSource: null
+  exportSource: null
+_key: '!items!TpgdyrK7CsE8BJlT'

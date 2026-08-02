@@ -1,0 +1,38 @@
+folder: fMFB6OnVCAkgdA96
+name: Burn - Renewed Blaze
+type: status
+_id: 4jU7KJe6i8Pja3K2
+img: systems/projectmoonttrpg/assets/icons/Statuses/Renewed_Blaze.webp
+system:
+  name: ''
+  description: >-
+    <p><strong>Burns on this target do not reduce at the end of this
+    round.</strong></p><p>This also prevents Burn from being reduced by Reduce
+    Status or other effects that immediately activate Burn. <strong>When
+    immediately activating Burn, do not halve Burn and remove 1 Stack of this
+    status.</strong></p>
+  slug: ''
+  stacks: 1
+  stackMax: 0
+  priority: 0
+  macro:
+    uuid: ''
+  customNotes: ''
+  easyEffects: ''
+effects: []
+sort: 0
+ownership:
+  default: 0
+  yWsvx4DXrmYcZsue: 3
+flags: {}
+_stats:
+  coreVersion: '14.364'
+  systemId: projectmoonttrpg
+  systemVersion: 0.0.1
+  createdTime: 1785434791886
+  modifiedTime: 1785434825289
+  lastModifiedBy: yWsvx4DXrmYcZsue
+  compendiumSource: null
+  duplicateSource: null
+  exportSource: null
+_key: '!items!4jU7KJe6i8Pja3K2'

@@ -1,0 +1,20 @@
+type: Actor
+folder: null
+name: Abnormalities
+color: '#858000'
+sorting: a
+_id: Pgl0BdCF2H97flf9
+description: ''
+sort: 0
+flags: {}
+_stats:
+  coreVersion: '14.364'
+  systemId: projectmoonttrpg
+  systemVersion: 0.0.1
+  createdTime: 1785485558147
+  modifiedTime: 1785485558147
+  lastModifiedBy: yWsvx4DXrmYcZsue
+  compendiumSource: null
+  duplicateSource: null
+  exportSource: null
+_key: '!folders!Pgl0BdCF2H97flf9'

@@ -1,26 +1,24 @@
-folder: null
+folder: fMFB6OnVCAkgdA96
 name: Sinking
 type: status
 img: systems/projectmoonttrpg/assets/icons/Statuses/Sinking.webp
 system:
   name: ''
-  description: >-
-    <p dir="ltr">When hit by an Attack, the attacker may choose to proc this
-    status. Take SP Damage equal to the number of Sinking stacks, then remove
-    all Sinking. This is considered a Sinking Burst for effects that refer to
-    it. If this Sinking Burst results in the target&rsquo;s Panic, the attacker
-    can choose what Panic type the target enters.</p>
-
-    <p><strong>&nbsp;</strong></p>
-
-    <p dir="ltr">If you do not have SP (this does not count for characters at 0
-    SP), take HP Damage instead during a Sinking Burst.</p>
-
-    <p><strong>&nbsp;</strong></p>
-
-    <p dir="ltr">At the end of Round, remove all Sinking.</p>
-
-    <p>&nbsp;</p>
+  description: "<p dir=\"ltr\">When hit by an Attack, the attacker may choose to proc this status. Take SP Damage equal to the number of Sinking stacks, then remove all Sinking. This is considered a Sinking Burst for effects that refer to it. If this Sinking Burst results in the target’s Panic, the attacker can choose what Panic type the target enters.</p><p><strong>\_</strong></p><p dir=\"ltr\">If you do not have SP (this does not count for characters at 0 SP), take HP Damage instead during a Sinking Burst.</p><p><strong>\_</strong></p><p dir=\"ltr\">At the end of Round, remove all Sinking.</p><p>\_</p>"
+  slug: ''
+  stacks: 1
+  stackMax: 0
+  priority: 0
+  macro:
+    uuid: ''
+  customNotes: ''
+  easyEffects: |-
+    [On Burst]
+    deal Sinking sp damage to self
+    lose Sinking Sinking on self
+                        
+    [End of Round]
+    lose Sinking Sinking on self
   proc:
     turnStart: false
     endOfRound: false
@@ -30,9 +28,6 @@ system:
     onHitWhenTargetHas: false
     alwaysActive: false
     skillEffect: false
-  macro:
-    uuid: ''
-  customNotes: ''
 effects: []
 ownership:
   default: 0
@@ -42,13 +37,12 @@ _stats:
   compendiumSource: null
   duplicateSource: null
   exportSource: null
-  coreVersion: '13.351'
+  coreVersion: '14.364'
   systemId: projectmoonttrpg
   systemVersion: 0.0.1
   createdTime: 1779621129486
-  modifiedTime: 1779621129486
+  modifiedTime: 1785426655266
   lastModifiedBy: yWsvx4DXrmYcZsue
 _id: rxh17elwJWwlzJmB
-sort: 0
+sort: 196875
 _key: '!items!rxh17elwJWwlzJmB'
-

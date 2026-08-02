@@ -1,0 +1,50 @@
+folder: qhqkh6Rd3YcrmXWj
+name: Target for Encirclement
+type: effect
+img: systems/projectmoonttrpg/assets/icons/Statuses/Haste.webp
+system:
+  name: ''
+  description: ''
+  slug: target-for-encirclement
+  cost: 4
+  stackMax: 5
+  appliesTo: augment
+  canPositive: true
+  canNegative: false
+  procOn: alwaysActive
+  procResult: none
+  procResultLocked: false
+  procStat: any
+  procDice: any
+  procAction: any
+  procCondition: ''
+  positive: >-
+    <p>As an Action you may Mark 1 Target.</p>
+
+    <p>Any allied character (including the user) that ends the round within 2
+    SQRs of the Marked Target gains 2 Haste next Round.</p>
+
+    <p>This counts as [N] source(s) of Mark.</p>
+  negative: ''
+  macro:
+    uuid: ''
+  customNotes: ''
+  easyEffects: ''
+effects: []
+sort: 0
+ownership:
+  default: 0
+  yWsvx4DXrmYcZsue: 3
+flags: {}
+_stats:
+  compendiumSource: null
+  duplicateSource: Item.KpuloYTODp1yob6X
+  exportSource: null
+  coreVersion: '14.364'
+  systemId: projectmoonttrpg
+  systemVersion: 0.0.1
+  createdTime: 1785485132689
+  modifiedTime: 1785485132689
+  lastModifiedBy: yWsvx4DXrmYcZsue
+_id: YucGRp6S72ZDS4C7
+_key: '!items!YucGRp6S72ZDS4C7'

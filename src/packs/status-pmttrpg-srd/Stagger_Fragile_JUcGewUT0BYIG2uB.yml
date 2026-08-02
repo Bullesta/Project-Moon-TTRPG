@@ -1,0 +1,41 @@
+name: Stagger Fragile
+type: status
+_id: JUcGewUT0BYIG2uB
+img: systems/projectmoonttrpg/assets/icons/Statuses/Stagger%20Fragile.webp
+system:
+  name: ''
+  description: >-
+    <p>Take 1 <strong>extra</strong> [ST Damage After Resistance] from attacks
+    per Stagger Fragile stack.</p><p>At the end of the Round, lose all Stagger
+    Fragile.</p>
+  slug: ''
+  stacks: 1
+  stackMax: 0
+  priority: 0
+  macro:
+    uuid: ''
+  customNotes: ''
+  easyEffects: |-
+    [On Taking ST Damage]
+    increase damage by "Stagger Fragile"
+
+    [End of Round]
+    remove "Stagger Fragile" "Stagger Fragile"
+effects: []
+folder: JLnWNuTpQkOQhr5i
+sort: 112500
+ownership:
+  default: 0
+  yWsvx4DXrmYcZsue: 3
+flags: {}
+_stats:
+  coreVersion: '14.364'
+  systemId: projectmoonttrpg
+  systemVersion: 0.0.1
+  createdTime: 1785318307215
+  modifiedTime: 1785426563975
+  lastModifiedBy: yWsvx4DXrmYcZsue
+  compendiumSource: null
+  duplicateSource: null
+  exportSource: null
+_key: '!items!JUcGewUT0BYIG2uB'

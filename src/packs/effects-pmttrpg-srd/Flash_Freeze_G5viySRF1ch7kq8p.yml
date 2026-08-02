@@ -1,0 +1,49 @@
+folder: GwkJ2MyPzvY7p0jT
+name: Flash Freeze
+type: effect
+img: systems/projectmoonttrpg/assets/icons/Statuses/Frostbite.webp
+system:
+  name: ''
+  description: ''
+  slug: flash-freeze
+  cost: 1
+  stackMax: 5
+  appliesTo: augment
+  canPositive: true
+  canNegative: true
+  procOn: onClash
+  procResult: none
+  procResultLocked: false
+  procStat: any
+  procDice: offensive
+  procAction: action
+  procCondition: In the first round of combat
+  positive: >-
+    <p>All successful Attacks/Counters made by the character inflict +[N]
+    Frostbite.</p>
+  negative: >-
+    <p>All successful Attacks/Counters made by the character inflict [N]
+    Frostbite to the character. The character's Frostbite Resisntance is reduced
+    by [N] for the round.</p>
+  macro:
+    uuid: ''
+  customNotes: ''
+  easyEffects: ''
+effects: []
+sort: 100000
+ownership:
+  default: 0
+  yWsvx4DXrmYcZsue: 3
+flags: {}
+_stats:
+  compendiumSource: Item.WHRdllgcaZ1sVFZV
+  duplicateSource: Item.TCMTDCBIiK6hkhWb
+  exportSource: null
+  coreVersion: '14.364'
+  systemId: projectmoonttrpg
+  systemVersion: 0.0.1
+  createdTime: 1785485141804
+  modifiedTime: 1785485141804
+  lastModifiedBy: yWsvx4DXrmYcZsue
+_id: G5viySRF1ch7kq8p
+_key: '!items!G5viySRF1ch7kq8p'

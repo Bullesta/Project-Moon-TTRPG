@@ -1,0 +1,46 @@
+folder: GwkJ2MyPzvY7p0jT
+name: Slowing Curse
+type: effect
+img: systems/projectmoonttrpg/assets/icons/Statuses/Devastation.webp
+system:
+  name: ''
+  description: ''
+  slug: slowing-curse
+  cost: 4
+  stackMax: 1
+  appliesTo: augment
+  canPositive: true
+  canNegative: false
+  procOn: onDevastating
+  procResult: none
+  procResultLocked: false
+  procStat: any
+  procDice: any
+  procAction: action
+  procCondition: ''
+  positive: >-
+    <p>Inflict 2 Bind to the target and targets adjacent to them (excluding
+    self/allies) next round.</p>
+  negative: ''
+  macro:
+    uuid: ''
+  customNotes: ''
+  easyEffects: ''
+effects: []
+sort: 100000
+ownership:
+  default: 0
+  yWsvx4DXrmYcZsue: 3
+flags: {}
+_stats:
+  compendiumSource: Item.WHRdllgcaZ1sVFZV
+  duplicateSource: Item.Ceohu26ELXt8yETy
+  exportSource: null
+  coreVersion: '14.364'
+  systemId: projectmoonttrpg
+  systemVersion: 0.0.1
+  createdTime: 1785485141813
+  modifiedTime: 1785485141813
+  lastModifiedBy: yWsvx4DXrmYcZsue
+_id: ep3n8KY9cE3cNfcK
+_key: '!items!ep3n8KY9cE3cNfcK'

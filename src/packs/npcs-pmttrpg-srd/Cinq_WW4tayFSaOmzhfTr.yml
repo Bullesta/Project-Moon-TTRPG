@@ -1,0 +1,20 @@
+type: Actor
+folder: yeTVXuvPdV12SoFe
+name: Cinq
+color: '#008ebd'
+sorting: a
+_id: WW4tayFSaOmzhfTr
+description: ''
+sort: 100000
+flags: {}
+_stats:
+  coreVersion: '14.364'
+  systemId: projectmoonttrpg
+  systemVersion: 0.0.1
+  createdTime: 1785486620265
+  modifiedTime: 1785486642099
+  lastModifiedBy: yWsvx4DXrmYcZsue
+  compendiumSource: null
+  duplicateSource: null
+  exportSource: null
+_key: '!folders!WW4tayFSaOmzhfTr'

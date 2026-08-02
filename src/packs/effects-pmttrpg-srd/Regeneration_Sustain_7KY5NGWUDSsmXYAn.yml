@@ -1,0 +1,20 @@
+type: Item
+folder: fYhvvApb5HCjDbSz
+name: Regeneration/Sustain
+color: null
+sorting: a
+_id: 7KY5NGWUDSsmXYAn
+description: ''
+sort: 800000
+flags: {}
+_stats:
+  compendiumSource: null
+  duplicateSource: null
+  exportSource: null
+  coreVersion: '14.364'
+  systemId: projectmoonttrpg
+  systemVersion: 0.0.1
+  createdTime: 1785485136596
+  modifiedTime: 1785485136642
+  lastModifiedBy: yWsvx4DXrmYcZsue
+_key: '!folders!7KY5NGWUDSsmXYAn'

@@ -1,0 +1,46 @@
+folder: 8t5xinoxx4XtmQBl
+name: Altered Psyche [Fawn]
+type: effect
+img: systems/projectmoonttrpg/assets/icons/Statuses/Panic.webp
+system:
+  name: ''
+  description: ''
+  slug: altered-psyche-fawn
+  cost: 2
+  stackMax: 1
+  appliesTo: augment
+  canPositive: true
+  canNegative: false
+  procOn: alwaysActive
+  procResult: none
+  procResultLocked: false
+  procStat: any
+  procDice: any
+  procAction: any
+  procCondition: Upon entering panic
+  positive: >-
+    <p>You will be forced to take the "Fawn" Panic type regardless of your
+    roll.</p>
+  negative: ''
+  macro:
+    uuid: ''
+  customNotes: ''
+  easyEffects: ''
+effects: []
+sort: 0
+ownership:
+  default: 0
+  yWsvx4DXrmYcZsue: 3
+flags: {}
+_stats:
+  compendiumSource: null
+  duplicateSource: Item.a2nalJt0HptVMHlr
+  exportSource: null
+  coreVersion: '14.364'
+  systemId: projectmoonttrpg
+  systemVersion: 0.0.1
+  createdTime: 1785485122320
+  modifiedTime: 1785485122320
+  lastModifiedBy: yWsvx4DXrmYcZsue
+_id: 3Xvq18reOaHfbSA4
+_key: '!items!3Xvq18reOaHfbSA4'

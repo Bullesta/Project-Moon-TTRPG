@@ -1,0 +1,50 @@
+folder: 7KY5NGWUDSsmXYAn
+name: Regeneration Storage [ST]
+type: effect
+img: systems/projectmoonttrpg/assets/icons/Statuses/Protection.webp
+system:
+  name: ''
+  description: ''
+  slug: regeneration-storage-st
+  cost: 4
+  stackMax: 1
+  appliesTo: augment
+  canPositive: true
+  canNegative: false
+  procOn: alwaysActive
+  procResult: none
+  procResultLocked: false
+  procStat: any
+  procDice: any
+  procAction: any
+  procCondition: Whenever you would regen ST from any source (except Evades)
+  positive: >-
+    <p>You can choose to store it at 1.5x efficiency.</p>
+
+    <p>Up to 60 ST can be stored at once. The character or an adjacent ally can
+    use a Reaction to use the stored amount on themselves.</p>
+
+    <p>At Combat End, all amounts stored must be spent immediately.</p>
+  negative: ''
+  macro:
+    uuid: ''
+  customNotes: ''
+  easyEffects: ''
+effects: []
+sort: 0
+ownership:
+  default: 0
+  yWsvx4DXrmYcZsue: 3
+flags: {}
+_stats:
+  compendiumSource: null
+  duplicateSource: Item.2LwkvGIFkpkH4IjD
+  exportSource: null
+  coreVersion: '14.364'
+  systemId: projectmoonttrpg
+  systemVersion: 0.0.1
+  createdTime: 1785485136627
+  modifiedTime: 1785485136627
+  lastModifiedBy: yWsvx4DXrmYcZsue
+_id: ho6WHydkpV4OtQyU
+_key: '!items!ho6WHydkpV4OtQyU'

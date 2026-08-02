@@ -1,25 +1,20 @@
-folder: null
+folder: fMFB6OnVCAkgdA96
 name: Critical
 type: status
 img: systems/projectmoonttrpg/assets/icons/Statuses/Critical.webp
 system:
   name: ''
-  description: >-
-    <p dir="ltr">You gain Critical as a part of Poise and other skills. When you
-    trigger a Critical Hit you deal 1D10 extra HP Damage per Critical you have
-    and lose all Critical.&nbsp;</p>
-
-    <p><strong>&nbsp;</strong></p>
-
-    <p dir="ltr">Critical can interact with Stance augments. Only one Stance can
-    be active on the character at any one time, and it costs 1 Reaction to
-    activate, deactivate, or swap between stances on your turn.</p>
-
-    <p><strong>&nbsp;</strong></p>
-
-    <p dir="ltr">If you gain Critical, but have no Poise, gain 1 Poise.</p>
-
-    <p>&nbsp;</p>
+  description: "<p dir=\"ltr\">You gain Critical as a part of Poise and other skills. When you trigger a Critical Hit you deal [[/r 1d10]] extra HP Damage per Critical you have and lose all Critical.\_</p><p dir=\"ltr\">Critical can interact with Stance augments. Only one Stance can be active on the character at any one time, and it costs 1 Reaction to activate, deactivate, or swap between stances on your turn.</p><p dir=\"ltr\">If you gain Critical, but have no Poise, gain 1 Poise.</p>"
+  slug: ''
+  stacks: 1
+  stackMax: 0
+  priority: 0
+  macro:
+    uuid: ''
+  customNotes: ''
+  easyEffects: |-
+    [On Critical]
+    deal 1d10 hp damage per Critical to target
   proc:
     turnStart: false
     endOfRound: false
@@ -29,9 +24,6 @@ system:
     onHitWhenTargetHas: false
     alwaysActive: false
     skillEffect: false
-  macro:
-    uuid: ''
-  customNotes: ''
 effects: []
 ownership:
   default: 0
@@ -41,13 +33,12 @@ _stats:
   compendiumSource: null
   duplicateSource: null
   exportSource: null
-  coreVersion: '13.351'
+  coreVersion: '14.364'
   systemId: projectmoonttrpg
   systemVersion: 0.0.1
   createdTime: 1779621117903
-  modifiedTime: 1779621127824
+  modifiedTime: 1785426629738
   lastModifiedBy: yWsvx4DXrmYcZsue
 _id: bsi06vGEb9F42Vmt
-sort: 800000
+sort: 150000
 _key: '!items!bsi06vGEb9F42Vmt'
-
