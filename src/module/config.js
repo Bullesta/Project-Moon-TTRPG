@@ -28,3 +28,12 @@ PMTTRPG.rollResults = {
     label: 'PMTTRPG.success'
   }
 };
+
+PMTTRPG.resistances = {
+  "fatal": { label: 'PMTTRPG.ResistanceFatal', multiplier: 2 },
+  "weak": { label: 'PMTTRPG.ResistanceWeak', multiplier: 1.5 },
+  "normal": { label: 'PMTTRPG.ResistanceNormal', multiplier: 1 },
+  "endured": { label: 'PMTTRPG.ResistanceEndured', multiplier: 0.5 },
+  "ineffective": { label: 'PMTTRPG.ResistanceIneffective', multiplier: 0.25 },
+  "immune": { label: 'PMTTRPG.ResistanceImmune', multiplier: 0 }
+}

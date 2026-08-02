@@ -20,6 +20,7 @@ export function createClashContext(attackerRoll = 0, defenderRoll = 0) {
     attackerRoll,
     defenderRoll,
     margin: attackerRoll - defenderRoll,
+    damageType: null,
     bonuses: {
       attackPower:  0,
       blockPower:   0,
@@ -51,6 +52,7 @@ function getAST(item) {
     _astCache.set(item.id, { source, ast });
     return ast;
   } catch (err) {
+    console.log(`[EasyEffect] Item has error! Here's the source: ${source}`);
     console.error(`[EasyEffects] Parse error on '${item.name}':`, err.message);
     ui.notifications?.warn(`EasyEffects parse error on '${item.name}': ${err.message}`);
     return null;
@@ -106,8 +108,19 @@ const TRIGGER_HOOKS = [
   {
     hook: "pmttrpg.clashResolved",
     triggerName: "Clash Win",
-    getItems: ({ attackerItem, appliedTool }) =>
-      [attackerItem, appliedTool].filter(Boolean),
+    getItems: ({
+      winner,
+      attacker,
+      attackerItem,
+      defenderItem,
+      appliedTool,
+      defenderAppliedTool,
+    }) => {
+      const attackerWon = winner === attacker;
+      return attackerWon
+        ? [attackerItem, appliedTool].filter(Boolean)
+        : [defenderItem, defenderAppliedTool].filter(Boolean);
+    },
     buildContext: ({ winner, loser, attackerRoll, defenderRoll, clash }) => ({
       self:   winner,
       target: loser,
@@ -120,16 +133,18 @@ const TRIGGER_HOOKS = [
   {
     hook: "pmttrpg.clashResolved",
     triggerName: "Clash Lose",
-    getItems: ({ defenderItem, defenderAppliedTool }) =>
-      [defenderItem, defenderAppliedTool].filter(Boolean),
+    getItems: ({ winner, attacker, attackerItem, defenderItem, appliedTool, defenderAppliedTool }) => {
+      const attackerWon = winner === attacker;
+      return attackerWon
+        ? [defenderItem, defenderAppliedTool].filter(Boolean)
+        : [attackerItem, appliedTool].filter(Boolean);
+    },
     buildContext: ({ winner, loser, attackerRoll, defenderRoll, clash }) => ({
       self:   loser,
       target: winner,
       ally:   null,
       // margin from loser's POV
-      clash:  clash
-        ? { ...clash, margin: (defenderRoll ?? 0) - (attackerRoll ?? 0) }
-        : createClashContext(defenderRoll, attackerRoll),
+      clash:  clash ?? createClashContext(defenderRoll, attackerRoll),
     }),
   },
 
