@@ -74,11 +74,17 @@ export async function postResultCard(state, defenseRoll, messageId = null) {
   const attackerWon     = state.result === "attackWin";
   const defenderWon     = state.result === "defenseWin";
   const blockWin        = defenderWon && state.retaliationType === "block";
+  const blockWinSt      = blockWin && !state.blockWinStExempt;
+  const blockWinExempt  = blockWin && state.blockWinStExempt;
   const evadeWin        = defenderWon && state.retaliationType === "evade";
+  const counterWin      = defenderWon && state.retaliationType === "counter";
+  const counterHit      = counterWin && state.counterInRange === true;
+  const counterOutOfRange = counterWin && state.counterInRange === false;
  
   const content = await renderTemplate(TEMPLATES.clashResultCard, {
-    state, defenseRollHtml, attackerWon, defenderWon, blockWin, evadeWin,
-    isGM: game.user.isGM, i18n: _resultCardI18n(state, evadeWin),
+    state, defenseRollHtml, attackerWon, defenderWon, blockWin, blockWinSt, blockWinExempt,
+    evadeWin, counterWin, counterHit, counterOutOfRange,
+    isGM: game.user.isGM, i18n: _resultCardI18n(state),
   });
  
   const chatData = {
@@ -104,8 +110,10 @@ export async function postResultCard(state, defenseRoll, messageId = null) {
   }
 
   console.log(state);
- 
-  if (game.dice3d && message) await game.dice3d.showForRoll(defenseRoll, game.user, true, null, false);
+
+  if (game.dice3d && message && defenseRoll) {
+    await game.dice3d.showForRoll(defenseRoll, game.user, true, null, false);
+  }
   return message;
 }
 
@@ -179,11 +187,16 @@ function _attackCardI18n(state) {
   };
 }
 
-function _resultCardI18n(state, evadeWin) {
+function _resultCardI18n(state) {
+  const dtype = state.damageType ?? "slash";
+  const dtypeKey = `PMTTRPG.DamageType${dtype.charAt(0).toUpperCase()}${dtype.slice(1)}`;
   return {
     attackWin:    game.i18n.localize("PMTTRPG.Clash.AttackWin"),
     defenseWin:   game.i18n.localize("PMTTRPG.Clash.DefenseWin"),
     evadeWin:     game.i18n.localize("PMTTRPG.Clash.EvadeWin"),
+    counterWin:   game.i18n.localize("PMTTRPG.Clash.CounterWin"),
+    counterOutOfRange: game.i18n.localize("PMTTRPG.Clash.CounterOutOfRange"),
+    blockWinRangedExempt: game.i18n.localize("PMTTRPG.Clash.BlockWinRangedExempt"),
     margin:       game.i18n.localize("PMTTRPG.Clash.Margin"),
     hpDamage:     game.i18n.localize("PMTTRPG.Clash.HPDamage"),
     stDamage:     game.i18n.localize("PMTTRPG.Clash.STDamage"),
@@ -192,6 +205,6 @@ function _resultCardI18n(state, evadeWin) {
     takeDamage:   game.i18n.localize("PMTTRPG.Clash.TakeDamage"),
     applyRegen:   game.i18n.localize("PMTTRPG.Clash.ApplyRegen"),
     damageApplied:game.i18n.localize("PMTTRPG.Clash.DamageApplied"),
-    damageType:   game.i18n.localize(`PMTTRPG.DamageType${state.damageType}`),
+    damageType:   game.i18n.localize(dtypeKey),
   };
 }

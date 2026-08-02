@@ -243,6 +243,7 @@ const ACTION_HANDLERS = {
       || "hp";
     const damageType = action.damageType
       || (context.damage?.damageType ? String(context.damage.damageType) : null)
+      || (context.clash?.damageType ? String(context.clash.damageType) : null)
       || null;
     // Avoid rerunning On Taking Damage for reflected hits.
     const skipEasyEffects = !!context.damage;

@@ -72,10 +72,12 @@ async function evaluate(formula, rollData = {}) {
  * @param {ActorPMTTRPG} actor
  * @param {Item} weaponItem
  * @param {object} [bonuses]  — clash.bonuses from EasyEffects (attackPower, attackMax)
+ * @param {object} [options]
+ * @param {boolean} [options.disadvantage]
  * @returns {Promise<RollResult>}
  */
-export async function rollAttack(actor, weaponItem, bonuses = {}) {
-  let baseDice = weaponItem.system?.offensiveDice ?? "todef";
+export async function rollAttack(actor, weaponItem, bonuses = {}, options = {}) {
+  let baseDice = weaponItem?.system?.offensiveDiceComputed ?? "todef";
   let modifier = 0;
   if(baseDice === "todef") {
     modifier = Number(actor.system?.attributes?.attackModifier?.value ?? 0)
@@ -89,7 +91,15 @@ export async function rollAttack(actor, weaponItem, bonuses = {}) {
   // Wire to your dice-tier system when ready.
   const bonusStr = buildBonusString(modifier + powerUp + maxUp);
   const formula  = `${baseDice}${bonusStr}`;
-  return evaluate(formula, actor.getRollData());
+  const rollData = actor.getRollData();
+
+  if (options.disadvantage) {
+    const first = await evaluate(formula, rollData);
+    const second = await evaluate(formula, rollData);
+    return first.total <= second.total ? first : second;
+  }
+
+  return evaluate(formula, rollData);
 }
  
 /**
@@ -141,10 +151,11 @@ export async function rollBlock(actor, bonuses = {}) {
  * @param {ActorPMTTRPG} actor
  * @param {Item} weaponItem
  * @param {object} [bonuses]
+ * @param {object} [options]
  * @returns {Promise<RollResult>}
  */
-export async function rollCounter(actor, weaponItem, bonuses = {}) {
-  return rollAttack(actor, weaponItem, bonuses);
+export async function rollCounter(actor, weaponItem, bonuses = {}, options = {}) {
+  return rollAttack(actor, weaponItem, bonuses, options);
 }
 
 // ── Clash resolution ──────────────────────────────────────────────────────────
