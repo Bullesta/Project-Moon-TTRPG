@@ -43,6 +43,7 @@ import {
 import {
   showRetaliationDialog,
   showInterceptConfirmDialog,
+  promptRangedCounterAmmo,
 } from "./clash-dialog.js";
 
 import { createClashContext } from "../easy-effects/registry.js";
@@ -143,6 +144,13 @@ export async function handleRetaliateClick(state, { isIntercept = false } = {}) 
 
   const choice = await showRetaliationDialog(retaliatorActor, state, { isIntercept });
   if (!choice) return;
+  if (choice.type === RETALIATION_TYPES.COUNTER && _isRangedWeapon(choice.item)) {
+    const ammoPick = await promptRangedCounterAmmo(retaliatorActor, choice.item);
+    if (!ammoPick) return;
+    choice.ammo = ammoPick.ammo;
+    choice.consumeAmmo = ammoPick.consumeAmmo;
+    choice.dryFire = ammoPick.dryFire;
+  }
 
   console.log(choice);
 
@@ -153,7 +161,11 @@ export async function handleRetaliateClick(state, { isIntercept = false } = {}) 
   state.retaliatorName      = retaliatorActor.name;
   state.retaliatorImg       = retaliatorActor.img;
   state.retaliationItemId   = choice.item?.id   ?? null;
-  state.retaliatorItemName  = choice.item?.name ?? null;
+  state.retaliatorItemName  = choice.ammo
+    ? `${choice.item?.name ?? ""} · ${choice.ammo.name}`
+    : (choice.dryFire && choice.item
+      ? `${choice.item.name} · ${game.i18n.localize("PMTTRPG.Clash.DryFireShort")}`
+      : (choice.item?.name ?? null));
   state.retaliationType     = choice.type;
 
   await updateAttackCard(state.attackMessageId, state);
@@ -172,7 +184,7 @@ export async function handleRetaliateClick(state, { isIntercept = false } = {}) 
  * @returns {Promise<void>}
  */
 async function _executeClash(state, retaliatorActor, choice) {
-  const attackerActor  = canvas.tokens.get(state?.attackerTokenId ?? null).actor ?? game.actors.get(state.attackerActorId);
+  const attackerActor = canvas.tokens.get(state?.attackerTokenId ?? null)?.actor ?? game.actors.get(state.attackerActorId) ?? null;
   let attackerItem   = attackerActor?.items.get(state.attackerItemId) ?? null;
 
   if(choice.type === RETALIATION_TYPES.ONESIDED) {
@@ -187,6 +199,18 @@ async function _executeClash(state, retaliatorActor, choice) {
     Hooks.callAll("pmttrpg.skillUseStart", { actor: retaliatorActor, skillItem: choice.item });
   }
 
+  // Consume ammo once for the Counter Reaction.
+  if (choice.ammo && choice.consumeAmmo) {
+    const qty = Number(choice.ammo.system?.quantity ?? 0);
+    if (qty > 0) {
+      await choice.ammo.update({ "system.quantity": Math.max(0, qty - 1) });
+    }
+  }
+
+  const counterDryFire = choice.type === RETALIATION_TYPES.COUNTER
+    && (_isRangedWeapon(choice.item) && (choice.dryFire === true || !choice.ammo));
+  const defenseRollOptions = counterDryFire ? { disadvantage: true } : {};
+
   // Rebuild clash context so EasyEffects On Clash can add bonuses before the roll.
   const clashCtx = createClashContext(state.attackRollTotal, 0);
 
@@ -198,40 +222,25 @@ async function _executeClash(state, retaliatorActor, choice) {
     clash:        clashCtx,
   });
 
-  // Make the defense roll.
-  let defenseResult;
-  switch (choice.type) {
-    case RETALIATION_TYPES.EVADE:
-      defenseResult = await rollEvade(retaliatorActor, clashCtx.bonuses);
-      break;
-    case RETALIATION_TYPES.BLOCK:
-      defenseResult = await rollBlock(retaliatorActor, clashCtx.bonuses);
-      break;
-    case RETALIATION_TYPES.COUNTER:
-    case "skill":
-      defenseResult = await rollCounter(retaliatorActor, choice.item ?? attackerItem, clashCtx.bonuses);
-      break;
-    case RETALIATION_TYPES.ONESIDED:
-      defenseResult = {
-        total:   0,
-        formula: "1d1-1",
-        terms:   [],
-      };
-      break;
-    default:
-      defenseResult = await rollEvade(retaliatorActor, clashCtx.bonuses);
+  // Roll defense, then reroll both sides on ties.
+  let attackTotal = state.attackRollTotal;
+  let defenseResult = await _rollDefense(retaliatorActor, choice, attackerItem, clashCtx.bonuses, defenseRollOptions);
+  let { result, margin } = resolveClash(attackTotal, defenseResult.total);
+
+  while (result === CLASH_RESULTS.TIE && choice.type !== RETALIATION_TYPES.ONESIDED) {
+    const attackReroll = await rollAttack(attackerActor, attackerItem, clashCtx.bonuses);
+    defenseResult = await _rollDefense(retaliatorActor, choice, attackerItem, clashCtx.bonuses, defenseRollOptions);
+    attackTotal = attackReroll.total;
+    state.attackRollTotal = attackTotal;
+    state.attackRollFormula = attackReroll.formula;
+    state.attackRollTerms = attackReroll.terms;
+    ({ result, margin } = resolveClash(attackTotal, defenseResult.total));
   }
 
   // Update clash context with final rolls.
+  clashCtx.attackerRoll = attackTotal;
   clashCtx.defenderRoll = defenseResult.total;
-  clashCtx.margin       = Math.abs(state.attackRollTotal - defenseResult.total);
-
-  // Resolve winner.
-  const { result, margin } = resolveClash(state.attackRollTotal, defenseResult.total);
-
-  if(result === CLASH_RESULTS.TIE) {
-    // TODO: Handle Ties
-  }
+  clashCtx.margin       = margin;
 
   state.defenseRollTotal   = defenseResult.total;
   state.defenseRollFormula = defenseResult.formula;
@@ -248,9 +257,38 @@ async function _executeClash(state, retaliatorActor, choice) {
   });
 
   // Compute damage using accumulated bonuses.
-  const baseDamage = Number(attackerItem?.system?.damageBonus ?? 0);
+  // - Attack win: Block Lose reduces by margin; Counter/Evade/one-sided keep full attack.
+  // - Counter win: if original attacker is in counter weapon range, they take the counter.
+  // - Block win: ST rebound to attacker, except ranged attackers.
+  const counterItem = choice.type === RETALIATION_TYPES.COUNTER ? (choice.item ?? null) : null;
+  let counterConnects = false;
+
+  if (result === CLASH_RESULTS.ATTACK_WIN) {
+    const finalResult = state.retaliationType === RETALIATION_TYPES.BLOCK ? margin : attackTotal;
+    state.hpDamage = finalResult;
+    state.stDamage = finalResult;
+  } else if (result === CLASH_RESULTS.DEFENSE_WIN && state.retaliationType === RETALIATION_TYPES.BLOCK) {
+    state.blockWinStExempt = _isRangedWeapon(attackerItem);
+  } else if (result === CLASH_RESULTS.DEFENSE_WIN && counterItem) {
+    const inRange = _isTargetInWeaponRange(
+      state.retaliatorTokenId,
+      state.attackerTokenId,
+      counterItem,
+    );
+    state.counterInRange = inRange;
+    if (inRange) {
+      counterConnects = true;
+      state.hpDamage = defenseResult.total;
+      state.stDamage = defenseResult.total;
+      state.damageType = counterItem.system?.damageTypeFixed ? (counterItem.system?.damageType ?? state.damageType)
+      : (choice.ammo?.system?.damageType ?? counterItem.system?.damageType ?? state.damageType);
+    }
+  }
 
   state.phase    = CLASH_PHASES.RESOLVED;
+
+  // Effective DMG type for this resolution (ammo, unless the weapon has a fixed type).
+  clashCtx.damageType = state.damageType;
 
   // Fire clash resolution hooks for EasyEffects.
   const winner = result === CLASH_RESULTS.ATTACK_WIN ? attackerActor  : retaliatorActor;
@@ -272,6 +310,16 @@ async function _executeClash(state, retaliatorActor, choice) {
       attacker: attackerActor,
       defender: retaliatorActor,
       item:     attackerItem,
+      damageType: state.damageType,
+      clash:    clashCtx,
+    });
+  } else if (counterConnects) {
+    // Counter connects as a normal attack from the retaliator onto the original attacker.
+    Hooks.callAll("pmttrpg.attackConnected", {
+      attacker: retaliatorActor,
+      defender: attackerActor,
+      item:     counterItem,
+      damageType: state.damageType,
       clash:    clashCtx,
     });
   }
@@ -300,6 +348,76 @@ async function _executeClash(state, retaliatorActor, choice) {
 }
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
+
+function _isRangedWeapon(weapon) {
+  return weapon?.system?.weaponType === "ranged";
+}
+
+/**
+ * Effective weapon range in squares.
+ * Melee 1, Long melee 2, Ranged 10.
+ * @param {Item|null} weapon
+ * @returns {number}
+ */
+function _getWeaponRangeSquares(weapon) {
+  if (!weapon) return 1;
+  if (_isRangedWeapon(weapon)) return 10;
+  if (weapon.system?.formProperty === "long") return 2;
+  return 1;
+}
+
+/**
+ * Grid distance in squares between two tokens.
+ * @param {Token|null} tokenA
+ * @param {Token|null} tokenB
+ * @returns {number|null}
+ */
+function _tokenDistanceSquares(tokenA, tokenB) {
+  if (!tokenA || !tokenB || !canvas?.grid) return null;
+
+  const a = canvas.grid.getOffset(tokenA.center);
+  const b = canvas.grid.getOffset(tokenB.center);
+  if (!a || !b) return null;
+
+  return Math.max(Math.abs(a.i - b.i), Math.abs(a.j - b.j));
+}
+
+function _isTargetInWeaponRange(fromTokenId, toTokenId, weapon) {
+  const from = fromTokenId ? canvas.tokens.get(fromTokenId) : null;
+  const to   = toTokenId ? canvas.tokens.get(toTokenId) : null;
+  const distance = _tokenDistanceSquares(from, to);
+  if (distance == null) return true;
+  return distance <= _getWeaponRangeSquares(weapon);
+}
+
+/**
+ * Rolls the defender's side of a clash for the chosen retaliation type.
+ * @param {ActorPMTTRPG} retaliatorActor
+ * @param {RetaliationChoice} choice
+ * @param {Item|null} attackerItem
+ * @param {object} bonuses
+ * @param {object} [rollOptions]
+ * @returns {Promise<object>}
+ */
+async function _rollDefense(retaliatorActor, choice, attackerItem, bonuses, rollOptions = {}) {
+  switch (choice.type) {
+    case RETALIATION_TYPES.EVADE:
+      return rollEvade(retaliatorActor, bonuses);
+    case RETALIATION_TYPES.BLOCK:
+      return rollBlock(retaliatorActor, bonuses);
+    case RETALIATION_TYPES.COUNTER:
+    case "skill":
+      return rollCounter(retaliatorActor, choice.item ?? attackerItem, bonuses, rollOptions);
+    case RETALIATION_TYPES.ONESIDED:
+      return {
+        total:   0,
+        formula: "1d1-1",
+        terms:   [],
+      };
+    default:
+      return rollEvade(retaliatorActor, bonuses);
+  }
+}
 
 /**
  * Returns the first actor owned by the current user that is a character.

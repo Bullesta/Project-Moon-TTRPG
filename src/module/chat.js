@@ -89,15 +89,20 @@ function _onChatCardAction(event) {
     return;
   }
 
+  // Don't also run the normal damage handler
+  if (action.startsWith("clash-") && (action.includes("damage") || action.includes("heal"))) {
+    _clashActionDamage(message, action, button);
+    return;
+  }
+
   // Chat damage.
-  if (action.includes('damage') || action == 'heal') _chatActionDamage(message, action, button);
-  if (action.includes('clash-damage') || action.includes('clash-heal')) _clashActionDamage(message, action, button);
+  if (action.includes("damage") || action === "heal") {
+    _chatActionDamage(message, action, button);
+    return;
+  }
+
   // All remaining actions require user to be a GM.
   if (!game.user.isGM) return;
-
-  if (action === "damage" || action === "half-damage" || action === "double-damage" || action === "heal") {
-    _chatActionDamage(message, action);
-  }
 }
 
 function _getChatCardActor(card) {
@@ -198,18 +203,14 @@ function _resolveDamageType(message, root) {
 }
 
 async function _clashActionDamage(message, action, button) {
-  let actors = canvas.tokens.controlled.map(t => t.document.actor).filter(Boolean);
-  if (!actors.length) {
-    return;
-  }
+  const actors = canvas.tokens.controlled.map(t => t.document.actor).filter(Boolean);
+  if (!actors.length) return;
 
-  if(!message._id);
-  const state = getClashStateFromMessage(message._id);
-
+  const state = message?.id ? getClashStateFromMessage(message.id) : null;
   const root = button?.closest?.(".chat-damage-buttons");
   const pools = _readSelectedPools(root);
   const damageType = _resolveDamageType(message, root);
-  let rollTotal = Number($(message.content).find(".clash-damage-line")?.first()?.text()?.trim().match(/\d+/)[0]) || 0;
+  const rollTotal = _resolveClashDamageAmount(state, pools, message);
 
   const opByAction = {
     "clash-damage": "full",
@@ -220,17 +221,41 @@ async function _clashActionDamage(message, action, button) {
   const op = opByAction[action];
   if (!op) return;
 
+  const attacker = op === "heal"
+    ? null
+    : (state?.attackerActorId ? game.actors.get(state.attackerActorId) : null);
+
   for (const actor of actors) {
-    await actor.applyDamage(
-      rollTotal, 
-      {
-        pool: pools.length === 1 ? pools[0] : pools,
-        op,
-        damageType,
-        attacker: op === "heal" ? null : state.attacker,
-      }
-    );
+    await actor.applyDamage(rollTotal, {
+      pool: pools.length === 1 ? pools[0] : pools,
+      op,
+      damageType,
+      attacker,
+    });
   }
+}
+
+// Use the clash state numbers and only scrape the card if those are missing
+function _resolveClashDamageAmount(state, pools, message) {
+  if (state) {
+    const stOnly = pools.includes("st") && !pools.includes("hp");
+    if (stOnly && state.stDamage != null) return Number(state.stDamage) || 0;
+    if (state.hpDamage != null) return Number(state.hpDamage) || 0;
+
+    // Evade win heals ST by the defense total.
+    if (state.retaliationType === "evade" && state.defenseRollTotal != null) {
+      return Number(state.defenseRollTotal) || 0;
+    }
+    // Block win deals margin as ST (ranged attackers are exempt).
+    if (state.retaliationType === "block") {
+      if (state.blockWinStExempt) return 0;
+      if (state.margin != null) return Number(state.margin) || 0;
+    }
+  }
+
+  const text = $(message?.content ?? "").find(".clash-damage-line").first().text().trim();
+  const match = text.match(/\d+/);
+  return Number(match?.[0]) || 0;
 }
 
 async function _chatActionDamage(message, action, button) {

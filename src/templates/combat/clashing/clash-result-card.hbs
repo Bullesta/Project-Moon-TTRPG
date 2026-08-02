@@ -40,6 +40,9 @@
     {{#if evadeWin}}
       <i class="fa-solid fa-wind"></i>
       {{i18n.evadeWin}}
+    {{else if counterWin}}
+      <i class="fa-solid fa-reply"></i>
+      {{i18n.counterWin}}
     {{else if defenderWon}}
       <i class="fa-solid fa-shield"></i>
       {{i18n.defenseWin}}
@@ -54,22 +57,12 @@
     <div class="clash-result-card__damage-summary">
       <div class="clash-damage-line clash-damage-line--hp">
         <i class="fa-solid fa-heart"></i>
-        {{#ifEquals state.retaliationType "evade"}}
-          {{state.attackRollTotal}}
-        {{/ifEquals}}
-        {{#ifNotEquals state.retaliationType "evade"}}
-          {{state.margin}}
-        {{/ifNotEquals}}
+        {{state.hpDamage}}
         {{i18n.hpDamage}}
       </div>
       <div class="clash-damage-line clash-damage-line--st">
         <i class="fa-solid fa-shield"></i>
-        {{#ifEquals state.retaliationType "evade"}}
-          {{state.attackRollTotal}}
-        {{/ifEquals}}
-        {{#ifNotEquals state.retaliationType "evade"}}
-          {{state.margin}}
-        {{/ifNotEquals}}
+        {{state.stDamage}}
         {{i18n.stDamage}}
       </div>
       <div class="clash-damage-type-badge clash-damage-type--{{state.damageType}}">
@@ -78,13 +71,49 @@
     </div>
   {{/if}}
 
+  {{#if counterHit}}
+    <div class="clash-result-card__damage-summary">
+      <div class="clash-damage-line clash-damage-line--hp">
+        <i class="fa-solid fa-heart"></i>
+        {{state.hpDamage}}
+        {{i18n.hpDamage}}
+      </div>
+      <div class="clash-damage-line clash-damage-line--st">
+        <i class="fa-solid fa-shield"></i>
+        {{state.stDamage}}
+        {{i18n.stDamage}}
+      </div>
+      <div class="clash-damage-type-badge clash-damage-type--{{state.damageType}}">
+        {{i18n.damageType}}
+      </div>
+    </div>
+  {{/if}}
+
+  {{#if counterOutOfRange}}
+    <div class="clash-result-card__regen-summary">
+      <div class="clash-damage-line">
+        <i class="fa-solid fa-ban"></i>
+        {{i18n.counterOutOfRange}}
+      </div>
+    </div>
+  {{/if}}
+
   {{!-- Block win: ST damage to attacker summary --}}
-  {{#if blockWin}}
+  {{#if blockWinSt}}
     <div class="clash-result-card__regen-summary">
       <div class="clash-damage-line clash-damage-line--st-regen">
         <i class="fa-solid fa-shield"></i>
         {{state.margin}}
         {{i18n.stDamageToAttacker}}
+      </div>
+    </div>
+  {{/if}}
+
+  {{#if blockWinExempt}}
+    <div class="clash-result-card__regen-summary">
+      <div class="clash-damage-line">
+        <i class="fa-solid fa-ban"></i>
+        {{i18n.blockWinRangedExempt}}
       </div>
     </div>
   {{/if}}

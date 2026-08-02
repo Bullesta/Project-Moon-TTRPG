@@ -20,6 +20,7 @@ export function createClashContext(attackerRoll = 0, defenderRoll = 0) {
     attackerRoll,
     defenderRoll,
     margin: attackerRoll - defenderRoll,
+    damageType: null,
     bonuses: {
       attackPower:  0,
       blockPower:   0,
