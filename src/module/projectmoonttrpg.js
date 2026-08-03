@@ -10,6 +10,7 @@ import { ActorPMTTRPG } from "./actor/actor.js";
 import { ItemPMTTRPG } from "./item/item.js";
 import { PMTTRPGItemSheet } from "./item/item-sheet.js";
 import { PMTTRPGWeaponItemSheet } from "./item/weapon-item-sheet.js";
+import { PMTTRPGSkillItemSheet } from "./item/skill-item-sheet.js";
 import { PMTTRPGOutfitItemSheet } from "./item/outfit-item-sheet.js";
 import { PMTTRPGAmmunitionItemSheet } from "./item/ammunition-item-sheet.js";
 import { PMTTRPGToolItemSheet } from "./item/tool-item-sheet.js";
@@ -86,6 +87,10 @@ Hooks.once("init", async function() {
   Items.registerSheet("projectmoonttrpg", PMTTRPGItemSheet, { makeDefault: false });
   Items.registerSheet("projectmoonttrpg", PMTTRPGWeaponItemSheet, {
     types: ['weapon'],
+    makeDefault: true
+  });
+  Items.registerSheet("projectmoonttrpg", PMTTRPGSkillItemSheet, {
+    types: ['skill'],
     makeDefault: true
   });
   Items.registerSheet("projectmoonttrpg", PMTTRPGOutfitItemSheet, {

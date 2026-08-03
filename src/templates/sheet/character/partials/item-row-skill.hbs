@@ -3,6 +3,8 @@
     <div class="item-title-row__lead">
       {{> "systems/projectmoonttrpg/templates/sheet/character/partials/item-thumb.hbs" img=item.img name=item.name}}
       <strong class="item-name">{{item.name}}</strong>
+      <img class="icon-lightcost" src="systems/projectmoonttrpg/assets/icons/sheet/00_light.webp" alt="">
+      <strong class="item-lightcost">{{item.system.lightCost}}</strong>
     </div>
     <div class="item-controls">
       {{> "systems/projectmoonttrpg/templates/sheet/character/partials/item-controls-skill.hbs" itemId=item._id}}

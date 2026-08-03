@@ -33,6 +33,7 @@
     </header>
   </section>
 
+  {{#unless (or (eq loadoutWeapons.length 0) (eq loadoutOutfits.length 0)) }}
   <section class="equipment-section equipment-section--loadout">
     <header class="tab-section-header">
       <h3 class="tab-section-title">{{localize "PMTTRPG.NpcLoadout"}}</h3>
@@ -57,7 +58,21 @@
       {{/each}}
     </ol>
   </section>
+  {{else if editMode}}
+  <section class="equipment-section equipment-section--loadout">
+    <header class="tab-section-header">
+      <h3 class="tab-section-title">{{localize "PMTTRPG.NpcLoadout"}}</h3>
+      {{#unless locked}}
+      <div class="tab-section-actions">
+        <button type="button" data-action="itemCreate" data-type="weapon">{{localize "PMTTRPG.AddWeapon"}}</button>
+        <button type="button" data-action="itemCreate" data-type="outfit">{{localize "PMTTRPG.AddOutfit"}}</button>
+      </div>
+      {{/unless}}
+    </header>
+  </section>
+  {{/unless}}
 
+  {{#unless (or (eq skills.length 0)) }}
   <section class="equipment-section equipment-section--skills">
     <header class="tab-section-header">
       <h3 class="tab-section-title">{{localize "PMTTRPG.Skills"}}</h3>
@@ -73,7 +88,18 @@
       {{/each}}
     </ol>
   </section>
+  {{else if editMode}}
+  <section class="equipment-section equipment-section--skills">
+    <header class="tab-section-header">
+      <h3 class="tab-section-title">{{localize "PMTTRPG.Skills"}}</h3>
+      {{#unless locked}}
+      <button type="button" data-action="itemCreate" data-type="skill">{{localize "PMTTRPG.AddSkill"}}</button>
+      {{/unless}}
+    </header>
+  </section>
+  {{/unless}}
 
+  {{#unless (or (eq tools.length 0)) }}
   <section class="equipment-section equipment-section--tools">
     <header class="tab-section-header">
       <h3 class="tab-section-title">{{localize "PMTTRPG.Tools"}}</h3>
@@ -164,7 +190,32 @@
     <p class="tab-empty">{{localize "PMTTRPG.NoTools"}}</p>
     {{/if}}
   </section>
+  {{else if editMode}}
+  <section class="equipment-section equipment-section--tools">
+    <header class="tab-section-header">
+      <h3 class="tab-section-title">{{localize "PMTTRPG.Tools"}}</h3>
+      <div class="tab-section-header__meta inventory-slots inventory-slots--tools">
+        <span class="inventory-slots__pool{{#if system.attributes.toolSlots.over}} inventory-slots__pool--over{{/if}}" title="{{localize "PMTTRPG.ToolSlots"}}">
+          <span class="inventory-slots__label">{{localize "PMTTRPG.ToolSlotsUsed"}}</span>
+          <span class="inventory-slots__value">{{system.attributes.toolSlots.used}} / {{system.attributes.toolSlots.value}}</span>
+        </span>
+        <span class="inventory-slots__pool{{#if system.attributes.narrativeSlots.over}} inventory-slots__pool--over{{/if}}" title="{{localize "PMTTRPG.NarrativeSlots"}}">
+          <span class="inventory-slots__label">{{localize "PMTTRPG.NarrativeSlots"}}</span>
+          <span class="inventory-slots__value">{{system.attributes.narrativeSlots.used}} / {{system.attributes.narrativeSlots.value}}</span>
+        </span>
+        <span class="inventory-slots__pool{{#if system.attributes.stockSlots.over}} inventory-slots__pool--over{{/if}}" title="{{localize "PMTTRPG.StockSlots"}}">
+          <span class="inventory-slots__label">{{localize "PMTTRPG.StockSlots"}}</span>
+          <span class="inventory-slots__value">{{system.attributes.stockSlots.used}} / {{system.attributes.stockSlots.value}}</span>
+        </span>
+      </div>
+      {{#unless locked}}
+      <button type="button" data-action="itemCreate" data-type="tool">{{localize "PMTTRPG.AddTool"}}</button>
+      {{/unless}}
+    </header>
+  </section>
+  {{/unless}}
 
+  {{#unless (or (not augment)) }}
   <section class="equipment-section equipment-section--augment">
     <header class="tab-section-header">
       <h3 class="tab-section-title">{{localize "PMTTRPG.Augment"}}</h3>
@@ -182,7 +233,20 @@
       {{/if}}
     </ol>
   </section>
+  {{else if editMode}}
+  <section class="equipment-section equipment-section--augment">
+    <header class="tab-section-header">
+      <h3 class="tab-section-title">{{localize "PMTTRPG.Augment"}}</h3>
+      {{#unless locked}}
+        {{#unless augment}}
+        <button type="button" data-action="itemCreate" data-type="augment">{{localize "PMTTRPG.AddAugment"}}</button>
+        {{/unless}}
+      {{/unless}}
+    </header>
+  </section>
+  {{/unless}}
 
+  {{#unless (or (eq ammunition.length 0)) }}
   <section class="equipment-section equipment-section--ammunition">
     <header class="tab-section-header">
       <h3 class="tab-section-title">{{localize "PMTTRPG.Ammunition"}}</h3>
@@ -229,6 +293,17 @@
     <p class="tab-empty">{{localize "PMTTRPG.NoAmmunition"}}</p>
     {{/if}}
   </section>
+  {{else if editMode}}
+  <section class="equipment-section equipment-section--ammunition">
+    <header class="tab-section-header">
+      <h3 class="tab-section-title">{{localize "PMTTRPG.Ammunition"}}</h3>
+      {{#unless locked}}
+      <button type="button" data-action="itemCreate" data-type="ammunition">{{localize "PMTTRPG.AddAmmunition"}}</button>
+      {{/unless}}
+    </header>
+  </section>
+  {{/unless}}
+
 
   <section class="equipment-section equipment-section--statuses">
     <header class="tab-section-header">
