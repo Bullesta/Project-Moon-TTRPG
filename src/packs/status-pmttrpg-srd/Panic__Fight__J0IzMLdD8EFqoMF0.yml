@@ -1,0 +1,40 @@
+folder: Jrkv4OCXHWXqQw69
+name: Panic [Fight]
+type: status
+_id: J0IzMLdD8EFqoMF0
+img: systems/projectmoonttrpg/assets/icons/sheet/SanityIcons_Fight.webp
+system:
+  name: ''
+  description: >-
+    <h4>Panic Behavior</h4><p>On their turn, the Character must move adjacent to
+    the nearest Target and use their Action(s) to Attack the nearest available
+    Target, including allies. If there are multiple Targets the same distance
+    away from the Character, the Target is chosen at random.</p><p>When this
+    Character takes down a Target, immediately unpanic.</p><hr><h4>Goaded
+    Panic</h4><p>The Character can be forced to Attack a specific Target by the
+    Provoker.</p>
+  slug: ''
+  stacks: 1
+  stackMax: 0
+  priority: 0
+  macro:
+    uuid: ''
+  customNotes: ''
+  easyEffects: ''
+effects: []
+sort: 0
+ownership:
+  default: 0
+  yWsvx4DXrmYcZsue: 3
+flags: {}
+_stats:
+  coreVersion: '14.364'
+  systemId: projectmoonttrpg
+  systemVersion: 0.0.1
+  createdTime: 1785432707736
+  modifiedTime: 1785433035511
+  lastModifiedBy: yWsvx4DXrmYcZsue
+  compendiumSource: null
+  duplicateSource: null
+  exportSource: null
+_key: '!items!J0IzMLdD8EFqoMF0'

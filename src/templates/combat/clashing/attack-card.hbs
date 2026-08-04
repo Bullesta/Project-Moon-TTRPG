@@ -1,0 +1,78 @@
+<div class="clash-card clash-attack-card" data-phase="{{state.phase}}">
+
+  {{!-- Header --}}
+  <div class="clash-card__header">
+    <img class="clash-card__avatar" src="{{state.attackerImg}}" alt="{{state.attackerName}}">
+    <div class="clash-card__header-text">
+      <span class="clash-card__actor-name">{{state.attackerName}}</span>
+      <span class="clash-card__item-name">{{i18n.using}} {{state.attackerItemName}}</span>
+      <span class="clash-card__target-line">
+        {{#if state.targetName}}
+          {{i18n.targeting}} {{state.targetName}}
+        {{else}}
+          {{i18n.targeting}}
+        {{/if}}
+      </span>
+    </div>
+    {{#if state.targetImg}}
+      <img class="clash-card__avatar clash-card__avatar--target" src="{{state.targetImg}}" alt="{{state.targetName}}">
+    {{/if}}
+  </div>
+
+  {{!-- Roll result — hidden to non-GM until revealed --}}
+  <div class="clash-card__roll-wrapper">
+    <div class="clash-card__roll">
+      {{{rollHtml}}}
+    </div>
+  </div>
+
+  {{!-- State: pending — show retaliate buttons --}}
+  {{#if (eq state.phase "pending")}}
+    <div class="clash-card__actions">
+      {{!-- Primary target gets a highlighted blue Retaliate button --}}
+      {{#if state.targetActorId}}
+        <button
+          class="clash-btn clash-btn--retaliate clash-btn--primary"
+          data-action="clash-retaliate"
+          data-message-id="{{state.attackMessageId}}"
+          title="{{i18n.retaliate}}"
+        >
+          <i class="fa-solid fa-shield-halved"></i>
+          {{i18n.retaliate}}
+        </button>
+      {{/if}}
+
+      {{!-- Intercept button — grey, requires confirmation --}}
+      <button
+        class="clash-btn clash-btn--intercept"
+        data-action="clash-intercept"
+        data-message-id="{{state.attackMessageId}}"
+        title="{{i18n.intercept}}"
+      >
+        <i class="fa-solid fa-person-running"></i>
+        {{i18n.intercept}}
+      </button>
+    </div>
+
+  {{!-- State: rolling — show "waiting" indicator --}}
+  {{else if (eq state.phase "rolling")}}
+    <div class="clash-card__status clash-card__status--rolling">
+      <i class="fa-solid fa-hourglass-half fa-spin"></i>
+      {{localize "PMTTRPG.Clash.WaitingForRoll"}}
+      {{#if state.retaliatorName}}
+        — {{state.retaliatorName}}
+      {{/if}}
+    </div>
+
+  {{!-- State: resolved / closed — show result summary --}}
+  {{else}}
+    <div class="clash-card__status clash-card__status--resolved">
+      <i class="fa-solid fa-check-circle"></i>
+      {{i18n.resolved}}
+      {{#if state.retaliatorName}}
+        ({{state.retaliatorName}})
+      {{/if}}
+    </div>
+  {{/if}}
+
+</div>

@@ -1,18 +1,18 @@
-folder: null
+folder: fMFB6OnVCAkgdA96
 name: Paralysis
 type: status
 img: systems/projectmoonttrpg/assets/icons/Statuses/Paralyze.webp
 system:
   name: ''
-  description: >-
-    <p dir="ltr">When the character takes an Action or Reaction, they have
-    disadvantage on the dice roll, then reduce the Paralysis stack by one.</p>
-
-    <p><strong>&nbsp;</strong></p>
-
-    <p dir="ltr">At the end of the Round, the character loses all Paralysis.</p>
-
-    <p>&nbsp;</p>
+  description: "<p dir=\"ltr\">When the character takes an Action or Reaction, they have disadvantage on the dice roll, then reduce the Paralysis stack by one.</p><p dir=\"ltr\">At the end of the Round, the character loses all Paralysis.</p><p>\_</p>"
+  slug: ''
+  stacks: 1
+  stackMax: 0
+  priority: 0
+  macro:
+    uuid: ''
+  customNotes: ''
+  easyEffects: ''
   proc:
     turnStart: false
     endOfRound: false
@@ -22,9 +22,6 @@ system:
     onHitWhenTargetHas: false
     alwaysActive: false
     skillEffect: false
-  macro:
-    uuid: ''
-  customNotes: ''
 effects: []
 ownership:
   default: 0
@@ -34,13 +31,12 @@ _stats:
   compendiumSource: null
   duplicateSource: null
   exportSource: null
-  coreVersion: '13.351'
+  coreVersion: '14.364'
   systemId: projectmoonttrpg
   systemVersion: 0.0.1
   createdTime: 1779621122688
-  modifiedTime: 1779621127824
+  modifiedTime: 1785575294177
   lastModifiedBy: yWsvx4DXrmYcZsue
 _id: xzOZxRRZvS7pDgl7
 sort: 500000
 _key: '!items!xzOZxRRZvS7pDgl7'
-

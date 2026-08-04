@@ -1,4 +1,4 @@
-folder: null
+folder: fMFB6OnVCAkgdA96
 name: Tremor
 type: status
 img: systems/projectmoonttrpg/assets/icons/Statuses/Tremor.webp
@@ -14,6 +14,20 @@ system:
     <p dir="ltr">At the end of Round, remove all Tremor.</p>
 
     <p>&nbsp;</p>
+  slug: ''
+  stacks: 1
+  stackMax: 0
+  priority: 0
+  macro:
+    uuid: ''
+  customNotes: ''
+  easyEffects: |-
+    [On Burst]
+    deal Tremor st damage to self
+    lose Tremor Tremor on self
+                        
+    [End of Round]
+    lose Tremor Tremor on self
   proc:
     turnStart: false
     endOfRound: false
@@ -23,9 +37,6 @@ system:
     onHitWhenTargetHas: false
     alwaysActive: false
     skillEffect: false
-  macro:
-    uuid: ''
-  customNotes: ''
 effects: []
 ownership:
   default: 0
@@ -35,13 +46,12 @@ _stats:
   compendiumSource: null
   duplicateSource: null
   exportSource: null
-  coreVersion: '13.351'
+  coreVersion: '14.364'
   systemId: projectmoonttrpg
   systemVersion: 0.0.1
   createdTime: 1779621130863
-  modifiedTime: 1779621135580
+  modifiedTime: 1785426661938
   lastModifiedBy: yWsvx4DXrmYcZsue
 _id: mf2VtCjrMg1cylnh
-sort: 50000
+sort: 198438
 _key: '!items!mf2VtCjrMg1cylnh'
-

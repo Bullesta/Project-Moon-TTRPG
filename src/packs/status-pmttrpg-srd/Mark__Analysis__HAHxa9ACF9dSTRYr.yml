@@ -1,0 +1,39 @@
+folder: OsS83U82yvcIdkjc
+name: Mark [Analysis]
+type: status
+_id: HAHxa9ACF9dSTRYr
+img: systems/projectmoonttrpg/assets/icons/Statuses/Mark_Analysis.webp
+system:
+  name: ''
+  description: >-
+    <p>You learn 1 HP Resistance or 1 ST Resistance of your target that they are
+    weak to. If you Clash Win against  the Marked target for Weak or Fatal they
+    gain 2 [Type] Fragility of that type next turn.</p><p>If the target has no
+    Weak or Fatal resistances, the target chooses from their next weakest
+    resistances, and the 2 Fragility will apply instead for that type on
+    appropriate hits.</p>
+  slug: ''
+  stacks: 1
+  stackMax: 0
+  priority: 0
+  macro:
+    uuid: ''
+  customNotes: ''
+  easyEffects: ''
+effects: []
+sort: 0
+ownership:
+  default: 0
+  yWsvx4DXrmYcZsue: 3
+flags: {}
+_stats:
+  coreVersion: '14.364'
+  systemId: projectmoonttrpg
+  systemVersion: 0.0.1
+  createdTime: 1785432137959
+  modifiedTime: 1785432158930
+  lastModifiedBy: yWsvx4DXrmYcZsue
+  compendiumSource: null
+  duplicateSource: null
+  exportSource: null
+_key: '!items!HAHxa9ACF9dSTRYr'

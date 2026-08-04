@@ -1,0 +1,46 @@
+folder: 8t5xinoxx4XtmQBl
+name: Retracting Cable
+type: effect
+img: systems/projectmoonttrpg/assets/icons/Statuses/Combo.webp
+system:
+  name: ''
+  description: ''
+  slug: retracting-cable
+  cost: 2
+  stackMax: 1
+  appliesTo: augment
+  canPositive: true
+  canNegative: false
+  procOn: alwaysActive
+  procResult: none
+  procResultLocked: false
+  procStat: any
+  procDice: any
+  procAction: any
+  procCondition: When throwing melee weapons
+  positive: >-
+    <p>You can bring a melee weapon back to you by using 1 reaction instead of
+    picking it up manually.</p>
+  negative: ''
+  macro:
+    uuid: ''
+  customNotes: ''
+  easyEffects: ''
+effects: []
+sort: 0
+ownership:
+  default: 0
+  yWsvx4DXrmYcZsue: 3
+flags: {}
+_stats:
+  compendiumSource: null
+  duplicateSource: Item.p6zSTOaV5QRIO4Br
+  exportSource: null
+  coreVersion: '14.364'
+  systemId: projectmoonttrpg
+  systemVersion: 0.0.1
+  createdTime: 1785485122327
+  modifiedTime: 1785485122327
+  lastModifiedBy: yWsvx4DXrmYcZsue
+_id: jiOYgQUR8FJ6sac1
+_key: '!items!jiOYgQUR8FJ6sac1'

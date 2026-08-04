@@ -1,0 +1,46 @@
+folder: 8t5xinoxx4XtmQBl
+name: Altered Psyche [Flight]
+type: effect
+img: systems/projectmoonttrpg/assets/icons/Statuses/Panic.webp
+system:
+  name: ''
+  description: ''
+  slug: altered-psyche-flight
+  cost: 2
+  stackMax: 1
+  appliesTo: augment
+  canPositive: true
+  canNegative: false
+  procOn: alwaysActive
+  procResult: none
+  procResultLocked: false
+  procStat: any
+  procDice: any
+  procAction: any
+  procCondition: Upon entering panic
+  positive: >-
+    <p>You will be forced to take the "Flight" Panic type regardless of your
+    roll.</p>
+  negative: ''
+  macro:
+    uuid: ''
+  customNotes: ''
+  easyEffects: ''
+effects: []
+sort: 0
+ownership:
+  default: 0
+  yWsvx4DXrmYcZsue: 3
+flags: {}
+_stats:
+  compendiumSource: null
+  duplicateSource: Item.moUBFPiq1obXmLKA
+  exportSource: null
+  coreVersion: '14.364'
+  systemId: projectmoonttrpg
+  systemVersion: 0.0.1
+  createdTime: 1785485122322
+  modifiedTime: 1785485122322
+  lastModifiedBy: yWsvx4DXrmYcZsue
+_id: a2nalJt0HptVMHlr
+_key: '!items!a2nalJt0HptVMHlr'

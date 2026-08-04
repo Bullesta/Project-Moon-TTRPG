@@ -1,4 +1,4 @@
-folder: null
+folder: fMFB6OnVCAkgdA96
 name: Frostbite
 type: status
 img: systems/projectmoonttrpg/assets/icons/Statuses/Frostbite.webp
@@ -8,6 +8,17 @@ system:
     <p><strong id="docs-internal-guid-51630f5f-7fff-f5ca-1018-822ed04fea4c">At
     the end of the round, take ST Damage equal to the number of Frostbite
     stacks, then reduce the Frostbite stack by half. (Rounded down)</strong></p>
+  slug: ''
+  stacks: 1
+  stackMax: 0
+  priority: 0
+  macro:
+    uuid: ''
+  customNotes: ''
+  easyEffects: |-
+    [End of Round]
+    deal Frostbite hp damage to self;
+    halve Frostbite on self;
   proc:
     turnStart: false
     endOfRound: false
@@ -17,9 +28,6 @@ system:
     onHitWhenTargetHas: false
     alwaysActive: false
     skillEffect: false
-  macro:
-    uuid: ''
-  customNotes: ''
 effects: []
 ownership:
   default: 0
@@ -29,13 +37,12 @@ _stats:
   compendiumSource: null
   duplicateSource: null
   exportSource: null
-  coreVersion: '13.351'
+  coreVersion: '14.364'
   systemId: projectmoonttrpg
   systemVersion: 0.0.1
   createdTime: 1779621121159
-  modifiedTime: 1779621127824
+  modifiedTime: 1785426634811
   lastModifiedBy: yWsvx4DXrmYcZsue
 _id: otekCDMsUCWFdGFl
-sort: 600000
+sort: 187500
 _key: '!items!otekCDMsUCWFdGFl'
-

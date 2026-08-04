@@ -6,9 +6,10 @@ img: systems/projectmoonttrpg/assets/icons/Statuses/Protection.webp
 system:
   name: ''
   description: ''
+  slug: ''
   cost: 6
   stackMax: 1
-  appliesTo: weapon
+  appliesTo: outfit
   canPositive: true
   canNegative: false
   procOn: alwaysActive
@@ -23,6 +24,7 @@ system:
   macro:
     uuid: ''
   customNotes: ''
+  easyEffects: ''
   allowMultiple: false
 effects: []
 sort: 0
@@ -34,10 +36,10 @@ _stats:
   compendiumSource: null
   duplicateSource: null
   exportSource: null
-  coreVersion: '13.351'
+  coreVersion: '14.364'
   systemId: projectmoonttrpg
   systemVersion: 0.0.1
   createdTime: 1780308629122
-  modifiedTime: 1780308629122
+  modifiedTime: 1785516853970
   lastModifiedBy: yWsvx4DXrmYcZsue
 _key: '!items!wH0xYcqD7UYjeHkx'

@@ -1,0 +1,50 @@
+folder: joSME26dU79IglVK
+name: Striker Stance
+type: effect
+_id: QKkR4jBReemYWQet
+img: systems/projectmoonttrpg/assets/icons/Statuses/Mark.webp
+system:
+  name: ''
+  description: ''
+  slug: ''
+  cost: 4
+  stackMax: 1
+  appliesTo: augment
+  canPositive: true
+  canNegative: false
+  procOn: alwaysActive
+  procResult: none
+  procResultLocked: false
+  procStat: any
+  procDice: any
+  procAction: any
+  procCondition: ''
+  positive: >-
+    <p>By spending 1 Reaction, you may activate/swap to Striker
+    Stance.</p><p>[On Crit] with this Stance active, you may perform an
+    additional Attack, once per round.</p><p>This additional Attack must use the
+    same weapon, cannot use Skills, and rolls with -2 Dice Power. If the
+    Critical Hit was a result of a Defensive Reaction, this Attack may be
+    performed with any applicable held weapon.</p>
+  negative: ''
+  macro:
+    uuid: ''
+  customNotes: ''
+  easyEffects: ''
+effects: []
+sort: 0
+ownership:
+  default: 0
+  yWsvx4DXrmYcZsue: 3
+flags: {}
+_stats:
+  compendiumSource: null
+  duplicateSource: null
+  exportSource: null
+  coreVersion: '14.364'
+  systemId: projectmoonttrpg
+  systemVersion: 0.0.1
+  createdTime: 1785485140025
+  modifiedTime: 1785503028522
+  lastModifiedBy: yWsvx4DXrmYcZsue
+_key: '!items!QKkR4jBReemYWQet'

@@ -1,0 +1,43 @@
+name: Smoke
+type: status
+_id: 1dWw41N0g3Ep1mnX
+img: systems/projectmoonttrpg/assets/icons/Statuses/Smoke.webp
+system:
+  name: ''
+  description: >-
+    <p>Take [Smoke stack/2] extra [HP Damage After Resistance] from attacks.
+    (Rounded down) </p><p>Lose 2 Smoke at the end of each round. Max stack is 10
+    from natural inflicts, 20 with certain skill effects. When above 10 Smoke,
+    lose 4 Smoke at the end of each round. </p>
+  slug: ''
+  stacks: 1
+  stackMax: 0
+  priority: 0
+  macro:
+    uuid: ''
+  customNotes: ''
+  easyEffects: |-
+    [On Taking HP Damage]
+    increase damage by (Smoke //f 2)
+
+    [End of Round]
+    lose 2 Smoke
+    require Smoke > 10 then lose 2 Smoke
+effects: []
+folder: fMFB6OnVCAkgdA96
+sort: 400000
+ownership:
+  default: 0
+  yWsvx4DXrmYcZsue: 3
+flags: {}
+_stats:
+  coreVersion: '14.364'
+  systemId: projectmoonttrpg
+  systemVersion: 0.0.1
+  createdTime: 1785318920602
+  modifiedTime: 1785426658469
+  lastModifiedBy: yWsvx4DXrmYcZsue
+  compendiumSource: null
+  duplicateSource: null
+  exportSource: null
+_key: '!items!1dWw41N0g3Ep1mnX'

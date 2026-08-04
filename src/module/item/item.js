@@ -198,15 +198,6 @@ export class ItemPMTTRPG extends Item {
       data.blockDiceComputed = `1d${blockBaseSides}${formatDefensePower(blockTotal)}`;
       data.evadeDiceComputed = `1d${evadeBaseSides}${formatDefensePower(evadeTotal)}`;
 
-      data.resistanceLevels = {
-        fatal: { label: 'PMTTRPG.ResistanceFatal', multiplier: 2 },
-        weak: { label: 'PMTTRPG.ResistanceWeak', multiplier: 1.5 },
-        normal: { label: 'PMTTRPG.ResistanceNormal', multiplier: 1 },
-        endured: { label: 'PMTTRPG.ResistanceEndured', multiplier: 0.5 },
-        ineffective: { label: 'PMTTRPG.ResistanceIneffective', multiplier: 0.25 },
-        immune: { label: 'PMTTRPG.ResistanceImmune', multiplier: 0 }
-      };
-
       data.resistanceTypes = {
         slash: 'PMTTRPG.DamageTypeSlash',
         pierce: 'PMTTRPG.DamageTypePierce',
@@ -238,8 +229,8 @@ export class ItemPMTTRPG extends Item {
       for (let damageType of ['slash', 'pierce', 'blunt']) {
         const hpKey = data.resistances.hp[damageType];
         const stKey = data.resistances.st[damageType];
-        const hpMult = data.resistanceLevels?.[hpKey]?.multiplier ?? 1;
-        const stMult = data.resistanceLevels?.[stKey]?.multiplier ?? 1;
+        const hpMult = CONFIG.PMTTRPG.resistances[hpKey]?.multiplier ?? 1;
+        const stMult = CONFIG.PMTTRPG.resistances[stKey]?.multiplier ?? 1;
         data.resistancesDisplay.hp[damageType] = formatMultiplier(hpMult);
         data.resistancesDisplay.st[damageType] = formatMultiplier(stMult);
       }
@@ -536,8 +527,6 @@ export class ItemPMTTRPG extends Item {
         const dlgOptions = {
           classes: ['projectmoonttrpg', 'PMTTRPG-dialog']
         };
-
-        if (PMTTRPGUtility.nightmode) dlgOptions.classes.push('nightmode');
 
         foundry.applications.api.DialogV2.wait({
           window: { title: game.i18n.localize('PMTTRPG.Dialog.chooseAmmunition') },

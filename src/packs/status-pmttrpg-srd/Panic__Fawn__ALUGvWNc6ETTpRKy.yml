@@ -1,0 +1,41 @@
+folder: Jrkv4OCXHWXqQw69
+name: Panic [Fawn]
+type: status
+_id: ALUGvWNc6ETTpRKy
+img: systems/projectmoonttrpg/assets/icons/sheet/SanityIcons_Fawn.webp
+system:
+  name: ''
+  description: >-
+    <h4>Panic Behavior</h4><p>On their turn, the Character must move adjacent to
+    the nearest Target (chosen at random between nearest available Targets) and
+    take the Protect Action. If they have any additional Actions, they must
+    convert them into Reactions. While Protecting, the Character must intercept
+    clashes for any Target within range, including enemies.</p><p>When this
+    Character recovers from being Staggered, immediately
+    unpanic.</p><hr><h4>Goaded Panic</h4><p>The Character can be forced to use
+    the Protect Action on a specific Target by the Provoker.</p>
+  slug: ''
+  stacks: 1
+  stackMax: 0
+  priority: 0
+  macro:
+    uuid: ''
+  customNotes: ''
+  easyEffects: ''
+effects: []
+sort: 0
+ownership:
+  default: 0
+  yWsvx4DXrmYcZsue: 3
+flags: {}
+_stats:
+  coreVersion: '14.364'
+  systemId: projectmoonttrpg
+  systemVersion: 0.0.1
+  createdTime: 1785433059909
+  modifiedTime: 1785433150983
+  lastModifiedBy: yWsvx4DXrmYcZsue
+  compendiumSource: null
+  duplicateSource: null
+  exportSource: null
+_key: '!items!ALUGvWNc6ETTpRKy'

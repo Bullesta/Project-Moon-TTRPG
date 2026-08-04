@@ -1,0 +1,44 @@
+name: Overcharge
+type: status
+_id: 5Wp9Akz9150bKla9
+img: >-
+  systems/projectmoonttrpg/assets/icons/limbus_assets/Basic%20Effects/Charge/Load.webp
+system:
+  name: ''
+  description: >-
+    <p>Resource used by certain Skill Effects. There is no limit to Overcharge
+    stacks.</p><p>You may not use Skills with Overcharge Effects with
+    insufficient Overcharge for the entire Skill - no partial Effects, no
+    selective choices of Effects present in the Skill.</p><p>The Overcharge is
+    consumed with Skill use, regardless of result.</p><p>At the start of combat,
+    a character that gains Charge may choose to also gain Overcharge by the
+    following modifications to Charge. This cannot be altered
+    mid-combat.</p><ul><li><p>Each time you consume a total of 10 Charge, gain 1
+    Overcharge.</p></li><li><p>When above 15 Charge, lose 3 Charge at the end of
+    the Round, increasing by 3 per 15 additional Charge on self.</p></li></ul>
+  slug: ''
+  stacks: 1
+  stackMax: 0
+  priority: 0
+  macro:
+    uuid: ''
+  customNotes: ''
+  easyEffects: ''
+effects: []
+folder: OMSNi4hdekwHrB1H
+sort: 200000
+ownership:
+  default: 0
+  yWsvx4DXrmYcZsue: 3
+flags: {}
+_stats:
+  coreVersion: '14.364'
+  systemId: projectmoonttrpg
+  systemVersion: 0.0.1
+  createdTime: 1785319357408
+  modifiedTime: 1785575316156
+  lastModifiedBy: yWsvx4DXrmYcZsue
+  compendiumSource: null
+  duplicateSource: null
+  exportSource: null
+_key: '!items!5Wp9Akz9150bKla9'

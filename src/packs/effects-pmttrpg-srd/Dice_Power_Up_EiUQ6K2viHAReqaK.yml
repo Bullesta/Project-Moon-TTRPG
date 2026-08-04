@@ -6,10 +6,15 @@ img: systems/projectmoonttrpg/assets/icons/Statuses/Strength.webp
 system:
   name: ''
   description: ''
+  slug: ''
   cost: 8
-  allowMultiple: true
+  stackMax: 5
+  appliesTo: weapon
+  canPositive: true
+  canNegative: true
   procOn: alwaysActive
   procResult: none
+  procResultLocked: false
   procStat: any
   procDice: any
   procAction: any
@@ -19,8 +24,13 @@ system:
   macro:
     uuid: ''
   customNotes: ''
-  stackMax: 5
-  procResultLocked: false
+  easyEffects: |-
+    [Always Active]
+    positive:
+    power up attack N
+    negative:
+    power down attack N
+  allowMultiple: true
 effects: []
 sort: 0
 ownership:
@@ -31,11 +41,10 @@ _stats:
   compendiumSource: null
   duplicateSource: null
   exportSource: null
-  coreVersion: '13.351'
+  coreVersion: '14.364'
   systemId: projectmoonttrpg
   systemVersion: 0.0.1
   createdTime: 1779651087474
-  modifiedTime: 1779651087474
+  modifiedTime: 1785440558134
   lastModifiedBy: yWsvx4DXrmYcZsue
 _key: '!items!EiUQ6K2viHAReqaK'
-

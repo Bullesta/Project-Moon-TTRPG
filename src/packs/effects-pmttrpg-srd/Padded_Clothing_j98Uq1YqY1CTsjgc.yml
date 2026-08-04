@@ -19,7 +19,9 @@ system:
   procAction: any
   procCondition: ''
   positive: When Combat begins, gain [N*3] Temporary HP
-  negative: When Combat begins, take [N*3] HP Damage. If you would be brought to 0 HP by this effect, you are instead brought to 1 HP.
+  negative: >-
+    When Combat begins, take [N*3] HP Damage. If you would be brought to 0 HP by
+    this effect, you are instead brought to 1 HP.
   macro:
     uuid: ''
   customNotes: ''

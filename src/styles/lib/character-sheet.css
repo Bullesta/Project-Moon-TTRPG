@@ -1809,11 +1809,16 @@
 }
 
 .pm-sheet .item-title-row strong,
-.pm-sheet .item-name {
+.pm-sheet .item-name .item-lightcost {
   font-size: 1.08rem;
   font-weight: 600;
   color: var(--cream-bright);
   -webkit-text-stroke: 0;
+}
+
+.pm-sheet .icon-lightcost {
+  max-height: 40px;
+  margin-right: -8px;
 }
 
 .pm-sheet .item-details,

@@ -1,0 +1,46 @@
+folder: UxqZGQetb7wFpMgA
+name: Caged Endurance
+type: effect
+img: systems/projectmoonttrpg/assets/icons/Statuses/Endurance.webp
+system:
+  name: ''
+  description: ''
+  slug: caged-endurance
+  cost: 6
+  stackMax: 1
+  appliesTo: augment
+  canPositive: true
+  canNegative: false
+  procOn: alwaysActive
+  procResult: none
+  procResultLocked: false
+  procStat: any
+  procDice: any
+  procAction: any
+  procCondition: At the start of each round,
+  positive: >-
+    <p>Apply 1 Endurance to the character for every 25% Max Sanity Lost (Max of
+    3). Do not activate when in Panic.</p>
+  negative: ''
+  macro:
+    uuid: ''
+  customNotes: ''
+  easyEffects: ''
+effects: []
+sort: 0
+ownership:
+  default: 0
+  yWsvx4DXrmYcZsue: 3
+flags: {}
+_stats:
+  compendiumSource: null
+  duplicateSource: Item.MOEP4STZqMKBNFNv
+  exportSource: null
+  coreVersion: '14.364'
+  systemId: projectmoonttrpg
+  systemVersion: 0.0.1
+  createdTime: 1785485124304
+  modifiedTime: 1785485124304
+  lastModifiedBy: yWsvx4DXrmYcZsue
+_id: vUdEDOoDqXqQoVxs
+_key: '!items!vUdEDOoDqXqQoVxs'

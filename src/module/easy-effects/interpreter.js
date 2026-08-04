@@ -1,10 +1,12 @@
 import {
   applyResourceMod,
   applyResourceOverride,
+  applyRuntimeResource,
   emptyAlwaysActiveMods,
   getMaxField,
   getPowerField,
   getRegenField,
+  isRuntimeResource,
   recoverPool,
   resolvePathShorthand,
 } from "./nouns.js";
@@ -118,7 +120,12 @@ function resolvePath(segments, context) {
     }
     const key = segments[1];
     if (key === "amount") return Number(dmg.amount) || 0;
-    if (key === "source" || key === "pool" || key === "damageType") return dmg[key] ?? "";
+    if (key === "source" || key === "damageType") return dmg[key] ?? "";
+    if (key === "pool") {
+      const raw = dmg.pool;
+      if (Array.isArray(raw)) return raw[0] ?? "";
+      return raw ?? "";
+    }
     console.warn(`[EasyEffects] Unknown ${root} path '${root}.${key}'`);
     return 0;
   }
@@ -191,6 +198,12 @@ const ACTION_HANDLERS = {
   // ── Status / resource ──────────────────────────────────────────────────────
   add: async (action, context, amount) => {
     if (action.noun === "resource") {
+      if (isRuntimeResource(action.argument)) {
+        for (const actor of resolveTargets(action.target, context)) {
+          await applyRuntimeResource(actor, action.argument, { mode: "add", amount });
+        }
+        return;
+      }
       console.warn(`[EasyEffects] Resource gain/lose ('${action.argument}') only applies in [Always Active].`);
       return;
     }
@@ -201,6 +214,12 @@ const ACTION_HANDLERS = {
 
   remove: async (action, context, amount) => {
     if (action.noun === "resource") {
+      if (isRuntimeResource(action.argument)) {
+        for (const actor of resolveTargets(action.target, context)) {
+          await applyRuntimeResource(actor, action.argument, { mode: "remove", amount });
+        }
+        return;
+      }
       console.warn(`[EasyEffects] Resource gain/lose ('${action.argument}') only applies in [Always Active].`);
       return;
     }
@@ -215,12 +234,16 @@ const ACTION_HANDLERS = {
     const host = context.item;
     // Status damage uses the item name as its source.
     const source = host?.type === "status" ? (host.name || null) : null;
-    // Reflected damage keeps the pending pool and type unless overridden.
+    // Reflected damage keeps the pending pool(s) and type unless overridden.
+    const inheritedPool = context.damage?.pool;
     const pool = action.pool
-      || (context.damage?.pool ? String(context.damage.pool) : null)
+      || (Array.isArray(inheritedPool)
+        ? (inheritedPool.length ? inheritedPool : null)
+        : (inheritedPool ? String(inheritedPool) : null))
       || "hp";
     const damageType = action.damageType
       || (context.damage?.damageType ? String(context.damage.damageType) : null)
+      || (context.clash?.damageType ? String(context.clash.damageType) : null)
       || null;
     // Avoid rerunning On Taking Damage for reflected hits.
     const skipEasyEffects = !!context.damage;
@@ -286,6 +309,12 @@ const ACTION_HANDLERS = {
 
   set: async (action, context, amount) => {
     if (action.noun === "resource") {
+      if (isRuntimeResource(action.argument)) {
+        for (const actor of resolveTargets(action.target ?? "self", context)) {
+          await applyRuntimeResource(actor, action.argument, { mode: "set", amount });
+        }
+        return;
+      }
       console.warn("[EasyEffects] 'set maxHp/maxSt/maxSp/maxLight' only applies in [Always Active]; ignored.");
       return;
     }

@@ -1,0 +1,44 @@
+folder: m4wvCPs8sR5T8I4y
+name: Damage Resistance
+type: effect
+img: systems/projectmoonttrpg/assets/icons/Statuses/Protection.webp
+system:
+  name: ''
+  description: ''
+  slug: damage-resistance
+  cost: 4
+  stackMax: 3
+  appliesTo: augment
+  canPositive: true
+  canNegative: true
+  procOn: alwaysActive
+  procResult: none
+  procResultLocked: false
+  procStat: any
+  procDice: any
+  procAction: any
+  procCondition: ''
+  positive: <p>Reduce HP Damage and ST Damage taken from Attacks by [N]</p>
+  negative: <p>Increases HP Damage and ST Damage taken from Attacks by [N]</p>
+  macro:
+    uuid: ''
+  customNotes: ''
+  easyEffects: ''
+effects: []
+sort: 0
+ownership:
+  default: 0
+  yWsvx4DXrmYcZsue: 3
+flags: {}
+_stats:
+  compendiumSource: null
+  duplicateSource: Item.WVR5T6H5GfXQ5f8B
+  exportSource: null
+  coreVersion: '14.364'
+  systemId: projectmoonttrpg
+  systemVersion: 0.0.1
+  createdTime: 1785485138332
+  modifiedTime: 1785485138332
+  lastModifiedBy: yWsvx4DXrmYcZsue
+_id: dOTuME4ihQbADbZ6
+_key: '!items!dOTuME4ihQbADbZ6'

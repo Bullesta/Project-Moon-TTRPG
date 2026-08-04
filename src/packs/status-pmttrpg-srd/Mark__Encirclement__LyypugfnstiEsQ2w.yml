@@ -1,0 +1,35 @@
+folder: OsS83U82yvcIdkjc
+name: Mark [Encirclement]
+type: status
+_id: LyypugfnstiEsQ2w
+img: systems/projectmoonttrpg/assets/icons/Statuses/Mark_Encirclement.webp
+system:
+  name: ''
+  description: >-
+    <p>Any allied character (including the user) that ends the round within 2
+    SQRs of the target gains 2 Haste next Round.</p>
+  slug: ''
+  stacks: 1
+  stackMax: 0
+  priority: 0
+  macro:
+    uuid: ''
+  customNotes: ''
+  easyEffects: ''
+effects: []
+sort: 0
+ownership:
+  default: 0
+  yWsvx4DXrmYcZsue: 3
+flags: {}
+_stats:
+  coreVersion: '14.364'
+  systemId: projectmoonttrpg
+  systemVersion: 0.0.1
+  createdTime: 1785432535094
+  modifiedTime: 1785432550886
+  lastModifiedBy: yWsvx4DXrmYcZsue
+  compendiumSource: null
+  duplicateSource: null
+  exportSource: null
+_key: '!items!LyypugfnstiEsQ2w'

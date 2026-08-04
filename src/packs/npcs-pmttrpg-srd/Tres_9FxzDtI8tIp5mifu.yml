@@ -1,0 +1,20 @@
+type: Actor
+folder: yeTVXuvPdV12SoFe
+name: Tres
+color: '#00b31e'
+sorting: a
+_id: 9FxzDtI8tIp5mifu
+description: ''
+sort: 0
+flags: {}
+_stats:
+  coreVersion: '14.364'
+  systemId: projectmoonttrpg
+  systemVersion: 0.0.1
+  createdTime: 1785504625861
+  modifiedTime: 1785504625861
+  lastModifiedBy: yWsvx4DXrmYcZsue
+  compendiumSource: null
+  duplicateSource: null
+  exportSource: null
+_key: '!folders!9FxzDtI8tIp5mifu'

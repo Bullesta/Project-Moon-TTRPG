@@ -37,6 +37,7 @@ styles:
   - styles/lib/character-sheet.css
   - styles/dist/pm-sheet-inventory.css
   - styles/lib/npc-sheet.css
+  - styles/lib/clash.css
 media:
   - type: setup
     url: "systems/projectmoonttrpg/assets/thumbnail.webp"
@@ -60,6 +61,11 @@ packs:
     label: Items SRD
     path: packs/items-pmttrpg-srd
     type: Item
+    private: false
+  - name: npcs-pmttrpg-srd
+    label: NPC Compendium
+    path: packs/npcs-pmttrpg-srd
+    type: Actor
     private: false
   - name: macro-pmttrpg-srd
     label: Macros SRD

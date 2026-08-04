@@ -5,18 +5,18 @@ import {
   getActorWeaponDamageType,
 } from "./damage-application.js";
 
-export const displayChatActionButtons = function(message, html, data) {
-  html = $(html);
-  const chatCard = html.find(".PMTTRPG.chat-card");
+import { getClashStateFromMessage } from "./combat/clash-chat.js"
 
-  // Hide damage buttons if necessary.
-  if (!game.user.isGM || !game.settings.get('projectmoonttrpg', 'enableDamageButtons')) {
-    html.find('.chat-damage-buttons').hide();
+export const displayChatActionButtons = function(message, html, data) {
+  const chatCard = html.querySelector?.(".PMTTRPG.chat-card") ?? null;
+
+  if (!game.settings.get("projectmoonttrpg", "enableDamageButtons")) {
+    html.querySelectorAll?.(".chat-damage-buttons").forEach(el => el.style.display = "none");
   }
 
   // Sync damage type from flags if the card did not include one.
   const flaggedType = message?.flags?.projectmoonttrpg?.damageType;
-  html.find(".chat-damage-buttons").each((_, el) => {
+  $(html).find(".chat-damage-buttons").each((_, el) => {
     if (!el.dataset.damageType && DAMAGE_TYPES.includes(flaggedType)) {
       el.dataset.damageType = flaggedType;
       el.querySelectorAll("button.dtype").forEach((btn) => {
@@ -30,12 +30,12 @@ export const displayChatActionButtons = function(message, html, data) {
     const actor = fromUuidSync(appliedDamage.uuid);
     const canRevert = game.user.isGM || actor?.isOwner;
     if (appliedDamage.isReverted || !canRevert || !appliedDamage.updates?.length) {
-      html.find('button[data-action="revert-damage"]').remove();
+      $(html).find('button[data-action="revert-damage"]').remove();
     }
     enhanceDamageTakenCard(message, html[0] ?? html);
   }
 
-  if ( chatCard.length > 0 ) {
+  if ( chatCard && chatCard.length > 0 ) {
     // If the user is the message author or the actor owner, proceed.
     let actor = game.actors.get(data.message.speaker.actor);
     // Exit early from further operations if this is a GM user.
@@ -46,21 +46,26 @@ export const displayChatActionButtons = function(message, html, data) {
       btn.style.display = "none"
     });
   }
-}
+
+  if (chatCard) {
+    const actor = game.actors.get(data.message.speaker.actor);
+    if (game.user.isGM) return;
+    if (data.author.id === game.user.id || (actor && actor.isOwner)) return;
+    chatCard.querySelectorAll("button[data-action], .button-disabled").forEach(btn => {
+      btn.style.display = "none";
+    });
+  }
+};
 
 export const activateChatListeners = function(html) {
-  html = $(html);
-  html.on('click', 'button[data-action]', (event) => _onChatCardAction(event));
-}
+  const el = html instanceof HTMLElement ? html : html[0] ?? html;
+  el.addEventListener("click", _onChatCardAction);
+};
 
 function _onChatCardAction(event) {
-  event.preventDefault();
+  const button = event.target.closest("button[data-action]");
+  if (!button) return;
 
-  // Extract card data
-  const button = event.currentTarget;
-  const card = button.closest(".chat-card");
-  const messageId = button.closest(".message").dataset.messageId;
-  const message =  game.messages.get(messageId);
   const action = button.dataset.action;
 
   if (action === "set-pool") {
@@ -72,50 +77,44 @@ function _onChatCardAction(event) {
     return;
   }
 
-  // Perform the action.
-  if (action == 'xp') {
-    // Recover the actor for the chat card
-    const actor = card ? _getChatCardActor(card) : null;
-    if ( !actor ) return;
+  event.preventDefault();
 
-    button.disabled = true;
-    _chatActionMarkXp(actor, message);
-  }
+  const card      = button.closest(".chat-card");
+  const messageEl = button.closest(".message");
+  const messageId = messageEl?.dataset?.messageId;
+  const message   = messageId ? game.messages.get(messageId) : null;
 
   if (action === "revert-damage") {
     _chatActionRevertDamage(message, button);
     return;
   }
 
-  // Validate permission to proceed with the roll
-  if ( !( game.user.isGM ) ) return;
+  // Don't also run the normal damage handler
+  if (action.startsWith("clash-") && (action.includes("damage") || action.includes("heal"))) {
+    _clashActionDamage(message, action, button);
+    return;
+  }
 
   // Chat damage.
-  if (action.includes('damage') || action == 'heal') _chatActionDamage(message, action, button);
+  if (action.includes("damage") || action === "heal") {
+    _chatActionDamage(message, action, button);
+    return;
+  }
+
+  // All remaining actions require user to be a GM.
+  if (!game.user.isGM) return;
 }
 
-/**
- * Get the Actor which is the author of a chat card
- * @param {HTMLElement} card    The chat card being used
- * @return {Actor|null}         The Actor entity or null
- * @private
- */
 function _getChatCardActor(card) {
-
-  // Case 1 - a synthetic actor from a Token
   const tokenKey = card.dataset.tokenId;
   if (tokenKey) {
     const [sceneId, tokenId] = tokenKey.split(".");
     const scene = game.scenes.get(sceneId);
     if (!scene) return null;
     const tokenDoc = scene.tokens.get(tokenId);
-    if (!tokenDoc) return null;
-    return tokenDoc.actor;
+    return tokenDoc?.actor ?? null;
   }
-
-  // Case 2 - use Actor ID directory
-  const actorId = card.dataset.actorId;
-  return game.actors.get(actorId) || null;
+  return game.actors.get(card.dataset.actorId) ?? null;
 }
 
 function _readSelectedPools(root) {
@@ -141,15 +140,12 @@ function _chatActionSetPool(button, event) {
   if (!DAMAGE_POOLS.includes(pool)) return;
 
   let pools = _readSelectedPools(root);
-  if (event?.shiftKey) {
-    if (pools.includes(pool)) {
-      if (pools.length > 1) pools = pools.filter((p) => p !== pool);
-    } else {
-      pools = [...pools, pool];
-    }
+  if (pools.includes(pool)) {
+    if (pools.length > 1) pools = pools.filter((p) => p !== pool);
   } else {
-    pools = [pool];
+    pools = [...pools, pool];
   }
+
   _writeSelectedPools(root, pools);
 }
 
@@ -165,32 +161,32 @@ function _chatActionSetDamageType(button) {
 }
 
 async function _chatActionMarkXp(actor, message) {
-  if (!actor.system || !actor.system.attributes.xp) return;
+  if (!actor.system?.attributes?.xp) return;
 
-  let xp = actor.system.attributes.xp.value ?? 0;
-  let updates = {
-    'system.attributes.xp.value': Number(xp) + 1
-  };
+  const xp = actor.system.attributes.xp.value ?? 0;
+  await actor.update({ "system.attributes.xp.value": Number(xp) + 1 });
 
-  // Update the actor.
-  await actor.update(updates);
+  if (!message) return;
 
-  // Update the chat message.
-  let $content = $(message.content);
-  let $button = $content.find('.xp-button');
+  const parser  = new DOMParser();
+  const doc     = parser.parseFromString(message.content, "text/html");
+  const btn     = doc.querySelector(".xp-button");
+  if (btn) {
+    const span = document.createElement("span");
+    span.className   = "xp-button button button-disabled";
+    span.textContent = game.i18n.localize("PMTTRPG.XpMarked") + " ";
+    const icon = document.createElement("i");
+    icon.className = "fas fa-check";
+    span.appendChild(icon);
+    btn.replaceWith(span);
+  }
 
-  // Replace the button.
-  let newButton = `<span class="xp-button button button-disabled">${game.i18n.localize("PMTTRPG.XpMarked")} <i class="fas fa-check"></i></span>`;
-  $button.replaceWith($(newButton));
+  const newContent = doc.body.innerHTML;
 
   if (message.isAuthor || game.user.isGM) {
-    await message.update({'content': $content[0].outerHTML});
-  }
-  else {
-    game.socket.emit('system.projectmoonttrpg', {
-      message: message.id,
-      content: $content[0].outerHTML
-    });
+    await message.update({ content: newContent });
+  } else {
+    game.socket.emit("system.projectmoonttrpg", { message: message.id, content: newContent });
   }
 }
 
@@ -206,6 +202,62 @@ function _resolveDamageType(message, root) {
   return getActorWeaponDamageType(speakerActor);
 }
 
+async function _clashActionDamage(message, action, button) {
+  const actors = canvas.tokens.controlled.map(t => t.document.actor).filter(Boolean);
+  if (!actors.length) return;
+
+  const state = message?.id ? getClashStateFromMessage(message.id) : null;
+  const root = button?.closest?.(".chat-damage-buttons");
+  const pools = _readSelectedPools(root);
+  const damageType = _resolveDamageType(message, root);
+  const rollTotal = _resolveClashDamageAmount(state, pools, message);
+
+  const opByAction = {
+    "clash-damage": "full",
+    "clash-half-damage": "half",
+    "clash-double-damage": "double",
+    "clash-heal": "heal",
+  };
+  const op = opByAction[action];
+  if (!op) return;
+
+  const attacker = op === "heal"
+    ? null
+    : (state?.attackerActorId ? game.actors.get(state.attackerActorId) : null);
+
+  for (const actor of actors) {
+    await actor.applyDamage(rollTotal, {
+      pool: pools.length === 1 ? pools[0] : pools,
+      op,
+      damageType,
+      attacker,
+    });
+  }
+}
+
+// Use the clash state numbers and only scrape the card if those are missing
+function _resolveClashDamageAmount(state, pools, message) {
+  if (state) {
+    const stOnly = pools.includes("st") && !pools.includes("hp");
+    if (stOnly && state.stDamage != null) return Number(state.stDamage) || 0;
+    if (state.hpDamage != null) return Number(state.hpDamage) || 0;
+
+    // Evade win heals ST by the defense total.
+    if (state.retaliationType === "evade" && state.defenseRollTotal != null) {
+      return Number(state.defenseRollTotal) || 0;
+    }
+    // Block win deals margin as ST (ranged attackers are exempt).
+    if (state.retaliationType === "block") {
+      if (state.blockWinStExempt) return 0;
+      if (state.margin != null) return Number(state.margin) || 0;
+    }
+  }
+
+  const text = $(message?.content ?? "").find(".clash-damage-line").first().text().trim();
+  const match = text.match(/\d+/);
+  return Number(match?.[0]) || 0;
+}
+
 async function _chatActionDamage(message, action, button) {
   let actors = canvas.tokens.controlled.map(t => t.document.actor).filter(Boolean);
   if (!actors.length) return;
@@ -213,7 +265,7 @@ async function _chatActionDamage(message, action, button) {
   const root = button?.closest?.(".chat-damage-buttons");
   const pools = _readSelectedPools(root);
   const damageType = _resolveDamageType(message, root);
-  const rollTotal = Number($(message.content).find('.dice-total')?.first()?.text()?.trim()) || 0;
+  let rollTotal = Number($(message.content).find('.dice-total')?.first()?.text()?.trim()) || 0;
   const attacker = ChatMessage.getSpeakerActor?.(message.speaker) ?? game.actors.get(message?.speaker?.actor) ?? null;
 
   const opByAction = {
@@ -231,6 +283,7 @@ async function _chatActionDamage(message, action, button) {
       op,
       damageType,
       attacker: op === "heal" ? null : attacker,
+      sourceLabel: message.speaker?.alias ?? attacker?.name ?? null,
     });
   }
 }

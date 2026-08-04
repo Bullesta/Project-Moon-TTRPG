@@ -1,0 +1,44 @@
+folder: 8t5xinoxx4XtmQBl
+name: Additional Block
+type: effect
+img: systems/projectmoonttrpg/assets/icons/Statuses/Protection.webp
+system:
+  name: ''
+  description: ''
+  slug: additional-block
+  cost: 2
+  stackMax: 5
+  appliesTo: augment
+  canPositive: true
+  canNegative: false
+  procOn: alwaysActive
+  procResult: none
+  procResultLocked: false
+  procStat: any
+  procDice: any
+  procAction: any
+  procCondition: ''
+  positive: <p>Gain [N] additional Block Reaction(s).</p>
+  negative: ''
+  macro:
+    uuid: ''
+  customNotes: ''
+  easyEffects: ''
+effects: []
+sort: 0
+ownership:
+  default: 0
+  yWsvx4DXrmYcZsue: 3
+flags: {}
+_stats:
+  compendiumSource: null
+  duplicateSource: Item.aYJW9aWL5AbsxFt0
+  exportSource: null
+  coreVersion: '14.364'
+  systemId: projectmoonttrpg
+  systemVersion: 0.0.1
+  createdTime: 1785485122318
+  modifiedTime: 1785485122318
+  lastModifiedBy: yWsvx4DXrmYcZsue
+_id: xvN6fPGdOOlrmVJL
+_key: '!items!xvN6fPGdOOlrmVJL'

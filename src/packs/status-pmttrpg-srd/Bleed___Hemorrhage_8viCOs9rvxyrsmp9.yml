@@ -1,0 +1,38 @@
+folder: fMFB6OnVCAkgdA96
+name: Bleed - Hemorrhage
+type: status
+_id: 8viCOs9rvxyrsmp9
+img: systems/projectmoonttrpg/assets/icons/Statuses/Hemorrage.webp
+system:
+  name: ''
+  description: >-
+    <p><strong>Any Bleed on the target is not reduced the next time it
+    activates.</strong></p><p>This also prevents Bleed from being reduced by
+    Reduce Status or other effects that immediately activate Bleed. <strong>When
+    immediately activating Bleed</strong>, do not halve Bleed and instead
+    <strong>remove 1 stack of this effect</strong>.</p>
+  slug: ''
+  stacks: 1
+  stackMax: 0
+  priority: 0
+  macro:
+    uuid: ''
+  customNotes: ''
+  easyEffects: ''
+effects: []
+sort: 0
+ownership:
+  default: 0
+  yWsvx4DXrmYcZsue: 3
+flags: {}
+_stats:
+  coreVersion: '14.364'
+  systemId: projectmoonttrpg
+  systemVersion: 0.0.1
+  createdTime: 1785434597970
+  modifiedTime: 1785434683222
+  lastModifiedBy: yWsvx4DXrmYcZsue
+  compendiumSource: null
+  duplicateSource: null
+  exportSource: null
+_key: '!items!8viCOs9rvxyrsmp9'

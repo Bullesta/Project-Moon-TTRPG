@@ -5,6 +5,7 @@ img: systems/projectmoonttrpg/assets/icons/Statuses/Endurance.webp
 system:
   name: ''
   description: ''
+  slug: ''
   cost: 4
   stackMax: 3
   appliesTo: outfit
@@ -22,6 +23,12 @@ system:
   macro:
     uuid: ''
   customNotes: ''
+  easyEffects: |
+    [On Taking Damage]
+    positive:
+    reduce damage by N;
+    negative:
+    increase damage by N;
   allowMultiple: true
 effects: []
 sort: 0
@@ -33,11 +40,11 @@ _stats:
   compendiumSource: null
   duplicateSource: Item.N3wk0YcxwVia8ZXJ
   exportSource: null
-  coreVersion: '13.351'
+  coreVersion: '14.364'
   systemId: projectmoonttrpg
   systemVersion: 0.0.1
   createdTime: 1780308634956
-  modifiedTime: 1780308634956
+  modifiedTime: 1785441217329
   lastModifiedBy: yWsvx4DXrmYcZsue
 _id: xmYEYDbDsrDT62TM
 _key: '!items!xmYEYDbDsrDT62TM'

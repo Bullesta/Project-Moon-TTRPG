@@ -17,7 +17,10 @@ system:
   procDice: any
   procAction: any
   procCondition: ''
-  positive: You can choose to increase the outfit's Dice Power by 1, consuming 8 Charge per reaction made this way. If you spend 1 Overcharge instead, this effect is doubled.
+  positive: >-
+    You can choose to increase the outfit's Dice Power by 1, consuming 8 Charge
+    per reaction made this way. If you spend 1 Overcharge instead, this effect
+    is doubled.
   negative: ''
   macro:
     uuid: ''

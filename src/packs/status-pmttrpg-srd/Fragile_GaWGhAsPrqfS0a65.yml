@@ -1,0 +1,40 @@
+name: Fragile
+type: status
+_id: GaWGhAsPrqfS0a65
+img: systems/projectmoonttrpg/assets/icons/Statuses/Fragile.webp
+system:
+  name: ''
+  description: >-
+    <p>Take 1 <strong>extra</strong> [HP Damage After Resistance] from attacks
+    per Fragile stack.</p><p>At the end of the Round, lose all Fragile.</p>
+  slug: ''
+  stacks: 1
+  stackMax: 0
+  priority: 0
+  macro:
+    uuid: ''
+  customNotes: ''
+  easyEffects: |-
+    [On Taking HP Damage]
+    increase damage by Fragile
+
+    [End of Round]
+    remove Fragile Fragile on self
+effects: []
+folder: JLnWNuTpQkOQhr5i
+sort: 200000
+ownership:
+  default: 0
+  yWsvx4DXrmYcZsue: 3
+flags: {}
+_stats:
+  coreVersion: '14.364'
+  systemId: projectmoonttrpg
+  systemVersion: 0.0.1
+  createdTime: 1785318195288
+  modifiedTime: 1785426553496
+  lastModifiedBy: yWsvx4DXrmYcZsue
+  compendiumSource: null
+  duplicateSource: null
+  exportSource: null
+_key: '!items!GaWGhAsPrqfS0a65'

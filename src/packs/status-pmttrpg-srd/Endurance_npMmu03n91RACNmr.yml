@@ -1,0 +1,42 @@
+name: Endurance
+type: status
+_id: npMmu03n91RACNmr
+img: >-
+  systems/projectmoonttrpg/assets/icons/limbus_assets/Basic%20Effects/Power%20Up/Defense%20Power%20Up.webp
+system:
+  name: ''
+  description: >-
+    <p>Increase the Power of Defensive Dice by the number of Endurance
+    stack.</p><p>At the end of the Round, lose all Endurance.</p>
+  slug: ''
+  stacks: 1
+  stackMax: 0
+  priority: 0
+  macro:
+    uuid: ''
+  customNotes: ''
+  easyEffects: |-
+    [On Clash Start]
+    power up block Endurance
+    power up evade Endurance
+
+    [End of Round]
+    remove Endurance Endurance
+effects: []
+folder: jtSvJ9E0Hm5t7NVJ
+sort: 300000
+ownership:
+  default: 0
+  yWsvx4DXrmYcZsue: 3
+flags: {}
+_stats:
+  coreVersion: '14.364'
+  systemId: projectmoonttrpg
+  systemVersion: 0.0.1
+  createdTime: 1785318699516
+  modifiedTime: 1785426697420
+  lastModifiedBy: yWsvx4DXrmYcZsue
+  compendiumSource: null
+  duplicateSource: null
+  exportSource: null
+_key: '!items!npMmu03n91RACNmr'

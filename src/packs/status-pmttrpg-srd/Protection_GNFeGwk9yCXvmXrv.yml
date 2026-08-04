@@ -1,0 +1,41 @@
+name: Protection
+type: status
+_id: GNFeGwk9yCXvmXrv
+img: >-
+  systems/projectmoonttrpg/assets/icons/limbus_assets/Basic%20Effects/Protection/Protection.webp
+system:
+  name: ''
+  description: >-
+    <p>Take 1 less [HP Damage After Resistance] from attacks per Protection
+    stack.</p><p>At the end of the Round, lose all Protection.</p>
+  slug: ''
+  stacks: 1
+  stackMax: 0
+  priority: 0
+  macro:
+    uuid: ''
+  customNotes: ''
+  easyEffects: |-
+    [On Taking HP Damage]
+    reduce damage by Protection
+
+    [End of Round]
+    remove Protection Protection on self
+effects: []
+folder: JLnWNuTpQkOQhr5i
+sort: 100000
+ownership:
+  default: 0
+  yWsvx4DXrmYcZsue: 3
+flags: {}
+_stats:
+  compendiumSource: null
+  duplicateSource: null
+  exportSource: null
+  coreVersion: '14.364'
+  systemId: projectmoonttrpg
+  systemVersion: 0.0.1
+  createdTime: 1785256550819
+  modifiedTime: 1785426548561
+  lastModifiedBy: yWsvx4DXrmYcZsue
+_key: '!items!GNFeGwk9yCXvmXrv'

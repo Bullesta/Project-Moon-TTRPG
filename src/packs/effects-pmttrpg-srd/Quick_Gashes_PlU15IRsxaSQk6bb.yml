@@ -1,0 +1,49 @@
+folder: GwkJ2MyPzvY7p0jT
+name: Quick Gashes
+type: effect
+img: systems/projectmoonttrpg/assets/icons/Statuses/Bleed.webp
+system:
+  name: ''
+  description: ''
+  slug: quick-gashes
+  cost: 1
+  stackMax: 5
+  appliesTo: augment
+  canPositive: true
+  canNegative: true
+  procOn: onClash
+  procResult: none
+  procResultLocked: false
+  procStat: any
+  procDice: offensive
+  procAction: action
+  procCondition: In the first round of combat
+  positive: >-
+    <p>All successful Attacks/Counters made by the character inflict +[N]
+    Bleed.</p>
+  negative: >-
+    <p>All successful Attacks/Counters made by the character inflict [N] Bleed
+    to the character. The character's Bleed Resisntance is reduced by [N] for
+    the round.</p>
+  macro:
+    uuid: ''
+  customNotes: ''
+  easyEffects: ''
+effects: []
+sort: 100000
+ownership:
+  default: 0
+  yWsvx4DXrmYcZsue: 3
+flags: {}
+_stats:
+  compendiumSource: Item.WHRdllgcaZ1sVFZV
+  duplicateSource: Item.G5viySRF1ch7kq8p
+  exportSource: null
+  coreVersion: '14.364'
+  systemId: projectmoonttrpg
+  systemVersion: 0.0.1
+  createdTime: 1785485141811
+  modifiedTime: 1785485141811
+  lastModifiedBy: yWsvx4DXrmYcZsue
+_id: PlU15IRsxaSQk6bb
+_key: '!items!PlU15IRsxaSQk6bb'

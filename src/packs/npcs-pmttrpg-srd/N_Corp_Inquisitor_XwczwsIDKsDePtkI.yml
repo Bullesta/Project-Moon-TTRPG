@@ -1,0 +1,967 @@
+folder: XTDPi0cNuEnINgKn
+name: N Corp Inquisitor
+type: npc
+_id: XwczwsIDKsDePtkI
+img: >-
+  systems/projectmoonttrpg/assets/npc_tokens/n_corp_inquisitor.Avatar.webp?1785664704478
+system:
+  attributes:
+    hp:
+      value: 999
+      temp: 0
+      min: 0
+      maxBase: 96
+      maxMisc: 0
+      max: 96
+    st:
+      value: 99
+      temp: 0
+      min: 0
+      maxBase: 24
+      maxMisc: 0
+      max: 24
+    sp:
+      value: 99
+      temp: 0
+      min: 0
+      maxBase: 15
+      maxMisc: 0
+      max: 15
+    level:
+      value: 7
+      min: 0
+      max: 21
+    xp:
+      value: 0
+      min: 0
+      max: 8
+    toolSlots:
+      value: 4
+      used: 0
+      over: false
+      min: 0
+    narrativeSlots:
+      value: 4
+      used: 0
+      over: false
+      min: 0
+    stockSlots:
+      value: 4
+      used: 0
+      over: false
+      min: 0
+    light:
+      value: 9
+      min: 0
+      maxBase: 0
+      maxMisc: 0
+      max: 0
+    actions:
+      value: 0
+      min: 0
+      maxBase: 0
+      maxMisc: 0
+      max: 0
+    reactions:
+      value: 0
+      min: 0
+      maxBase: 0
+      maxMisc: 0
+      max: 0
+    movement:
+      value: 0
+      min: 0
+      maxBase: 0
+      maxMisc: 0
+      max: 0
+    attackModifier:
+      value: 0
+      min: 0
+    evadeModifier:
+      value: 0
+      min: 0
+    blockModifier:
+      value: 0
+      min: 0
+    speed:
+      dice: 1d6
+      bonus: 0
+  details:
+    biography:
+      occupation: ''
+      age: ''
+      height: ''
+      birthplace: ''
+      residence: ''
+      description: ''
+      background: ''
+      personality: ''
+      ahn: 0
+      relationships: ''
+      notes: ''
+      notableHistory: ''
+    gmBrief:
+      complexityGm: 1
+      complexityPlayers: 2
+      strength: '2'
+      designIntention: >-
+        A bleed-infliction focused fodder enemy intended to be thrown in medium
+        sized groups at a Rank 3 party, swarming their enemies with high status
+        infliction to force them to take the time to deal with the status.
+        However, losing clashes inflicts them with a status that they notably
+        cannot clear with the reduce status action, and they do not have a
+        reliable way to recover ST without taking a huge risk with a weak evade
+        dice.
+      recommendedBehavior: >-
+        - Attempts to stick in clusters of 2-3 allies and focus on one target at
+        a time
+
+        - Before using any skills, will attempt to use its Applied Tool to
+        inflict large amounts of Hemorrhage
+
+        - If there are any Prosthetic users amongst their enemies, they will
+        always prioritize them first, at all costs
+      lore: >-
+        A member from a Subdivision of Nagel und Hammer that aims to wipe out
+        prosthetic users due to their perceived impurities and distance from N
+        Corp.'s ideal image of humanity.
+      notes: ''
+  abilities:
+    for:
+      value: 3
+      min: -1
+      mod: 0
+      debility: false
+    pru:
+      value: 3
+      min: -1
+      mod: 0
+      debility: false
+    jus:
+      value: 2
+      min: -1
+      mod: 0
+      debility: false
+    cha:
+      value: 5
+      min: -1
+      mod: 0
+      debility: false
+    ins:
+      value: 2
+      min: -1
+      mod: 0
+      debility: false
+    tem:
+      value: 5
+      min: -1
+      mod: 0
+      debility: false
+prototypeToken:
+  name: N Corp Inquisitor
+  displayName: 0
+  actorLink: false
+  width: 1
+  height: 1
+  depth: 1
+  texture:
+    src: >-
+      systems/projectmoonttrpg/assets/npc_tokens/n_corp_inquisitor.Token.webp?1785664704478
+    anchorX: 0.5
+    anchorY: 0.5
+    fit: contain
+    scaleX: 1
+    scaleY: 1
+    tint: '#ffffff'
+    alphaThreshold: 0.75
+  lockRotation: false
+  rotation: 0
+  alpha: 1
+  disposition: -1
+  displayBars: 0
+  bar1:
+    attribute: attributes.hp
+  bar2:
+    attribute: attributes.st
+  light:
+    negative: false
+    priority: 0
+    alpha: 0.5
+    angle: 360
+    bright: 0
+    color: null
+    coloration: 1
+    dim: 0
+    attenuation: 0.5
+    luminosity: 0.5
+    saturation: 0
+    contrast: 0
+    shadows: 0
+    animation:
+      type: null
+      speed: 5
+      intensity: 5
+      reverse: false
+    darkness:
+      min: 0
+      max: 1
+  sight:
+    enabled: false
+    range: 0
+    angle: 360
+    visionMode: basic
+    color: null
+    attenuation: 0.1
+    brightness: 0
+    saturation: 0
+    contrast: 0
+  detectionModes: {}
+  occludable:
+    radius: 0
+  ring:
+    enabled: false
+    colors:
+      ring: null
+      background: null
+    effects: 1
+    subject:
+      scale: 1
+      texture: null
+  turnMarker:
+    mode: 1
+    animation: null
+    src: null
+    disposition: false
+  movementAction: null
+  flags: {}
+  randomImg: false
+  appendNumber: false
+  prependAdjective: false
+items:
+  - name: Inquisitor's Hammer
+    type: weapon
+    system:
+      name: ''
+      description: ''
+      slug: ''
+      weaponType: melee
+      damageType: slash
+      damageTypeFixed: false
+      formProperty: medium
+      handProperty: null
+      offensiveDice: 1d10+0
+      rank: 3
+      effects:
+        - effectUuid: >-
+            Compendium.projectmoonttrpg.effects-pmttrpg-srd.Item.CyL151WiDM9quAzm
+          name: Inflict Bleed
+          cost: 2
+          stackMax: 5
+          stack: 5
+          count: 5
+          mode: positive
+          appliesTo: weapon
+          canPositive: true
+          canNegative: true
+          procOn: onClash
+          procResult: win
+          procResultLocked: false
+          procStat: any
+          procDice: any
+          procAction: any
+          procCondition: ''
+          positive: Apply [N] Bleed to the target
+          negative: Apply [N] Bleed to the character
+          macro:
+            uuid: ''
+        - effectUuid: >-
+            Compendium.projectmoonttrpg.effects-pmttrpg-srd.Item.lPc8GrCA85O1atYf
+          name: '[M] Inflict Bind'
+          cost: 3
+          stackMax: 5
+          stack: 2
+          count: 2
+          mode: positive
+          appliesTo: weapon
+          canPositive: true
+          canNegative: false
+          procOn: onClash
+          procResult: win
+          procResultLocked: false
+          procStat: any
+          procDice: any
+          procAction: any
+          procCondition: ''
+          positive: Apply [N] Bind to the target next round.
+          negative: ''
+          macro:
+            uuid: ''
+        - effectUuid: >-
+            Compendium.projectmoonttrpg.effects-pmttrpg-srd.Item.CyL151WiDM9quAzm
+          name: Inflict Bleed
+          cost: 2
+          stackMax: 5
+          stack: 4
+          count: 4
+          mode: negative
+          appliesTo: weapon
+          canPositive: true
+          canNegative: true
+          procOn: onClash
+          procResult: lose
+          procResultLocked: false
+          procStat: any
+          procDice: any
+          procAction: any
+          procCondition: ''
+          positive: Apply [N] Bleed to the target
+          negative: Apply [N] Bleed to the character
+          macro:
+            uuid: ''
+      equipped: true
+      customNotes: ''
+      easyEffects: ''
+    _id: stqyQpcPtNAs6gQ4
+    img: >-
+      systems/projectmoonttrpg/assets/icons/limbus_assets/Basic%20Effects/Bleed/Nails.webp
+    effects: []
+    folder: null
+    sort: 0
+    ownership:
+      default: 0
+      yWsvx4DXrmYcZsue: 3
+    flags: {}
+    _stats:
+      coreVersion: '14.364'
+      systemId: projectmoonttrpg
+      systemVersion: 0.0.1
+      createdTime: 1785664736330
+      modifiedTime: 1785664825286
+      lastModifiedBy: yWsvx4DXrmYcZsue
+      compendiumSource: null
+      duplicateSource: null
+      exportSource: null
+    _key: '!actors.items!XwczwsIDKsDePtkI.stqyQpcPtNAs6gQ4'
+  - name: N Corp. Inquisition Armor
+    type: outfit
+    system:
+      name: ''
+      description: ''
+      slug: ''
+      outfitProperty: armored
+      rank: 3
+      blockDice: 1d10+0
+      evadeDice: 1d12+0
+      blockDiceComputed: 1d10+0
+      evadeDiceComputed: 1d12+0
+      blockDicePower: 0
+      evadeDicePower: 0
+      bonusLight: 0
+      bonusEP: 0
+      effects:
+        - effectUuid: >-
+            Compendium.projectmoonttrpg.effects-pmttrpg-srd.Item.JxVDSLuef8TcyzKx
+          name: Bleed Resistance
+          cost: 3
+          stackMax: 5
+          stack: 2
+          count: 2
+          mode: positive
+          appliesTo: outfit
+          canPositive: true
+          canNegative: true
+          procOn: alwaysActive
+          procResult: none
+          procResultLocked: false
+          procStat: any
+          procDice: any
+          procAction: any
+          procCondition: ''
+          positive: Reduce HP Damage taken from Bleed by [N]
+          negative: Increase HP Damage taken from Bleed by [N]
+          macro:
+            uuid: ''
+        - effectUuid: >-
+            Compendium.projectmoonttrpg.effects-pmttrpg-srd.Item.XkvUThgKklZLl3wh
+          name: Inflict Ruin
+          cost: 2
+          stackMax: 5
+          stack: 3
+          count: 3
+          mode: negative
+          appliesTo: outfit
+          canPositive: true
+          canNegative: true
+          procOn: onClash
+          procResult: lose
+          procResultLocked: false
+          procStat: any
+          procDice: any
+          procAction: any
+          procCondition: ''
+          positive: Apply [N] Ruin to the target
+          negative: Apply [N] Ruin to the character
+          macro:
+            uuid: ''
+        - effectUuid: >-
+            Compendium.projectmoonttrpg.effects-pmttrpg-srd.Item.RK57F698iqerGQzJ
+          name: Block Dice Power Up
+          cost: 8
+          stackMax: 5
+          stack: 1
+          count: 1
+          mode: positive
+          appliesTo: outfit
+          canPositive: true
+          canNegative: false
+          procOn: alwaysActive
+          procResult: none
+          procResultLocked: false
+          procStat: any
+          procDice: any
+          procAction: any
+          procCondition: ''
+          positive: Increase the Block Dice Power by [N]
+          negative: ''
+          macro:
+            uuid: ''
+      resistances:
+        hp:
+          slash: endured
+          pierce: normal
+          blunt: weak
+        st:
+          slash: endured
+          pierce: normal
+          blunt: weak
+      equipped: true
+      customNotes: ''
+      easyEffects: |-
+        # >>> synced effects
+        # Bleed Resistance
+        [On Taking Bleed Damage]
+        reduce damage by 2;
+
+        # Block Dice Power Up
+        [Always Active]
+        power up block 1
+        # <<< synced effects
+    _id: nlzKZswxHCax31T0
+    img: systems/projectmoonttrpg/assets/icons/corporations/NCorpLogo.webp
+    effects: []
+    folder: null
+    sort: 0
+    ownership:
+      default: 0
+      yWsvx4DXrmYcZsue: 3
+    flags: {}
+    _stats:
+      coreVersion: '14.364'
+      systemId: projectmoonttrpg
+      systemVersion: 0.0.1
+      createdTime: 1785664835023
+      modifiedTime: 1785664949768
+      lastModifiedBy: yWsvx4DXrmYcZsue
+      compendiumSource: null
+      duplicateSource: null
+      exportSource: null
+    _key: '!actors.items!XwczwsIDKsDePtkI.nlzKZswxHCax31T0'
+  - name: Inquisitor's Nails
+    type: tool
+    system:
+      name: ''
+      description: ''
+      slug: ''
+      rank: 2
+      form: consumable
+      handProperty: oneHanded
+      toolKind: applied
+      applyTo: weapon
+      challengeStat: for
+      quantity: 3
+      usesMax: 3
+      usesRemaining: 3
+      allowUse: false
+      inventoryTag: tool
+      slotCost: 1
+      stackPerSlot: 1
+      unique: false
+      compact: false
+      equipped: true
+      packing:
+        accepts: none
+        capacity: 0
+        used: 0
+        free: 0
+      damageType: pierce
+      customNotes: ''
+      effects:
+        - effectUuid: Item.UQb6UB19UOL5kMF4
+          name: Hemorrhage
+          cost: 4
+          stackMax: 5
+          stack: 3
+          count: 3
+          mode: positive
+          appliesTo: skill
+          canPositive: true
+          canNegative: false
+          procOn: onClashResult
+          procResult: win
+          procResultLocked: false
+          procStat: any
+          procDice: any
+          procAction: any
+          procCondition: ''
+          positive: >-
+            <p>Any Bleed on the target is not reduced the next [N] times it
+            activates. This does not apply to Bleed that is activated as a
+            result of this clash, and counts as one instance of activation.</p>
+
+            <p>This also prevents Bleed from being reduced by Reduce Status or
+            other effects that immediately activate Bleed. When immediately
+            activating Bleed, do not halve Bleed and remove 1 stack of this
+            effect.</p>
+          negative: ''
+          macro:
+            uuid: ''
+        - effectUuid: Item.TluAhd1pBKWaLSme
+          name: Inflict Bleed
+          cost: 2
+          stackMax: 5
+          stack: 3
+          count: 3
+          mode: negative
+          appliesTo: skill
+          canPositive: true
+          canNegative: true
+          procOn: onClashResult
+          procResult: lose
+          procResultLocked: false
+          procStat: any
+          procDice: any
+          procAction: any
+          procCondition: ''
+          positive: <p>Apply [N] Bleed to the target.</p>
+          negative: <p>Apply [N] Bleed to the character.</p>
+          macro:
+            uuid: ''
+      easyEffects: ''
+    _id: iMt2qzoSMQme4hlm
+    img: >-
+      systems/projectmoonttrpg/assets/icons/limbus_assets/Basic%20Effects/Bleed/Nails.webp
+    effects: []
+    folder: null
+    sort: 0
+    ownership:
+      default: 0
+      yWsvx4DXrmYcZsue: 3
+    flags: {}
+    _stats:
+      coreVersion: '14.364'
+      systemId: projectmoonttrpg
+      systemVersion: 0.0.1
+      createdTime: 1785664960039
+      modifiedTime: 1785665047088
+      lastModifiedBy: yWsvx4DXrmYcZsue
+      compendiumSource: null
+      duplicateSource: null
+      exportSource: null
+    _key: '!actors.items!XwczwsIDKsDePtkI.iMt2qzoSMQme4hlm'
+  - name: Joy of Execution
+    type: augment
+    system:
+      name: ''
+      description: ''
+      slug: ''
+      rank: 1
+      effects:
+        - effectUuid: >-
+            Compendium.projectmoonttrpg.effects-pmttrpg-srd.Item.ilMsNs13hQ84VvkY
+          name: Terrorize
+          cost: 4
+          stackMax: 1
+          stack: 1
+          count: 1
+          mode: positive
+          appliesTo: augment
+          canPositive: true
+          canNegative: false
+          procOn: alwaysActive
+          procResult: none
+          procResultLocked: false
+          procStat: any
+          procDice: any
+          procAction: any
+          procCondition: On a killing blow
+          positive: <p>Deal 5 SP Damage to all targets, excluding self/allies.</p>
+          negative: ''
+          macro:
+            uuid: ''
+        - effectUuid: >-
+            Compendium.projectmoonttrpg.effects-pmttrpg-srd.Item.brhGAWmFnguFc1wH
+          name: Paranoid
+          cost: 4
+          stackMax: 1
+          stack: 1
+          count: 1
+          mode: negative
+          appliesTo: augment
+          canPositive: false
+          canNegative: true
+          procOn: alwaysActive
+          procResult: none
+          procResultLocked: false
+          procStat: any
+          procDice: any
+          procAction: any
+          procCondition: ''
+          positive: ''
+          negative: >-
+            <p>When recovering SP from any source, recover at half
+            efficiency.</p>
+          macro:
+            uuid: ''
+        - effectUuid: >-
+            Compendium.projectmoonttrpg.effects-pmttrpg-srd.Item.D8EaR5cKyu94ffJF
+          name: Inflict Bleed
+          cost: 2
+          stackMax: 5
+          stack: 4
+          count: 4
+          mode: positive
+          appliesTo: augment
+          canPositive: true
+          canNegative: false
+          procOn: onClash
+          procResult: win
+          procResultLocked: false
+          procStat: any
+          procDice: any
+          procAction: action
+          procCondition: ''
+          positive: <p>Apply [N] Bleed to the target.</p>
+          negative: ''
+          macro:
+            uuid: ''
+      customNotes: ''
+      easyEffects: ''
+      equipped: true
+    _id: 8sDijJlXUTCB61hP
+    img: systems/projectmoonttrpg/assets/icons/corporations/NCorpLogo.webp
+    effects: []
+    folder: null
+    sort: 0
+    ownership:
+      default: 0
+      yWsvx4DXrmYcZsue: 3
+    flags: {}
+    _stats:
+      coreVersion: '14.364'
+      systemId: projectmoonttrpg
+      systemVersion: 0.0.1
+      createdTime: 1785665052520
+      modifiedTime: 1785665086969
+      lastModifiedBy: yWsvx4DXrmYcZsue
+      compendiumSource: null
+      duplicateSource: null
+      exportSource: null
+    _key: '!actors.items!XwczwsIDKsDePtkI.8sDijJlXUTCB61hP'
+  - name: Plunge In
+    type: skill
+    system:
+      name: ''
+      description: ''
+      slug: ''
+      skillType: attack
+      rank: 3
+      lightCost: 1
+      innate: false
+      stat: for
+      effects:
+        - effectUuid: Item.erYe7op1i9xQzPy7
+          name: Inflict Delayed Bleed
+          cost: 2
+          stackMax: 5
+          stack: 5
+          count: 5
+          mode: positive
+          appliesTo: skill
+          canPositive: true
+          canNegative: true
+          procOn: onClashResult
+          procResult: win
+          procResultLocked: false
+          procStat: any
+          procDice: any
+          procAction: any
+          procCondition: ''
+          positive: >-
+            <p>Apply [N] Bleed to the target next round. This is not affected by
+            "Bleed+".</p>
+          negative: >-
+            <p>Apply [N] Bleed to the character next round. This is not affected
+            by "Bleed+".</p>
+          macro:
+            uuid: ''
+        - effectUuid: Item.E4HpJQh7hckViUs6
+          name: Inflict Ruin
+          cost: 2
+          stackMax: 5
+          stack: 2
+          count: 2
+          mode: negative
+          appliesTo: skill
+          canPositive: true
+          canNegative: true
+          procOn: onClashResult
+          procResult: lose
+          procResultLocked: false
+          procStat: any
+          procDice: any
+          procAction: any
+          procCondition: ''
+          positive: <p>Apply [N] Ruin to the target.</p>
+          negative: <p>Apply [N] Ruin to the character.</p>
+          macro:
+            uuid: ''
+        - effectUuid: Item.KOreDwry93veccjV
+          name: Bleed Bonus
+          cost: 2
+          stackMax: 5
+          stack: 2
+          count: 2
+          mode: positive
+          appliesTo: skill
+          canPositive: true
+          canNegative: false
+          procOn: alwaysActive
+          procResult: none
+          procResultLocked: false
+          procStat: any
+          procDice: any
+          procAction: any
+          procCondition: ''
+          positive: >-
+            <p>If the target has [N+2] or more Bleed stacks, increase the Dice
+            Power by [N].&nbsp;</p>
+          negative: ''
+          macro:
+            uuid: ''
+        - effectUuid: Item.TluAhd1pBKWaLSme
+          name: Inflict Bleed
+          cost: 2
+          stackMax: 5
+          stack: 2
+          count: 2
+          mode: negative
+          appliesTo: skill
+          canPositive: true
+          canNegative: true
+          procOn: onClashResult
+          procResult: lose
+          procResultLocked: false
+          procStat: any
+          procDice: any
+          procAction: any
+          procCondition: ''
+          positive: <p>Apply [N] Bleed to the target.</p>
+          negative: <p>Apply [N] Bleed to the character.</p>
+          macro:
+            uuid: ''
+      customNotes: ''
+      easyEffects: ''
+      equipped: true
+    _id: jZ1ecWn5L0I8uIk3
+    img: >-
+      systems/projectmoonttrpg/assets/icons/limbus_assets/Basic%20Effects/Factions/N%20Corp/Fanatic.webp
+    effects: []
+    folder: null
+    sort: 0
+    ownership:
+      default: 0
+      yWsvx4DXrmYcZsue: 3
+    flags: {}
+    _stats:
+      coreVersion: '14.364'
+      systemId: projectmoonttrpg
+      systemVersion: 0.0.1
+      createdTime: 1785665102001
+      modifiedTime: 1785665171059
+      lastModifiedBy: yWsvx4DXrmYcZsue
+      compendiumSource: null
+      duplicateSource: null
+      exportSource: null
+    _key: '!actors.items!XwczwsIDKsDePtkI.jZ1ecWn5L0I8uIk3'
+  - name: Inquisition
+    type: skill
+    system:
+      name: ''
+      description: ''
+      slug: ''
+      skillType: attack
+      rank: 3
+      lightCost: 1
+      innate: false
+      stat: for
+      effects:
+        - effectUuid: Item.KOreDwry93veccjV
+          name: Bleed Bonus
+          cost: 2
+          stackMax: 5
+          stack: 4
+          count: 4
+          mode: positive
+          appliesTo: skill
+          canPositive: true
+          canNegative: false
+          procOn: alwaysActive
+          procResult: none
+          procResultLocked: false
+          procStat: any
+          procDice: any
+          procAction: any
+          procCondition: ''
+          positive: >-
+            <p>If the target has [N+2] or more Bleed stacks, increase the Dice
+            Power by [N].&nbsp;</p>
+          negative: ''
+          macro:
+            uuid: ''
+        - effectUuid: Item.UQb6UB19UOL5kMF4
+          name: Hemorrhage
+          cost: 4
+          stackMax: 5
+          stack: 3
+          count: 3
+          mode: positive
+          appliesTo: skill
+          canPositive: true
+          canNegative: false
+          procOn: onClashResult
+          procResult: win
+          procResultLocked: false
+          procStat: any
+          procDice: any
+          procAction: any
+          procCondition: ''
+          positive: >-
+            <p>Any Bleed on the target is not reduced the next [N] times it
+            activates. This does not apply to Bleed that is activated as a
+            result of this clash, and counts as one instance of activation.</p>
+
+            <p>This also prevents Bleed from being reduced by Reduce Status or
+            other effects that immediately activate Bleed. When immediately
+            activating Bleed, do not halve Bleed and remove 1 stack of this
+            effect.</p>
+          negative: ''
+          macro:
+            uuid: ''
+        - effectUuid: Item.erYe7op1i9xQzPy7
+          name: Inflict Delayed Bleed
+          cost: 2
+          stackMax: 5
+          stack: 4
+          count: 4
+          mode: positive
+          appliesTo: skill
+          canPositive: true
+          canNegative: true
+          procOn: onClashResult
+          procResult: win
+          procResultLocked: false
+          procStat: any
+          procDice: any
+          procAction: any
+          procCondition: ''
+          positive: >-
+            <p>Apply [N] Bleed to the target next round. This is not affected by
+            "Bleed+".</p>
+          negative: >-
+            <p>Apply [N] Bleed to the character next round. This is not affected
+            by "Bleed+".</p>
+          macro:
+            uuid: ''
+        - effectUuid: Item.E4HpJQh7hckViUs6
+          name: Inflict Ruin
+          cost: 2
+          stackMax: 5
+          stack: 3
+          count: 3
+          mode: negative
+          appliesTo: skill
+          canPositive: true
+          canNegative: true
+          procOn: onClashResult
+          procResult: lose
+          procResultLocked: false
+          procStat: any
+          procDice: any
+          procAction: any
+          procCondition: ''
+          positive: <p>Apply [N] Ruin to the target.</p>
+          negative: <p>Apply [N] Ruin to the character.</p>
+          macro:
+            uuid: ''
+        - effectUuid: Item.TluAhd1pBKWaLSme
+          name: Inflict Bleed
+          cost: 2
+          stackMax: 5
+          stack: 4
+          count: 4
+          mode: negative
+          appliesTo: skill
+          canPositive: true
+          canNegative: true
+          procOn: onClashResult
+          procResult: lose
+          procResultLocked: false
+          procStat: any
+          procDice: any
+          procAction: any
+          procCondition: ''
+          positive: <p>Apply [N] Bleed to the target.</p>
+          negative: <p>Apply [N] Bleed to the character.</p>
+          macro:
+            uuid: ''
+      customNotes: ''
+      easyEffects: ''
+      equipped: true
+    _id: l5Iy3JfFDdEsykJg
+    img: >-
+      systems/projectmoonttrpg/assets/icons/limbus_assets/Basic%20Effects/Factions/N%20Corp/Gaze%20of%20the%20One%20Who%20Grips.webp
+    effects: []
+    folder: null
+    sort: 0
+    ownership:
+      default: 0
+      yWsvx4DXrmYcZsue: 3
+    flags: {}
+    _stats:
+      coreVersion: '14.364'
+      systemId: projectmoonttrpg
+      systemVersion: 0.0.1
+      createdTime: 1785665104075
+      modifiedTime: 1785665283767
+      lastModifiedBy: yWsvx4DXrmYcZsue
+      compendiumSource: null
+      duplicateSource: null
+      exportSource: null
+    _key: '!actors.items!XwczwsIDKsDePtkI.l5Iy3JfFDdEsykJg'
+effects: []
+sort: 0
+ownership:
+  default: 0
+  yWsvx4DXrmYcZsue: 3
+flags: {}
+_stats:
+  coreVersion: '14.364'
+  systemId: projectmoonttrpg
+  systemVersion: 0.0.1
+  createdTime: 1785664625609
+  modifiedTime: 1785665323893
+  lastModifiedBy: yWsvx4DXrmYcZsue
+  compendiumSource: null
+  duplicateSource: null
+  exportSource: null
+_key: '!actors!XwczwsIDKsDePtkI'

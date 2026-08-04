@@ -44,6 +44,8 @@ A trigger tells the system **when** to fire your effect. Write it in square brac
 | `[On Devastation]` | Devastating Hit |
 | `[On Action]` | At the end of an action |
 | `[On Stagger]` | The item's actor becomes Staggered |
+| `[On Applied]` | This status was created on the actor |
+| `[On Removed]` | This status was cleared from the actor |
 | `[Turn Start]` | The start of the item's actor's turn in combat |
 | `[End of Round]` | When the combat round advances |
 | `[On Taking Damage]` | Before damage is applied to the defender (flat resists, etc.) |
@@ -58,6 +60,19 @@ gain 1 Charge;
 [Turn Start]
 lose 1 Charge;
 ```
+
+`[On Applied]` / `[On Removed]` are for **status** items. They fire when that status first appears or fully clears
+
+```
+[On Applied]
+deal 5 SP damage to self;
+heal 1 light damage to self;
+
+[On Removed]
+heal 10 ST damage to self;
+```
+
+(`gain 1 Light` would add a **status** named Light — use `heal … light damage` to restore the Light pool.)
 
 ## Passive Effects
 
@@ -162,9 +177,15 @@ Single-word names don't need quotes, but you can add them if you want. Reserved 
 ```
 do deal damage 5 on target;
 deal (self.rank) hp damage to target;
+deal 5 hp and st damage to target;
 deal (incoming.amount) blunt hp damage to attacker;
 do heal 10 on self;
+heal 10 ST damage to self;
+heal 5 hp and st damage to self;
+heal 1 light damage to self;
 ```
+
+You can join multiple resource pools with `and` (`hp and st`, `hp and st and sp`). The same amount applies to each pool. Action chaining still uses `and` between full actions (`deal 5 hp damage to target and heal 3 st damage to self`).
 
 On `[On Taking Damage]`, you can read the pending hit with `incoming.*` (alias of `damage.*`) and reflect or rewrite it:
 
@@ -177,6 +198,7 @@ deal (incoming.amount) blunt hp damage to attacker;
 
 [On Taking SP Damage]
 convert (incoming.amount * 2) damage to hp;
+convert damage to hp and st;
 
 [On Taking Pierce Damage]
 convert damage to blunt;
@@ -190,7 +212,7 @@ convert damage to blunt;
 
 `deal` accepts an optional damage type before or after the pool: `blunt hp damage` or `hp blunt damage`. If you omit the type and/or pool while reflecting, the new hit keeps `incoming.damageType` and `incoming.pool` (pool still defaults to `hp` outside that context).
 
-`convert` changes the **pending** hit (pool and/or type, optionally amount) without firing another damage event.
+`convert` changes the **pending** hit (pool and/or type, optionally amount) without firing another damage event. Pool destinations can use `and` the same way as `deal` / `heal` (`convert damage to hp and st`).
 
 Nested `deal` / `heal` from inside `[On Taking Damage]` does **not** re-run that trigger. Status ticks and other top-level `deal`s still run resists normally.
 
@@ -480,7 +502,7 @@ power up attack 1 per (self.status.Burn) on target;
 # Quick Reference Card
 
 ## Triggers
-`[Clash Win]` · `[Clash Lose]` · `[On Hit]` · `[On Stagger]` · `[Turn Start]` · `[On Taking <Filter> Damage]`
+`[Clash Win]` · `[Clash Lose]` · `[On Hit]` · `[On Stagger]` · `[On Applied]` · `[On Removed]` · `[Turn Start]` · `[On Taking <Filter> Damage]`
 
 ## Targets
 `self` · `target` · `ally` · `attacker` · `enemies` · `allies` · `all`

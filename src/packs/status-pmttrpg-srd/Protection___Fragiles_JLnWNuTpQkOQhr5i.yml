@@ -1,0 +1,20 @@
+type: Item
+folder: null
+name: Protection & Fragiles
+color: '#004db3'
+sorting: a
+_id: JLnWNuTpQkOQhr5i
+description: ''
+sort: 0
+flags: {}
+_stats:
+  coreVersion: '14.364'
+  systemId: projectmoonttrpg
+  systemVersion: 0.0.1
+  createdTime: 1785426538793
+  modifiedTime: 1785426687906
+  lastModifiedBy: yWsvx4DXrmYcZsue
+  compendiumSource: null
+  duplicateSource: null
+  exportSource: null
+_key: '!folders!JLnWNuTpQkOQhr5i'

@@ -1,19 +1,20 @@
-folder: null
+folder: fMFB6OnVCAkgdA96
 name: Devastation
 type: status
 img: systems/projectmoonttrpg/assets/icons/Statuses/Devastation.webp
 system:
   name: ''
-  description: >-
-    <p dir="ltr">You inflict Devastation on your target as a part of Ruin and
-    other skills. When you trigger a Devastating Hit deal 1D8 extra HP Damage
-    per Devastation the target has, then they lose all Devastation.&nbsp;</p>
-
-    <p><strong>&nbsp;</strong></p>
-
-    <p dir="ltr">If you gain Devastation, but have no Ruin, gain 1 Ruin.</p>
-
-    <p>&nbsp;</p>
+  description: "<p dir=\"ltr\">You inflict Devastation on your target as a part of Ruin and other skills. When you trigger a Devastating Hit deal 1d8 extra HP Damage per Devastation the target has, then they lose all Devastation.\_<strong>\_</strong></p><p dir=\"ltr\">If you gain Devastation, but have no Ruin, gain 1 Ruin.</p>"
+  slug: ''
+  stacks: 1
+  stackMax: 0
+  priority: 0
+  macro:
+    uuid: ''
+  customNotes: ''
+  easyEffects: |-
+    [On Devastation]
+    deal 1d8 hp damage per Devastation on target
   proc:
     turnStart: false
     endOfRound: false
@@ -23,9 +24,6 @@ system:
     onHitWhenTargetHas: false
     alwaysActive: false
     skillEffect: false
-  macro:
-    uuid: ''
-  customNotes: ''
 effects: []
 ownership:
   default: 0
@@ -35,13 +33,12 @@ _stats:
   compendiumSource: null
   duplicateSource: null
   exportSource: null
-  coreVersion: '13.351'
+  coreVersion: '14.364'
   systemId: projectmoonttrpg
   systemVersion: 0.0.1
   createdTime: 1779621119816
-  modifiedTime: 1779621127824
+  modifiedTime: 1785426632714
   lastModifiedBy: yWsvx4DXrmYcZsue
 _id: hY1hZ4lGV0HaZpma
-sort: 400000
+sort: 175000
 _key: '!items!hY1hZ4lGV0HaZpma'
-

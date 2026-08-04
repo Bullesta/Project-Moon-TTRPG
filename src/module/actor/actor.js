@@ -1,5 +1,5 @@
 import { PMTTRPGUtility } from '../utility.js';
-import { getRankFromLevel } from './progression.js';
+import { getActionEconomyFromRank, getRankFromLevel } from './progression.js';
 const { renderTemplate } = foundry.applications.handlebars;
 import { applyAlwaysActiveModifiers, runOnTakingDamage } from '../easy-effects/registry.js';
 import { applyResourceModsToSystem, applyResourceOverridesToSystem } from '../easy-effects/nouns.js';
@@ -9,9 +9,11 @@ import {
   DAMAGE_TYPES,
   buildAppliedDamage,
   normalizePools,
+  poolTempPath,
   poolValuePath,
   postDamageTakenMessage,
   resolveResistance,
+  tempPoolKey,
 } from '../damage-application.js';
 
 /**
@@ -57,6 +59,11 @@ export class ActorPMTTRPG extends Actor {
     }
     if (!data.attributes.light) {
       data.attributes.light = { value: 0, min: 0, maxBase: 0, maxMisc: 0, max: 0 };
+    }
+    for (const key of ['actions', 'reactions', 'movement']) {
+      if (!data.attributes[key]) {
+        data.attributes[key] = { value: 0, min: 0, maxBase: 0, maxMisc: 0, max: 0 };
+      }
     }
     if (!data.details) data.details = {};
     if (!data.details.gmBrief) {
@@ -139,6 +146,25 @@ export class ActorPMTTRPG extends Actor {
       data.attributes.light.value = data.attributes.light.max;
     } else {
       data.attributes.light.value = Number(data.attributes.light.value) || 0;
+    }
+
+    const economy = getActionEconomyFromRank(rank);
+    for (const [key, maxBase] of [
+      ['actions', economy.actions],
+      ['reactions', economy.reactions],
+      ['movement', economy.movement],
+    ]) {
+      const pool = data.attributes[key] || {};
+      data.attributes[key] = pool;
+      pool.min = 0;
+      pool.maxBase = maxBase;
+      pool.maxMisc = Number(pool.maxMisc) || 0;
+      pool.max = pool.maxBase + pool.maxMisc;
+      if (pool.value === undefined || pool.value === null) {
+        pool.value = pool.max;
+      } else {
+        pool.value = Number(pool.value) || 0;
+      }
     }
 
     // Equipped outfit bonuses. NPCs always use their loadout outfits.
@@ -236,11 +262,109 @@ export class ActorPMTTRPG extends Actor {
       console.error('[EasyEffects] Error in Always Active pass:', err);
     }
 
+    for (const key of ['actions', 'reactions', 'movement']) {
+      const pool = data.attributes[key];
+      if (!pool) continue;
+      pool.max = (Number(pool.maxBase) || 0) + (Number(pool.maxMisc) || 0);
+      const raw = Number(pool.value) || 0;
+      pool.value = key === 'reactions'
+        ? Math.max(0, raw)
+        : Math.clamp(raw, 0, pool.max);
+    }
+
     applyInventorySlotUsage(data.attributes, actorData.items);
     for (const key of ['toolSlots', 'narrativeSlots', 'stockSlots']) {
       const pool = data.attributes[key];
       pool.over = Number(pool.used ?? 0) > Number(pool.value ?? 0);
     }
+  }
+
+  async refreshActionEconomy() {
+    const updates = {};
+    for (const key of ['actions', 'reactions', 'movement']) {
+      const pool = this.system.attributes?.[key];
+      if (!pool) continue;
+      const max = Number(pool.max) || 0;
+      if ((Number(pool.value) || 0) !== max) {
+        updates[`system.attributes.${key}.value`] = max;
+      }
+    }
+    if (foundry.utils.isEmpty(updates)) return this;
+    return this.update(updates);
+  }
+
+  /**
+   * Spend from an action-economy pool.
+   * @param {"actions"|"reactions"|"movement"} poolKey
+   * @param {number} [amount=1]
+   */
+  async spendActionEconomy(poolKey, amount = 1) {
+    const allowed = new Set(['actions', 'reactions', 'movement']);
+    if (!allowed.has(poolKey)) {
+      throw new Error(`Invalid action economy pool: ${poolKey}`);
+    }
+    const pool = this.system.attributes?.[poolKey];
+    if (!pool) return this;
+    const spent = Math.max(0, Number(amount) || 0);
+    if (spent === 0) return this;
+    const current = Number(pool.value) || 0;
+    if (current < spent) {
+      ui.notifications.warn(game.i18n.format('PMTTRPG.Notifications.actionEconomyInsufficient', {
+        name: this.name,
+        pool: game.i18n.localize({
+          actions: 'PMTTRPG.Actions',
+          reactions: 'PMTTRPG.Reactions',
+          movement: 'PMTTRPG.Movement',
+        }[poolKey]),
+        current,
+        needed: spent,
+      }));
+    }
+    const next = Math.max(0, current - spent);
+    if (next === current) return this;
+    return this.update({ [`system.attributes.${poolKey}.value`]: next });
+  }
+
+  /**
+   * Convert Actions into Reactions
+   * @param {number} [amount] Defaults to all remaining Actions.
+   */
+  async convertActionsToReactions(amount) {
+    const actionPool = this.system.attributes?.actions;
+    const reactionPool = this.system.attributes?.reactions;
+    if (!actionPool || !reactionPool) return this;
+
+    const available = Math.max(0, Number(actionPool.value) || 0);
+    if (available <= 0) {
+      ui.notifications.warn(game.i18n.format("PMTTRPG.Notifications.convertNoActions", {
+        name: this.name,
+      }));
+      return this;
+    }
+
+    let n = (amount === undefined || amount === null)
+      ? available
+      : Math.max(0, Math.floor(Number(amount) || 0));
+
+    if (n <= 0) {
+      ui.notifications.warn(game.i18n.format("PMTTRPG.Notifications.convertNoActions", {
+        name: this.name,
+      }));
+      return this;
+    }
+
+    if (n > available) {
+      ui.notifications.warn(game.i18n.format("PMTTRPG.Notifications.convertActionsCapped", {
+        name: this.name,
+        available,
+      }));
+      n = available;
+    }
+
+    return this.update({
+      "system.attributes.actions.value": available - n,
+      "system.attributes.reactions.value": (Number(reactionPool.value) || 0) + n,
+    });
   }
 
   /** @override */
@@ -402,6 +526,7 @@ export class ActorPMTTRPG extends Actor {
    * @param {object} [options]
    * @param {"full"|"half"|"double"|"heal"} [options.op="full"]
    * @param {"hp"|"st"|"sp"|Array<"hp"|"st"|"sp">} [options.pool="hp"]
+   * @param {string} [options.sourceLabel]
    * @returns {Promise<object|null>}
    */
   async applyDamage(amount, options = {}) {
@@ -412,6 +537,10 @@ export class ActorPMTTRPG extends Actor {
     const damageType = DAMAGE_TYPES.includes(rawDamageType.toLowerCase()) ? rawDamageType.toLowerCase() : null;
     const eeDamageType = damageType || rawDamageType;
     const source = typeof options.source === "string" && options.source.trim() ? options.source.trim() : null;
+    const explicitSourceLabel = typeof options.sourceLabel === "string" && options.sourceLabel.trim()
+      ? options.sourceLabel.trim()
+      : null;
+    const sourceLabel = explicitSourceLabel ?? source ?? options.attacker?.name ?? null;
     const afterResistance = Number(options.afterResistance) || 0;
     const forceSkipResistance = options.skipResistance === true || op === "heal";
     const useOutfitTypeResists = !source && !forceSkipResistance;
@@ -430,7 +559,10 @@ export class ActorPMTTRPG extends Actor {
         break;
     }
 
-    const breakdown = [{ key: "base", amount: base }];
+    const breakdown = [];
+    if (sourceLabel) breakdown.push({ key: "source", source: sourceLabel });
+    if (eeDamageType) breakdown.push({ key: "damageType", damageType: eeDamageType });
+    breakdown.push({ key: "base", amount: base });
     if (op !== "full") breakdown.push({ key: "op", op, from: base, to: sharedAmount });
 
     let amountAfterSource = sharedAmount;
@@ -441,7 +573,7 @@ export class ActorPMTTRPG extends Actor {
       const beforeEe = amountAfterSource;
       const damageCtx = {
         amount: amountAfterSource,
-        pool: pools[0] ?? "hp",
+        pool: pools.length === 1 ? (pools[0] ?? "hp") : pools.slice(),
         source: source ?? "",
         damageType: eeDamageType,
       };
@@ -474,13 +606,13 @@ export class ActorPMTTRPG extends Actor {
         }
       }
 
-      const poolChanged = (poolsAfter[0] ?? "hp") !== (pools[0] ?? "hp");
+      const poolChanged = poolsAfter.join(",") !== pools.join(",");
       const typeChanged = rawAfter !== eeDamageType;
       if (poolChanged || typeChanged) {
         breakdown.push({
           key: "convert",
-          fromPool: pools[0] ?? "hp",
-          toPool: poolsAfter[0] ?? "hp",
+          fromPool: pools.join(","),
+          toPool: poolsAfter.join(","),
           fromType: eeDamageType || "",
           toType: rawAfter || "",
         });
@@ -531,10 +663,59 @@ export class ActorPMTTRPG extends Actor {
         continue;
       }
 
-      const uncapped = op === "heal" ? current + newAmount : current - newAmount;
+      if (op === "heal") {
+        const uncapped = current + newAmount;
+        const next = Math.clamp(uncapped, 0, max);
+        if (next === current) {
+          breakdown.push({ key: "final", amount: 0, pool, heal: true });
+          continue;
+        }
+
+        const path = poolValuePath(pool);
+        actorUpdates[path] = next;
+        appliedEntries.push({ pool, path, pre: current, post: next });
+
+        const applied = Math.abs(current - next);
+        if (uncapped !== next) {
+          breakdown.push({
+            key: "clamp",
+            pool,
+            from: Math.abs(current - uncapped),
+            to: applied,
+            reason: uncapped > max ? "max" : "min",
+          });
+        }
+        breakdown.push({ key: "final", amount: applied, pool, heal: true });
+        continue;
+      }
+
+      // Temp absorbs before the pools (hp/st/sp).
+      let remaining = newAmount;
+      const tempKey = tempPoolKey(pool);
+      if (tempKey) {
+        const temp = Math.max(0, Number(poolData.temp) || 0);
+        if (temp > 0 && remaining > 0) {
+          const absorbed = Math.min(temp, remaining);
+          remaining -= absorbed;
+          const nextTemp = temp - absorbed;
+          const tempPath = poolTempPath(pool);
+          actorUpdates[tempPath] = nextTemp;
+          appliedEntries.push({ pool: tempKey, path: tempPath, pre: temp, post: nextTemp });
+          breakdown.push({
+            key: "temp", pool, absorbed, from: temp, to: nextTemp,
+          });
+        }
+      }
+
+      if (remaining === 0) {
+        breakdown.push({ key: "final", amount: newAmount, pool: tempKey || pool, heal: false });
+        continue;
+      }
+
+      const uncapped = current - remaining;
       const next = Math.clamp(uncapped, 0, max);
       if (next === current) {
-        breakdown.push({ key: "final", amount: 0, pool, heal: op === "heal" });
+        breakdown.push({ key: "final", amount: 0, pool, heal: false });
         continue;
       }
 
@@ -552,7 +733,7 @@ export class ActorPMTTRPG extends Actor {
           reason: uncapped > max ? "max" : "min",
         });
       }
-      breakdown.push({ key: "final", amount: applied, pool, heal: op === "heal" });
+      breakdown.push({ key: "final", amount: applied, pool, heal: false });
     }
 
     if (appliedEntries.length) {
@@ -768,22 +949,34 @@ export class ActorPMTTRPG extends Actor {
     if (toAdd <= 0) return sourceItem ? [sourceItem] : [];
 
     const nextStacks = current + toAdd;
+    const wasAbsent = current <= 0;
 
+    let kept;
     if (matching.length === 0) {
       const created = foundry.utils.duplicate(itemData);
       delete created._id;
       created.system = created.system ?? {};
       created.system.stacks = nextStacks;
       if (stackMax > 0) created.system.stackMax = stackMax;
-      return this.createEmbeddedDocuments('Item', [created]);
+      const docs = await this.createEmbeddedDocuments('Item', [created]);
+      kept = docs[0];
+    } else {
+      // Merge legacy copies into the kept item.
+      kept = matching[0];
+      const extras = matching.slice(1).map(i => i.id);
+      await kept.update({ 'system.stacks': nextStacks });
+      if (extras.length) await this.deleteEmbeddedDocuments('Item', extras);
     }
 
-    // Merge legacy copies into the kept item.
-    const keep = matching[0];
-    const extras = matching.slice(1).map(i => i.id);
-    await keep.update({ 'system.stacks': nextStacks });
-    if (extras.length) await this.deleteEmbeddedDocuments('Item', extras);
-    return [keep];
+    if (wasAbsent && kept) {
+      Hooks.callAll("pmttrpg.statusApplied", {
+        actor: this,
+        item: kept,
+        statusName,
+        stacks: nextStacks,
+      });
+    }
+    return kept ? [kept] : [];
   }
 
   /**
@@ -807,7 +1000,13 @@ export class ActorPMTTRPG extends Actor {
 
     if (desired <= 0) {
       if (!matching.length) return;
+      const item = matching[0];
       await this.deleteEmbeddedDocuments('Item', matching.map(i => i.id));
+      Hooks.callAll("pmttrpg.statusRemoved", {
+        actor: this,
+        item,
+        statusName,
+      });
       return;
     }
 
@@ -846,14 +1045,20 @@ export class ActorPMTTRPG extends Actor {
 
     const current = this.getStatusStacks(statusName);
     const next = Math.max(0, current - remove);
+    const item = matching[0];
 
     if (next <= 0) {
-      return this.deleteEmbeddedDocuments('Item', matching.map(i => i.id));
+      const deleted = await this.deleteEmbeddedDocuments('Item', matching.map(i => i.id));
+      Hooks.callAll("pmttrpg.statusRemoved", {
+        actor: this,
+        item,
+        statusName,
+      });
+      return deleted;
     }
 
-    const keep = matching[0];
     const extras = matching.slice(1).map(i => i.id);
-    await keep.update({ 'system.stacks': next });
+    await item.update({ 'system.stacks': next });
     if (extras.length) await this.deleteEmbeddedDocuments('Item', extras);
     return extras;
   }

@@ -1,0 +1,67 @@
+<form class="clash-retaliation-form">
+
+  {{!-- Context header: who is attacking you --}}
+  <div class="clash-retaliation-form__context">
+    <img class="clash-card__avatar" src="{{state.attackerImg}}" alt="{{state.attackerName}}">
+    <div class="clash-retaliation-form__context-text">
+      <span class="clash-retaliation-form__attacked-by">{{i18n.attackedBy}}</span>
+      <span class="clash-retaliation-form__weapon">{{state.attackerName}} using {{state.attackerItemName}}</span>
+    </div>
+  </div>
+
+  <hr class="clash-retaliation-form__divider">
+
+  {{!-- Option list --}}
+  <div class="clash-retaliation-form__options">
+    {{#each options}}
+      <label class="clash-option
+        {{#if requiresItem}}clash-option--has-items{{/if}}"
+        data-type="{{type}}">
+
+        <input
+          type="radio"
+          name="retaliationType"
+          value="{{type}}"
+          {{#if @first}}checked{{/if}}
+        >
+
+        <span class="clash-option__icon">
+          <img 
+            class="" 
+            src="{{icon}}.webp" 
+          >
+        </span>
+
+        <span class="clash-option__label">
+          {{localize label}}
+        </span>
+
+        {{!-- Inline item data for JS to read --}}
+        {{#if requiresItem}}
+          {{#each items}}
+            <span
+              class="clash-item-option"
+              data-type="{{../type}}"
+              data-item-id="{{id}}"
+              data-item-name="{{name}}"
+              hidden
+            ></span>
+          {{/each}}
+        {{/if}}
+
+      </label>
+    {{/each}}
+  </div>
+
+  {{!-- Item picker — shown only when counter/skill is selected --}}
+  <div class="clash-item-picker" style="display: none;">
+    <label class="clash-item-picker__label">
+      <i class="fa-solid fa-list"></i>
+      {{i18n.weapon}}
+    </label>
+    <select name="retaliationItemId" class="clash-item-picker__select">
+      {{!-- Populated dynamically by _bindRetaliationDialogListeners --}}
+    </select>
+  </div>
+
+</form>

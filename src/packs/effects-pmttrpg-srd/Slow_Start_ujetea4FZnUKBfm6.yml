@@ -1,0 +1,44 @@
+folder: D0Fdq2brTzfHbYM5
+name: Slow Start
+type: effect
+img: systems/projectmoonttrpg/assets/icons/Statuses/Panic.webp
+system:
+  name: ''
+  description: ''
+  slug: slow-start
+  cost: 2
+  stackMax: 5
+  appliesTo: augment
+  canPositive: false
+  canNegative: true
+  procOn: alwaysActive
+  procResult: none
+  procResultLocked: false
+  procStat: any
+  procDice: any
+  procAction: any
+  procCondition: In the first round of combat
+  positive: ''
+  negative: <p>Gain [N] Offensive &amp; Defensive Dice Power Down.</p>
+  macro:
+    uuid: ''
+  customNotes: ''
+  easyEffects: ''
+effects: []
+sort: 0
+ownership:
+  default: 0
+  yWsvx4DXrmYcZsue: 3
+flags: {}
+_stats:
+  compendiumSource: null
+  duplicateSource: Item.3KD1n3DV1Ui4D7wb
+  exportSource: null
+  coreVersion: '14.364'
+  systemId: projectmoonttrpg
+  systemVersion: 0.0.1
+  createdTime: 1785485134516
+  modifiedTime: 1785485134516
+  lastModifiedBy: yWsvx4DXrmYcZsue
+_id: ujetea4FZnUKBfm6
+_key: '!items!ujetea4FZnUKBfm6'

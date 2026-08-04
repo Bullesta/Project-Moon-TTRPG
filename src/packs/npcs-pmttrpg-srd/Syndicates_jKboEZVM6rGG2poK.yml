@@ -1,0 +1,20 @@
+type: Actor
+folder: null
+name: Syndicates
+color: '#780099'
+sorting: a
+_id: jKboEZVM6rGG2poK
+description: ''
+sort: 0
+flags: {}
+_stats:
+  coreVersion: '14.364'
+  systemId: projectmoonttrpg
+  systemVersion: 0.0.1
+  createdTime: 1785485548652
+  modifiedTime: 1785485548652
+  lastModifiedBy: yWsvx4DXrmYcZsue
+  compendiumSource: null
+  duplicateSource: null
+  exportSource: null
+_key: '!folders!jKboEZVM6rGG2poK'

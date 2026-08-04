@@ -1,0 +1,46 @@
+folder: UxqZGQetb7wFpMgA
+name: Kinetic Storage
+type: effect
+img: systems/projectmoonttrpg/assets/icons/Statuses/Haste.webp
+system:
+  name: ''
+  description: ''
+  slug: kinetic-storage
+  cost: 4
+  stackMax: 1
+  appliesTo: augment
+  canPositive: true
+  canNegative: false
+  procOn: alwaysActive
+  procResult: none
+  procResultLocked: false
+  procStat: any
+  procDice: any
+  procAction: any
+  procCondition: If you have leftover movement this turn
+  positive: >-
+    <p>Store the amount and add it to your base movement next turn (Max 6 SQRs).
+    This does not stack across turns.</p>
+  negative: ''
+  macro:
+    uuid: ''
+  customNotes: ''
+  easyEffects: ''
+effects: []
+sort: 0
+ownership:
+  default: 0
+  yWsvx4DXrmYcZsue: 3
+flags: {}
+_stats:
+  compendiumSource: null
+  duplicateSource: Item.nvc9Si81nNVpdRE4
+  exportSource: null
+  coreVersion: '14.364'
+  systemId: projectmoonttrpg
+  systemVersion: 0.0.1
+  createdTime: 1785485124306
+  modifiedTime: 1785485124306
+  lastModifiedBy: yWsvx4DXrmYcZsue
+_id: ak0tWZjQ61gbGMG5
+_key: '!items!ak0tWZjQ61gbGMG5'

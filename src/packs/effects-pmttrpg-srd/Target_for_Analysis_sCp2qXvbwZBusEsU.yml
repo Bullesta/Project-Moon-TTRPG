@@ -1,0 +1,55 @@
+folder: qhqkh6Rd3YcrmXWj
+name: Target for Analysis
+type: effect
+img: systems/projectmoonttrpg/assets/icons/Statuses/Slash%20Fragility.webp
+system:
+  name: ''
+  description: ''
+  slug: target-for-analysis
+  cost: 4
+  stackMax: 5
+  appliesTo: augment
+  canPositive: true
+  canNegative: false
+  procOn: alwaysActive
+  procResult: none
+  procResultLocked: false
+  procStat: any
+  procDice: any
+  procAction: any
+  procCondition: ''
+  positive: >-
+    <p>As an Action you may Mark 1 Target.</p>
+
+    <p>You learn 1 HP Resistance or 1 ST Resistance of your target that they are
+    weak to. If you Clash Win against the Marked target for Weak or Fatal, they
+    gain 2 [Type] Fragility of that type next turn.</p>
+
+    <p>If the target has no Weak or Fatal resistances, the target chooses from
+    their next weakest resistances, and the 2 Fragility will apply instead for
+    that type on appropriate hits.</p>
+
+    <p>This counts as [N] source(s) of Mark.</p>
+  negative: ''
+  macro:
+    uuid: ''
+  customNotes: ''
+  easyEffects: ''
+effects: []
+sort: 0
+ownership:
+  default: 0
+  yWsvx4DXrmYcZsue: 3
+flags: {}
+_stats:
+  compendiumSource: null
+  duplicateSource: Item.D6Wgk1eXsyT5WI6G
+  exportSource: null
+  coreVersion: '14.364'
+  systemId: projectmoonttrpg
+  systemVersion: 0.0.1
+  createdTime: 1785485132689
+  modifiedTime: 1785485132689
+  lastModifiedBy: yWsvx4DXrmYcZsue
+_id: sCp2qXvbwZBusEsU
+_key: '!items!sCp2qXvbwZBusEsU'

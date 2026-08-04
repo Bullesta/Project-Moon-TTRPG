@@ -1,0 +1,39 @@
+folder: 3sjq9ewlVQZPIpzC
+name: Striker Stance
+type: status
+_id: siaC6UarwyD69ysT
+img: systems/projectmoonttrpg/assets/icons/Statuses/Striker%20Stance.webp
+system:
+  name: ''
+  description: >-
+    <p><strong>[On Crit]</strong> with this Stance active, <strong>you may
+    perform an additional Attack</strong>, once per round. <strong>This
+    additional Attack must use the same weapon, cannot use Skills, and rolls
+    with -2 Dice Power</strong>. </p><p>If the Critical Hit was as a result of a
+    defensive reaction, this Attack may be performed with any applicable held
+    weapon.</p>
+  slug: ''
+  stacks: 1
+  stackMax: 0
+  priority: 0
+  macro:
+    uuid: ''
+  customNotes: ''
+  easyEffects: ''
+effects: []
+sort: 0
+ownership:
+  default: 0
+  yWsvx4DXrmYcZsue: 3
+flags: {}
+_stats:
+  coreVersion: '14.364'
+  systemId: projectmoonttrpg
+  systemVersion: 0.0.1
+  createdTime: 1785433404119
+  modifiedTime: 1785433901825
+  lastModifiedBy: yWsvx4DXrmYcZsue
+  compendiumSource: null
+  duplicateSource: null
+  exportSource: null
+_key: '!items!siaC6UarwyD69ysT'

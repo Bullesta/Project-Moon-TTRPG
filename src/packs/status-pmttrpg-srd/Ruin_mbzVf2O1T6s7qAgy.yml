@@ -1,24 +1,18 @@
-folder: null
+folder: fMFB6OnVCAkgdA96
 name: Ruin
 type: status
 img: systems/projectmoonttrpg/assets/icons/Statuses/Ruin.webp
 system:
   name: ''
-  description: >-
-    <p dir="ltr">On Hit when the Target has Ruin (before Clash Results are
-    applied) roll a D10. If the D10 rolls Equal to or Lower than the
-    target&rsquo;s Ruin Number, deal a Devastating Hit and lose all
-    Ruin.&nbsp;</p>
-
-    <p><strong>&nbsp;</strong></p>
-
-    <p dir="ltr">If the target has 0 Ruin and gains Ruin their Devastation
-    becomes 1, if their Ruin becomes 0 their Devastation is 0. If they would
-    gain Ruin and Devastation in the same action, the Ruin is applied first,
-    then the Devastation is increased on top of the now present 1
-    Devastation.</p>
-
-    <p>&nbsp;</p>
+  description: "<p dir=\"ltr\">On Hit when the Target has Ruin (before Clash Results are applied) roll [[/r 1d10]]. If the D10 rolls Equal to or Lower than the target’s Ruin Number, deal a Devastating Hit and lose all Ruin.\_</p><p dir=\"ltr\">If the target has 0 Ruin and gains Ruin their Devastation becomes 1, if their Ruin becomes 0 their Devastation is 0. If they would gain Ruin and Devastation in the same action, the Ruin is applied first, then the Devastation is increased on top of the now present 1 Devastation.</p><p>\_</p>"
+  slug: ''
+  stacks: 1
+  stackMax: 0
+  priority: 0
+  macro:
+    uuid: ''
+  customNotes: ''
+  easyEffects: ''
   proc:
     turnStart: false
     endOfRound: false
@@ -28,9 +22,6 @@ system:
     onHitWhenTargetHas: false
     alwaysActive: false
     skillEffect: false
-  macro:
-    uuid: ''
-  customNotes: ''
 effects: []
 ownership:
   default: 0
@@ -40,13 +31,12 @@ _stats:
   compendiumSource: null
   duplicateSource: null
   exportSource: null
-  coreVersion: '13.351'
+  coreVersion: '14.364'
   systemId: projectmoonttrpg
   systemVersion: 0.0.1
   createdTime: 1779621125369
-  modifiedTime: 1779621127824
+  modifiedTime: 1785575297961
   lastModifiedBy: yWsvx4DXrmYcZsue
 _id: mbzVf2O1T6s7qAgy
-sort: 300000
+sort: 193750
 _key: '!items!mbzVf2O1T6s7qAgy'
-

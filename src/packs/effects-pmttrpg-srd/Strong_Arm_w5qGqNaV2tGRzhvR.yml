@@ -1,0 +1,46 @@
+folder: 8t5xinoxx4XtmQBl
+name: Strong Arm
+type: effect
+img: systems/projectmoonttrpg/assets/icons/Statuses/Strength.webp
+system:
+  name: ''
+  description: ''
+  slug: strong-arm
+  cost: 4
+  stackMax: 2
+  appliesTo: augment
+  canPositive: true
+  canNegative: false
+  procOn: alwaysActive
+  procResult: none
+  procResultLocked: false
+  procStat: any
+  procDice: any
+  procAction: any
+  procCondition: ''
+  positive: >-
+    <p>The character may wield a 2-Handed weapon in a single hand. This applies
+    to [N] hands.</p>
+  negative: ''
+  macro:
+    uuid: ''
+  customNotes: ''
+  easyEffects: ''
+effects: []
+sort: 0
+ownership:
+  default: 0
+  yWsvx4DXrmYcZsue: 3
+flags: {}
+_stats:
+  compendiumSource: null
+  duplicateSource: Item.ukXQX4ExObI8H5YN
+  exportSource: null
+  coreVersion: '14.364'
+  systemId: projectmoonttrpg
+  systemVersion: 0.0.1
+  createdTime: 1785485122328
+  modifiedTime: 1785485122328
+  lastModifiedBy: yWsvx4DXrmYcZsue
+_id: w5qGqNaV2tGRzhvR
+_key: '!items!w5qGqNaV2tGRzhvR'

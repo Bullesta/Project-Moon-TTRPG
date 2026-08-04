@@ -20,6 +20,7 @@ export function createClashContext(attackerRoll = 0, defenderRoll = 0) {
     attackerRoll,
     defenderRoll,
     margin: attackerRoll - defenderRoll,
+    damageType: null,
     bonuses: {
       attackPower:  0,
       blockPower:   0,
@@ -51,6 +52,7 @@ function getAST(item) {
     _astCache.set(item.id, { source, ast });
     return ast;
   } catch (err) {
+    console.log(`[EasyEffect] Item has error! Here's the source: ${source}`);
     console.error(`[EasyEffects] Parse error on '${item.name}':`, err.message);
     ui.notifications?.warn(`EasyEffects parse error on '${item.name}': ${err.message}`);
     return null;
@@ -106,8 +108,19 @@ const TRIGGER_HOOKS = [
   {
     hook: "pmttrpg.clashResolved",
     triggerName: "Clash Win",
-    getItems: ({ attackerItem, appliedTool }) =>
-      [attackerItem, appliedTool].filter(Boolean),
+    getItems: ({
+      winner,
+      attacker,
+      attackerItem,
+      defenderItem,
+      appliedTool,
+      defenderAppliedTool,
+    }) => {
+      const attackerWon = winner === attacker;
+      return attackerWon
+        ? [attackerItem, appliedTool].filter(Boolean)
+        : [defenderItem, defenderAppliedTool].filter(Boolean);
+    },
     buildContext: ({ winner, loser, attackerRoll, defenderRoll, clash }) => ({
       self:   winner,
       target: loser,
@@ -120,16 +133,18 @@ const TRIGGER_HOOKS = [
   {
     hook: "pmttrpg.clashResolved",
     triggerName: "Clash Lose",
-    getItems: ({ defenderItem, defenderAppliedTool }) =>
-      [defenderItem, defenderAppliedTool].filter(Boolean),
+    getItems: ({ winner, attacker, attackerItem, defenderItem, appliedTool, defenderAppliedTool }) => {
+      const attackerWon = winner === attacker;
+      return attackerWon
+        ? [defenderItem, defenderAppliedTool].filter(Boolean)
+        : [attackerItem, appliedTool].filter(Boolean);
+    },
     buildContext: ({ winner, loser, attackerRoll, defenderRoll, clash }) => ({
       self:   loser,
       target: winner,
       ally:   null,
       // margin from loser's POV
-      clash:  clash
-        ? { ...clash, margin: (defenderRoll ?? 0) - (attackerRoll ?? 0) }
-        : createClashContext(defenderRoll, attackerRoll),
+      clash:  clash ?? createClashContext(defenderRoll, attackerRoll),
     }),
   },
 
@@ -261,6 +276,34 @@ const TRIGGER_HOOKS = [
     }),
   },
 
+  // ── [On Applied] ────────────────────────────────────────────────────────────
+  // Fires when the status effect is applied.
+  {
+    hook: "pmttrpg.statusApplied",
+    triggerName: "On Applied",
+    getItems: ({ item }) => item ? [item] : [],
+    buildContext: ({ actor }) => ({
+      self:   actor,
+      target: null,
+      ally:   null,
+      clash:  null,
+    }),
+  },
+
+  // ── [On Removed] ────────────────────────────────────────────────────────────
+  // Fires when the status effect is removed.
+  {
+    hook: "pmttrpg.statusRemoved",
+    triggerName: "On Removed",
+    getItems: ({ item }) => item ? [item] : [],
+    buildContext: ({ actor }) => ({
+      self:   actor,
+      target: null,
+      ally:   null,
+      clash:  null,
+    }),
+  },
+
   // ── [Turn Start] ────────────────────────────────────────────────────────────
   // Fired from combat.js next to statusMacros.emitTurnStart.
   {
@@ -387,7 +430,7 @@ export function applyAlwaysActiveModifiers(actor) {
  * Run defender [On Taking Damage] scripts. Mutates `damage.amount`.
  *
  * @param {Actor} actor  Defender
- * @param {{ amount: number, pool: string, source: string, damageType: string }} damage
+ * @param {{ amount: number, pool: string|string[], source: string, damageType: string }} damage
  * @param {{ attacker?: Actor|null }} [options]
  */
 export async function runOnTakingDamage(actor, damage, options = {}) {

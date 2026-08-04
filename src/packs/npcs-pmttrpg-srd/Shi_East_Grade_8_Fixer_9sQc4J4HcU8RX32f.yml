@@ -1,0 +1,668 @@
+folder: lSLPx1Vv3U95Ne65
+name: Shi East Grade 8 Fixer
+type: npc
+_id: 9sQc4J4HcU8RX32f
+img: tokenizer/npc-images/shi_east_grade_8_fixer.Avatar.webp?1785487662333
+system:
+  attributes:
+    hp:
+      value: 96
+      temp: 0
+      min: 0
+      maxBase: 96
+      maxMisc: 0
+      max: 96
+    st:
+      value: 28
+      temp: 0
+      min: 0
+      maxBase: 24
+      maxMisc: 0
+      max: 24
+    sp:
+      value: 18
+      temp: 0
+      min: 0
+      maxBase: 15
+      maxMisc: 0
+      max: 15
+    level:
+      value: 1
+      min: 0
+      max: 21
+    xp:
+      value: 0
+      min: 0
+      max: 8
+    toolSlots:
+      value: 4
+      used: 0
+      over: false
+      min: 0
+    narrativeSlots:
+      value: 4
+      used: 0
+      over: false
+      min: 0
+    stockSlots:
+      value: 4
+      used: 0
+      over: false
+      min: 0
+    light:
+      value: 4
+      min: 0
+      maxBase: 0
+      maxMisc: 0
+      max: 0
+    attackModifier:
+      value: 0
+      min: 0
+    evadeModifier:
+      value: 0
+      min: 0
+    blockModifier:
+      value: 0
+      min: 0
+    speed:
+      dice: 1d6
+      bonus: 0
+  details:
+    biography:
+      occupation: ''
+      age: ''
+      height: ''
+      birthplace: ''
+      residence: ''
+      description: ''
+      background: ''
+      personality: ''
+      ahn: 0
+      relationships: ''
+      notes: ''
+      notableHistory: ''
+    gmBrief:
+      complexityGm: 2
+      complexityPlayers: 3
+      strength: 0.6 / 1.5 (+0.4)
+      designIntention: >-
+        A simple and easy to use character. Variant of Shi South with less
+        direct damage, less statuses, but a higher focus on crit and the ability
+        to shoot any target trying to run away once for massive damage. This
+        unit is meant to work as a timer, having to be killed before this unit
+        builds up 10 poise and large amounts of crit, which allows them to hit
+        almost any unit in range with a large HP damage nuke.
+
+        The unit themselves is fairly weak but able to hold their own slightly.
+        This unit is especially strong when working by herself, likely against
+        only 1 or 2 targets.
+      recommendedBehavior: >-
+        First Turn, switch to Slayer's Strance.
+
+        Fights like a normal melee unit, while trying to stay relatively safe.
+
+        Focuses on reactionless units. If target is reactionless, use skill.
+
+        Doesn't use skill and instead uses a ranged attack with Precision Bullet
+        when Poise is at 10 or Critical is at 5.
+      lore: >-
+        A lone Shi East grade 8 fixer, going out on solo assassination missions.
+        Running targets tend to get shot in the back by a well timed, precise
+        arrow.
+      notes: ''
+  abilities:
+    for:
+      value: 0
+      min: -1
+      mod: 0
+      debility: false
+    pru:
+      value: 1
+      min: -1
+      mod: 0
+      debility: false
+    jus:
+      value: 2
+      min: -1
+      mod: 0
+      debility: false
+    cha:
+      value: 1
+      min: -1
+      mod: 0
+      debility: false
+    ins:
+      value: 2
+      min: -1
+      mod: 0
+      debility: false
+    tem:
+      value: 0
+      min: -1
+      mod: 0
+      debility: false
+prototypeToken:
+  name: Shi East Grade 8 Fixer
+  displayName: 0
+  actorLink: false
+  width: 1
+  height: 1
+  depth: 1
+  texture:
+    src: tokenizer/npc-images/shi_east_grade_8_fixer.Token.webp?1785487662333
+    anchorX: 0.5
+    anchorY: 0.5
+    fit: contain
+    scaleX: 1
+    scaleY: 1
+    tint: '#ffffff'
+    alphaThreshold: 0.75
+  lockRotation: false
+  rotation: 0
+  alpha: 1
+  disposition: -1
+  displayBars: 0
+  bar1:
+    attribute: attributes.hp
+  bar2:
+    attribute: attributes.st
+  light:
+    negative: false
+    priority: 0
+    alpha: 0.5
+    angle: 360
+    bright: 0
+    color: null
+    coloration: 1
+    dim: 0
+    attenuation: 0.5
+    luminosity: 0.5
+    saturation: 0
+    contrast: 0
+    shadows: 0
+    animation:
+      type: null
+      speed: 5
+      intensity: 5
+      reverse: false
+    darkness:
+      min: 0
+      max: 1
+  sight:
+    enabled: false
+    range: 0
+    angle: 360
+    visionMode: basic
+    color: null
+    attenuation: 0.1
+    brightness: 0
+    saturation: 0
+    contrast: 0
+  detectionModes: {}
+  occludable:
+    radius: 0
+  ring:
+    enabled: false
+    colors:
+      ring: null
+      background: null
+    effects: 1
+    subject:
+      scale: 1
+      texture: null
+  turnMarker:
+    mode: 1
+    animation: null
+    src: null
+    disposition: false
+  movementAction: null
+  flags: {}
+  randomImg: false
+  appendNumber: false
+  prependAdjective: false
+items:
+  - name: Shi Bow-tana
+    type: weapon
+    system:
+      name: ''
+      description: ''
+      slug: ''
+      weaponType: melee
+      damageType: slash
+      damageTypeFixed: false
+      formProperty: hybrid
+      handProperty: off2h
+      offensiveDice: 1d10+0
+      rank: 1
+      effects:
+        - effectUuid: Item.EF8SLWIy9aIaZnrk
+          name: Gain Poise
+          cost: 2
+          stackMax: 5
+          stack: 2
+          count: 2
+          mode: positive
+          appliesTo: weapon
+          canPositive: true
+          canNegative: true
+          procOn: onClash
+          procResult: win
+          procResultLocked: false
+          procStat: any
+          procDice: any
+          procAction: any
+          procCondition: ''
+          positive: Apply [N] Poise to the character
+          negative: Apply [N] Poise to the target
+          macro:
+            uuid: ''
+        - effectUuid: Item.EF8SLWIy9aIaZnrk
+          name: Gain Poise
+          cost: 2
+          stackMax: 5
+          stack: 2
+          count: 2
+          mode: positive
+          appliesTo: weapon
+          canPositive: true
+          canNegative: true
+          procOn: onClash
+          procResult: lose
+          procResultLocked: false
+          procStat: any
+          procDice: any
+          procAction: any
+          procCondition: ''
+          positive: Apply [N] Poise to the character
+          negative: Apply [N] Poise to the target
+          macro:
+            uuid: ''
+        - effectUuid: Item.CyL151WiDM9quAzm
+          name: Inflict Bleed
+          cost: 2
+          stackMax: 5
+          stack: 2
+          count: 2
+          mode: negative
+          appliesTo: weapon
+          canPositive: true
+          canNegative: true
+          procOn: onClash
+          procResult: lose
+          procResultLocked: false
+          procStat: any
+          procDice: any
+          procAction: any
+          procCondition: ''
+          positive: Apply [N] Bleed to the target
+          negative: Apply [N] Bleed to the character
+          macro:
+            uuid: ''
+      equipped: true
+      customNotes: ''
+      easyEffects: ''
+    _id: P1AKPoxdgrfzrapl
+    img: >-
+      systems/projectmoonttrpg/assets/icons/limbus_assets/Misc%20ID%20EGO%20Specific/Lodged%20Arrow.webp
+    effects: []
+    folder: null
+    sort: 0
+    ownership:
+      default: 0
+      yWsvx4DXrmYcZsue: 3
+    flags: {}
+    _stats:
+      coreVersion: '14.364'
+      systemId: projectmoonttrpg
+      systemVersion: 0.0.1
+      createdTime: 1785487721873
+      modifiedTime: 1785487793052
+      lastModifiedBy: yWsvx4DXrmYcZsue
+      compendiumSource: null
+      duplicateSource: null
+      exportSource: null
+    _key: '!actors.items!9sQc4J4HcU8RX32f.P1AKPoxdgrfzrapl'
+  - name: Shi Uniform
+    type: outfit
+    system:
+      name: ''
+      description: ''
+      slug: ''
+      outfitProperty: none
+      rank: 0
+      blockDice: 1d10+0
+      evadeDice: 1d12+0
+      blockDiceComputed: 1d10+0
+      evadeDiceComputed: 1d12+0
+      blockDicePower: 0
+      evadeDicePower: 0
+      bonusLight: 0
+      bonusEP: 0
+      effects:
+        - effectUuid: Item.k4UT90frsiewNGif
+          name: Evade Dice Power Up
+          cost: 8
+          stackMax: 5
+          stack: 1
+          count: 1
+          mode: positive
+          appliesTo: outfit
+          canPositive: true
+          canNegative: false
+          procOn: alwaysActive
+          procResult: none
+          procResultLocked: false
+          procStat: any
+          procDice: any
+          procAction: any
+          procCondition: ''
+          positive: Increase the Evade Dice Power by [N]
+          negative: ''
+          macro:
+            uuid: ''
+        - effectUuid: Item.elRjaw6R7LkIckkF
+          name: Inflict Bleed
+          cost: 2
+          stackMax: 5
+          stack: 2
+          count: 2
+          mode: negative
+          appliesTo: outfit
+          canPositive: true
+          canNegative: true
+          procOn: onClash
+          procResult: lose
+          procResultLocked: false
+          procStat: any
+          procDice: any
+          procAction: any
+          procCondition: ''
+          positive: Apply [N] Bleed to the target
+          negative: Apply [N] Bleed to the character
+          macro:
+            uuid: ''
+      resistances:
+        hp:
+          slash: normal
+          pierce: weak
+          blunt: normal
+        st:
+          slash: normal
+          pierce: weak
+          blunt: weak
+      equipped: true
+      customNotes: ''
+      easyEffects: ''
+    _id: MQ7fYA1bx9BDF26I
+    img: systems/projectmoonttrpg/assets/icons/associations/80px-Shi_Logo.webp
+    effects: []
+    folder: null
+    sort: 0
+    ownership:
+      default: 0
+      yWsvx4DXrmYcZsue: 3
+    flags: {}
+    _stats:
+      coreVersion: '14.364'
+      systemId: projectmoonttrpg
+      systemVersion: 0.0.1
+      createdTime: 1785487801628
+      modifiedTime: 1785487838771
+      lastModifiedBy: yWsvx4DXrmYcZsue
+      compendiumSource: null
+      duplicateSource: null
+      exportSource: null
+    _key: '!actors.items!9sQc4J4HcU8RX32f.MQ7fYA1bx9BDF26I'
+  - name: Assassination Target
+    type: augment
+    system:
+      name: ''
+      description: ''
+      slug: ''
+      rank: 1
+      effects:
+        - effectUuid: Item.WnccFgmOrQgyDVu0
+          name: Activate Protection
+          cost: 4
+          stackMax: 1
+          stack: 1
+          count: 1
+          mode: negative
+          appliesTo: augment
+          canPositive: true
+          canNegative: true
+          procOn: alwaysActive
+          procResult: none
+          procResultLocked: false
+          procStat: any
+          procDice: any
+          procAction: any
+          procCondition: At the start of each round,
+          positive: >-
+            <p>Apply 1 Protection and 1 Stagger Protection to the character for
+            every 25% Max HP Lost (Max of 3 each).</p>
+          negative: >-
+            <p>Apply 1 Fragile and 1 Stagger Fragile to the character for every
+            25% Max HP Lost (Max of 3 each).</p>
+          macro:
+            uuid: ''
+        - effectUuid: >-
+            Compendium.projectmoonttrpg.effects-pmttrpg-srd.Item.ZmhrznDCv4lvPMpb
+          name: Lone Fighter
+          cost: 2
+          stackMax: 3
+          stack: 2
+          count: 2
+          mode: positive
+          appliesTo: augment
+          canPositive: true
+          canNegative: false
+          procOn: alwaysActive
+          procResult: none
+          procResultLocked: false
+          procStat: any
+          procDice: any
+          procAction: any
+          procCondition: ''
+          positive: >-
+            <p>Gain [N] Dice Power during a [Attack/Defense Clash] against an
+            enemy within melee weapon range that has not had an Action taken
+            against them during this round or the previous round by any of this
+            character's allies.</p>
+
+            <p>This Effect cannot be activated if there are any allies within 2
+            SQRs of the character.</p>
+          negative: ''
+          macro:
+            uuid: ''
+        - effectUuid: >-
+            Compendium.projectmoonttrpg.effects-pmttrpg-srd.Item.QKkR4jBReemYWQet
+          name: Striker Stance
+          cost: 4
+          stackMax: 1
+          stack: 1
+          count: 1
+          mode: positive
+          appliesTo: augment
+          canPositive: true
+          canNegative: false
+          procOn: alwaysActive
+          procResult: none
+          procResultLocked: false
+          procStat: any
+          procDice: any
+          procAction: any
+          procCondition: ''
+          positive: >-
+            <p>By spending 1 Reaction, you may activate/swap to Striker
+            Stance.</p><p>[On Crit] with this Stance active, you may perform an
+            additional Attack, once per round.</p><p>This additional Attack must
+            use the same weapon, cannot use Skills, and rolls with -2 Dice
+            Power. If the Critical Hit was a result of a Defensive Reaction,
+            this Attack may be performed with any applicable held weapon.</p>
+          negative: ''
+          macro:
+            uuid: ''
+      customNotes: ''
+      easyEffects: ''
+      equipped: true
+    _id: K4nNaQ5iThS9KdUs
+    img: systems/projectmoonttrpg/assets/icons/Statuses/Mark_Assassin.webp
+    effects: []
+    folder: null
+    sort: 0
+    ownership:
+      default: 0
+      yWsvx4DXrmYcZsue: 3
+    flags: {}
+    _stats:
+      coreVersion: '14.364'
+      systemId: projectmoonttrpg
+      systemVersion: 0.0.1
+      createdTime: 1785487857244
+      modifiedTime: 1785503114776
+      lastModifiedBy: yWsvx4DXrmYcZsue
+      compendiumSource: null
+      duplicateSource: null
+      exportSource: null
+    _key: '!actors.items!9sQc4J4HcU8RX32f.K4nNaQ5iThS9KdUs'
+  - name: Preparing for the Strike
+    type: skill
+    system:
+      name: ''
+      description: ''
+      slug: ''
+      skillType: attack
+      rank: 1
+      lightCost: 1
+      innate: false
+      stat: for
+      effects:
+        - effectUuid: Item.Cz5VZPFyrKzW0jbE
+          name: Gain Critical
+          cost: 4
+          stackMax: 5
+          stack: 1
+          count: 1
+          mode: positive
+          appliesTo: skill
+          canPositive: true
+          canNegative: false
+          procOn: onClashResult
+          procResult: win
+          procResultLocked: false
+          procStat: any
+          procDice: any
+          procAction: any
+          procCondition: ''
+          positive: <p>Apply [N] Critical to the character.</p>
+          negative: ''
+          macro:
+            uuid: ''
+        - effectUuid: Item.EUMoSNacE4zxC5uh
+          name: Gain Poise
+          cost: 2
+          stackMax: 5
+          stack: 1
+          count: 1
+          mode: positive
+          appliesTo: skill
+          canPositive: true
+          canNegative: true
+          procOn: onClashResult
+          procResult: win
+          procResultLocked: false
+          procStat: any
+          procDice: any
+          procAction: any
+          procCondition: ''
+          positive: <p>Apply [N] Poise to the character.</p>
+          negative: <p>Apply [N] Poise to the target.</p>
+          macro:
+            uuid: ''
+        - effectUuid: Item.TluAhd1pBKWaLSme
+          name: Inflict Bleed
+          cost: 2
+          stackMax: 5
+          stack: 2
+          count: 2
+          mode: negative
+          appliesTo: skill
+          canPositive: true
+          canNegative: true
+          procOn: onClashResult
+          procResult: lose
+          procResultLocked: false
+          procStat: any
+          procDice: any
+          procAction: any
+          procCondition: ''
+          positive: <p>Apply [N] Bleed to the target.</p>
+          negative: <p>Apply [N] Bleed to the character.</p>
+          macro:
+            uuid: ''
+        - effectUuid: Item.qJCZpcsugAIjIeO4
+          name: Poise Pause
+          cost: 2
+          stack: 1
+          count: 1
+          mode: positive
+          appliesTo: skill
+          canPositive: true
+          canNegative: false
+          allowModeToggle: false
+          procOn: onUse
+          procResult: none
+          procResultLocked: false
+          procStat: any
+          procDice: any
+          procAction: any
+          procCondition: ''
+          stackMax: 1
+          positive: |-
+            <p>This skill cannot roll for Critical Hits.</p>
+            <p>You do not roll for Critical Hits for the rest of tthe round.</p>
+          negative: ''
+          macro:
+            uuid: ''
+      customNotes: ''
+      easyEffects: ''
+      equipped: true
+    _id: TgUFSMgwFej487g2
+    img: >-
+      systems/projectmoonttrpg/assets/icons/limbus_assets/Misc%20Enemy%20Exclusive/To%20Claim%20Their%20Bones/Grudge.webp
+    effects: []
+    folder: null
+    sort: 0
+    ownership:
+      default: 0
+      yWsvx4DXrmYcZsue: 3
+    flags: {}
+    _stats:
+      coreVersion: '14.364'
+      systemId: projectmoonttrpg
+      systemVersion: 0.0.1
+      createdTime: 1785503896639
+      modifiedTime: 1785504032269
+      lastModifiedBy: yWsvx4DXrmYcZsue
+      compendiumSource: null
+      duplicateSource: null
+      exportSource: null
+    _key: '!actors.items!9sQc4J4HcU8RX32f.TgUFSMgwFej487g2'
+effects: []
+sort: 0
+ownership:
+  default: 0
+  yWsvx4DXrmYcZsue: 3
+flags: {}
+_stats:
+  coreVersion: '14.364'
+  systemId: projectmoonttrpg
+  systemVersion: 0.0.1
+  createdTime: 1785487614480
+  modifiedTime: 1785503885707
+  lastModifiedBy: yWsvx4DXrmYcZsue
+  compendiumSource: null
+  duplicateSource: null
+  exportSource: null
+_key: '!actors!9sQc4J4HcU8RX32f'

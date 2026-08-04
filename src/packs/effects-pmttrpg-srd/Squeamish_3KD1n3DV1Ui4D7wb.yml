@@ -1,0 +1,44 @@
+folder: D0Fdq2brTzfHbYM5
+name: Squeamish
+type: effect
+img: systems/projectmoonttrpg/assets/icons/Statuses/Panic.webp
+system:
+  name: ''
+  description: ''
+  slug: squeamish
+  cost: 2
+  stackMax: 3
+  appliesTo: augment
+  canPositive: false
+  canNegative: true
+  procOn: alwaysActive
+  procResult: none
+  procResultLocked: false
+  procStat: any
+  procDice: any
+  procAction: any
+  procCondition: When the character defeats an opponent
+  positive: ''
+  negative: <p>Apply [N] Feeble to the character next round.</p>
+  macro:
+    uuid: ''
+  customNotes: ''
+  easyEffects: ''
+effects: []
+sort: 0
+ownership:
+  default: 0
+  yWsvx4DXrmYcZsue: 3
+flags: {}
+_stats:
+  compendiumSource: null
+  duplicateSource: Item.ZchlStCRzHuZVXi9
+  exportSource: null
+  coreVersion: '14.364'
+  systemId: projectmoonttrpg
+  systemVersion: 0.0.1
+  createdTime: 1785485134517
+  modifiedTime: 1785485134517
+  lastModifiedBy: yWsvx4DXrmYcZsue
+_id: 3KD1n3DV1Ui4D7wb
+_key: '!items!3KD1n3DV1Ui4D7wb'

@@ -12,7 +12,7 @@
       </div>
     </div>
     <div class="item-controls">
-      {{> "systems/projectmoonttrpg/templates/sheet/npc/partials/item-controls-loadout.hbs" itemId=item._id locked=locked}}
+      {{> "systems/projectmoonttrpg/templates/sheet/npc/partials/item-controls-loadout.hbs" itemId=item._id locked=locked equippable=true equipped=item.system.equipped handProperty=item.system.handProperty}}
     </div>
   </div>
   <div class="item-details">

@@ -367,6 +367,8 @@ That's all — no changes to the lexer, parser, or interpreter.
 | `pmttrpg.clashResolved` | `{ winner, loser, attackerItem, defenderItem, attackerRoll, defenderRoll }` | `[Clash Win]`, `[Clash Lose]` |
 | `pmttrpg.attackConnected` | `{ attacker, defender, item }` | `[On Hit]` |
 | `pmttrpg.actorStaggered` | `{ actor, attacker }` | `[On Stagger]` |
+| `pmttrpg.statusApplied` | `{ actor, item, statusName, stacks }` | `[On Applied]` |
+| `pmttrpg.statusRemoved` | `{ actor, item, statusName }` | `[On Removed]` |
 | `pmttrpg.turnStart` | `{ actor }` | `[Turn Start]` |
 
 ---

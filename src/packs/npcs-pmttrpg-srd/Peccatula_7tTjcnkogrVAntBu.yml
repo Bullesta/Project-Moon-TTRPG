@@ -1,0 +1,20 @@
+type: Actor
+folder: Pgl0BdCF2H97flf9
+name: Peccatula
+color: '#730075'
+sorting: a
+_id: 7tTjcnkogrVAntBu
+description: ''
+sort: 0
+flags: {}
+_stats:
+  coreVersion: '14.364'
+  systemId: projectmoonttrpg
+  systemVersion: 0.0.1
+  createdTime: 1785516259434
+  modifiedTime: 1785516259434
+  lastModifiedBy: yWsvx4DXrmYcZsue
+  compendiumSource: null
+  duplicateSource: null
+  exportSource: null
+_key: '!folders!7tTjcnkogrVAntBu'

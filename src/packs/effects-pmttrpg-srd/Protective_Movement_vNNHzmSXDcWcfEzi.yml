@@ -1,0 +1,49 @@
+folder: 8t5xinoxx4XtmQBl
+name: Protective Movement
+type: effect
+img: systems/projectmoonttrpg/assets/icons/Statuses/Protection.webp
+system:
+  name: ''
+  description: ''
+  slug: protective-movement
+  cost: 4
+  stackMax: 1
+  appliesTo: augment
+  canPositive: true
+  canNegative: false
+  procOn: alwaysActive
+  procResult: none
+  procResultLocked: false
+  procStat: any
+  procDice: any
+  procAction: any
+  procCondition: When you use the Protect Action
+  positive: >-
+    <p>You can move to be adjacent to any ally being attacked out of your turn
+    as long as you have movement left.</p>
+
+    <p>Each SQR you move out of your turn counts as 2 SQRs of movement of your
+    movement action.</p>
+  negative: ''
+  macro:
+    uuid: ''
+  customNotes: ''
+  easyEffects: ''
+effects: []
+sort: 0
+ownership:
+  default: 0
+  yWsvx4DXrmYcZsue: 3
+flags: {}
+_stats:
+  compendiumSource: null
+  duplicateSource: Item.OwUIwjQoo2jMvVBC
+  exportSource: null
+  coreVersion: '14.364'
+  systemId: projectmoonttrpg
+  systemVersion: 0.0.1
+  createdTime: 1785485122326
+  modifiedTime: 1785485122326
+  lastModifiedBy: yWsvx4DXrmYcZsue
+_id: vNNHzmSXDcWcfEzi
+_key: '!items!vNNHzmSXDcWcfEzi'

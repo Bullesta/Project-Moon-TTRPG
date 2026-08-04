@@ -1,0 +1,41 @@
+name: Feeble
+type: status
+_id: 8JC76hnE3mm8xDbo
+img: >-
+  systems/projectmoonttrpg/assets/icons/limbus_assets/Basic%20Effects/DMG%20Down/Damage%20Down.webp
+system:
+  name: ''
+  description: >-
+    <p>Decrease the Power of Offensive Dice by the number of Feeble
+    stack.</p><p>At the end of the Round, lose all Feeble.</p>
+  slug: ''
+  stacks: 1
+  stackMax: 0
+  priority: 0
+  macro:
+    uuid: ''
+  customNotes: ''
+  easyEffects: |-
+    [On Clash Start]
+    power down attack Feeble
+
+    [End of Round]
+    remove Feeble Feeble
+effects: []
+folder: jtSvJ9E0Hm5t7NVJ
+sort: 112500
+ownership:
+  default: 0
+  yWsvx4DXrmYcZsue: 3
+flags: {}
+_stats:
+  coreVersion: '14.364'
+  systemId: projectmoonttrpg
+  systemVersion: 0.0.1
+  createdTime: 1785318638916
+  modifiedTime: 1785426706064
+  lastModifiedBy: yWsvx4DXrmYcZsue
+  compendiumSource: null
+  duplicateSource: null
+  exportSource: null
+_key: '!items!8JC76hnE3mm8xDbo'
