@@ -131,46 +131,27 @@ Hooks.once("init", async function() {
   });
 
   // Configurable system settings.
-  game.settings.register("projectmoonttrpg", "xpFormula", {
-    name: game.i18n.localize("PMTTRPG.Settings.xpFormula.name"),
-    hint: game.i18n.localize("PMTTRPG.Settings.xpFormula.hint"),
-    scope: "world",
-    config: true,
-    type: String,
-    default: "@attributes.level.value + 7"
-  });
-
-  game.settings.register("projectmoonttrpg", "enableDamageButtons", {
-    name: game.i18n.localize("PMTTRPG.Settings.enableDamageButtons.name"),
-    hint: game.i18n.localize("PMTTRPG.Settings.enableDamageButtons.hint"),
-    scope: 'world',
-    config: true,
-    type: Boolean,
-    default: true
-  });
 
   let browserDefaultColor = false;
   if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
     browserDefaultColor = true;
   }
 
-  game.settings.register("projectmoonttrpg", "noCompendiumAutoData", {
-    name: game.i18n.localize("PMTTRPG.Settings.noCompendiumAutoData.name"),
-    hint: game.i18n.localize("PMTTRPG.Settings.noCompendiumAutoData.hint"),
+  game.settings.register("projectmoonttrpg", "sanityFormula", {
+    name: game.i18n.localize("PMTTRPG.Settings.sanityFormula.name"),
+    hint: game.i18n.localize("PMTTRPG.Settings.sanityFormula.hint"),
     scope: 'world',
     config: true,
-    type: Boolean,
-    default: false,
-    onChange: () => window.location.reload()
-  });
-
-  game.settings.register("projectmoonttrpg", "compendiumPrefix", {
-    name: game.i18n.localize("PMTTRPG.Settings.compendiumPrefix.name"),
-    hint: game.i18n.localize("PMTTRPG.Settings.compendiumPrefix.hint"),
-    scope: 'world',
-    config: true,
-    type: String,
-    default: '',
+    type: new foundry.data.fields.StringField({
+      choices: {
+        "cr": "CR: [15 + (Prudence*3)]",
+        "maxos1": "Maxo's Quickfix 1: [15 + (Rank*3) + (Prudence*3)]",
+        "maxos2": "Maxo's Quickfix 2: [15 + (Prudence*6)]",
+      },
+      blank: false,
+      required: true
+    }),
+    default: 'cr',
     onChange: () => window.location.reload()
   });
 

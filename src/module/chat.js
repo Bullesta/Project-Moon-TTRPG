@@ -10,10 +10,6 @@ import { getClashStateFromMessage } from "./combat/clash-chat.js"
 export const displayChatActionButtons = function(message, html, data) {
   const chatCard = html.querySelector?.(".PMTTRPG.chat-card") ?? null;
 
-  if (!game.settings.get("projectmoonttrpg", "enableDamageButtons")) {
-    html.querySelectorAll?.(".chat-damage-buttons").forEach(el => el.style.display = "none");
-  }
-
   // Sync damage type from flags if the card did not include one.
   const flaggedType = message?.flags?.projectmoonttrpg?.damageType;
   $(html).find(".chat-damage-buttons").each((_, el) => {
