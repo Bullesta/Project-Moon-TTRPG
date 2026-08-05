@@ -23,7 +23,7 @@ const ABILITY_DEFS = [
 const TRACKER_DEFS = [
   { key: "hp", attr: "hp", icon: "HPicon.webp", labelKey: "PMTTRPG.TrackerHP" },
   { key: "st", attr: "st", icon: "01_stagger.webp", labelKey: "PMTTRPG.TrackerST" },
-  { key: "sp", attr: "sp", icon: "00_sanity.webp", labelKey: "PMTTRPG.TrackerSP" },
+  { key: "sp", attr: "sp", icon: "00_sanity.webp", labelKey: "PMTTRPG.TrackerSP"},
   { key: "lt", attr: "light", icon: "00_light.webp", labelKey: "PMTTRPG.TrackerLT" },
 ];
 
@@ -260,6 +260,24 @@ export class PMTTRPGCharacterSheet extends HandlebarsApplicationMixin(ActorSheet
     context.locked = !(context.editable && this.#editMode);
     context.assetPath = ASSET_PATH;
     context.profileHeader = this._buildProfileHeader(context.system.attributes ?? {});
+
+    // update tracker defs with dynamic icon data
+    for(const def of TRACKER_DEFS) {
+      switch(def.key) {
+        case "sp":
+          def.visualIconOverride = {
+            pool: this.actor.system.attributes.sp,
+            iconDefinition: CONFIG.PMTTRPG.sanityVisualThresholds
+          }
+
+          if(this.actor.system.panicType !== "none") {
+            // TODO: Panic icon override
+          }
+          break;
+        default:
+          break;
+      }
+    }
     context.trackers = TRACKER_DEFS.map(def => this._buildTracker(def, context.system.attributes?.[def.attr]));
     context.resistRows = this._buildResistanceRows();
     context.rollableAttributes = ABILITY_DEFS.map(def => ({
@@ -313,11 +331,26 @@ export class PMTTRPGCharacterSheet extends HandlebarsApplicationMixin(ActorSheet
         c: game.i18n.format("PMTTRPG.TrackerBonusMax", { tracker: short }),
       };
 
+    let icon = `${ASSET_PATH}/${def.icon}`;
+
+    if(def.visualIconOverride) {
+      const value = def.visualIconOverride.pool.value;
+      const max = def.visualIconOverride.pool.max;
+      const percentage = (value / max) * 100;
+
+      icon = def.visualIconOverride.iconDefinition[0].icon;
+
+      for(const threshold of def.visualIconOverride.iconDefinition) {
+        if(threshold.activateIntervalPercent[0] <= percentage && percentage < threshold.activateIntervalPercent[1]) 
+          icon = threshold.icon;
+      } 
+    }
+
     return {
       key: def.key,
       attr: def.attr,
       short,
-      icon: `${ASSET_PATH}/${def.icon}`,
+      icon,
       isLight,
       open: this.#editMode || this.#expanded.has(def.key),
       value,
