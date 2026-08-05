@@ -127,21 +127,11 @@ export class PMTTRPGUtility {
 
   static async loadCompendia(slug) {
 
-    const compendium = []
+    const compendium = [];
 
-    const noCompendiumAutoData = game.settings.get('projectmoonttrpg', 'noCompendiumAutoData');
-    if (!noCompendiumAutoData) {
-      const pack_id = `projectmoonttrpg.${slug}`;
-      const pack = game.packs.get(pack_id);
-      compendium.push(...(pack ? await pack.getDocuments() : []));
-    }
-
-    const compendiumPrefix = game.settings.get('projectmoonttrpg', 'compendiumPrefix');
-    if (compendiumPrefix != '') {
-      const pack_id = `${compendiumPrefix.toLowerCase()}-${slug}`;
-      const pack = game.packs.find(p => {return p.metadata?.name?.indexOf(pack_id) >= 0});
-      compendium.push(...(pack ? await pack.getDocuments() : []));
-    }
+    const pack_id = `projectmoonttrpg.${slug}`;
+    const pack = game.packs.get(pack_id);
+    compendium.push(...(pack ? await pack.getDocuments() : []));
 
     return compendium
 
