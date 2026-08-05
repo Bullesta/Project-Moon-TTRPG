@@ -1573,9 +1573,11 @@
   align-items: center;
   justify-content: center;
   min-height: 0;
-  height: 100%;
+  height: 110%;
+  width: 100%;
+  scale: 71%;
   border-radius: 0;
-  overflow: hidden;
+  overflow: visible;
 }
 
 .pm-sheet .item-resist-tile__icon {
