@@ -448,7 +448,8 @@
   position: absolute;
   top: 0;
   width: 33.33%;
-  height: 100%;
+  height: 90%;
+  scale: 90%;
 }
 
 .pm-sheet .resist .tile:nth-child(1) { left: 0; }
@@ -460,7 +461,6 @@
   inset: 0;
   width: 100%;
   height: 100%;
-  object-fit: cover;
 }
 
 .pm-sheet .resist .tile .mult {
