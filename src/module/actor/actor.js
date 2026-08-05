@@ -227,17 +227,7 @@ export class ActorPMTTRPG extends Actor {
     actorData.flags.projectmoonttrpg.initiative.macroMisc = Number(actorData.flags.projectmoonttrpg.initiative.macroMisc) || 0;
 
     // Handle max XP.
-    let rollData = this.getRollData();
-    if (!rollData.attributes.level.value) rollData.attributes.level.value = 0;
-    let xpRequiredFormula = game.settings.get('projectmoonttrpg', 'xpFormula');
-    let xpRequired = parseInt(xpRequiredFormula)
-    if (isNaN(xpRequired)) {
-      // Evaluate the max XP roll.
-      let xpRequiredRoll = new Roll(xpRequiredFormula, this.getRollData());
-      xpRequiredRoll.evaluateSync();
-      xpRequired = xpRequiredRoll?.total ?? Number(data.attributes.level.value) + 7;
-    }
-    data.attributes.xp.max = xpRequired;
+    data.attributes.xp.max = 8;
 
     // Handle roll mode flag.
     if (actorData?.flags?.projectmoonttrpg) {
