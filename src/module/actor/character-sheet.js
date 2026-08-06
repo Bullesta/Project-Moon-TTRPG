@@ -346,9 +346,9 @@ export class PMTTRPGCharacterSheet extends HandlebarsApplicationMixin(ActorSheet
       const max = def.visualIconOverride.pool.max;
       const percentage = (value / max) * 100;
 
-      if(def.key === "sp") {
-        const panicType = this.actor.items.find(i => i.type === "status" && /.*Panic.*/.exec(i.name));
-        if(panicType) icon = panicType.img;
+      const panicType = this.actor.items.find(i => i.type === "status" && /.*Panic.*/.exec(i.name));
+      if(def.key === "sp" && panicType) {
+        icon = panicType.img;
       } else {
         icon = def.visualIconOverride.iconDefinition[0].icon;
 
