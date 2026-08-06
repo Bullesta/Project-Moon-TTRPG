@@ -123,9 +123,20 @@ export class ActorPMTTRPG extends Actor {
     } else {
       data.attributes.st.value = Math.clamp(Number(data.attributes.st.value) || 0, 0, data.attributes.st.max);
     }
-
     // Sanity Points (SP): 15 + (Prudence*3)
-    const spMaxBase = 15 + (pru * 3);
+    let spMaxBase = 15 + (pru * 3);
+    switch(game.settings.get('projectmoonttrpg', 'sanityFormula')) {
+      case "maxos1":
+        spMaxBase = 15 + (rank * 3) + (pru * 3);
+        break;
+      case "maxos2":
+        spMaxBase = 15 + (pru * 6);
+        break;
+      default:
+        spMaxBase = 15 + (pru * 3);
+        break;
+    }
+
     data.attributes.sp = data.attributes.sp || {};
     data.attributes.sp.maxBase = spMaxBase;
     data.attributes.sp.maxMisc = Number(data.attributes.sp.maxMisc) || 0;
@@ -216,17 +227,7 @@ export class ActorPMTTRPG extends Actor {
     actorData.flags.projectmoonttrpg.initiative.macroMisc = Number(actorData.flags.projectmoonttrpg.initiative.macroMisc) || 0;
 
     // Handle max XP.
-    let rollData = this.getRollData();
-    if (!rollData.attributes.level.value) rollData.attributes.level.value = 0;
-    let xpRequiredFormula = game.settings.get('projectmoonttrpg', 'xpFormula');
-    let xpRequired = parseInt(xpRequiredFormula)
-    if (isNaN(xpRequired)) {
-      // Evaluate the max XP roll.
-      let xpRequiredRoll = new Roll(xpRequiredFormula, this.getRollData());
-      xpRequiredRoll.evaluateSync();
-      xpRequired = xpRequiredRoll?.total ?? Number(data.attributes.level.value) + 7;
-    }
-    data.attributes.xp.max = xpRequired;
+    data.attributes.xp.max = 8;
 
     // Handle roll mode flag.
     if (actorData?.flags?.projectmoonttrpg) {
