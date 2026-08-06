@@ -269,10 +269,6 @@ export class PMTTRPGCharacterSheet extends HandlebarsApplicationMixin(ActorSheet
             pool: this.actor.system.attributes.sp,
             iconDefinition: CONFIG.PMTTRPG.sanityVisualThresholds
           }
-
-          if(this.actor.system.panicType !== "none") {
-            // TODO: Panic icon override
-          }
           break;
         default:
           break;
@@ -338,12 +334,18 @@ export class PMTTRPGCharacterSheet extends HandlebarsApplicationMixin(ActorSheet
       const max = def.visualIconOverride.pool.max;
       const percentage = (value / max) * 100;
 
-      icon = def.visualIconOverride.iconDefinition[0].icon;
+      const panicType = this.actor.items.find(i => i.type === "status" && /.*Panic.*/.exec(i.name));
 
-      for(const threshold of def.visualIconOverride.iconDefinition) {
-        if(threshold.activateIntervalPercent[0] <= percentage && percentage < threshold.activateIntervalPercent[1]) 
-          icon = threshold.icon;
-      } 
+      if(panicType) {
+        icon = panicType.img;
+      } else {
+        icon = def.visualIconOverride.iconDefinition[0].icon;
+
+        for(const threshold of def.visualIconOverride.iconDefinition) {
+          if(threshold.activateIntervalPercent[0] <= percentage && percentage < threshold.activateIntervalPercent[1]) 
+            icon = threshold.icon;
+        } 
+      }
     }
 
     return {

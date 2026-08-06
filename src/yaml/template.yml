@@ -112,8 +112,6 @@ Actor:
       speed:
         dice: "1d6"
         bonus: 0
-      panicType:
-        value: "none"
     abilities:
       for:
         value: 0
