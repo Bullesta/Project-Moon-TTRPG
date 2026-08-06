@@ -21,9 +21,9 @@ const ABILITY_DEFS = [
 ];
 
 const TRACKER_DEFS = [
-  { key: "hp", attr: "hp", icon: "HPicon.webp", labelKey: "PMTTRPG.TrackerHP" },
-  { key: "st", attr: "st", icon: "01_stagger.webp", labelKey: "PMTTRPG.TrackerST" },
-  { key: "sp", attr: "sp", icon: "00_sanity.webp", labelKey: "PMTTRPG.TrackerSP"},
+  { key: "hp", attr: "hp", icon: "hp_healthy.webp", labelKey: "PMTTRPG.TrackerHP" },
+  { key: "st", attr: "st", icon: "Guard_Stagger.webp", labelKey: "PMTTRPG.TrackerST" },
+  { key: "sp", attr: "sp", icon: "SanityIcons_SanityBase.webp", labelKey: "PMTTRPG.TrackerSP"},
   { key: "lt", attr: "light", icon: "00_light.webp", labelKey: "PMTTRPG.TrackerLT" },
 ];
 
@@ -264,6 +264,18 @@ export class PMTTRPGCharacterSheet extends HandlebarsApplicationMixin(ActorSheet
     // update tracker defs with dynamic icon data
     for(const def of TRACKER_DEFS) {
       switch(def.key) {
+        case "hp":
+          def.visualIconOverride = {
+            pool: this.actor.system.attributes.hp,
+            iconDefinition: CONFIG.PMTTRPG.healthVisualThresholds
+          }
+          break;
+        case "st":
+          def.visualIconOverride = {
+            pool: this.actor.system.attributes.st,
+            iconDefinition: CONFIG.PMTTRPG.staggerVisualThresholds
+          }
+          break;
         case "sp":
           def.visualIconOverride = {
             pool: this.actor.system.attributes.sp,
@@ -334,10 +346,9 @@ export class PMTTRPGCharacterSheet extends HandlebarsApplicationMixin(ActorSheet
       const max = def.visualIconOverride.pool.max;
       const percentage = (value / max) * 100;
 
-      const panicType = this.actor.items.find(i => i.type === "status" && /.*Panic.*/.exec(i.name));
-
-      if(panicType) {
-        icon = panicType.img;
+      if(def.key === "sp") {
+        const panicType = this.actor.items.find(i => i.type === "status" && /.*Panic.*/.exec(i.name));
+        if(panicType) icon = panicType.img;
       } else {
         icon = def.visualIconOverride.iconDefinition[0].icon;
 

@@ -84,3 +84,45 @@ PMTTRPG.sanityVisualThresholds = [
     activateIntervalPercent: [-1, 1] 
   }
 ]
+
+PMTTRPG.staggerVisualThresholds = [
+  {
+    icon: "systems/projectmoonttrpg/assets/icons/sheet/Guard_Stagger_Undamaged.webp",
+    activateIntervalPercent: [90, 100],
+  },
+  {
+    icon: "systems/projectmoonttrpg/assets/icons/sheet/Guard_Stagger.webp",
+    activateIntervalPercent: [50, 90] 
+  },
+  {
+    icon: "systems/projectmoonttrpg/assets/icons/sheet/Guard_Stagger_Damaged1.webp",
+    activateIntervalPercent: [1, 50] 
+  },
+  {
+    icon: "systems/projectmoonttrpg/assets/icons/sheet/Guard_Stagger_Damaged1_Greyed.webp",
+    activateIntervalPercent: [-1, 1] 
+  }
+]
+
+PMTTRPG.healthVisualThresholds = [
+  {
+    icon: "systems/projectmoonttrpg/assets/icons/sheet/hp_healthyplus.webp",
+    activateIntervalPercent: [90, 100],
+  },
+  {
+    icon: "systems/projectmoonttrpg/assets/icons/sheet/hp_healthy.webp",
+    activateIntervalPercent: [50, 90] 
+  },
+  {
+    icon: "systems/projectmoonttrpg/assets/icons/sheet/hp_damaged.webp",
+    activateIntervalPercent: [25, 50] 
+  },
+  {
+    icon: "systems/projectmoonttrpg/assets/icons/sheet/hp_broken.webp",
+    activateIntervalPercent: [1, 25] 
+  },
+  {
+    icon: "systems/projectmoonttrpg/assets/icons/sheet/hp_gray.webp",
+    activateIntervalPercent: [-1, 1] 
+  }
+]
