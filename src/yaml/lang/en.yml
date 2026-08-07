@@ -30,8 +30,6 @@ PMTTRPG.Rank: "Rank"
 PMTTRPG.Level: "Level"
 PMTTRPG.XP: "Experience"
 
-PMTTRPG.StatPoints: "Stat Points"
-
 PMTTRPG.EquipmentRankLimit: "Equipment Rank Limit"
 PMTTRPG.ToolSlots: "Tool Slots"
 PMTTRPG.ToolSlotsUsed: "Tool Slots"

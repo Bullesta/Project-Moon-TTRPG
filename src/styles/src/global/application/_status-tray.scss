@@ -15,7 +15,7 @@
   gap: 0.3rem;
   height: fit-content;
   max-height: calc(100% - 165px);
-  overflow: auto;
+  overflow: visible;
   border: 0;
   background: transparent;
   box-shadow: none;
@@ -51,6 +51,35 @@
 
 .pmttrpg-status-tray__item:hover {
   border-color: rgba(243, 194, 103, 0.7);
+}
+
+@keyframes pulsate {
+    0% { 
+      border-color: rgba(217, 0, 0, 0.6); 
+      transform: scale(1);
+    }
+    25% { 
+      border-color: rgba(217, 0, 0, 1); 
+      transform: scale(1.2) rotate(5deg);
+    }
+    50% { 
+      border-color: rgba(217, 0, 0, 0.6); 
+      transform: scale(1);
+    }
+    75% { 
+      border-color: rgba(217, 0, 0, 1); 
+      transform: scale(1.2) rotate(-5deg);
+    }
+    100% { 
+      border-color: rgba(217, 0, 0, 0.6); 
+      transform: scale(1);
+    }
+}
+
+.pmttrpg-status-tray__item.unstackable {
+  border: 2px solid;
+  border-color: rgba(217, 0, 0, 0.7);
+  animation: pulsate 5s infinite;
 }
 
 .pmttrpg-status-tray__icon {
