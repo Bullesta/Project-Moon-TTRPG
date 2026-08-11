@@ -9,10 +9,18 @@ system:
   stacks: 1
   stackMax: 0
   priority: 0
-  macro:
-    uuid: ''
   customNotes: ''
-  easyEffects: ''
+  easyEffects: |-
+    [On Hit]
+    on roll 1d10 <= Poise then
+      proc Critical
+      and lose all Poise on self;
+
+    [On Gain]
+    require (changed.before) == 0 then set Critical to 1;
+
+    [On Lose]
+    require (changed.after) == 0 then set Critical to 0;
   proc:
     turnStart: false
     endOfRound: false

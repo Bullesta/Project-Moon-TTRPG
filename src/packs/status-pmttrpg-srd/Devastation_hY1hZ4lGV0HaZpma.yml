@@ -9,12 +9,11 @@ system:
   stacks: 1
   stackMax: 0
   priority: 0
-  macro:
-    uuid: ''
   customNotes: ''
   easyEffects: |-
     [On Devastation]
-    deal 1d8 hp damage per Devastation on target
+    deal 1d8 hp damage per Devastation to self;
+    lose all Devastation on self;
   proc:
     turnStart: false
     endOfRound: false

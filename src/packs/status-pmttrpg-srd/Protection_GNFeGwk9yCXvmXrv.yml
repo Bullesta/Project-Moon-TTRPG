@@ -12,12 +12,10 @@ system:
   stacks: 1
   stackMax: 0
   priority: 0
-  macro:
-    uuid: ''
   customNotes: ''
   easyEffects: |-
     [On Taking HP Damage]
-    reduce damage by Protection
+    reduce damage by Protection after resistances
 
     [End of Round]
     remove Protection Protection on self

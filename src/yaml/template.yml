@@ -4,6 +4,8 @@ Actor:
     - npc
   templates:
     base:
+      easyEffects: ''
+      easyEffectsWorldSync: true
       attributes:
         hp:
           value: 96
@@ -242,7 +244,7 @@ Item:
     templates:
       - base
     weaponType: melee
-    damageType: slash
+    damageType: none
     damageTypeFixed: false
     formProperty: null
     handProperty: null
@@ -358,7 +360,9 @@ Item:
     stacks: 1
     stackMax: 0
     priority: 0
-    macro:
-      uuid: ''
+    pending: false
+    arrival: ''
+    shelved: false
+    origin: ''
     customNotes: ''
     easyEffects: ''

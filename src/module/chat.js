@@ -5,7 +5,7 @@ import {
   getActorWeaponDamageType,
 } from "./damage-application.js";
 
-import { getClashStateFromMessage } from "./combat/clash-chat.js"
+import { getClashStateFromMessage, enhanceClashRollBreakdown } from "./combat/clash-chat.js"
 
 export const displayChatActionButtons = function(message, html, data) {
   const chatCard = html.querySelector?.(".PMTTRPG.chat-card") ?? null;
@@ -29,6 +29,11 @@ export const displayChatActionButtons = function(message, html, data) {
       $(html).find('button[data-action="revert-damage"]').remove();
     }
     enhanceDamageTakenCard(message, html[0] ?? html);
+  }
+
+  const root = html?.[0] ?? html;
+  if (root?.querySelector?.(".clash-card")) {
+    enhanceClashRollBreakdown(message, root);
   }
 
   if ( chatCard && chatCard.length > 0 ) {

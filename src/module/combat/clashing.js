@@ -1,7 +1,7 @@
 /**
  * Public API for the clash system. Orchestrates all phases:
  *
- *   1. initiateAttack()         — attacker rolls, attack card posted
+ *   1. initiateAttack()         — attack card posted, waiting for a retaliator
  *   2. handleRetaliateClick()   — retaliator chosen, dialog shown
  *   3. _executeClash()          — both rolls made, result computed
  *
@@ -46,39 +46,18 @@ import {
   promptRangedCounterAmmo,
 } from "./clash-dialog.js";
 
-import { createClashContext } from "../easy-effects/registry.js";
+import { createClashContext, emitAttackConnected, emitClashStarted, emitClashResolved } from "../easy-effects/registry.js";
 
 // ── Phase 1: Initiate Attack ──────────────────────────────────────────────────
 
 /**
  * Called when an actor makes an attack with a weapon.
- * Rolls the attack, posts the attack card, and waits for a retaliator.
+ * Posts the attack card and waits for a retaliator (rolls happen in _executeClash).
  *
  * @param {AttackPayload} attackPayload
  * @returns {Promise<void>}
  */
 export async function initiateAttack(attackPayload) {
-  // Create a fresh clash context so EasyEffects On Clash Start can write bonuses.
-  const clashCtx = createClashContext(attackPayload.roll, 0);
-
-  // Fire On Clash Start for any [Always Active] bonus application.
-  const defenderActor = attackPayload.target ?? null;
-  Hooks.callAll("pmttrpg.clashStarted", {
-    attacker:       attackPayload.actor,
-    defender:       attackPayload.target,
-    attackerItem:   attackPayload.item,
-    defenderItem:   null,
-    clash:          clashCtx,
-  });
-
-  // Roll the attack, applying any bonuses accumulated by On Clash Start.
-  // const attackResult = await rollAttack(attacker, weaponItem, clashCtx.bonuses);
-
-  // Update clash context with the real roll.
-  clashCtx.attackerRoll  = attackPayload.roll;
-  clashCtx.defenderRoll  = 0;
-  clashCtx.margin        = 0;
-
   // Create a temporary message to get an ID, then use that ID in the state.
   // This way the buttons have data-message-id when they render.
   const tempMessage = await ChatMessage.create({
@@ -88,27 +67,38 @@ export async function initiateAttack(attackPayload) {
     flags: { [CLASH_FLAG_SCOPE]: { [CLASH_FLAG_KEY]: null } },
   });
 
+  const dryFireShort = game.i18n.localize("PMTTRPG.Clash.DryFireShort");
+  const attackerItemName = attackPayload.templateData?.dryFire
+    ? `${attackPayload.item.name} · ${dryFireShort}`
+    : (attackPayload.templateData?.ammoName
+      ? `${attackPayload.item.name} · ${attackPayload.templateData.ammoName}`
+      : attackPayload.item.name);
+
   const state = createClashState({
     attackerActorId:   attackPayload.actorId,
     attackerTokenId:   attackPayload.actor.getActiveTokens(true)[0]?.id ?? null,
     attackerName:      attackPayload.actor.name,
     attackerImg:       attackPayload.actor.img,
     attackerItemId:    attackPayload.itemId,
-    attackerItemName:  attackPayload.item.name,
+    attackerItemName,
     targetActorId:     attackPayload.targetActorId   ?? null,
     targetTokenId:     attackPayload.targetTokenId   ?? null,
     targetName:        attackPayload.targetName      ?? null,
     targetImg:         attackPayload.targetImg       ?? null,
-    attackRollTotal:   attackPayload.roll.total,
-    attackRollFormula: attackPayload.templateData.formula,
-    damageType:        attackPayload.item.system?.damageType ?? "slash",
+    attackRollTotal:   null,
+    attackRollFormula: null,
+    attackRollTerms:   null,
+    damageType:        attackPayload.templateData?.damageType
+      || attackPayload.item.system?.damageType
+      || "none",
     attackMessageId:   tempMessage.id,
+    clashBonuses:      null,
+    attackRollBreakdown: null,
+    appliedToolId:     attackPayload.templateData?.appliedToolId ?? null,
+    attackerDryFire:   attackPayload.templateData?.dryFire === true,
   });
 
-
-  console.log(state);
-
-  await postAttackCard(state, attackPayload.roll, tempMessage.id);
+  await postAttackCard(state, null, tempMessage.id);
 }
 
 // ── Phase 2: Retaliate Button Clicked ────────────────────────────────────────
@@ -152,8 +142,6 @@ export async function handleRetaliateClick(state, { isIntercept = false } = {}) 
     choice.dryFire = ammoPick.dryFire;
   }
 
-  console.log(choice);
-
   // Lock the card immediately so no one else retaliates.
   state.phase               = CLASH_PHASES.ROLLING;
   state.retaliatorActorId   = retaliatorActor.id;
@@ -186,6 +174,9 @@ export async function handleRetaliateClick(state, { isIntercept = false } = {}) 
 async function _executeClash(state, retaliatorActor, choice) {
   const attackerActor = canvas.tokens.get(state?.attackerTokenId ?? null)?.actor ?? game.actors.get(state.attackerActorId) ?? null;
   let attackerItem   = attackerActor?.items.get(state.attackerItemId) ?? null;
+  const appliedTool  = state.appliedToolId
+    ? (attackerActor?.items.get(state.appliedToolId) ?? null)
+    : null;
 
   if(choice.type === RETALIATION_TYPES.ONESIDED) {
     choice.item = null;
@@ -209,31 +200,86 @@ async function _executeClash(state, retaliatorActor, choice) {
 
   const counterDryFire = choice.type === RETALIATION_TYPES.COUNTER
     && (_isRangedWeapon(choice.item) && (choice.dryFire === true || !choice.ammo));
-  const defenseRollOptions = counterDryFire ? { disadvantage: true } : {};
 
   // Rebuild clash context so EasyEffects On Clash can add bonuses before the roll.
-  const clashCtx = createClashContext(state.attackRollTotal, 0);
-
-  Hooks.callAll("pmttrpg.clashStarted", {
+  const clashCtx = createClashContext();
+  const clashPayloadBase = {
     attacker:     attackerActor,
     defender:     retaliatorActor,
     attackerItem,
     defenderItem: choice.item ?? null,
+    appliedTool,
+    retaliationType: choice.type,
     clash:        clashCtx,
-  });
+  };
 
-  // Roll defense, then reroll both sides on ties.
-  let attackTotal = state.attackRollTotal;
-  let defenseResult = await _rollDefense(retaliatorActor, choice, attackerItem, clashCtx.bonuses, defenseRollOptions);
+  await emitClashStarted({ ...clashPayloadBase, side: "attacker" });
+  await emitClashStarted({ ...clashPayloadBase, side: "defender" });
+
+  if (state.attackerDryFire) {
+    clashCtx.bonuses.attacker.disadvantage =
+      (Number(clashCtx.bonuses.attacker.disadvantage) || 0) + 1;
+  }
+  if (counterDryFire) {
+    clashCtx.bonuses.defender.disadvantage =
+      (Number(clashCtx.bonuses.defender.disadvantage) || 0) + 1;
+  }
+
+  state.clashBonuses = foundry.utils.deepClone(clashCtx.bonuses);
+
+  let [attackResult, defenseResult] = await Promise.all([
+    rollAttack(attackerActor, attackerItem, clashCtx.bonuses.attacker),
+    _rollDefense(
+      retaliatorActor,
+      choice,
+      attackerItem,
+      clashCtx.bonuses.defender,
+    ),
+  ]);
+
+  let attackTotal = attackResult.total;
+  state.attackRollTotal = attackTotal;
+  state.attackRollFormula = attackResult.formula;
+  state.attackRollTerms = attackResult.terms;
+  state.attackRollBreakdown = attackResult.breakdown ?? null;
+
+  try {
+    await game.projectmoonttrpg?.statusMacros?.emitAttackRoll({
+      actor: attackerActor,
+      actorId: attackerActor?.id ?? null,
+      item: attackerItem,
+      itemId: attackerItem?.id ?? null,
+      roll: attackResult.roll,
+      clash: clashCtx,
+      clashBonuses: clashCtx.bonuses,
+      rollBreakdown: attackResult.breakdown ?? [],
+      targetActorId: retaliatorActor?.id ?? state.targetActorId,
+      targetTokenId: state.retaliatorTokenId ?? state.targetTokenId,
+      targetName: retaliatorActor?.name ?? state.targetName,
+    });
+  } catch (error) {
+    console.warn("[PMTTRPG] Attack roll hook failed", error);
+  }
+
   let { result, margin } = resolveClash(attackTotal, defenseResult.total);
 
   while (result === CLASH_RESULTS.TIE && choice.type !== RETALIATION_TYPES.ONESIDED) {
-    const attackReroll = await rollAttack(attackerActor, attackerItem, clashCtx.bonuses);
-    defenseResult = await _rollDefense(retaliatorActor, choice, attackerItem, clashCtx.bonuses, defenseRollOptions);
+    const [attackReroll, defenseReroll] = await Promise.all([
+      rollAttack(attackerActor, attackerItem, clashCtx.bonuses.attacker),
+      _rollDefense(
+        retaliatorActor,
+        choice,
+        attackerItem,
+        clashCtx.bonuses.defender,
+      ),
+    ]);
+    attackResult = attackReroll;
+    defenseResult = defenseReroll;
     attackTotal = attackReroll.total;
     state.attackRollTotal = attackTotal;
     state.attackRollFormula = attackReroll.formula;
     state.attackRollTerms = attackReroll.terms;
+    state.attackRollBreakdown = attackReroll.breakdown ?? state.attackRollBreakdown;
     ({ result, margin } = resolveClash(attackTotal, defenseResult.total));
   }
 
@@ -245,6 +291,7 @@ async function _executeClash(state, retaliatorActor, choice) {
   state.defenseRollTotal   = defenseResult.total;
   state.defenseRollFormula = defenseResult.formula;
   state.defenseRollTerms   = defenseResult.terms;
+  state.defenseRollBreakdown = defenseResult.breakdown ?? null;
   state.result             = result;
   state.margin             = margin;
 
@@ -253,6 +300,7 @@ async function _executeClash(state, retaliatorActor, choice) {
     attacker:     attackerActor,
     defender:     retaliatorActor,
     attackerItem,
+    appliedTool,
     clash:        clashCtx,
   });
 
@@ -280,8 +328,10 @@ async function _executeClash(state, retaliatorActor, choice) {
       counterConnects = true;
       state.hpDamage = defenseResult.total;
       state.stDamage = defenseResult.total;
-      state.damageType = counterItem.system?.damageTypeFixed ? (counterItem.system?.damageType ?? state.damageType)
-      : (choice.ammo?.system?.damageType ?? counterItem.system?.damageType ?? state.damageType);
+      state.damageType = (counterItem.system?.damageTypeFixed
+        ? (counterItem.system?.damageType || state.damageType)
+        : (choice.ammo?.system?.damageType || counterItem.system?.damageType || state.damageType)
+      ) || "none";
     }
   }
 
@@ -290,32 +340,50 @@ async function _executeClash(state, retaliatorActor, choice) {
   // Effective DMG type for this resolution (ammo, unless the weapon has a fixed type).
   clashCtx.damageType = state.damageType;
 
+  // Post result card on the attack message
+  state.resultMessageId = state.attackMessageId;
+  await postResultCard(
+    state,
+    defenseResult.roll ?? null,
+    state.attackMessageId,
+    attackResult.roll ?? null,
+  );
+
   // Fire clash resolution hooks for EasyEffects.
   const winner = result === CLASH_RESULTS.ATTACK_WIN ? attackerActor  : retaliatorActor;
   const loser  = result === CLASH_RESULTS.ATTACK_WIN ? retaliatorActor : attackerActor;
 
-  Hooks.callAll("pmttrpg.clashResolved", {
+  await emitClashResolved({
     winner,
     loser,
     attacker:      attackerActor,
+    defender:      retaliatorActor,
     attackerItem:  attackerItem,
     defenderItem:  choice.item ?? null,
+    appliedTool,
+    retaliationType: choice.type,
     attackerRoll:  state.attackRollTotal,
     defenderRoll:  defenseResult.total,
     clash:         clashCtx,
   });
 
+  // End skill lifecycle.
+  if (isSkill) {
+    Hooks.callAll("pmttrpg.skillUseEnd", { actor: retaliatorActor, skillItem: choice.item });
+  }
+
   if (result === CLASH_RESULTS.ATTACK_WIN) {
-    Hooks.callAll("pmttrpg.attackConnected", {
+    await emitAttackConnected({
       attacker: attackerActor,
       defender: retaliatorActor,
       item:     attackerItem,
+      appliedTool,
       damageType: state.damageType,
       clash:    clashCtx,
     });
   } else if (counterConnects) {
     // Counter connects as a normal attack from the retaliator onto the original attacker.
-    Hooks.callAll("pmttrpg.attackConnected", {
+    await emitAttackConnected({
       attacker: retaliatorActor,
       defender: attackerActor,
       item:     counterItem,
@@ -323,28 +391,6 @@ async function _executeClash(state, retaliatorActor, choice) {
       clash:    clashCtx,
     });
   }
-
-  // End skill lifecycle.
-  if (isSkill) {
-    Hooks.callAll("pmttrpg.skillUseEnd", { actor: retaliatorActor, skillItem: choice.item });
-  }
-
- // Post result card via placeholder pattern (same as attack card).
-  // Create placeholder first so the message has an ID before rendering.
-  const tempResultMessage = await ChatMessage.create({
-    author: game.user.id,
-    speaker: ChatMessage.getSpeaker({ actor: game.actors.get(state.attackerActorId) }),
-    content: "<!-- temp -->",
-    flags: { [CLASH_FLAG_SCOPE]: { [CLASH_FLAG_KEY]: null } },
-  });
- 
-  state.resultMessageId = tempResultMessage.id;
- 
-  // Post the real result card content, updating the placeholder.
-  await postResultCard(state, defenseResult.roll, tempResultMessage.id);
- 
-  // Update attack card to "resolved" state.
-  await updateAttackCard(state.attackMessageId, state);
 }
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
@@ -402,21 +448,34 @@ function _isTargetInWeaponRange(fromTokenId, toTokenId, weapon) {
 async function _rollDefense(retaliatorActor, choice, attackerItem, bonuses, rollOptions = {}) {
   switch (choice.type) {
     case RETALIATION_TYPES.EVADE:
-      return rollEvade(retaliatorActor, bonuses);
+      return rollEvade(retaliatorActor, bonuses, rollOptions);
     case RETALIATION_TYPES.BLOCK:
-      return rollBlock(retaliatorActor, bonuses);
+      return rollBlock(retaliatorActor, bonuses, rollOptions);
     case RETALIATION_TYPES.COUNTER:
-    case "skill":
       return rollCounter(retaliatorActor, choice.item ?? attackerItem, bonuses, rollOptions);
+    case "skill": {
+      // Skill reactions use the dice for their skill type.
+      const skillType = String(choice.item?.system?.skillType ?? "attack").toLowerCase();
+      if (skillType === "block") return rollBlock(retaliatorActor, bonuses, rollOptions);
+      if (skillType === "evade") return rollEvade(retaliatorActor, bonuses, rollOptions);
+      const weapon = _equippedWeapon(retaliatorActor) ?? choice.item ?? attackerItem;
+      return rollCounter(retaliatorActor, weapon, bonuses, rollOptions);
+    }
     case RETALIATION_TYPES.ONESIDED:
       return {
         total:   0,
         formula: "1d1-1",
         terms:   [],
+        breakdown: [],
+        rollMode: "normal",
       };
     default:
-      return rollEvade(retaliatorActor, bonuses);
+      return rollEvade(retaliatorActor, bonuses, rollOptions);
   }
+}
+
+function _equippedWeapon(actor) {
+  return actor?.items?.find(i => i.type === "weapon" && i.system?.equipped) ?? null;
 }
 
 /**

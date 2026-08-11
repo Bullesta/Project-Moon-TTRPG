@@ -19,14 +19,26 @@
     {{/if}}
   </div>
 
-  {{!-- Roll result — hidden to non-GM until revealed --}}
-  <div class="clash-card__roll-wrapper">
-    <div class="clash-card__roll">
-      {{{rollHtml}}}
+  {{#if (eq state.phase "pending")}}
+    {{#unless state.attackRollTotal}}
+      <div class="clash-card__challenge-notice">
+        {{i18n.challengeNotice}}
+      </div>
+    {{else}}
+      <div class="clash-card__roll-wrapper">
+        <div class="clash-card__roll" data-clash-breakdown="attack">
+          {{{rollHtml}}}
+        </div>
+      </div>
+    {{/unless}}
+  {{else if rollHtml}}
+    <div class="clash-card__roll-wrapper">
+      <div class="clash-card__roll" data-clash-breakdown="attack">
+        {{{rollHtml}}}
+      </div>
     </div>
-  </div>
+  {{/if}}
 
-  {{!-- State: pending — show retaliate buttons --}}
   {{#if (eq state.phase "pending")}}
     <div class="clash-card__actions">
       {{!-- Primary target gets a highlighted blue Retaliate button --}}
@@ -42,7 +54,6 @@
         </button>
       {{/if}}
 
-      {{!-- Intercept button — grey, requires confirmation --}}
       <button
         class="clash-btn clash-btn--intercept"
         data-action="clash-intercept"
@@ -54,17 +65,15 @@
       </button>
     </div>
 
-  {{!-- State: rolling — show "waiting" indicator --}}
   {{else if (eq state.phase "rolling")}}
     <div class="clash-card__status clash-card__status--rolling">
       <i class="fa-solid fa-hourglass-half fa-spin"></i>
       {{localize "PMTTRPG.Clash.WaitingForRoll"}}
       {{#if state.retaliatorName}}
-        — {{state.retaliatorName}}
+        ({{state.retaliatorName}})
       {{/if}}
     </div>
 
-  {{!-- State: resolved / closed — show result summary --}}
   {{else}}
     <div class="clash-card__status clash-card__status--resolved">
       <i class="fa-solid fa-check-circle"></i>

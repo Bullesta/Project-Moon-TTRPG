@@ -53,7 +53,10 @@ export class StatusTray extends HandlebarsApplicationMixin(ApplicationV2) {
     }
 
     for (const itemEl of el.querySelectorAll("[data-status-name]")) {
-      const status = context.statuses.find((s) => s.name === itemEl.dataset.statusName);
+      const status = context.statuses.find((s) =>
+        (itemEl.dataset.itemId && s.itemId === itemEl.dataset.itemId)
+        || (!itemEl.dataset.itemId && s.name === itemEl.dataset.statusName && !s.pending)
+      );
       if (status?.tooltipHtml) itemEl.dataset.tooltip = status.tooltipHtml;
     }
   }
@@ -76,9 +79,17 @@ export class StatusTray extends HandlebarsApplicationMixin(ApplicationV2) {
       const countHtml = status.showCount
         ? `<span>×${status.count}</span>`
         : "";
+      const pendingNote = status.pending
+        ? `<p class="pmttrpg-status-tip__pending">${game.i18n.localize(
+          status.arrival === "turn"
+            ? "PMTTRPG.StatusTrayPendingTurn"
+            : "PMTTRPG.StatusTrayPendingRound"
+        )}</p>`
+        : "";
       status.tooltipHtml = `
         <section class="pmttrpg-status-tip__inner">
           <header><strong>${foundry.utils.escapeHTML(status.name)}</strong>${countHtml}</header>
+          ${pendingNote}
           <div class="pmttrpg-status-tip__body">${body}</div>
           <footer class="pmttrpg-status-tip__controls">${game.i18n.localize("PMTTRPG.StatusTrayControls")}</footer>
         </section>`;
@@ -91,6 +102,36 @@ export class StatusTray extends HandlebarsApplicationMixin(ApplicationV2) {
     const name = el.dataset.statusName;
     if (!actor?.isOwner || !name) return;
 
+    const pending = el.dataset.pending === "true";
+    const arrival = el.dataset.arrival || "round";
+
+    if (pending) {
+      if (event.button === 2 && event.altKey) {
+        const stacks = actor.getPendingStatusStacks(name, arrival);
+        if (stacks > 0) {
+          const item = actor.items.find(
+            i => i.type === "status" && i.name === name && i.system?.pending
+              && String(i.system?.arrival || "round") === arrival
+          );
+          if (item) await item.delete();
+        }
+        return;
+      }
+      const amount = (event.ctrlKey || event.metaKey) ? 5 : 1;
+      if (event.button === 2) {
+        const item = actor.items.find(
+          i => i.id === el.dataset.itemId && i.system?.pending
+        );
+        if (!item) return;
+        const next = Math.max(0, Number(item.system?.stacks ?? 0) - amount);
+        if (next <= 0) await item.delete();
+        else await item.update({ "system.stacks": next });
+      } else {
+        await actor.addPendingStatusStacks(name, amount, { arrival });
+      }
+      return;
+    }
+
     if (event.button === 2 && event.altKey) {
       await actor.setStatusStacks(name, 0);
       return;
@@ -98,7 +139,7 @@ export class StatusTray extends HandlebarsApplicationMixin(ApplicationV2) {
 
     const amount = (event.ctrlKey || event.metaKey) ? 5 : 1;
     if (event.button === 2) await actor.removeStatusStacks(name, amount);
-    else await actor.addStatusStacks(name, amount);
+    else await actor.addStatusStacks(name, amount, null, { originUuid: actor.uuid });
   }
 }
 
@@ -161,7 +202,11 @@ async function applyStatusToTokenDrop(data) {
   }
 
   const stacks = Math.max(0, Math.trunc(Number(item.system?.stacks ?? 1) || 0));
-  if (stacks > 0) await actor.addStatusStacks(item.name, stacks, item);
+  if (stacks > 0) {
+    await actor.addStatusStacks(item.name, stacks, item, {
+      originUuid: game.user.character?.uuid ?? null,
+    });
+  }
 }
 
 function registerStatusCanvasDrop() {

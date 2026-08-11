@@ -5,6 +5,7 @@ import {
   isEasyEffectsSyncDirty,
   syncEasyEffectsFromHostEffects,
 } from "../easy-effects/sync-from-effects.js";
+import { bindEasyEffectsHighlighter } from "../easy-effects/highlight.js";
 import { sluggify } from "../slug.js";
 
 const { ItemSheetV2 } = foundry.applications.sheets;
@@ -339,20 +340,18 @@ export class PMTTRPGItemSheet extends HandlebarsApplicationMixin(ItemSheetV2) {
     }
     this._tagify(this.isEditable);
 
-    if (!this.isEditable) return;
-
     this._listenerAbort?.abort();
     this._listenerAbort = new AbortController();
     const { signal } = this._listenerAbort;
+
+    bindEasyEffectsHighlighter(this.element, { signal });
+
+    if (!this.isEditable) return;
 
     for (const el of this.element.querySelectorAll('.class-fields')) {
       el.addEventListener('click', (e) => {
         if (e.target.closest('.class-control')) this._onClickClassControl(e);
       }, { signal });
-    }
-
-    for (const el of this.element.querySelectorAll('.status-macro-trigger')) {
-      el.addEventListener('click', (e) => this._onStatusMacroTrigger(e), { signal });
     }
 
     if (this._supportsEffects()) {
@@ -513,15 +512,6 @@ export class PMTTRPGItemSheet extends HandlebarsApplicationMixin(ItemSheetV2) {
     const modifiedTime = Number(target.dataset.modifiedTime);
     await this.document.dismissOutdatedWarning(modifiedTime);
     this.render();
-  }
-
-  async _onStatusMacroTrigger(event) {
-    event.preventDefault();
-    if (this.document.type !== 'status') return;
-    await game.projectmoonttrpg?.statusMacros?.emitManualButton(this.document, {
-      actorId: this.document.parent?.id ?? null,
-      source: 'status-sheet'
-    });
   }
 
   _supportsEffects() {

@@ -12,15 +12,13 @@ system:
   stacks: 1
   stackMax: 0
   priority: 0
-  macro:
-    uuid: ''
   customNotes: ''
   easyEffects: |-
     [On Taking Blunt Damage]
     reduce damage by "Blunt Protection"
 
     [End of Round]
-    lose "Blunt Protection" "Blunt Protection"
+    lose all "Blunt Protection"
 effects: []
 folder: JLnWNuTpQkOQhr5i
 flags:

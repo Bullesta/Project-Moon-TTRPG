@@ -1,3 +1,23 @@
+import {
+  DAMAGE_TYPES,
+  RESISTANCE_MULTIPLIERS,
+  normalizeResistanceLevel,
+  formatResistanceMultiplier,
+} from "./easy-effects/resistances.js";
+import { formatOverrideSourceNames } from "./easy-effects/nouns.js";
+
+export {
+  DAMAGE_TYPES,
+  RESISTANCE_MULTIPLIERS,
+  RESISTANCE_LEVELS,
+  normalizeResistanceLevel,
+  normalizeDamageType,
+  isResistanceNoun,
+  buildResistanceOverrideMap,
+  mergeResistanceOverrideMaps,
+  formatResistanceMultiplier,
+} from "./easy-effects/resistances.js";
+
 const { renderTemplate } = foundry.applications.handlebars;
 
 /** @type {ReadonlyArray<"hp"|"st"|"sp">} */
@@ -5,18 +25,6 @@ export const DAMAGE_POOLS = Object.freeze(["hp", "st", "sp"]);
 
 /** @type {ReadonlyArray<"hp"|"st"|"sp"|"light">} */
 export const APPLY_POOLS = Object.freeze(["hp", "st", "sp", "light"]);
-
-/** @type {ReadonlyArray<"slash"|"pierce"|"blunt">} */
-export const DAMAGE_TYPES = Object.freeze(["slash", "pierce", "blunt"]);
-
-export const RESISTANCE_MULTIPLIERS = Object.freeze({
-  fatal: 2,
-  weak: 1.5,
-  normal: 1,
-  endured: 0.5,
-  ineffective: 0.25,
-  immune: 0,
-});
 
 const POOL_LABEL_KEYS = {
   hp: "PMTTRPG.TrackerHP",
@@ -26,6 +34,7 @@ const POOL_LABEL_KEYS = {
 };
 
 const DAMAGE_TYPE_LABEL_KEYS = {
+  none: "PMTTRPG.DamageTypeNone",
   slash: "PMTTRPG.DamageTypeSlash",
   pierce: "PMTTRPG.DamageTypePierce",
   blunt: "PMTTRPG.DamageTypeBlunt",
@@ -91,39 +100,58 @@ export function getEquippedOutfit(actor) {
   return actor.items.find((i) => i.type === "outfit" && i.system?.equipped) ?? null;
 }
 
-export function isActorStaggered(actor) {
-  if (!actor) return false;
-  if (actor.system?.attributes?.staggered?.value) return true;
-  if (typeof actor.getStatusStacks === "function" && actor.getStatusStacks("Staggered") > 0) return true;
-  return false;
-}
-
 /**
  * Resolve HP/ST resistance for a damage type on the target.
  *
  * @param {Actor} actor
  * @param {"hp"|"st"|"sp"} pool
  * @param {string|null} damageType
- * @returns {{ key: string, multiplier: number, reason: "outfit"|"staggered"|"noOutfit"|"skipped", damageType: string|null }|null}
+ * @returns {{ key: string, multiplier: number, reason: string, cause?: string|null, damageType: string|null }|null}
  */
 export function resolveResistance(actor, pool, damageType) {
   if (pool !== "hp" && pool !== "st") return null;
   if (!DAMAGE_TYPES.includes(damageType)) {
-    return { key: "normal", multiplier: 1, reason: "skipped", damageType: damageType || null };
+    return { key: "normal", multiplier: 1, reason: "skipped", cause: null, damageType: damageType || null };
   }
 
-  if (isActorStaggered(actor)) {
-    return { key: "fatal", multiplier: RESISTANCE_MULTIPLIERS.fatal, reason: "staggered", damageType };
+  const overrideKey = `${pool}.${damageType}`;
+  const eeMods = actor?.system?.attributes?.easyEffectsMods;
+  const eeLevel = normalizeResistanceLevel(eeMods?.resistanceOverrides?.[overrideKey]);
+  const eeCause = formatOverrideSourceNames(eeMods?.resistanceOverrideSources?.[overrideKey]);
+
+  if (eeLevel) {
+    return {
+      key: eeLevel,
+      multiplier: RESISTANCE_MULTIPLIERS[eeLevel] ?? 1,
+      reason: "easyEffects",
+      cause: eeCause || null,
+      damageType,
+    };
   }
 
   const outfit = getEquippedOutfit(actor);
   if (!outfit) {
-    return { key: "fatal", multiplier: RESISTANCE_MULTIPLIERS.fatal, reason: "noOutfit", damageType };
+    return { key: "fatal", multiplier: RESISTANCE_MULTIPLIERS.fatal, reason: "noOutfit", cause: null, damageType };
   }
 
   const key = outfit.system?.resistances?.[pool]?.[damageType] || "normal";
   const multiplier = RESISTANCE_MULTIPLIERS[key] ?? 1;
-  return { key, multiplier, reason: "outfit", damageType };
+  return { key, multiplier, reason: "outfit", cause: null, damageType };
+}
+
+/**
+ * @param {Actor} actor
+ * @returns {{ hp: Record<string, string>, st: Record<string, string> }}
+ */
+export function buildEffectiveResistanceDisplay(actor) {
+  const out = { hp: {}, st: {} };
+  for (const pool of ["hp", "st"]) {
+    for (const damageType of DAMAGE_TYPES) {
+      const resolved = resolveResistance(actor, pool, damageType);
+      out[pool][damageType] = formatResistanceMultiplier(resolved?.multiplier ?? 1);
+    }
+  }
+  return out;
 }
 
 /**
@@ -166,6 +194,11 @@ export function formatBreakdownRows(breakdown = []) {
           label: game.i18n.localize("PMTTRPG.DamageTaken.Breakdown.DamageType"),
           detail: step.damageType ? damageTypeLabel(step.damageType) : "-",
         };
+      case "roll":
+        return {
+          label: game.i18n.localize("PMTTRPG.DamageTaken.Breakdown.Roll"),
+          detail: String(step.formula ?? ""),
+        };
       case "base":
         return {
           label: game.i18n.localize("PMTTRPG.DamageTaken.Breakdown.Base"),
@@ -187,7 +220,7 @@ export function formatBreakdownRows(breakdown = []) {
         const typeLabel = step.damageType ? damageTypeLabel(step.damageType) : "-";
         const levelLabel = game.i18n.localize(RESISTANCE_LABEL_KEYS[step.level] ?? step.level);
         let reason = "";
-        if (step.reason === "staggered") reason = ` (${game.i18n.localize("PMTTRPG.DamageTaken.Breakdown.Staggered")})`;
+        if (step.cause) reason = ` (${step.cause})`;
         else if (step.reason === "noOutfit") reason = ` (${game.i18n.localize("PMTTRPG.DamageTaken.Breakdown.NoOutfit")})`;
         else if (step.reason === "skipped") reason = ` (${game.i18n.localize("PMTTRPG.DamageTaken.Breakdown.NoType")})`;
         const poolBit = step.pool ? `${poolLabel(step.pool)} · ` : "";

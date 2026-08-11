@@ -2,7 +2,7 @@ const KEYWORDS = new Set([
   // core syntax
   "if", "do", "on", "per", "and", "to", "from",
   // targets (single)
-  "self", "target", "ally", "attacker",
+  "self", "target", "ally", "attacker", "originator",
   // targets (multi)
   "enemies", "allies", "all",
   // flag keywords
@@ -12,10 +12,21 @@ const KEYWORDS = new Set([
   "reduce", "increase", "by",
   "halve", "double", "half", "of",
   "convert",
+  "create",
+  "dialog",
+  "message",
+  "burst",
+  "proc",
+  "with",
+  "as",
+  "roll", "the",
+  "next", "round", "turn", "pause",
   // effect template polarity
   "positive", "negative",
   // verb component keywords (power up/down, dice max up/down, regen)
   "power", "dice", "regen", "up", "down", "max",
+  "advantage", "disadvantage",
+  "before", "after",
 ]);
 
 function readFloorOperator(source, index) {
@@ -97,6 +108,18 @@ export function tokenize(source) {
 
     if (source[i] === ":") {
       tokens.push({ type: "COLON", value: ":" });
+      i++;
+      continue;
+    }
+
+    if (source[i] === ",") {
+      tokens.push({ type: "COMMA", value: "," });
+      i++;
+      continue;
+    }
+
+    if (source[i] === ".") {
+      tokens.push({ type: "DOT", value: "." });
       i++;
       continue;
     }

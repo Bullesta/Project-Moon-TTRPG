@@ -11,7 +11,8 @@ import {
   canConsumeAppliedTool,
   promptAppliedToolDialog,
 } from "./applied-tool.js";
-const { renderTemplate } = foundry.applications.handlebars;
+import { applyDiceMaxFloor, formatDiceFormula } from "../easy-effects/dice-formula.js";
+import { promptRangedAmmo } from "../combat/clash-dialog.js";
 
 function getEffectSignature(entry) {
   return [
@@ -128,13 +129,15 @@ export class ItemPMTTRPG extends Item {
       }
 
       dicePowerFromAttack = Number(actorData?.system?.attributes?.attackModifier?.value ?? 0);
-      const dicePowerTotal = dicePowerFromHand + dicePowerFromAttack;
-      const dieSides = baseDieSides + diceMaxBonus;
-      const baseFormula = `1d${dieSides}`;
-      const powerSuffix = dicePowerTotal === 0 ? '' : (dicePowerTotal > 0 ? `+${dicePowerTotal}` : `${dicePowerTotal}`);
-
-      data.offensiveDiceComputed = `${baseFormula}${powerSuffix}`;
-      data.diceMaxBonus = diceMaxBonus;
+      const eeMods = actorData?.system?.attributes?.easyEffectsMods;
+      const eeAttackMax = Number(eeMods?.attackMax ?? 0);
+      const { sides: dieSides, powerAdjust: maxFloorPower } = applyDiceMaxFloor(
+        baseDieSides,
+        diceMaxBonus + eeAttackMax,
+      );
+      const dicePowerTotal = dicePowerFromHand + dicePowerFromAttack + maxFloorPower;
+      data.offensiveDiceComputed = formatDiceFormula(1, dieSides, dicePowerTotal);
+      data.diceMaxBonus = diceMaxBonus + eeAttackMax;
       data.dicePowerFromHand = dicePowerFromHand;
       data.dicePowerFromAttack = dicePowerFromAttack;
       data.dicePowerTotal = dicePowerTotal;
@@ -187,16 +190,20 @@ export class ItemPMTTRPG extends Item {
       const eeMods = actorData?.system?.attributes?.easyEffectsMods;
       const blockFromEffects = Number(eeMods?.blockPower ?? 0);
       const evadeFromEffects = Number(eeMods?.evadePower ?? 0);
-      const blockTotal = blockPower + tem + blockFromEffects;
-      const evadeTotal = evadePower + ins + evadeFromEffects;
-      const formatDefensePower = (n) => (n ? (n > 0 ? `+${n}` : `${n}`) : '+0');
+      const blockMaxFromEffects = Number(eeMods?.blockMax ?? 0);
+      const evadeMaxFromEffects = Number(eeMods?.evadeMax ?? 0);
+
+      const blockMaxApplied = applyDiceMaxFloor(blockBaseSides, blockMaxFromEffects);
+      const evadeMaxApplied = applyDiceMaxFloor(evadeBaseSides, evadeMaxFromEffects);
+      const blockTotal = blockPower + tem + blockFromEffects + blockMaxApplied.powerAdjust;
+      const evadeTotal = evadePower + ins + evadeFromEffects + evadeMaxApplied.powerAdjust;
 
       data.blockDicePower = blockPower;
       data.evadeDicePower = evadePower;
       data.dicePowerFromTemperance = tem;
       data.dicePowerFromInsight = ins;
-      data.blockDiceComputed = `1d${blockBaseSides}${formatDefensePower(blockTotal)}`;
-      data.evadeDiceComputed = `1d${evadeBaseSides}${formatDefensePower(evadeTotal)}`;
+      data.blockDiceComputed = formatDiceFormula(1, blockMaxApplied.sides, blockTotal);
+      data.evadeDiceComputed = formatDiceFormula(1, evadeMaxApplied.sides, evadeTotal);
 
       data.resistanceTypes = {
         slash: 'PMTTRPG.DamageTypeSlash',
@@ -364,6 +371,7 @@ export class ItemPMTTRPG extends Item {
     mode = 'block',
     ammo = null,
     consumeAmmo = true,
+    dryFire = false,
     appliedTool = undefined,
     consumeAppliedTool = true,
     targetSelection,
@@ -438,9 +446,9 @@ export class ItemPMTTRPG extends Item {
       return;
     }
 
-    if (this.type == 'weapon' && ammo) {
-      const ammoQuantity = Number(ammo.system?.quantity ?? 0);
-      if (ammoQuantity <= 0) return;
+    if (this.type == 'weapon' && (ammo || dryFire)) {
+      const ammoQuantity = ammo ? Number(ammo.system?.quantity ?? 0) : 0;
+      const isDryFire = !!(dryFire || !ammo || ammoQuantity <= 0);
 
       let tool = appliedTool;
       let willConsumeTool = consumeAppliedTool;
@@ -460,11 +468,14 @@ export class ItemPMTTRPG extends Item {
         return;
       }
 
-      if (consumeAmmo) {
+      if (!isDryFire && consumeAmmo && ammo) {
         await ammo.update({ 'system.quantity': Math.max(0, ammoQuantity - 1) });
       }
 
-      const titleParts = [this.name, ammo.name];
+      const dryFireLabel = game.i18n.localize('PMTTRPG.Clash.DryFireShort');
+      const titleParts = isDryFire
+        ? [this.name, dryFireLabel]
+        : [this.name, ammo.name];
       if (tool) titleParts.push(tool.name);
 
       PMTTRPGRolls.rollMove({
@@ -477,10 +488,14 @@ export class ItemPMTTRPG extends Item {
           trigger: null,
           details: this.system.description,
           rollType: 'damage',
-          ammoName: ammo.name,
-          ammoType: ammo.system?.ammoType ?? null,
-          ammoDamageType: ammo.system?.damageType ?? null,
-          damageType: tool?.system?.damageType || ammo.system?.damageType || this.system?.damageType || null,
+          dryFire: isDryFire,
+          ammoName: isDryFire ? dryFireLabel : ammo.name,
+          ammoType: isDryFire ? null : (ammo.system?.ammoType ?? null),
+          ammoDamageType: isDryFire ? null : (ammo.system?.damageType ?? null),
+          damageType: tool?.system?.damageType
+            || (!isDryFire ? ammo.system?.damageType : null)
+            || this.system?.damageType
+            || null,
           ...buildAppliedToolTemplateData(tool),
         },
         onBeforeChat: buildAppliedToolOnBeforeChat({
@@ -496,86 +511,35 @@ export class ItemPMTTRPG extends Item {
     }
 
     if (this.type == 'weapon' && this.system.weaponType == 'ranged') {
-      const ammoOptions = this.actor?.items.filter(item => item.type === 'ammunition' && Number(item.system?.quantity ?? 0) > 0) ?? [];
-
-      if (ammoOptions.length <= 0) {
-        ui.notifications.warn(game.i18n.localize('PMTTRPG.Dialog.noAvailableAmmunition'));
-        return;
-      }
-
       if (configureDialog) {
-        const dialogData = {
-          weapon: {
-            name: this.name,
-            img: this.img,
-            offensiveDiceComputed: this.system.offensiveDiceComputed
-          },
-          ammoOptions: ammoOptions.map((item, index) => ({
-            id: item.id,
-            name: item.name,
-            img: item.img,
-            quantity: Number(item.system?.quantity ?? 0),
-            ammoType: item.system?.ammoType ?? null,
-            damageType: item.system?.damageType ?? null,
-            isDefault: index === 0,
-            ammoTypeLabel: item.system?.ammoType ? game.i18n.localize(`PMTTRPG.Ammo${item.system.ammoType[0].toUpperCase()}${item.system.ammoType.slice(1)}`) : null,
-            damageTypeLabel: item.system?.damageType ? game.i18n.localize(`PMTTRPG.DamageType${item.system.damageType[0].toUpperCase()}${item.system.damageType.slice(1)}`) : null
-          }))
-        };
+        const ammoPick = await promptRangedAmmo(this.actor, this);
+        if (!ammoPick) return;
 
-        const html = await renderTemplate('systems/projectmoonttrpg/templates/dialog/weapon-ammo-dialog.html', dialogData);
-        const dlgOptions = {
-          classes: ['projectmoonttrpg', 'PMTTRPG-dialog']
-        };
+        const pick = await promptAppliedToolDialog(this.actor, {
+          applyTo: 'weapon',
+          hostItem: this,
+        });
+        if (pick === null) return;
 
-        foundry.applications.api.DialogV2.wait({
-          window: { title: game.i18n.localize('PMTTRPG.Dialog.chooseAmmunition') },
-          classes: dlgOptions.classes,
-          content: html,
-          buttons: [{
-            action: 'shoot',
-            label: game.i18n.localize('PMTTRPG.Dialog.roll'),
-            default: true,
-            callback: async (event, button, dialog) => {
-              const form = dialog.element.querySelector('form');
-              const ammoId = form.ammoId.value;
-              const consume = form.consumeAmmo.checked;
-              const chosenAmmo = this.actor.items.get(ammoId);
+        const targeting = game.projectmoonttrpg?.targeting;
+        const chosenTarget = targeting ? await targeting.promptTargetSelection({
+          actor: this.actor,
+          title: this.name,
+          sourceName: this.name,
+          sourceImg: this.img,
+          preferredCombatantId: game.combat?.combatant?.id ?? null,
+        }) : undefined;
 
-              if (!chosenAmmo) return;
+        if (chosenTarget === null) return;
 
-              const pick = await promptAppliedToolDialog(this.actor, {
-                applyTo: 'weapon',
-                hostItem: this,
-              });
-              if (pick === null) return;
-
-              const targeting = game.projectmoonttrpg?.targeting;
-              const chosenTarget = targeting ? await targeting.promptTargetSelection({
-                actor: this.actor,
-                title: this.name,
-                sourceName: this.name,
-                sourceImg: this.img,
-                preferredCombatantId: game.combat?.combatant?.id ?? null,
-              }) : undefined;
-
-              if (chosenTarget === null) return;
-
-              this.roll({
-                configureDialog: false,
-                ammo: chosenAmmo,
-                consumeAmmo: consume,
-                appliedTool: pick.tool,
-                consumeAppliedTool: pick.consume,
-                targetSelection: chosenTarget
-              });
-            }
-          }, {
-            action: 'cancel',
-            label: game.i18n.localize('PMTTRPG.Dialog.cancel'),
-            callback: () => null
-          }],
-          rejectClose: false
+        this.roll({
+          configureDialog: false,
+          ammo: ammoPick.ammo,
+          consumeAmmo: ammoPick.consumeAmmo,
+          dryFire: ammoPick.dryFire,
+          appliedTool: pick.tool,
+          consumeAppliedTool: pick.consume,
+          targetSelection: chosenTarget
         });
         return;
       }
@@ -730,7 +694,7 @@ export class ItemPMTTRPG extends Item {
                 'system.handProperty', 'system.toolKind', 'system.applyTo', 'system.damageType',
                 'system.allowUse', 'system.effects', 'system.easyEffects'],
       augment: ['name', 'img', 'system.description', 'system.effects'],
-      status:  ['name', 'img', 'system.description', 'system.proc', 'system.macro'],
+      status:  ['name', 'img', 'system.description', 'system.proc'],
       effect:  ['name', 'img', 'system.description', 'system.appliesTo', 'system.canPositive',
                 'system.canNegative', 'system.stackMax', 'system.procOn', 'system.procResult',
                 'system.procStat', 'system.procDice', 'system.procAction', 'system.procCondition',

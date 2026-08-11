@@ -12,15 +12,13 @@ system:
   stacks: 1
   stackMax: 0
   priority: 0
-  macro:
-    uuid: ''
   customNotes: ''
   easyEffects: |-
     [On Taking Pierce Damage]
-              reduce damage by "Pierce Protection"
-                                  
-              [End of Round]
-              lose "Pierce Protection" "Pierce Protection"
+    reduce damage by "Pierce Protection"
+
+    [End of Round]
+    lose all "Pierce Protection"
 effects: []
 folder: JLnWNuTpQkOQhr5i
 flags:

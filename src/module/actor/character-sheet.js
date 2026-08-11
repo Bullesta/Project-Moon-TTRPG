@@ -3,6 +3,8 @@ import { PMTTRPGRolls } from "../rolls.js";
 import { PMTTRPGTargetingAPI } from "../targeting.js";
 import { buildEffectSummaryGroups } from "../effects/effect-summary.js";
 import { groupStatuses } from "../status/group-statuses.js";
+import { EasyEffectsEditor } from "../apps/easy-effects-editor.js";
+import { buildEffectiveResistanceDisplay, DAMAGE_TYPES } from "../damage-application.js";
 
 const { ActorSheetV2 } = foundry.applications.sheets;
 const { HandlebarsApplicationMixin } = foundry.applications.api;
@@ -26,8 +28,6 @@ const TRACKER_DEFS = [
   { key: "sp", attr: "sp", icon: "SanityIcons_SanityBase.webp", labelKey: "PMTTRPG.TrackerSP"},
   { key: "lt", attr: "light", icon: "00_light.webp", labelKey: "PMTTRPG.TrackerLT" },
 ];
-
-const DAMAGE_TYPES = ["slash", "pierce", "blunt"];
 
 export class PMTTRPGCharacterSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
 
@@ -82,6 +82,7 @@ export class PMTTRPGCharacterSheet extends HandlebarsApplicationMixin(ActorSheet
       counterIncrease: PMTTRPGCharacterSheet.prototype._onCounterIncrease,
       counterDecrease: PMTTRPGCharacterSheet.prototype._onCounterDecrease,
       statusControl: PMTTRPGCharacterSheet.prototype._onStatusControl,
+      easyEffects: PMTTRPGCharacterSheet.prototype._onOpenEasyEffects,
     },
   };
 
@@ -103,6 +104,25 @@ export class PMTTRPGCharacterSheet extends HandlebarsApplicationMixin(ActorSheet
     const strip = new Set(["nightmode", "projectmoonttrpg", "character"]);
     options.classes = options.classes.filter(c => !strip.has(c));
     return options;
+  }
+
+  /** @override */
+  _getHeaderControls() {
+    const controls = super._getHeaderControls() ?? [];
+    if (!controls.some(c => c.action === "easyEffects")) {
+      controls.push({
+        icon: "fa-solid fa-code",
+        label: "PMTTRPG.EasyEffectsEditor.ActorEditor",
+        action: "easyEffects",
+        visible: () => game.user.isGM,
+      });
+    }
+    return controls;
+  }
+
+  _onOpenEasyEffects() {
+    if (!game.user.isGM) return;
+    new EasyEffectsEditor({ actor: this.actor }).render({ force: true });
   }
 
   _getTabs() {
@@ -442,8 +462,7 @@ export class PMTTRPGCharacterSheet extends HandlebarsApplicationMixin(ActorSheet
   }
 
   _buildResistanceRows() {
-    const outfit = this.actor.items.find(i => i.type === "outfit" && i.system?.equipped);
-    const display = outfit?.system?.resistancesDisplay;
+    const display = buildEffectiveResistanceDisplay(this.actor);
 
     const buildRow = (pool, key, title) => ({
       key,
@@ -1023,7 +1042,7 @@ export class PMTTRPGCharacterSheet extends HandlebarsApplicationMixin(ActorSheet
     if (!statusName || !this.actor?.setStatusStacks) return;
 
     if (action === "increase") {
-      await this.actor.addStatusStacks(statusName, 1);
+      await this.actor.addStatusStacks(statusName, 1, null, { originUuid: this.actor.uuid });
     }
     else if (action === "decrease") {
       await this.actor.removeStatusStacks(statusName, 1);
@@ -1130,6 +1149,14 @@ export class PMTTRPGCharacterSheet extends HandlebarsApplicationMixin(ActorSheet
     if (item.type === "augment" && this.actor.items.some(owned => owned.type === "augment")) {
       ui.notifications.warn(game.i18n.localize("PMTTRPG.AugmentOnlyOne"));
       return null;
+    }
+
+    if (item.type === "status") {
+      const stacks = Math.max(0, Math.trunc(Number(item.system?.stacks ?? 1) || 0));
+      if (stacks <= 0) return null;
+      return this.actor.addStatusStacks(item.name, stacks, item, {
+        originUuid: game.user.character?.uuid ?? null,
+      });
     }
 
     return super._onDropItem(event, item);

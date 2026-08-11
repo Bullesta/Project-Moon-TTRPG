@@ -9,10 +9,14 @@ system:
   stacks: 1
   stackMax: 0
   priority: 0
-  macro:
-    uuid: ''
   customNotes: ''
-  easyEffects: ''
+  easyEffects: |-
+    [On Clash Start]
+    disadvantage;
+    lose 1 Paralysis;
+
+    [End of Round]
+    lose all Paralysis;
   proc:
     turnStart: false
     endOfRound: false

@@ -10,22 +10,27 @@ const { renderTemplate } = foundry.applications.handlebars;
 const TEMPLATES = {
   attackCard:      "systems/projectmoonttrpg/templates/combat/clashing/attack-card.hbs",
   clashResultCard: "systems/projectmoonttrpg/templates/combat/clashing/clash-result-card.hbs",
+  rollBreakdown:   "systems/projectmoonttrpg/templates/combat/clashing/roll-breakdown.hbs",
 };
 
 // ── Card posting ──────────────────────────────────────────────────────────────
 
-export async function postAttackCard(state, attackRoll, messageId = null) {
-  const rollHtml = await attackRoll.render({ isPrivate: false });
+export async function postAttackCard(state, attackRoll = null, messageId = null) {
+  const rollHtml = attackRoll
+    ? await attackRoll.render({ isPrivate: false })
+    : "";
   const content  = await renderTemplate(TEMPLATES.attackCard, {
     state, rollHtml, isGM: game.user.isGM, i18n: _attackCardI18n(state),
   });
 
   const chatData = {
     content,
-    rolls:   [attackRoll.toJSON()],
-    sound:   CONFIG.sounds.dice,
     flags: { [CLASH_FLAG_SCOPE]: { [CLASH_FLAG_KEY]: serialiseClashState(state) } },
   };
+  if (attackRoll) {
+    chatData.rolls = [attackRoll.toJSON()];
+    chatData.sound = CONFIG.sounds.dice;
+  }
 
   let message;
   if (messageId) {
@@ -36,7 +41,6 @@ export async function postAttackCard(state, attackRoll, messageId = null) {
       } else {
         game.socket.emit("system.projectmoonttrpg", { message: messageId, content: chatData.content, flags: chatData.flags });
       }
-      //await message.update(chatData);
     }
   } else {
     chatData.author = game.user.id;
@@ -69,8 +73,8 @@ export async function updateAttackCard(messageId, updatedState) {
   }
 }
 
-export async function postResultCard(state, defenseRoll, messageId = null) {
-  const defenseRollHtml = await defenseRoll?.render({ isPrivate: false });
+export async function postResultCard(state, defenseRoll = null, messageId = null, attackRoll = null) {
+  const defenseRollHtml = await defenseRoll?.render?.({ isPrivate: false });
   const attackerWon     = state.result === "attackWin";
   const defenderWon     = state.result === "defenseWin";
   const blockWin        = defenderWon && state.retaliationType === "block";
@@ -80,10 +84,24 @@ export async function postResultCard(state, defenseRoll, messageId = null) {
   const counterWin      = defenderWon && state.retaliationType === "counter";
   const counterHit      = counterWin && state.counterInRange === true;
   const counterOutOfRange = counterWin && state.counterInRange === false;
+
+  // We (yes we) match the damage controls to the summary.
+  const defaultPools = (attackerWon || counterHit)
+    ? ["hp", "st"]
+    : (blockWinSt || evadeWin)
+      ? ["st"]
+      : ["hp"];
+  const poolSelect = {
+    pools: defaultPools.join(","),
+    pool: defaultPools[0],
+    hp: defaultPools.includes("hp"),
+    st: defaultPools.includes("st"),
+    sp: defaultPools.includes("sp"),
+  };
  
   const content = await renderTemplate(TEMPLATES.clashResultCard, {
     state, defenseRollHtml, attackerWon, defenderWon, blockWin, blockWinSt, blockWinExempt,
-    evadeWin, counterWin, counterHit, counterOutOfRange,
+    evadeWin, counterWin, counterHit, counterOutOfRange, poolSelect,
     isGM: game.user.isGM, i18n: _resultCardI18n(state),
   });
  
@@ -91,6 +109,14 @@ export async function postResultCard(state, defenseRoll, messageId = null) {
     content,
     flags: { [CLASH_FLAG_SCOPE]: { [CLASH_FLAG_KEY]: serialiseClashState(state) } },
   };
+
+  // Let DSN finish rolling before the result appears.
+  if (game.dice3d) {
+    const shows = [];
+    if (attackRoll) shows.push(game.dice3d.showForRoll(attackRoll, game.user, true, null, false));
+    if (defenseRoll) shows.push(game.dice3d.showForRoll(defenseRoll, game.user, true, null, false));
+    if (shows.length) await Promise.all(shows);
+  }
  
   let message;
   if (messageId) {
@@ -101,7 +127,6 @@ export async function postResultCard(state, defenseRoll, messageId = null) {
       } else {
         game.socket.emit("system.projectmoonttrpg", { message: messageId, content: chatData.content, flags: chatData.flags });
       }
-      //await message.update(chatData);
     }
   } else {
     chatData.author = game.user.id;
@@ -109,14 +134,50 @@ export async function postResultCard(state, defenseRoll, messageId = null) {
     message = await ChatMessage.create(chatData);
   }
 
-  console.log(state);
-
-  if (game.dice3d && message && defenseRoll) {
-    await game.dice3d.showForRoll(defenseRoll, game.user, true, null, false);
-  }
   return message;
 }
 
+/**
+ * @param {ChatMessage} message
+ * @param {HTMLElement} html
+ */
+export async function enhanceClashRollBreakdown(message, html) {
+  const root = html instanceof HTMLElement ? html : html?.[0];
+  if (!root) return;
+
+  const state = message?.getFlag?.(CLASH_FLAG_SCOPE, CLASH_FLAG_KEY)
+    ?? message?.flags?.[CLASH_FLAG_SCOPE]?.[CLASH_FLAG_KEY];
+  if (!state) return;
+
+  /** @type {{ el: Element, rows: object[]|null|undefined }[]} */
+  const tips = [];
+
+  for (const el of root.querySelectorAll('.clash-result-card__roll-total[data-clash-breakdown="attack"]')) {
+    tips.push({ el, rows: state.attackRollBreakdown });
+  }
+  for (const el of root.querySelectorAll('.clash-result-card__roll-total[data-clash-breakdown="defense"]')) {
+    tips.push({ el, rows: state.defenseRollBreakdown });
+  }
+
+  const attackRollWrap = root.querySelector('.clash-attack-card [data-clash-breakdown="attack"]');
+  if (attackRollWrap) {
+    const diceTotal = attackRollWrap.querySelector(".dice-total") ?? attackRollWrap;
+    tips.push({ el: diceTotal, rows: state.attackRollBreakdown });
+  }
+
+  for (const { el, rows } of tips) {
+    if (!el || !rows?.length) continue;
+    const breakdownHtml = await renderTemplate(TEMPLATES.rollBreakdown, { rows });
+    el.classList.add("clash-roll-total--hoverable");
+    el.dataset.tooltipHtml = breakdownHtml;
+    el.dataset.tooltipClass = "projectmoonttrpg damage-breakdown-tooltip";
+    el.dataset.tooltipDirection = "UP";
+    if (!el.getAttribute("aria-label")) {
+      el.setAttribute("aria-label", game.i18n.localize("PMTTRPG.Clash.Breakdown.Title"));
+    }
+    if (!el.hasAttribute("tabindex")) el.setAttribute("tabindex", "0");
+  }
+}
 // ── Button click wiring ───────────────────────────────────────────────────────
 
 export function registerClashChatListeners() {
@@ -178,6 +239,10 @@ function _attackCardI18n(state) {
     targeting:    state.targetName
       ? game.i18n.format("PMTTRPG.Clash.Targeting",   { name: state.targetName })
       : game.i18n.localize("PMTTRPG.Clash.NoTarget"),
+    challengeNotice: game.i18n.format("PMTTRPG.Clash.ChallengeNotice", {
+      attacker: state.attackerName,
+      target: state.targetName || game.i18n.localize("PMTTRPG.Clash.NoTarget"),
+    }),
     retaliatedBy: state.retaliatorName
       ? game.i18n.format("PMTTRPG.Clash.RetaliatedBy",{ name: state.retaliatorName })
       : "",
@@ -188,7 +253,7 @@ function _attackCardI18n(state) {
 }
 
 function _resultCardI18n(state) {
-  const dtype = state.damageType ?? "slash";
+  const dtype = state.damageType || "none";
   const dtypeKey = `PMTTRPG.DamageType${dtype.charAt(0).toUpperCase()}${dtype.slice(1)}`;
   return {
     attackWin:    game.i18n.localize("PMTTRPG.Clash.AttackWin"),

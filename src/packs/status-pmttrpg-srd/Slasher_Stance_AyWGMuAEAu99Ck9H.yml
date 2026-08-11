@@ -13,8 +13,6 @@ system:
   stacks: 1
   stackMax: 0
   priority: 0
-  macro:
-    uuid: ''
   customNotes: ''
   easyEffects: ''
 effects: []

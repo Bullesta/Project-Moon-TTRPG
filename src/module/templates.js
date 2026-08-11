@@ -10,11 +10,13 @@
     "systems/projectmoonttrpg/templates/parts/chat-buttons.html",
     "systems/projectmoonttrpg/templates/chat/damage-taken.hbs",
     "systems/projectmoonttrpg/templates/chat/damage-breakdown.hbs",
+    "systems/projectmoonttrpg/templates/combat/clashing/roll-breakdown.hbs",
     "systems/projectmoonttrpg/templates/parts/initiative-character.html",
     "systems/projectmoonttrpg/templates/parts/effects-list.html",
     "systems/projectmoonttrpg/templates/parts/easy-effects.html",
     "systems/projectmoonttrpg/templates/parts/item-slug-field.hbs",
     "systems/projectmoonttrpg/templates/apps/status-tray.hbs",
+    "systems/projectmoonttrpg/templates/apps/easy-effects-editor.hbs",
     // Character sheet (AppV2) partials referenced by sheet.hbs
     "systems/projectmoonttrpg/templates/sheet/character/partials/tracker.hbs",
     "systems/projectmoonttrpg/templates/sheet/character/partials/resists.hbs",

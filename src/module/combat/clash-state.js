@@ -48,11 +48,15 @@ export const CLASH_RESULTS = Object.freeze({
  * @param {string|null} params.targetTokenId
  * @param {string|null} params.targetName
  * @param {string|null} params.targetImg
- * @param {number} params.attackRollTotal
- * @param {string} params.attackRollFormula
- * @param {object[]} params.attackRollTerms    — Roll#terms serialised for reconstruction
- * @param {string} params.damageType           — "slash" | "pierce" | "blunt"
- * @param {string} params.attackMessageId      — the initial chat card message id
+ * @param {number|null} [params.attackRollTotal]
+ * @param {string|null} [params.attackRollFormula]
+ * @param {object[]|null} [params.attackRollTerms]
+ * @param {"slash"|"pierce"|"blunt"|"none"} params.damageType
+ * @param {string} params.attackMessageId
+ * @param {object|null} [params.clashBonuses]
+ * @param {object[]} [params.attackRollBreakdown]
+ * @param {string|null} [params.appliedToolId]
+ * @param {boolean} [params.attackerDryFire]
  * @returns {ClashStateData}
  */
 export function createClashState({
@@ -66,11 +70,15 @@ export function createClashState({
   targetTokenId   = null,
   targetName      = null,
   targetImg       = null,
-  attackRollTotal,
-  attackRollFormula,
-  attackRollTerms,
-  damageType      = "slash",
+  attackRollTotal = null,
+  attackRollFormula = null,
+  attackRollTerms = null,
+  damageType      = "none",
   attackMessageId,
+  clashBonuses    = null,
+  attackRollBreakdown = null,
+  appliedToolId   = null,
+  attackerDryFire = false,
 }) {
   return {
     phase: CLASH_PHASES.PENDING,
@@ -82,6 +90,8 @@ export function createClashState({
     attackerImg,
     attackerItemId,
     attackerItemName,
+    appliedToolId: appliedToolId ?? null,
+    attackerDryFire: !!attackerDryFire,
 
     // Primary target (may be overridden by an interceptor)
     targetActorId,
@@ -105,6 +115,10 @@ export function createClashState({
     defenseRollTotal:    null,
     defenseRollFormula:  null,
     defenseRollTerms:    null,
+    attackRollBreakdown: attackRollBreakdown ?? null,
+    defenseRollBreakdown: null,
+
+    clashBonuses: clashBonuses ?? null,
 
     // Result
     result:   null,   // CLASH_RESULTS value

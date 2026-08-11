@@ -118,13 +118,33 @@ export class CombatSidebarPMTTRPG {
           } catch (error) {
             console.warn("[EasyEffects] endOfRound hook failed", error);
           }
+
+          // Promote round arrivals after end-of-round scripts clear live statuses.
+          if (game.user.id === userId) {
+            try {
+              const { runAsOwnerOrGM } = await import("../easy-effects/gm-route.js");
+              await runAsOwnerOrGM(actor, "promotePendingStatuses", { arrival: "round" });
+            } catch (error) {
+              console.warn("[PMTTRPG] promote pending (round) failed", error);
+            }
+          }
         }
       }
 
       if (currentCombatant?.actor) {
+        const turnActor = currentCombatant.actor;
+        // Promote turn arrivals before turn-start hooks.
+        if (game.user.id === userId) {
+          try {
+            const { runAsOwnerOrGM } = await import("../easy-effects/gm-route.js");
+            await runAsOwnerOrGM(turnActor, "promotePendingStatuses", { arrival: "turn" });
+          } catch (error) {
+            console.warn("[PMTTRPG] promote pending (turn) failed", error);
+          }
+        }
         await statusMacros.emitTurnStart({
-          actor: currentCombatant.actor,
-          actorId: currentCombatant.actor.id,
+          actor: turnActor,
+          actorId: turnActor.id,
           combat,
           combatant: currentCombatant,
           previous: snapshot,
@@ -132,8 +152,8 @@ export class CombatSidebarPMTTRPG {
         });
         try {
           Hooks.callAll("pmttrpg.turnStart", {
-            actor: currentCombatant.actor,
-            actorId: currentCombatant.actor.id,
+            actor: turnActor,
+            actorId: turnActor.id,
             combat,
             combatant: currentCombatant,
             previous: snapshot,
@@ -143,9 +163,9 @@ export class CombatSidebarPMTTRPG {
           console.warn("[EasyEffects] turnStart hook failed", error);
         }
         // The Action Economy refreshes at the start of the character's turn.
-        if (currentCombatant.actor.isOwner) {
+        if (turnActor.isOwner) {
           try {
-            await currentCombatant.actor.refreshActionEconomy();
+            await turnActor.refreshActionEconomy();
           } catch (error) {
             console.warn("[PMTTRPG] action economy refresh failed", error);
           }

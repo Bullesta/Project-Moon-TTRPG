@@ -9,10 +9,12 @@ system:
   stacks: 1
   stackMax: 0
   priority: 0
-  macro:
-    uuid: ''
   customNotes: ''
-  easyEffects: ''
+  easyEffects: |-
+    [On Being Hit]
+    on roll 1d10 <= Ruin then
+      lose all Ruin on self
+      and proc Devastation;
   proc:
     turnStart: false
     endOfRound: false

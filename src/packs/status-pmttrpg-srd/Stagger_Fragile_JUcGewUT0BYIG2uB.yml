@@ -12,12 +12,10 @@ system:
   stacks: 1
   stackMax: 0
   priority: 0
-  macro:
-    uuid: ''
   customNotes: ''
   easyEffects: |-
     [On Taking ST Damage]
-    increase damage by "Stagger Fragile"
+    increase damage by "Stagger Fragile" after resistances
 
     [End of Round]
     remove "Stagger Fragile" "Stagger Fragile"
