@@ -93,6 +93,18 @@ increase damage by N;
 
 Polarity stays active until the next polarity label or trigger.
 
+Clash Win / Lose from the gear dropdown uses `RESULT` in the trigger:
+
+```
+[Clash RESULT]
+positive:
+inflict N Burn;
+negative:
+gain N Burn;
+```
+
+Sync turns `RESULT` into `Win` or `Lose`. `None` skips that trigger block. Stance forms work too: `[Clash RESULT With Attack]`.
+
 Synced effects live between `# >>> synced effects` and `# <<< synced effects`. Keep custom scripts outside that block.
 
 ---

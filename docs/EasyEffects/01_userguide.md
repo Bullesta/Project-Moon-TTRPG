@@ -593,12 +593,13 @@ increase damage by N*2;
 reduce damage by Protection after resistances;
 ```
 
-## Effect templates (`N`, `positive:`, `negative:`)
+## Effect templates (`N`, `positive:`, `negative:`, `RESULT`)
 
 Catalog **effect** items (Burn Resistance, etc.) can ship an EasyEffects template. Those templates may use:
 
 - bare `N` (also inside math like `N*2`) - equals the number of buyins for that effect on the equipment.
 - `positive:` / `negative:` - keep only the branch that matches the entry's Positive/Negative mode (sticky until the next polarity label or trigger)
+- `RESULT` inside a clash trigger - filled from the gear entry's Win / Lose / None dropdown (`procResult`). `Win` → `Win`, `Lose` → `Lose`. `None` drops that whole trigger block.
 
 Those tokens are **effect-template only**. They do not exist on equipment after sync.
 
@@ -612,7 +613,7 @@ reduce damage by 2;
 # <<< synced effects
 ```
 
-Adding, removing, or changing an effect's intensity or mode updates only that block. Put custom scripts **outside** the markers so they are not overwritten.
+Adding, removing, or changing an effect's intensity, mode, or clash result updates only that block. Put custom scripts **outside** the markers so they are not overwritten.
 
 If you edit *inside* the synced block, auto-update pauses and warns you. Use **Sync with current effects** twice to confirm a rebuild; text outside the markers is preserved.
 
@@ -625,6 +626,25 @@ reduce damage by N;
 negative:
 increase damage by N;
 ```
+
+Example template for a clash buy-in (Inflict Burn, etc.):
+
+```
+[Clash RESULT]
+positive:
+inflict N Burn;
+negative:
+gain N Burn;
+```
+
+With intensity `2` and clash result **Win**, sync stamps:
+
+```
+[Clash Win]
+inflict 2 Burn;
+```
+
+`[Clash RESULT With Evade]` and `[On Clash RESULT]` work the same way.
 
 Combat runs **only** the host's EasyEffects (not the catalog effect document).
 
