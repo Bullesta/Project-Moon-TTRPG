@@ -8,32 +8,62 @@ const START_RE = /^#\s*>>>\s*synced effects\s*$/i;
 const END_RE = /^#\s*<<<\s*synced effects\s*$/i;
 
 /**
- * Bake an effect template for one polarity and intensity.
+
+ * @returns {{ trigger: string|null, usesResult: boolean }}
  */
-export function stampEffectEasyEffects(source, { mode = "positive", n = 1 } = {}) {
+function resolveClashResultTrigger(trigger, resultWord) {
+  if (!/\bRESULT\b/i.test(trigger)) return { trigger, usesResult: false };
+  if (!resultWord) return { trigger: null, usesResult: true };
+  return {
+    trigger: trigger.replace(/\bRESULT\b/gi, resultWord),
+    usesResult: true,
+  };
+}
+
+/**
+ * Bake an effect template for one polarity, intensity, and clash result.
+ * Template-only tokens: bare `N`, `positive:` / `negative:`, and `RESULT` in triggers.
+ */
+export function stampEffectEasyEffects(source, {
+  mode = "positive",
+  n = 1,
+  procResult = "none",
+} = {}) {
   const text = typeof source === "string" ? source : "";
   if (!text.trim()) return "";
 
   const intensity = Math.max(0, Math.round(Number(n) || 0));
   const wantMode = mode === "negative" ? "negative" : "positive";
+  const resultKey = String(procResult ?? "none").toLowerCase();
+  const resultWord = resultKey === "win" ? "Win" : resultKey === "lose" ? "Lose" : null;
   const lines = text.split(/\r?\n/);
   const out = [];
   let polarity = null; // null = unscoped (kept for any mode)
   let pendingTrigger = null;
+  let skipBlock = false;
 
   for (const line of lines) {
     const trimmed = line.trim();
     if (!trimmed) {
-      if (out.length && out[out.length - 1] !== "") out.push("");
+      if (!skipBlock && out.length && out[out.length - 1] !== "") out.push("");
       continue;
     }
     if (trimmed.startsWith("#")) continue;
 
     if (/^\[.+\]$/.test(trimmed)) {
-      pendingTrigger = trimmed;
       polarity = null;
+      const resolved = resolveClashResultTrigger(trimmed, resultWord);
+      if (resolved.usesResult && !resolved.trigger) {
+        pendingTrigger = null;
+        skipBlock = true;
+        continue;
+      }
+      pendingTrigger = resolved.trigger;
+      skipBlock = false;
       continue;
     }
+
+    if (skipBlock) continue;
 
     const polOnly = trimmed.match(/^(positive|negative)\s*:$/i);
     if (polOnly) {
@@ -182,6 +212,7 @@ export async function buildEasyEffectsFromEffects(effects = []) {
     const stamped = stampEffectEasyEffects(template, {
       mode: entry?.mode === "negative" ? "negative" : "positive",
       n: getEffectStack(entry),
+      procResult: entry?.procResult ?? "none",
     });
     if (!stamped.trim()) continue;
 
