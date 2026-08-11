@@ -1,11 +1,3 @@
-/* ============================================================
-   Combat Tracker — Character Card
-   - All selectors scoped under .ct
-   - Only display: flex (no grid)
-   - Relative units, preferring % over rem/em
-   - No image-rendering: pixelated (smooth icons)
-   ============================================================ */
-
 /* ── Tokens ── */
 .ct {
     --ct-bg:        #342415;
