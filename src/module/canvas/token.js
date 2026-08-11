@@ -11,6 +11,7 @@ export function registerTokenStatusBadges() {
 
     #statusHover = false;
     #badgeDrawId = 0;
+    #pendingBreathTicks = new Set();
 
     /** @override */
     async _draw(options) {
@@ -21,6 +22,7 @@ export function registerTokenStatusBadges() {
 
     /** @override */
     _destroy(options) {
+      this.#clearPendingBreath();
       this.statusBadges = null;
       super._destroy(options);
     }
@@ -48,7 +50,35 @@ export function registerTokenStatusBadges() {
 
     /* -------------------------------------------- */
 
+    #clearPendingBreath() {
+      const ticker = canvas?.app?.ticker;
+      for (const tick of this.#pendingBreathTicks) {
+        ticker?.remove(tick);
+      }
+      this.#pendingBreathTicks.clear();
+    }
+
+    #attachPendingBreath(entry) {
+      const ticker = canvas?.app?.ticker;
+      if (!ticker || !entry) return;
+      const start = performance.now();
+      const tick = () => {
+        if (!entry || entry.destroyed || !this.statusBadges || this.destroyed) {
+          ticker.remove(tick);
+          this.#pendingBreathTicks.delete(tick);
+          return;
+        }
+        const t = (performance.now() - start) / 2200;
+        const wave = 0.5 + 0.5 * Math.sin(t * Math.PI * 2);
+        entry.alpha = 0.38 + wave * 0.5;
+      };
+      this.#pendingBreathTicks.add(tick);
+      ticker.add(tick);
+      tick();
+    }
+
     #createStatusBadgeContainer() {
+      this.#clearPendingBreath();
       this.statusBadges?.destroy({ children: true });
       this.statusBadges = this.addChild(new PIXI.Container());
       this.statusBadges.name = "pmttrpgStatusBadges";
@@ -60,6 +90,7 @@ export function registerTokenStatusBadges() {
       if (!this.statusBadges || this.destroyed) return;
 
       const drawId = ++this.#badgeDrawId;
+      this.#clearPendingBreath();
       for (const child of this.statusBadges.removeChildren()) {
         child.destroy({ children: true });
       }
@@ -98,7 +129,7 @@ export function registerTokenStatusBadges() {
       const numSize = Math.max(10, Math.round(iconSize * 0.6));
 
       const PreciseText = foundry.canvas.containers.PreciseText;
-      const textStyle = PreciseText.getTextStyle({
+      const textStyleOpts = {
         fontFamily: CONFIG.defaultFontFamily || "Signika, sans-serif",
         fontSize: numSize,
         fill: "#ffffff",
@@ -110,12 +141,22 @@ export function registerTokenStatusBadges() {
         dropShadowDistance: 0,
         dropShadowAlpha: 0.65,
         align: "center",
+      };
+      const textStyle = PreciseText.getTextStyle(textStyleOpts);
+      const pendingTextStyle = PreciseText.getTextStyle({
+        ...textStyleOpts,
+        fill: "#c8c8c8",
       });
 
       const entries = [];
       for (const status of visible) {
         if (drawId !== this.#badgeDrawId) return;
-        const entry = await this.#buildBadgeEntry(status, iconSize, textStyle, PreciseText);
+        const entry = await this.#buildBadgeEntry(
+          status,
+          iconSize,
+          status.pending ? pendingTextStyle : textStyle,
+          PreciseText,
+        );
         if (drawId !== this.#badgeDrawId) {
           entry?.destroy({ children: true });
           return;
@@ -151,6 +192,7 @@ export function registerTokenStatusBadges() {
         entry.x = cursorX;
         entry.y = cursorY;
         this.statusBadges.addChild(entry);
+        if (entry._pmPending) this.#attachPendingBreath(entry);
         cursorX += slotW + entryGap;
         rowWidth = cursorX - entryGap;
         rowHeight = Math.max(rowHeight, slotH);
@@ -165,6 +207,7 @@ export function registerTokenStatusBadges() {
     async #buildBadgeEntry(status, iconSize, textStyle, PreciseText) {
       const entry = new PIXI.Container();
       entry.eventMode = "none";
+      entry._pmPending = !!status.pending;
 
       const src = status.img || "icons/svg/mystery-man.svg";
       let texture = null;
@@ -182,6 +225,7 @@ export function registerTokenStatusBadges() {
       icon.width = iconSize;
       icon.height = iconSize;
       icon.eventMode = "none";
+      if (status.pending) icon.tint = 0x9a9a9a;
       entry.addChild(icon);
 
       // Max stack of 1 statuses only need the icon.

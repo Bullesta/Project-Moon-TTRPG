@@ -12,9 +12,6 @@ system:
   stacks: 1
   stackMax: 0
   priority: 0
-  macro:
-    uuid: Macro.gxzFTfebUE0aHl7D
-    preset: onHitWhenActorHas
   customNotes: ''
   easyEffects: >-
     [On Action]

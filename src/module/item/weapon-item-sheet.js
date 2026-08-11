@@ -24,6 +24,7 @@ export class PMTTRPGWeaponItemSheet extends PMTTRPGItemSheet {
       ranged: "PMTTRPG.WeaponTypeRanged"
     };
     context.selects.damageTypes = {
+      none: "PMTTRPG.DamageTypeNone",
       slash: "PMTTRPG.DamageTypeSlash",
       pierce: "PMTTRPG.DamageTypePierce",
       blunt: "PMTTRPG.DamageTypeBlunt"

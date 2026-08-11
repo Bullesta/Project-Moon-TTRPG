@@ -1,10 +1,12 @@
 <ul class="pmttrpg-status-tray__list" aria-label="{{localize 'PMTTRPG.ActiveStatuses'}}">
   {{#each statuses as |status|}}
     <li
-      class="pmttrpg-status-tray__item {{#unless status.showCount}}unstackable{{/unless}}"
+      class="pmttrpg-status-tray__item{{#if status.pending}} pmttrpg-status-tray__item--pending{{else}}{{#unless status.showCount}} unstackable{{/unless}}{{/if}}"
       data-action="adjustStatus"
       data-status-name="{{status.name}}"
       data-item-id="{{status.itemId}}"
+      data-pending="{{#if status.pending}}true{{else}}false{{/if}}"
+      data-arrival="{{status.arrival}}"
       data-tooltip-direction="LEFT"
       data-tooltip-class="pmttrpg-status-tip"
     >

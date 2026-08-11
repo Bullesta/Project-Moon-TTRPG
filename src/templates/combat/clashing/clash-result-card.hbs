@@ -9,8 +9,11 @@
       <img class="clash-card__avatar" src="{{state.attackerImg}}" alt="{{state.attackerName}}">
       <span class="clash-result-card__name">{{state.attackerName}}</span>
       <span class="clash-result-card__item">{{state.attackerItemName}}</span>
-      <span class="clash-result-card__roll-total
-        {{#if attackerWon}}clash-result-card__roll-total--winner{{/if}}">
+      <span class="clash-result-card__roll-total clash-roll-total--hoverable
+        {{#if attackerWon}}clash-result-card__roll-total--winner{{/if}}"
+        data-clash-breakdown="attack"
+        tabindex="0"
+        aria-label="{{localize "PMTTRPG.Clash.Breakdown.Title"}}">
         {{state.attackRollTotal}}
       </span>
     </div>
@@ -23,14 +26,16 @@
       <img class="clash-card__avatar" src="{{state.retaliatorImg}}" alt="{{state.retaliatorName}}">
       <span class="clash-result-card__name">{{state.retaliatorName}}</span>
       <span class="clash-result-card__item">{{state.retaliatorItemName}}</span>
-      <span class="clash-result-card__roll-total
-        {{#if defenderWon}}clash-result-card__roll-total--winner{{/if}}">
+      <span class="clash-result-card__roll-total clash-roll-total--hoverable
+        {{#if defenderWon}}clash-result-card__roll-total--winner{{/if}}"
+        data-clash-breakdown="defense"
+        tabindex="0"
+        aria-label="{{localize "PMTTRPG.Clash.Breakdown.Title"}}">
         {{state.defenseRollTotal}}
       </span>
     </div>
   </div>
 
-  {{!-- Defense roll breakdown --}}
   <div class="clash-result-card__defense-roll">
     {{{defenseRollHtml}}}
   </div>
@@ -129,16 +134,16 @@
     </div>
   {{/if}}
 
-  <div class="chat-damage-buttons" data-pool="hp" data-pools="hp" data-damage-type="{{state.damageType}}">
+  <div class="chat-damage-buttons" data-pool="{{poolSelect.pool}}" data-pools="{{poolSelect.pools}}" data-damage-type="{{state.damageType}}">
     <div class="chat-damage-types" role="group" aria-label="{{localize "PMTTRPG.DamageTaken.TypeSelect"}}">
       <button type="button" class="button dtype{{#ifEquals state.damageType "slash"}} active{{/ifEquals}}" data-action="set-damage-type" data-damage-type="slash" title="{{localize "PMTTRPG.DamageTypeSlash"}}">{{localize "PMTTRPG.DamageTypeSlash"}}</button>
       <button type="button" class="button dtype{{#ifEquals state.damageType "pierce"}} active{{/ifEquals}}" data-action="set-damage-type" data-damage-type="pierce" title="{{localize "PMTTRPG.DamageTypePierce"}}">{{localize "PMTTRPG.DamageTypePierce"}}</button>
       <button type="button" class="button dtype{{#ifEquals state.damageType "blunt"}} active{{/ifEquals}}" data-action="set-damage-type" data-damage-type="blunt" title="{{localize "PMTTRPG.DamageTypeBlunt"}}">{{localize "PMTTRPG.DamageTypeBlunt"}}</button>
     </div>
     <div class="chat-damage-pools" role="group" aria-label="{{localize "PMTTRPG.DamageTaken.PoolSelect"}}" title="{{localize "PMTTRPG.DamageTaken.PoolHint"}}">
-      <button type="button" class="button pool active" data-action="set-pool" data-pool="hp">{{localize "PMTTRPG.TrackerHP"}}</button>
-      <button type="button" class="button pool" data-action="set-pool" data-pool="st">{{localize "PMTTRPG.TrackerST"}}</button>
-      <button type="button" class="button pool" data-action="set-pool" data-pool="sp">{{localize "PMTTRPG.TrackerSP"}}</button>
+      <button type="button" class="button pool{{#if poolSelect.hp}} active{{/if}}" data-action="set-pool" data-pool="hp">{{localize "PMTTRPG.TrackerHP"}}</button>
+      <button type="button" class="button pool{{#if poolSelect.st}} active{{/if}}" data-action="set-pool" data-pool="st">{{localize "PMTTRPG.TrackerST"}}</button>
+      <button type="button" class="button pool{{#if poolSelect.sp}} active{{/if}}" data-action="set-pool" data-pool="sp">{{localize "PMTTRPG.TrackerSP"}}</button>
     </div>
     <div class="chat-damage-apply">
       <button type="button" class="button damage full-damage" data-action="clash-damage" title="{{localize "PMTTRPG.DamageTaken.ApplyFull"}}"><i class="fas fa-user-minus"></i></button>

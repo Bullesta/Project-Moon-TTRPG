@@ -1,6 +1,8 @@
 import { PMTTRPGTargetingAPI } from "./targeting.js";
 import { uniqueStatusItems } from "./status/group-statuses.js";
+import { isPendingStatus } from "./status/pending.js";
 
+// Legacy API name as this now only emits combat hooks.
 const STATUS_EVENTS = {
   onTurnStart: {
     hook: 'projectmoonttrpg.onTurnStart',
@@ -58,7 +60,7 @@ function resolveActor(actorOrId) {
 function getStatusItems(actorOrId) {
   const actor = resolveActor(actorOrId);
   if (!actor) return [];
-  return actor.items.filter(item => item.type === 'status');
+  return actor.items.filter(item => item.type === 'status' && !isPendingStatus(item));
 }
 
 function resolveStatus(statusOrId) {
@@ -78,38 +80,10 @@ function getStatusItemsForEvent(actorOrId, eventName) {
   return statuses.filter(status => Boolean(status.system?.proc?.[event.procField]));
 }
 
-async function runLinkedMacro(statusItem, context = {}) {
-  const macroUuid = statusItem?.system?.macro?.uuid;
-  if (!macroUuid) return null;
-
-  let macro;
-  try {
-    macro = await fromUuid(macroUuid);
-  }
-  catch (err) {
-    console.warn('[PMTTRPG][StatusMacros] Invalid macro UUID', macroUuid, err);
-    return null;
-  }
-
-  if (!macro || macro.documentName !== 'Macro') {
-    console.warn('[PMTTRPG][StatusMacros] Linked UUID is not a Macro', macroUuid);
-    return null;
-  }
-
-  // Foundry Macro scope passes status metadata and trigger context to user scripts.
-  return macro.execute({
-    status: statusItem,
-    actor: statusItem.parent ?? null,
-    context,
-    api: PMTTRPGStatusMacroAPI,
-    targeting: PMTTRPGTargetingAPI,
-  });
-}
-
-async function emitStatusEvent(eventName, payload = {}, { runMacros = true } = {}) {
+async function emitStatusEvent(eventName, payload = {}) {
   const event = STATUS_EVENTS[eventName];
   if (!event) {
-    throw new Error(`[PMTTRPG][StatusMacros] Unknown event '${eventName}'`);
+    throw new Error(`[PMTTRPG][StatusEvents] Unknown event '${eventName}'`);
   }
 
   const actor = resolveActor(payload.actor ?? payload.actorId);
@@ -127,19 +101,13 @@ async function emitStatusEvent(eventName, payload = {}, { runMacros = true } = {
   Hooks.callAll(event.hook, context);
   Hooks.callAll(STATUS_TRIGGER_HOOK, context);
 
-  if (runMacros) {
-    for (const status of statuses) {
-      await runLinkedMacro(status, { ...context, status });
-    }
-  }
-
   return context;
 }
 
-async function emitManualButton(statusOrId, payload = {}, { runMacros = true } = {}) {
+async function emitManualButton(statusOrId, payload = {}) {
   const status = resolveStatus(statusOrId ?? payload.status ?? payload.statusId);
   if (!status) {
-    throw new Error('[PMTTRPG][StatusMacros] Manual button activation requires a status item');
+    throw new Error('[PMTTRPG][StatusEvents] Manual button activation requires a status item');
   }
 
   const actor = resolveActor(payload.actor ?? payload.actorId ?? status.parent);
@@ -155,17 +123,13 @@ async function emitManualButton(statusOrId, payload = {}, { runMacros = true } =
   Hooks.callAll(STATUS_MANUAL_BUTTON_HOOK, context);
   Hooks.callAll(STATUS_TRIGGER_HOOK, context);
 
-  if (runMacros) {
-    await runLinkedMacro(status, context);
-  }
-
   return context;
 }
 
 function registerEventCallback(eventName, callback) {
   const event = STATUS_EVENTS[eventName];
   if (!event) {
-    throw new Error(`[PMTTRPG][StatusMacros] Unknown event '${eventName}'`);
+    throw new Error(`[PMTTRPG][StatusEvents] Unknown event '${eventName}'`);
   }
   return Hooks.on(event.hook, callback);
 }
@@ -183,14 +147,12 @@ export const PMTTRPGStatusMacroAPI = {
   getStatusItems,
   resolveStatus,
   getStatusItemsForEvent,
-  runLinkedMacro,
   emitStatusEvent,
   registerEventCallback,
   registerManualButtonCallback,
 
-  // Convenience wrappers for common macro-development flow.
   onEndOfRound(callback) { return registerEventCallback('onEndOfRound', callback); },
-  onTurnEnd(callback) { return registerEventCallback('onTurnEnd', callback); }, // alias of onEndOfRound
+  onTurnEnd(callback) { return registerEventCallback('onTurnEnd', callback); },
   onTurnStart(callback) { return registerEventCallback('onTurnStart', callback); },
   onActionOrReaction(callback) { return registerEventCallback('onActionOrReaction', callback); },
   onAttackerBurst(callback) { return registerEventCallback('onAttackerBurst', callback); },
@@ -201,15 +163,15 @@ export const PMTTRPGStatusMacroAPI = {
   onAttackRoll(callback) { return registerEventCallback('onAttackRoll', callback); },
   onManualButton(callback) { return registerManualButtonCallback(callback); },
 
-  emitTurnStart(payload, options) { return emitStatusEvent('onTurnStart', payload, options); },
-  emitEndOfRound(payload, options) { return emitStatusEvent('onEndOfRound', payload, options); },
-  emitTurnEnd(payload, options) { return emitStatusEvent('onEndOfRound', payload, options); }, // alias
-  emitActionOrReaction(payload, options) { return emitStatusEvent('onActionOrReaction', payload, options); },
-  emitAttackerBurst(payload, options) { return emitStatusEvent('onAttackerBurst', payload, options); },
-  emitHitSelf(payload, options) { return emitStatusEvent('onHitSelf', payload, options); },
-  emitHitEnemy(payload, options) { return emitStatusEvent('onHitEnemy', payload, options); },
-  emitAlwaysActive(payload, options) { return emitStatusEvent('onAlwaysActive', payload, options); },
-  emitSkillResource(payload, options) { return emitStatusEvent('onSkillResource', payload, options); },
-  emitAttackRoll(payload, options) { return emitStatusEvent('onAttackRoll', payload, options); },
-  emitManualButton(statusOrId, payload, options) { return emitManualButton(statusOrId, payload, options); },
+  emitTurnStart(payload) { return emitStatusEvent('onTurnStart', payload); },
+  emitEndOfRound(payload) { return emitStatusEvent('onEndOfRound', payload); },
+  emitTurnEnd(payload) { return emitStatusEvent('onEndOfRound', payload); },
+  emitActionOrReaction(payload) { return emitStatusEvent('onActionOrReaction', payload); },
+  emitAttackerBurst(payload) { return emitStatusEvent('onAttackerBurst', payload); },
+  emitHitSelf(payload) { return emitStatusEvent('onHitSelf', payload); },
+  emitHitEnemy(payload) { return emitStatusEvent('onHitEnemy', payload); },
+  emitAlwaysActive(payload) { return emitStatusEvent('onAlwaysActive', payload); },
+  emitSkillResource(payload) { return emitStatusEvent('onSkillResource', payload); },
+  emitAttackRoll(payload) { return emitStatusEvent('onAttackRoll', payload); },
+  emitManualButton(statusOrId, payload) { return emitManualButton(statusOrId, payload); },
 };

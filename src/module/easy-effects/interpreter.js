@@ -10,7 +10,15 @@ import {
   recoverPool,
   resolvePathShorthand,
 } from "./nouns.js";
-import { matchesDamageFilter } from "./damage-filter.js";
+import { expandSimpleDiceByMultiplier } from "./dice-formula.js";
+import { matchesBurstFilter, matchesClashStanceFilter, matchesDamageFilter, matchesDepletedFilter } from "./damage-filter.js";
+import { mergeResistanceOverrideMaps } from "./resistances.js";
+import { promptChoiceDialog } from "./choice-dialog.js";
+import { runAsOwnerOrGM } from "./gm-route.js";
+import { parseAccessorExpression } from "./parser.js";
+
+// Me and the boi's hate infinite recursion
+const DIALOG_NEST_MAX_DEPTH = 8;
 
 async function evaluateExpr(node, context) {
   switch (node.type) {
@@ -21,6 +29,7 @@ async function evaluateExpr(node, context) {
       return roll.total;
     }
     case "Path":  return resolvePath(node.segments, context);
+    case "Percent": return await resolvePercentExpr(node.expr, context, evaluateExpr);
     case "EffectN":
       return Math.max(0, Number(context.effectN) || 0);
     case "BinOp": {
@@ -41,9 +50,10 @@ function evaluateExprSync(node, context) {
   switch (node.type) {
     case "Num":  return node.value;
     case "Dice":
-      console.warn("[EasyEffects] Dice expressions are not allowed in [Always Active] — returning 0.");
+      console.warn("[EasyEffects] Dice expressions are not allowed in [Always Active]; returning 0.");
       return 0;
     case "Path": return resolvePath(node.segments, context);
+    case "Percent": return resolvePercentExpr(node.expr, context, evaluateExprSync);
     case "EffectN":
       return Math.max(0, Number(context.effectN) || 0);
     case "BinOp":
@@ -71,30 +81,222 @@ function applyMathOp(op, left, right) {
   }
 }
 
+const POOL_PERCENT_KEYS = new Set(["hp", "st", "sp", "light"]);
+
+function resolvePercentExpr(inner, context, evalFn) {
+  if (inner?.type === "Path") {
+    const pct = resolvePathPoolPercent(inner.segments, context);
+    if (pct !== null) return pct;
+  }
+  const value = evalFn(inner, context);
+  if (value && typeof value.then === "function") {
+    return value.then((n) => Number(n) || 0);
+  }
+  return Number(value) || 0;
+}
+
+/** @returns {number|null} */
+function resolvePathPoolPercent(segments, context) {
+  if (!Array.isArray(segments) || segments.length < 2) return null;
+  const root = segments[0];
+  const actor = resolveContextActor(root, context);
+  if (!actor) return null;
+
+  let poolKey = null;
+  if (segments.length === 2 && POOL_PERCENT_KEYS.has(String(segments[1]).toLowerCase())) {
+    poolKey = String(segments[1]).toLowerCase();
+  } else if (
+    segments.length === 3
+    && segments[1] === "attr"
+    && POOL_PERCENT_KEYS.has(String(segments[2]).toLowerCase())
+  ) {
+    poolKey = String(segments[2]).toLowerCase();
+  }
+  if (!poolKey) return null;
+
+  const attr = actor.system?.attributes?.[poolKey];
+  const value = Number(attr?.value) || 0;
+  const max = Number(attr?.max) || 0;
+  if (max <= 0) return 0;
+  return (value / max) * 100;
+}
+
 const ITEM_PATH_FIELDS = new Set(["rank", "lightCost"]);
+
+export function ensureRollsBag(context) {
+  if (!context.rolls || typeof context.rolls !== "object") {
+    context.rolls = { last: null, named: {} };
+  } else {
+    if (!context.rolls.named || typeof context.rolls.named !== "object") context.rolls.named = {};
+    if (!("last" in context.rolls)) context.rolls.last = null;
+  }
+  return context.rolls;
+}
+
+/**
+ * @param {string} formula
+ * @param {object} context
+ * @param {string|null} bind
+ * @returns {Promise<number>}
+ */
+export async function applyRollToContext(formula, context, bind = null) {
+  const bag = ensureRollsBag(context);
+  const total = await evaluateDiceFormula(String(formula), context);
+  bag.last = total;
+  if (bind) bag.named[bind] = total;
+  return total;
+}
+
+/**
+ * @param {string} formula
+ * @param {object} [context]
+ * @returns {Promise<number>}
+ */
+export async function evaluateDiceFormula(formula, context = null) {
+  const raw = String(formula ?? "").trim();
+  if (!raw || raw === "0") return 0;
+
+  const roll = new Roll(raw);
+  await roll.roll();
+
+  if (globalThis.game?.dice3d?.showForRoll) {
+    try {
+      const speaker = (typeof ChatMessage !== "undefined" && context?.self)
+        ? ChatMessage.getSpeaker?.({ actor: context.self })
+        : undefined;
+      await game.dice3d.showForRoll(
+        roll,
+        game.user,
+        true,
+        null,
+        false,
+        null,
+        speaker ?? undefined
+      );
+    } catch (err) {
+      console.warn("[EasyEffects] Dice So Nice showForRoll failed; continuing with total.", err);
+    }
+  }
+
+  return Number(roll.total) || 0;
+}
+
+function resolveActorFromUuid(uuid) {
+  const id = String(uuid ?? "").trim();
+  if (!id) return null;
+  try {
+    const doc = globalThis.fromUuidSync?.(id) ?? null;
+    if (!doc) return null;
+    if (doc.documentName === "Actor") return doc;
+    if (doc.actor) return doc.actor;
+  } catch (_) { /* ignore */ }
+  return null;
+}
+
+function resolveOriginator(context) {
+  if (context?.originator) return context.originator;
+
+  const item = context?.item;
+  const uuid = item?.type === "status"
+    ? String(item.system?.origin ?? "").trim()
+    : "";
+  if (!uuid) {
+    console.warn("[EasyEffects] 'originator' used but the host status has no origin.");
+    return null;
+  }
+
+  const actor = resolveActorFromUuid(uuid);
+  if (!actor) {
+    console.warn(`[EasyEffects] originator UUID '${uuid}' did not resolve to an Actor.`);
+    return null;
+  }
+  context.originator = actor;
+  return actor;
+}
+
+function resolveContextActor(name, context) {
+  if (!name) return null;
+  if (name === "attacker") return context.attacker ?? null;
+  if (name === "originator") return resolveOriginator(context);
+  return context[name] ?? null;
+}
+
+function resolveEffectSourceLabel(context) {
+  const name = String(context?.item?.name ?? "").trim();
+  if (name) return name;
+  // Actor scripts have no host item but still need a source label.
+  if (context && context.item == null && context.self) {
+    return globalThis.game?.i18n?.localize?.("PMTTRPG.DamageTaken.Breakdown.WorldScript")
+      || "World EasyEffects";
+  }
+  return null;
+}
 
 function resolvePath(segments, context) {
   const root = segments[0];
+
+  if (root === "roll") {
+    const bag = context.rolls;
+    if (!bag) {
+      console.warn("[EasyEffects] 'roll' used before any 'roll' / 'on roll' in this trigger.");
+      return 0;
+    }
+    if (segments.length === 1) return Number(bag.last) || 0;
+    const key = segments[1];
+    if (key in (bag.named ?? {})) return Number(bag.named[key]) || 0;
+    console.warn(`[EasyEffects] Unknown named roll 'roll.${key}'`);
+    return 0;
+  }
+
+  if (segments.length === 1) {
+    const bag = context.rolls;
+    if (bag?.named && Object.prototype.hasOwnProperty.call(bag.named, root)) {
+      return Number(bag.named[root]) || 0;
+    }
+    const procBinds = context.proc?.binds;
+    if (procBinds && Object.prototype.hasOwnProperty.call(procBinds, root)) {
+      return procBinds[root];
+    }
+    if (root === "self" || root === "target" || root === "ally"
+      || root === "attacker" || root === "originator") {
+      const actorRoot = resolveContextActor(root, context);
+      if (!actorRoot) {
+        console.warn(`[EasyEffects] Path root '${root}' not in context.`);
+        return "";
+      }
+      return actorRoot.name ?? "";
+    }
+    const self = context.self;
+    if (self?.getStatusStacks) return self.getStatusStacks(root);
+    if (self) {
+      console.warn(`[EasyEffects] Path '${root}' looks like a status but self has no getStatusStacks.`);
+      return 0;
+    }
+    console.warn(`[EasyEffects] Path root '${root}' not in context.`);
+    return 0;
+  }
 
   if (root === "clash") {
     const clash = context.clash;
     if (!clash) { console.warn("[EasyEffects] 'clash.*' used outside clash context."); return 0; }
     const key = segments[1];
+    if (key === "margin") return clash.margin ?? 0;
+    if (key === "attackerRoll") return clash.attackerRoll ?? 0;
+    if (key === "defenderRoll") return clash.defenderRoll ?? 0;
+
+    const sideBag = _clashBonusBagForSelf(context);
     const map = {
-      margin: clash.margin ?? 0,
-      attackerRoll: clash.attackerRoll ?? 0,
-      defenderRoll: clash.defenderRoll ?? 0,
       // bonus reads (for conditions)
-      attackPower: clash.bonuses?.attackPower ?? 0,
-      blockPower:  clash.bonuses?.blockPower  ?? 0,
-      evadePower:  clash.bonuses?.evadePower  ?? 0,
-      damagePower: clash.bonuses?.damagePower ?? 0,
-      attackMax:   clash.bonuses?.attackMax   ?? 0,
-      blockMax:    clash.bonuses?.blockMax    ?? 0,
-      evadeMax:    clash.bonuses?.evadeMax    ?? 0,
-      damageMax:   clash.bonuses?.damageMax   ?? 0,
-      regenHP:     clash.bonuses?.regenHP     ?? 0,
-      regenST:     clash.bonuses?.regenST     ?? 0,
+      attackPower: sideBag.attackPower ?? 0,
+      blockPower:  sideBag.blockPower  ?? 0,
+      evadePower:  sideBag.evadePower  ?? 0,
+      damagePower: sideBag.damagePower ?? 0,
+      attackMax:   sideBag.attackMax   ?? 0,
+      blockMax:    sideBag.blockMax    ?? 0,
+      evadeMax:    sideBag.evadeMax    ?? 0,
+      damageMax:   sideBag.damageMax   ?? 0,
+      regenHP:     sideBag.regenHP     ?? 0,
+      regenST:     sideBag.regenST     ?? 0,
     };
     if (!(key in map)) { console.warn(`[EasyEffects] Unknown clash path 'clash.${key}'`); return 0; }
     return map[key];
@@ -104,6 +306,7 @@ function resolvePath(segments, context) {
     const item = context.item;
     if (!item) { console.warn("[EasyEffects] 'item.*' used but no item in context."); return 0; }
     const key = segments[1];
+    if (key === "origin") return item.system?.origin ?? "";
     if (!ITEM_PATH_FIELDS.has(key)) {
       console.warn(`[EasyEffects] Unknown item path 'item.${key}'`);
       return 0;
@@ -130,15 +333,82 @@ function resolvePath(segments, context) {
     return 0;
   }
 
-  const actor = (root === "attacker" ? context.attacker : context[root]) ?? null;
+  if (root === "changed") {
+    const ch = context.changed;
+    if (!ch) {
+      console.warn("[EasyEffects] 'changed.*' used outside [On Gain] / [On Lose] context.");
+      return 0;
+    }
+    const key = segments[1];
+    if (key === "amount" || key === "before" || key === "after") {
+      return Number(ch[key]) || 0;
+    }
+    console.warn(`[EasyEffects] Unknown changed path 'changed.${key}'`);
+    return 0;
+  }
+
+  if (root === "depleted") {
+    const dep = context.depleted;
+    if (!dep) {
+      console.warn("[EasyEffects] 'depleted.*' used outside [On Depleted] context.");
+      return 0;
+    }
+    const key = segments[1];
+    if (key === "pool") return dep.pool ?? "";
+    if (key === "before" || key === "max") return Number(dep[key]) || 0;
+    console.warn(`[EasyEffects] Unknown depleted path 'depleted.${key}'`);
+    return 0;
+  }
+
+  if (root === "burst") {
+    const burst = context.burst;
+    if (!burst) {
+      console.warn("[EasyEffects] 'burst.*' used outside Burst context.");
+      return 0;
+    }
+    const key = segments[1];
+    if (key === "amount" || key === "before" || key === "after") {
+      return Number(burst[key]) || 0;
+    }
+    if (key === "status") return burst.status ?? "";
+    console.warn(`[EasyEffects] Unknown burst path 'burst.${key}'`);
+    return 0;
+  }
+
+  if (root === "proc") {
+    const proc = context.proc;
+    if (!proc) {
+      console.warn("[EasyEffects] 'proc.*' used outside Proc context.");
+      return 0;
+    }
+    const key = segments[1];
+    if (key === "name") return proc.name ?? "";
+    if (proc.binds && Object.prototype.hasOwnProperty.call(proc.binds, key)) {
+      return proc.binds[key];
+    }
+    console.warn(`[EasyEffects] Unknown proc path 'proc.${key}'`);
+    return 0;
+  }
+
+  const actor = resolveContextActor(root, context);
   if (!actor) { console.warn(`[EasyEffects] Path root '${root}' not in context.`); return 0; }
 
   const sub = segments.slice(1);
-  if (!sub.length) return 0;
+  if (!sub.length) return actor.name ?? "";
 
-  if (sub[0] === "status" && sub[1]) return actor.getStatusStacks(sub[1]);
+  if (sub[0] === "status" && sub[1]) {
+    if (sub[2] === "origin") {
+      return typeof actor.getStatusOrigin === "function"
+        ? actor.getStatusOrigin(sub[1])
+        : "";
+    }
+    if (sub.length === 2) return actor.getStatusStacks(sub[1]);
+  }
 
   if (sub.length === 1) {
+    if (sub[0] === "uuid") return actor.uuid ?? "";
+    if (sub[0] === "id") return actor.id ?? "";
+    if (sub[0] === "name") return actor.name ?? "";
     const shorthand = resolvePathShorthand(actor, sub[0]);
     if (shorthand !== null) return shorthand;
   }
@@ -156,14 +426,45 @@ async function resolveAmount(amountNode, context) {
   if (!amountNode) return 1;
   switch (amountNode.type) {
     case "NUMBER":   return amountNode.value;
-    case "DICE":     { const r = new Roll(amountNode.value); await r.roll(); return r.total; }
+    case "DICE":     return evaluateDiceFormula(amountNode.value, context);
     case "ACCESSOR": return Number(await evaluateExpr(amountNode.expr, context)) || 0;
     case "EFFECT_N": return Math.max(0, Number(context.effectN) || 0);
+    case "POOL_MAX": return 0; // resolved per-actor in set handler
     case "MULTIPLIEDPATH":
       return resolvePath(amountNode.path.segments, context)
         * await resolveAmount(amountNode.multiplier, context);
     default: console.warn(`[EasyEffects] Unknown amount type '${amountNode.type}'`); return 1;
   }
+}
+
+/**
+ * Simple dice pools expand before rolling; other formulas roll once, then multiply.
+ * @returns {Promise<{ amount: number, formula: string|null }>}
+ */
+async function resolveActionAmount(action, context) {
+  const amountNode = action.amount;
+  const perNode = action.per;
+
+  if (amountNode?.type === "DICE" && perNode) {
+    const times = Math.max(0, Math.round(await resolveAmount(perNode, context)));
+    if (times <= 0) return { amount: 0, formula: null };
+    const expanded = expandSimpleDiceByMultiplier(amountNode.value, times);
+    if (expanded != null) {
+      if (expanded === "0") return { amount: 0, formula: null };
+      const amount = Math.max(0, Math.round(await evaluateDiceFormula(expanded, context)));
+      return { amount, formula: expanded };
+    }
+    const once = await evaluateDiceFormula(amountNode.value, context);
+    return {
+      amount: Math.max(0, Math.round(once * times)),
+      formula: `${amountNode.value}×${times}`,
+    };
+  }
+
+  const formula = amountNode?.type === "DICE" ? String(amountNode.value) : null;
+  let amount = await resolveAmount(amountNode, context);
+  if (perNode) amount *= await resolveAmount(perNode, context);
+  return { amount: Math.max(0, Math.round(amount)), formula };
 }
 
 function resolveAmountSync(amountNode, context) {
@@ -173,6 +474,7 @@ function resolveAmountSync(amountNode, context) {
     case "DICE":     console.warn("[EasyEffects] Dice not allowed in [Always Active]"); return 0;
     case "ACCESSOR": return Number(evaluateExprSync(amountNode.expr, context)) || 0;
     case "EFFECT_N": return Math.max(0, Number(context.effectN) || 0);
+    case "POOL_MAX": return 0;
     case "MULTIPLIEDPATH":
       return resolvePath(amountNode.path.segments, context)
         * resolveAmountSync(amountNode.multiplier, context);
@@ -182,16 +484,54 @@ function resolveAmountSync(amountNode, context) {
 
 // ── Action handlers ───────────────────────────────────────────────────────────
 
+function _resolveClashBonusSide(context, actionTarget) {
+  const wantTarget = (actionTarget ?? "self") === "target";
+  const actor = wantTarget ? context.target : context.self;
+  const attacker = context.attacker ?? null;
+  const defender = context.defender ?? null;
+
+  if (actor && attacker && actor.id === attacker.id) return "attacker";
+  if (actor && defender && actor.id === defender.id) return "defender";
+  if (context.self && attacker && context.self.id === attacker.id) {
+    return wantTarget ? "defender" : "attacker";
+  }
+  if (context.self && defender && context.self.id === defender.id) {
+    return wantTarget ? "attacker" : "defender";
+  }
+  return wantTarget ? "defender" : "attacker";
+}
+
+function _clashBonusBagForSelf(context) {
+  const clash = context.clash;
+  if (!clash?.bonuses) return {};
+  if (clash.bonuses.attacker && clash.bonuses.defender) {
+    const side = _resolveClashBonusSide(context, "self");
+    return clash.bonuses[side] ?? {};
+  }
+  return clash.bonuses;
+}
+
 /**
- * Writes N into the named field of clash.bonuses.
+ * Writes N into the named field of clash.bonuses (attacker/defender bag when sided).
  * delta can be positive (up) or negative (down).
  */
-function _applyClashBonus(context, field, delta) {
+function _applyClashBonus(context, field, delta, actionTarget = "self") {
   if (!context.clash?.bonuses) {
     console.warn(`[EasyEffects] Clash bonus '${field}' used outside a clash context — ignored.`);
     return;
   }
-  context.clash.bonuses[field] = (context.clash.bonuses[field] ?? 0) + delta;
+  const bonuses = context.clash.bonuses;
+  if (bonuses.attacker && bonuses.defender) {
+    const side = _resolveClashBonusSide(context, actionTarget);
+    const bag = bonuses[side];
+    if (!bag) {
+      console.warn(`[EasyEffects] Clash bonus side '${side}' missing; ignored.`);
+      return;
+    }
+    bag[field] = (bag[field] ?? 0) + delta;
+    return;
+  }
+  bonuses[field] = (bonuses[field] ?? 0) + delta;
 }
 
 const ACTION_HANDLERS = {
@@ -208,8 +548,23 @@ const ACTION_HANDLERS = {
       return;
     }
     if (action.noun !== "status") throw new InterpretError(`'add' only supports noun 'status'`);
-    for (const actor of resolveTargets(action.target, context))
-      await actor.addStatusStacks(action.argument, amount);
+    const originUuid = context.self?.uuid ?? null;
+    for (const actor of resolveTargets(action.target, context)) {
+      if (action.timing) {
+        await runAsOwnerOrGM(actor, "addPendingStatusStacks", {
+          statusName: action.argument,
+          amount,
+          arrival: action.timing,
+          originUuid,
+        });
+      } else {
+        await runAsOwnerOrGM(actor, "addStatusStacks", {
+          statusName: action.argument,
+          amount,
+          originUuid,
+        });
+      }
+    }
   },
 
   remove: async (action, context, amount) => {
@@ -224,12 +579,16 @@ const ACTION_HANDLERS = {
       return;
     }
     if (action.noun !== "status") throw new InterpretError(`'remove' only supports noun 'status'`);
-    for (const actor of resolveTargets(action.target, context))
-      await actor.removeStatusStacks(action.argument, amount);
+    for (const actor of resolveTargets(action.target, context)) {
+      await runAsOwnerOrGM(actor, "removeStatusStacks", {
+        statusName: action.argument,
+        amount,
+      });
+    }
   },
 
   // ── HP / ST / SP / Light ───────────────────────────────────────────────────
-  deal: async (action, context, amount) => {
+  deal: async (action, context, amount, meta = {}) => {
     if (action.noun !== "damage") throw new InterpretError(`'deal' only supports noun 'damage'`);
     const host = context.item;
     // Status damage uses the item name as its source.
@@ -243,29 +602,50 @@ const ACTION_HANDLERS = {
       || "hp";
     const damageType = action.damageType
       || (context.damage?.damageType ? String(context.damage.damageType) : null)
-      || (context.clash?.damageType ? String(context.clash.damageType) : null)
+      // Status procs should not inherit the clash weapon type.
+      || (host?.type !== "status" && context.clash?.damageType
+        ? String(context.clash.damageType)
+        : null)
       || null;
     // Avoid rerunning On Taking Damage for reflected hits.
     const skipEasyEffects = !!context.damage;
+    const resistanceTiming = action.resistanceTiming === "before" ? "before" : "after";
+    const formula = typeof meta.formula === "string" && meta.formula.trim()
+      ? meta.formula.trim()
+      : null;
     for (const actor of resolveTargets(action.target, context)) {
-      await actor.applyDamage(amount, {
-        op: "full",
-        pool,
-        source,
-        damageType,
-        skipEasyEffects,
+      await runAsOwnerOrGM(actor, "applyDamage", {
+        amount,
+        options: {
+          op: "full",
+          pool,
+          source,
+          damageType,
+          formula,
+          skipEasyEffects,
+          skipResistance: resistanceTiming !== "before",
+        },
       });
     }
   },
 
-  heal: async (action, context, amount) => {
+  heal: async (action, context, amount, meta = {}) => {
     if (action.noun !== "damage") throw new InterpretError(`'heal' only supports noun 'damage'`);
     const pool = action.pool || "hp";
+    const formula = typeof meta.formula === "string" && meta.formula.trim()
+      ? meta.formula.trim()
+      : null;
+    const sourceLabel = resolveEffectSourceLabel(context);
     for (const actor of resolveTargets(action.target, context)) {
-      await actor.applyDamage(amount, {
-        op: "heal",
-        pool,
-        skipEasyEffects: !!context.damage,
+      await runAsOwnerOrGM(actor, "applyDamage", {
+        amount,
+        options: {
+          op: "heal",
+          pool,
+          formula,
+          sourceLabel,
+          skipEasyEffects: !!context.damage,
+        },
       });
     }
   },
@@ -276,6 +656,10 @@ const ACTION_HANDLERS = {
       console.warn("[EasyEffects] 'reduce damage' used outside [On Taking Damage]; ignored.");
       return;
     }
+    if (action.resistanceTiming === "after") {
+      applyAfterResistanceDelta(context.damage, -amount, context._blockDamageFilter);
+      return;
+    }
     const cur = Number(context.damage.amount) || 0;
     context.damage.amount = Math.max(0, cur - amount);
   },
@@ -284,6 +668,10 @@ const ACTION_HANDLERS = {
     if (action.noun !== "damage") throw new InterpretError(`'increase' only supports noun 'damage'`);
     if (!context.damage) {
       console.warn("[EasyEffects] 'increase damage' used outside [On Taking Damage]; ignored.");
+      return;
+    }
+    if (action.resistanceTiming === "after") {
+      applyAfterResistanceDelta(context.damage, amount, context._blockDamageFilter);
       return;
     }
     const cur = Number(context.damage.amount) || 0;
@@ -308,6 +696,74 @@ const ACTION_HANDLERS = {
   },
 
   set: async (action, context, amount) => {
+    if (action.noun === "resistance") {
+      const map = action.resistanceOverrides;
+      if (!map || typeof map !== "object") {
+        console.warn("[EasyEffects] 'set resistance' missing override map");
+        return;
+      }
+      for (const actor of resolveTargets(action.target ?? "self", context)) {
+        await runAsOwnerOrGM(actor, "setOutfitResistances", { overrides: map });
+      }
+      return;
+    }
+    if (action.noun === "status") {
+      const statusName = action.argument;
+      if (!statusName) {
+        console.warn("[EasyEffects] 'set' status missing name");
+        return;
+      }
+      const stacks = Math.max(0, Math.round(Number(amount) || 0));
+      for (const actor of resolveTargets(action.target ?? "self", context)) {
+        await runAsOwnerOrGM(actor, "setStatusStacks", {
+          statusName,
+          amount: stacks,
+        });
+      }
+      return;
+    }
+    if (action.noun === "pool") {
+      const pool = action.argument || action.pool;
+      if (!pool) {
+        console.warn("[EasyEffects] 'set' pool missing name");
+        return;
+      }
+      for (const actor of resolveTargets(action.target ?? "self", context)) {
+        const poolData = actor.system?.attributes?.[pool];
+        if (!poolData) continue;
+        const max = Number(poolData.max) || 0;
+        const current = Number(poolData.value) || 0;
+        const targetVal = action.amount?.type === "POOL_MAX"
+          ? max
+          : Math.clamp(Math.round(Number(amount) || 0), 0, max);
+        const delta = targetVal - current;
+        if (delta === 0) continue;
+        const sourceLabel = resolveEffectSourceLabel(context);
+        if (delta > 0) {
+          await runAsOwnerOrGM(actor, "applyDamage", {
+            amount: delta,
+            options: {
+              op: "heal",
+              pool,
+              sourceLabel,
+              skipEasyEffects: !!context.damage,
+            },
+          });
+        } else {
+          await runAsOwnerOrGM(actor, "applyDamage", {
+            amount: -delta,
+            options: {
+              op: "full",
+              pool,
+              sourceLabel,
+              skipResistance: true,
+              skipEasyEffects: true,
+            },
+          });
+        }
+      }
+      return;
+    }
     if (action.noun === "resource") {
       if (isRuntimeResource(action.argument)) {
         for (const actor of resolveTargets(action.target ?? "self", context)) {
@@ -318,15 +774,13 @@ const ACTION_HANDLERS = {
       console.warn("[EasyEffects] 'set maxHp/maxSt/maxSp/maxLight' only applies in [Always Active]; ignored.");
       return;
     }
-    if (action.noun !== "stat") throw new InterpretError(`'set' only supports noun 'stat'`);
+    if (action.noun !== "stat") {
+      throw new InterpretError(`'set' only supports noun 'stat', 'status', 'pool', 'resource', or 'resistance'`);
+    }
     for (const actor of resolveTargets(action.target, context)) {
       const name = action.argument;
       if (!name) continue;
-      if (actor.system.attributes?.[name] !== undefined)
-        await actor.update({ [`system.attributes.${name}.value`]: amount });
-      else if (actor.system.abilities?.[name] !== undefined)
-        await actor.update({ [`system.abilities.${name}.value`]: amount });
-      else console.warn(`[EasyEffects] Unknown stat '${name}' on ${actor.name}`);
+      await runAsOwnerOrGM(actor, "setStat", { statName: name, amount });
     }
   },
 
@@ -343,31 +797,59 @@ const ACTION_HANDLERS = {
   "power up": async (action, context, amount) => {
     const field = getPowerField(action.noun);
     if (!field) { console.warn(`[EasyEffects] Unknown noun for power up/down: '${action.noun}'`); return; }
-    _applyClashBonus(context, field, +amount);
+    _applyClashBonus(context, field, +amount, action.target ?? "self");
   },
 
   "power down": async (action, context, amount) => {
     const field = getPowerField(action.noun);
     if (!field) { console.warn(`[EasyEffects] Unknown noun for power up/down: '${action.noun}'`); return; }
-    _applyClashBonus(context, field, -amount);
+    _applyClashBonus(context, field, -amount, action.target ?? "self");
+  },
+
+  advantage: async (action, context, amount) => {
+    const n = Math.max(1, Math.round(Number(amount) || 1));
+    _applyClashBonus(context, "advantage", n, action.target ?? "self");
+  },
+
+  disadvantage: async (action, context, amount) => {
+    const n = Math.max(1, Math.round(Number(amount) || 1));
+    _applyClashBonus(context, "disadvantage", n, action.target ?? "self");
   },
 
   "dice max up": async (action, context, amount) => {
     const field = getMaxField(action.noun);
     if (!field) { console.warn(`[EasyEffects] Unknown noun for dice max up/down: '${action.noun}'`); return; }
-    _applyClashBonus(context, field, +amount);
+    _applyClashBonus(context, field, +amount, action.target ?? "self");
   },
 
   "dice max down": async (action, context, amount) => {
     const field = getMaxField(action.noun);
     if (!field) { console.warn(`[EasyEffects] Unknown noun for dice max up/down: '${action.noun}'`); return; }
-    _applyClashBonus(context, field, -amount);
+    _applyClashBonus(context, field, -amount, action.target ?? "self");
   },
 
   regen: async (action, context, amount) => {
     const field = getRegenField(action.noun);
     if (field) {
-      _applyClashBonus(context, field, +amount);
+      _applyClashBonus(context, field, +amount, action.target ?? "self");
+      return;
+    }
+
+    // Route SP and Light through the heal breakdown.
+    const pool = String(action.noun ?? "").toLowerCase();
+    if (pool === "sp" || pool === "light") {
+      const sourceLabel = resolveEffectSourceLabel(context);
+      for (const actor of resolveTargets(action.target, context)) {
+        await runAsOwnerOrGM(actor, "applyDamage", {
+          amount,
+          options: {
+            op: "heal",
+            pool,
+            sourceLabel,
+            skipEasyEffects: true,
+          },
+        });
+      }
       return;
     }
 
@@ -378,12 +860,91 @@ const ACTION_HANDLERS = {
     if (!supported)
       console.warn(`[EasyEffects] Unknown regen pool '${action.noun}'`);
   },
+
+  burst: async (action, context) => {
+    if (action.noun !== "status") throw new InterpretError(`'burst' only supports a status name`);
+    const statusName = action.argument;
+    if (!statusName) {
+      console.warn("[EasyEffects] 'burst' missing status name");
+      return;
+    }
+    const targets = resolveTargets(action.target ?? "self", context);
+    if (!targets.length) {
+      console.warn("[EasyEffects] 'burst' has no target actor");
+      return;
+    }
+    const { emitStatusBurst } = await import("./registry.js");
+    for (const actor of targets) {
+      await emitStatusBurst({
+        statusName,
+        actor,
+        attacker: context.attacker ?? context.target ?? null,
+        clash: context.clash ?? null,
+        sourceItem: context.item ?? null,
+        depth: Number(context._burstDepth) || 0,
+      });
+    }
+  },
+
+  proc: async (action, context) => {
+    if (action.noun !== "proc") throw new InterpretError(`'proc' only supports a proc name`);
+    const procName = action.argument;
+    if (!procName) {
+      console.warn("[EasyEffects] 'proc' missing name");
+      return;
+    }
+    const targets = resolveTargets(action.target ?? "self", context);
+    if (!targets.length) {
+      console.warn("[EasyEffects] 'proc' has no focus actor");
+      return;
+    }
+
+    const binds = {};
+    for (const bind of action.binds ?? []) {
+      if (!bind?.name) continue;
+      binds[bind.name] = await resolveAmount(bind.amount, context);
+    }
+
+    const { emitProc } = await import("./registry.js");
+    for (const focusActor of targets) {
+      await emitProc({
+        procName,
+        focusActor,
+        proccer: context.self ?? null,
+        attacker: context.attacker ?? null,
+        target: context.target ?? null,
+        clash: context.clash ?? null,
+        sourceItem: context.item ?? null,
+        binds,
+        depth: Number(context._procDepth) || 0,
+      });
+    }
+  },
+
+  message: async (action, context) => {
+    await postChatMessage(action.argument, action.target ?? "self", context);
+  },
+
+  pause: async (action, context) => {
+    if (action.noun !== "status") throw new InterpretError(`'pause' only supports a status name`);
+    const statusName = action.argument;
+    if (!statusName) {
+      console.warn("[EasyEffects] 'pause' missing status name");
+      return;
+    }
+    for (const actor of resolveTargets(action.target ?? "self", context)) {
+      await runAsOwnerOrGM(actor, "pauseStatusToPending", {
+        statusName,
+        arrival: action.timing ?? "round",
+      });
+    }
+  },
 };
 
 // ── Flag and condition ────────────────────────────────────────────────────────
 
 function resolveFlag(flagNode, context) {
-  const actor = (flagNode.target === "attacker" ? context.attacker : context[flagNode.target]) ?? null;
+  const actor = resolveContextActor(flagNode.target, context);
   if (!actor) return 0;
   switch (flagNode.flag) {
     case "isStaggered": return actor.system.attributes?.staggered?.value ? 1 : 0;
@@ -422,11 +983,11 @@ async function evaluateCondition(condition, context) {
 
 // ── Target resolution ─────────────────────────────────────────────────────────
 
-const SINGLE_TARGETS = new Set(["self", "target", "ally", "attacker"]);
+const SINGLE_TARGETS = new Set(["self", "target", "ally", "attacker", "originator"]);
 
 function resolveTargets(targetName, context) {
   if (SINGLE_TARGETS.has(targetName)) {
-    const actor = (targetName === "attacker" ? context.attacker : context[targetName]) ?? null;
+    const actor = resolveContextActor(targetName, context);
     if (!actor) { console.warn(`[EasyEffects] Target '${targetName}' not in context.`); return []; }
     return [actor];
   }
@@ -449,6 +1010,26 @@ function _isEnemy(other, self) {
   return ot.document.disposition !== st.document.disposition;
 }
 
+// After-resistance flats honor the block's pool filter.
+function applyAfterResistanceDelta(damage, delta, damageFilter = null) {
+  if (!damage || !Number(delta)) return;
+  const raw = damage.pool;
+  let pools = (Array.isArray(raw) ? raw : [raw ?? "hp"])
+    .map((p) => String(p ?? "").toLowerCase())
+    .filter(Boolean);
+  if (damageFilter?.kind === "pool") {
+    const want = String(damageFilter.value).toLowerCase();
+    pools = pools.filter((p) => p === want);
+  }
+  if (!pools.length) return;
+  if (!damage.afterDeltaByPool || typeof damage.afterDeltaByPool !== "object") {
+    damage.afterDeltaByPool = {};
+  }
+  for (const pool of pools) {
+    damage.afterDeltaByPool[pool] = (Number(damage.afterDeltaByPool[pool]) || 0) + delta;
+  }
+}
+
 // ── Main async entry point ────────────────────────────────────────────────────
 
 /**
@@ -459,14 +1040,47 @@ function _isEnemy(other, self) {
  * @param {object} context — { self, target, ally, item?, clash? }
  */
 export async function execute(ast, trigger, context) {
+  const dialogDepth = Number(context?._dialogDepth) || 0;
+  ensureRollsBag(context);
+
   for (const block of ast.blocks) {
     if (block.trigger !== trigger) continue;
     if (block.damageFilter && !matchesDamageFilter(block.damageFilter, context.damage)) continue;
+    if (block.depletedFilter && !matchesDepletedFilter(block.depletedFilter, context.depleted)) continue;
+    if (block.clashStanceFilter && !matchesClashStanceFilter(block.clashStanceFilter, context.clashStance)) continue;
+    if (trigger === "On Burst" && context.burstPhase) {
+      if (!matchesBurstFilter(block.burstFilter, {
+        statusName: context.burst?.status,
+        phase: context.burstPhase,
+      })) continue;
+    }
+
+    context._blockDamageFilter = block.damageFilter ?? null;
 
     for (const stmt of block.statements) {
       try {
         // Skip effect-template branches for the other polarity.
         if (stmt.polarity && stmt.polarity !== context.effectMode) continue;
+
+        if (stmt.type === "DialogStatement") {
+          await runDialogStatement(stmt, ast, context, dialogDepth);
+          continue;
+        }
+
+        if (stmt.type === "MessageStatement") {
+          await runMessageStatement(stmt, context);
+          continue;
+        }
+
+        if (stmt.type === "RollStatement") {
+          await applyRollToContext(stmt.formula, context, stmt.bind);
+          continue;
+        }
+
+        if (stmt.roll) {
+          await applyRollToContext(stmt.roll.formula, context, stmt.roll.bind ?? null);
+        }
+
         if (stmt.condition && !(await evaluateCondition(stmt.condition, context))) continue;
 
         let inheritedTarget = "self";
@@ -474,13 +1088,11 @@ export async function execute(ast, trigger, context) {
           const effectiveTarget = action.target ?? inheritedTarget;
           if (action.target) inheritedTarget = action.target;
 
-          let amount = await resolveAmount(action.amount, context);
-          if (action.per) amount *= await resolveAmount(action.per, context);
-          amount = Math.max(0, Math.round(amount));
+          const { amount, formula } = await resolveActionAmount(action, context);
 
           const handler = ACTION_HANDLERS[action.verb];
           if (!handler) { console.warn(`[EasyEffects] Unknown verb '${action.verb}'`); continue; }
-          await handler({ ...action, target: effectiveTarget }, context, amount);
+          await handler({ ...action, target: effectiveTarget }, context, amount, { formula });
         }
       } catch (err) {
         console.error(`[EasyEffects] Error in statement:`, stmt, err);
@@ -488,6 +1100,129 @@ export async function execute(ast, trigger, context) {
       }
     }
   }
+}
+
+async function runDialogStatement(stmt, ast, context, dialogDepth) {
+  if (dialogDepth >= DIALOG_NEST_MAX_DEPTH) {
+    console.warn(
+      `[EasyEffects] Skipping dialog (depth ${dialogDepth}): nested dialog answers exceeded limit`
+    );
+    return;
+  }
+
+  const audienceActor = resolveDialogAudience(stmt.audience, context);
+  const answerId = await promptChoiceDialog({
+    prompt: stmt.prompt,
+    choices: stmt.choices,
+    actor: audienceActor,
+  });
+  if (!answerId) return;
+
+  await execute(ast, `On Dialog Answer ${answerId}`, {
+    ...context,
+    _dialogDepth: dialogDepth + 1,
+  });
+}
+
+function resolveDialogAudience(audience, context) {
+  if (!audience) return null;
+  if (audience === "attacker") {
+    return context.attacker ?? context.target ?? null;
+  }
+  return resolveContextActor(audience, context);
+}
+
+function escapeHtml(text) {
+  return String(text)
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;");
+}
+
+function formatMessageValue(value) {
+  if (typeof value === "number") {
+    return Number.isInteger(value) ? String(value) : String(Math.round(value * 1000) / 1000);
+  }
+  if (value == null) return "";
+  return String(value);
+}
+
+/**
+ * Fill `(…)` slots in a message string. `\(` `\)` `\\` escape literals.
+ * @returns {Promise<string>}
+ */
+export async function interpolateMessageTemplate(template, context) {
+  const src = String(template ?? "");
+  let out = "";
+  let i = 0;
+  while (i < src.length) {
+    if (src[i] === "\\" && i + 1 < src.length) {
+      const next = src[i + 1];
+      if (next === "(" || next === ")" || next === "\\") {
+        out += next;
+        i += 2;
+        continue;
+      }
+    }
+    if (src[i] !== "(") {
+      out += src[i++];
+      continue;
+    }
+    let depth = 1;
+    let j = i + 1;
+    while (j < src.length && depth > 0) {
+      if (src[j] === "\\" && j + 1 < src.length && (src[j + 1] === "(" || src[j + 1] === ")")) {
+        j += 2;
+        continue;
+      }
+      if (src[j] === "(") depth++;
+      else if (src[j] === ")") depth--;
+      if (depth > 0) j++;
+    }
+    if (depth !== 0) {
+      out += src[i++];
+      continue;
+    }
+    const raw = src.slice(i + 1, j).trim();
+    try {
+      const expr = parseAccessorExpression(raw);
+      const value = await evaluateExpr(expr, context);
+      out += formatMessageValue(value);
+    } catch (err) {
+      console.warn(`[EasyEffects] Bad message value '(${raw})':`, err);
+      out += `(${raw})`;
+    }
+    i = j + 1;
+  }
+  return out;
+}
+
+async function postChatMessage(template, speakerName, context) {
+  const speakerActor = resolveDialogAudience(speakerName ?? "self", context) ?? context.self ?? null;
+  const text = await interpolateMessageTemplate(template, context);
+  if (!text.trim()) {
+    console.warn("[EasyEffects] Skipping empty chat message after interpolation.");
+    return;
+  }
+
+  const speaker = speakerActor && typeof ChatMessage !== "undefined"
+    ? ChatMessage.getSpeaker({ actor: speakerActor })
+    : (typeof ChatMessage !== "undefined" ? ChatMessage.getSpeaker() : {});
+
+  try {
+    await ChatMessage.create({
+      content: `<div class="pmttrpg-ee-message">${escapeHtml(text)}</div>`,
+      speaker,
+    });
+  } catch (err) {
+    console.error("[EasyEffects] Failed to create chat message:", err);
+    ui.notifications?.error?.(`EasyEffects message failed: ${err.message}`);
+  }
+}
+
+async function runMessageStatement(stmt, context) {
+  await postChatMessage(stmt.template, stmt.speaker ?? "self", context);
 }
 
 // ── [Always Active] synchronous entry point ───────────────────────────────────
@@ -583,11 +1318,19 @@ export function executeAlwaysActive(ast, prepareContext) {
               }
               break;
             case "set":
-              if (action.noun === "resource") {
+              if (action.noun === "resistance") {
+                const map = action.resistanceOverrides;
+                if (map && typeof map === "object") {
+                  if (!mods.resistanceOverrides) mods.resistanceOverrides = {};
+                  mergeResistanceOverrideMaps(mods.resistanceOverrides, map);
+                } else {
+                  console.warn("[EasyEffects] [Always Active] set resistance missing override map");
+                }
+              } else if (action.noun === "resource") {
                 if (!applyResourceOverride(mods, action.argument, amount))
                   console.warn(`[EasyEffects] [Always Active] cannot set '${action.argument}' (use maxHp/maxSt/maxSp/maxLight)`);
               } else {
-                console.warn(`[EasyEffects] Verb 'set' in [Always Active] only supports resource maxes.`);
+                console.warn(`[EasyEffects] Verb 'set' in [Always Active] only supports resource maxes or resistances.`);
               }
               break;
             case "regen": {

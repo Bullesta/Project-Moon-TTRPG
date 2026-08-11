@@ -25,7 +25,11 @@ import { PMTTRPGTargetingAPI } from "./targeting.js";
 import { CombatSidebarPMTTRPG } from "./combat/combat.js";
 import { PMTTRPGStatusMacroAPI } from "./status-macro-api.js";
 import { registerEasyEffectsHooks } from "./easy-effects/registry.js";
+import { registerActorScriptHooks } from "./easy-effects/actor-scripts.js";
+import { registerChoiceDialogSocket } from "./easy-effects/choice-dialog.js";
+import { registerGmRouteSocket } from "./easy-effects/gm-route.js";
 import { registerStatusTray, registerStatusTraySettings } from "./apps/status-tray.js";
+import { registerWorldEasyEffectsSettings } from "./apps/easy-effects-editor.js";
 import { getActorWeaponDamageType } from "./damage-application.js";
 import {
   registerTokenStatusBadges,
@@ -157,16 +161,24 @@ Hooks.once("init", async function() {
 
   registerStatusTraySettings();
   registerTokenStatusBadgeSettings();
+  try {
+    registerWorldEasyEffectsSettings();
+  } catch (err) {
+    console.error("[PMTTRPG] Failed to register World EasyEffects settings:", err);
+  }
 
   // Preload template partials.
   preloadHandlebarsTemplates();
 
   registerEasyEffectsHooks();
+  registerActorScriptHooks();
   registerClashChatListeners();
 });
 
 Hooks.once("ready", async function() {
   registerStatusTray();
+  registerChoiceDialogSocket();
+  registerGmRouteSocket();
 
   const clearEffectCatalogCache = (item) => {
     if (item?.type !== 'effect') return;

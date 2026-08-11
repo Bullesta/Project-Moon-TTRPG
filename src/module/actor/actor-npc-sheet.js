@@ -101,29 +101,6 @@ export class PMTTRPGActorNpcSheet extends PMTTRPGCharacterSheet {
   }
 
   /** @override */
-  _buildResistanceRows() {
-    const outfit = this.actor.items.find(i => i.type === "outfit");
-    const display = outfit?.system?.resistancesDisplay;
-    const damageTypes = ["slash", "pierce", "blunt"];
-    const assetPath = "systems/projectmoonttrpg/assets/icons/sheet";
-
-    const buildRow = (pool, key, title) => ({
-      key,
-      title,
-      tiles: damageTypes.map(dmg => ({
-        dmg,
-        icon: `${assetPath}/00_${dmg}.webp`,
-        value: display?.[pool]?.[dmg] ?? "1x",
-      })),
-    });
-
-    return [
-      buildRow("hp", "hp-resist", game.i18n.localize("PMTTRPG.HPResistances")),
-      buildRow("st", "st-resist", game.i18n.localize("PMTTRPG.STResistances")),
-    ];
-  }
-
-  /** @override */
   async _prepareCharacterItems(sheetData) {
     await super._prepareCharacterItems(sheetData);
 

@@ -24,18 +24,6 @@
     }
   }
 
-  .status-macro-slot {
-    display: flex;
-    flex-direction: column;
-    gap: 0.5rem;
-    flex: 1;
-
-    select,
-    input {
-      width: 100%;
-    }
-  }
-
   .resource label[data-tooltip] {
     cursor: help;
     text-decoration: underline dotted rgba(214, 162, 74, 0.55);

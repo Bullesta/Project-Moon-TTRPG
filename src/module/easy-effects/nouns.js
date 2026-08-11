@@ -88,6 +88,22 @@ export const NOUNS = {
     ops: ["gain", "lose", "set"],
     pathShorthand: true,
   },
+  action: {
+    kind: "resource",
+    path: "system.attributes.actions.value",
+    alwaysActive: false,
+    ops: ["gain", "lose", "set"],
+    pathShorthand: true,
+    aliases: ["actions"],
+  },
+  reaction: {
+    kind: "resource",
+    path: "system.attributes.reactions.value",
+    alwaysActive: false,
+    ops: ["gain", "lose", "set"],
+    pathShorthand: true,
+    aliases: ["reactions"],
+  },
   speed: {
     kind: "resource",
     path: "system.attributes.speed.bonus",
@@ -127,23 +143,22 @@ export const NOUNS = {
     maxField: "damageMax",
   },
 
-  // Pools
   hp: {
     kind: "pool",
-    ops: ["regen"],
+    ops: ["regen", "set"],
     regenField: "regenHP",
     pathShorthand: "hp",
   },
   st: {
     kind: "pool",
-    ops: ["regen"],
+    ops: ["regen", "set"],
     regenField: "regenST",
     pathShorthand: "st",
     aliases: ["stagger"],
   },
   sp: {
     kind: "pool",
-    ops: ["regen"],
+    ops: ["regen", "set"],
     regenPath: "system.attributes.sp.value",
     regenMaxPath: "system.attributes.sp.max",
     pathShorthand: "sp",
@@ -151,7 +166,7 @@ export const NOUNS = {
   },
   light: {
     kind: "pool",
-    ops: ["regen"],
+    ops: ["regen", "set"],
     regenPath: "system.attributes.light.value",
     regenMaxPath: "system.attributes.light.max",
     pathShorthand: "light",
@@ -203,7 +218,7 @@ function readActorSystemPath(actor, path) {
   return Number(value) || 0;
 }
 
-export async function applyRuntimeResource(actor, nounId, { mode, amount } = {}) {
+export async function applyRuntimeResourceLocal(actor, nounId, { mode, amount } = {}) {
   const hit = lookupNoun(nounId);
   if (!hit || hit.def.kind !== "resource" || hit.def.alwaysActive || !hit.def.path) return false;
 
@@ -219,6 +234,11 @@ export async function applyRuntimeResource(actor, nounId, { mode, amount } = {})
   next = Math.max(0, next);
   if (next !== current) await actor.update({ [path]: next });
   return true;
+}
+
+export async function applyRuntimeResource(actor, nounId, { mode, amount } = {}) {
+  const { runAsOwnerOrGM } = await import("./gm-route.js");
+  return runAsOwnerOrGM(actor, "applyRuntimeResource", { nounId, mode, amount });
 }
 
 export function nounAllowsOp(name, op) {
@@ -264,7 +284,7 @@ export function getRegenField(name) {
   return lookupNoun(name)?.def.regenField ?? null;
 }
 
-export async function recoverPool(actor, name, amount) {
+export async function recoverPoolLocal(actor, name, amount) {
   const def = lookupNoun(name)?.def;
   if (!def?.regenPath || !def.regenMaxPath) return false;
 
@@ -280,6 +300,11 @@ export async function recoverPool(actor, name, amount) {
   const next = Math.min(Math.max(current + amount, 0), max);
   if (next !== current) await actor.update({ [def.regenPath]: next });
   return true;
+}
+
+export async function recoverPool(actor, name, amount) {
+  const { runAsOwnerOrGM } = await import("./gm-route.js");
+  return runAsOwnerOrGM(actor, "recoverPool", { noun: name, amount });
 }
 
 export function resolvePathShorthand(actor, segment) {
@@ -305,8 +330,9 @@ export function emptyAlwaysActiveMods() {
     attackMax:   0, blockMax:   0, evadeMax:   0, damageMax:   0,
     lightBonus:  0,
     overrides: {},
-    // Item names that supplied the winning override.
     overrideSources: {},
+    resistanceOverrides: {},
+    resistanceOverrideSources: {},
   };
   for (const def of Object.values(NOUNS)) {
     if (def.kind !== "resource" || !def.alwaysActive) continue;
@@ -352,7 +378,6 @@ export function applyResourceModsToSystem(systemData, eeMods) {
   }
 }
 
-// Apply max overrides and record their sources.
 export function applyResourceOverridesToSystem(systemData, eeMods) {
   const overrides = eeMods?.overrides;
   if (!overrides || typeof overrides !== "object") return;
@@ -377,8 +402,7 @@ export function applyResourceOverridesToSystem(systemData, eeMods) {
   }
 }
 
-// Format source names for the override tooltip.
-function formatOverrideSourceNames(names) {
+export function formatOverrideSourceNames(names) {
   const list = (Array.isArray(names) ? names : [])
     .map((n) => String(n ?? "").trim())
     .filter(Boolean);
