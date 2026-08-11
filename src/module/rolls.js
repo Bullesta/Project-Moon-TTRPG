@@ -441,6 +441,27 @@ export class PMTTRPGRolls {
         forwardUsed = Number(this.actor.system.attributes?.forward?.value) != 0;
       }
       if (formula != null) {
+        // Defer targeted weapon rolls until someone retaliates.
+        if (templateData?.attackRoll && templateData?.target && this.item) {
+          templateData.actor = this.actor;
+
+          const attackPayload = PMTTRPGTargetingAPI.buildAttackContextPayload({
+            actor: this.actor,
+            item: this.item,
+            roll: null,
+            templateData,
+            target: templateData.target,
+          });
+          attackPayload.rollBreakdown = [];
+
+          try {
+            await initiateAttack(attackPayload);
+          } catch (error) {
+            console.warn("[PMTTRPG] initiateAttack failed", error);
+          }
+          return;
+        }
+
         // Do the roll.
         let roll = new Roll(`${formula}`, rollData);
         await (roll.evaluate());

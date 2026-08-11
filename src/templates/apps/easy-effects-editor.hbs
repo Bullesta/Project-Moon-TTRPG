@@ -1,0 +1,40 @@
+<div class="pm-ee-editor__body">
+  <header class="pm-ee-editor__status pm-ee-editor__status--{{statusClass}}">
+    <i class="fa-solid {{#if isWorldMode}}fa-globe{{else}}{{#if synced}}fa-link{{else}}fa-link-slash{{/if}}{{/if}}"></i>
+    <span>{{localize statusKey}}</span>
+  </header>
+
+  <div class="pm-ee-code pm-ee-editor__code">
+    <pre class="pm-ee-code__highlight" aria-hidden="true"></pre>
+    <textarea
+      name="source"
+      class="pm-ee-code__source"
+      spellcheck="false"
+      data-dtype="String"
+      {{#unless editable}}disabled{{/unless}}
+    >{{source}}</textarea>
+  </div>
+
+  <p class="pm-ee-editor__error" hidden></p>
+</div>
+
+{{#if editable}}
+<footer class="pm-ee-editor__footer">
+  {{#if isWorldMode}}
+  <button type="button" data-action="restoreDefault">
+    <i class="fa-solid fa-rotate-left"></i>
+    <span>{{localize "PMTTRPG.EasyEffectsEditor.RestoreDefault"}}</span>
+  </button>
+  {{else}}
+  <button type="button" data-action="syncFromWorld" {{#if synced}}disabled{{/if}}>
+    <i class="fa-solid fa-arrows-rotate"></i>
+    <span>{{localize "PMTTRPG.EasyEffectsEditor.SyncFromWorld"}}</span>
+  </button>
+  {{/if}}
+
+  <button type="submit" class="pm-ee-editor__save">
+    <i class="fa-solid fa-floppy-disk"></i>
+    <span>{{localize "PMTTRPG.EasyEffectsEditor.Save"}}</span>
+  </button>
+</footer>
+{{/if}}

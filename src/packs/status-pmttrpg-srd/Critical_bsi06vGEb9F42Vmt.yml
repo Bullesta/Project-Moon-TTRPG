@@ -9,12 +9,14 @@ system:
   stacks: 1
   stackMax: 0
   priority: 0
-  macro:
-    uuid: ''
   customNotes: ''
   easyEffects: |-
     [On Critical]
-    deal 1d10 hp damage per Critical to target
+    deal 1d10 hp damage per Critical to target;
+    lose all Critical on self;
+
+    [On Gain]
+    require (Poise) == 0 then gain 1 Poise;
   proc:
     turnStart: false
     endOfRound: false

@@ -1,21 +1,27 @@
 <div class="resource-group">
   <div class="resource resource--easy-effects">
     <label>{{localize "PMTTRPG.EasyEffectsScript"}}</label>
-    <textarea
-      name="system.easyEffects"
-      rows="12"
-      data-dtype="String"
-      {{#unless editable}}disabled{{/unless}}
-    >{{system.easyEffects}}</textarea>
-    {{#if canSyncEasyEffects}}
+    <div class="pm-ee-code">
+      <pre class="pm-ee-code__highlight" aria-hidden="true"></pre>
+      <textarea
+        name="system.easyEffects"
+        class="pm-ee-code__source"
+        spellcheck="false"
+        data-dtype="String"
+        {{#unless editable}}disabled{{/unless}}
+      >{{system.easyEffects}}</textarea>
+    </div>
+    {{#if (or canSyncEasyEffects easyEffectsHint)}}
     <div class="easy-effects-sync-row">
+      {{#if easyEffectsHint}}
+      <div class="help-text"><p>{{localize easyEffectsHint}}</p></div>
+      {{/if}}
+      {{#if canSyncEasyEffects}}
       <button type="button" class="easy-effects-sync" data-action="sync-easy-effects">
         {{localize "PMTTRPG.EasyEffectsSync"}}
       </button>
+      {{/if}}
     </div>
-    {{/if}}
-    {{#if easyEffectsHint}}
-    <div class="help-text"><p>{{localize easyEffectsHint}}</p></div>
     {{/if}}
   </div>
 </div>

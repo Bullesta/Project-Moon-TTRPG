@@ -117,20 +117,20 @@ export function resolveCombatantTarget(combatantId, { combat = game.combat, acto
   return combatant ? buildCombatantTarget(combatant, { actorId }) : null;
 }
 
+function getUserTargetCombatantIds(options = []) {
+  const optionIds = new Set(options.map(option => option.combatantId).filter(Boolean));
+  return Array.from(game.user?.targets ?? [])
+    .map(token => token?.combatant?.id ?? token?.document?.combatant?.id ?? token?.document?.combatantId ?? null)
+    .filter(id => id && optionIds.has(id));
+}
+
 function getSelectedCombatantId(options = [], preferredCombatantId = null) {
   if (preferredCombatantId && options.some(option => option.combatantId === preferredCombatantId)) {
     return preferredCombatantId;
   }
 
-  const targetedIds = Array.from(game.user?.targets ?? [])
-    .map(token => token?.combatant?.id ?? token?.document?.combatant?.id ?? token?.document?.combatantId ?? null)
-    .filter(Boolean);
-
-  for (const targetId of targetedIds) {
-    if (options.some(option => option.combatantId === targetId)) {
-      return targetId;
-    }
-  }
+  const targetedIds = getUserTargetCombatantIds(options);
+  if (targetedIds.length) return targetedIds[0];
 
   return options[0]?.combatantId ?? null;
 }
@@ -148,6 +148,12 @@ export async function promptTargetSelection({
 } = {}) {
   const options = getCombatantTargetOptions({ combat, actorId: actor?.id ?? null, includeHidden });
   if (!options.length) return undefined;
+
+  // One crosshair target does not need a picker.
+  const userTargetIds = getUserTargetCombatantIds(options);
+  if (userTargetIds.length === 1) {
+    return resolveCombatantTarget(userTargetIds[0], { combat, actorId: actor?.id ?? null });
+  }
 
   const selectedCombatantId = getSelectedCombatantId(options, preferredCombatantId);
   const dialogData = {

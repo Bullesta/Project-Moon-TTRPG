@@ -2,8 +2,10 @@ import { PMTTRPGUtility } from '../utility.js';
 import { getActionEconomyFromRank, getRankFromLevel } from './progression.js';
 const { renderTemplate } = foundry.applications.handlebars;
 import { applyAlwaysActiveModifiers, runOnTakingDamage } from '../easy-effects/registry.js';
+import { runDepletedEasyEffects } from '../easy-effects/actor-scripts.js';
 import { applyResourceModsToSystem, applyResourceOverridesToSystem } from '../easy-effects/nouns.js';
 import { applyInventorySlotUsage } from '../inventory/slots.js';
+import { isPendingStatus, normalizeArrival } from '../status/pending.js';
 import {
   APPLY_POOLS,
   DAMAGE_TYPES,
@@ -15,6 +17,30 @@ import {
   resolveResistance,
   tempPoolKey,
 } from '../damage-application.js';
+
+const STATUS_STACK_HOOK_MAX_DEPTH = 8;
+const _statusStackHookDepth = new WeakMap();
+
+async function emitStatusStackHook(actor, hookName, payload) {
+  const depth = _statusStackHookDepth.get(actor) ?? 0;
+  if (depth >= STATUS_STACK_HOOK_MAX_DEPTH) {
+    console.warn(
+      `PMTTRPG | Skipping ${hookName} (${payload.statusName}): re-entrancy depth ${depth}`
+    );
+    return;
+  }
+  _statusStackHookDepth.set(actor, depth + 1);
+  try {
+    const results = Hooks.callAll(hookName, payload) ?? [];
+    await Promise.all(
+      (Array.isArray(results) ? results : [results]).filter((r) => r instanceof Promise)
+    );
+  } finally {
+    const next = (_statusStackHookDepth.get(actor) ?? 1) - 1;
+    if (next <= 0) _statusStackHookDepth.delete(actor);
+    else _statusStackHookDepth.set(actor, next);
+  }
+}
 
 /**
  * Extends the basic Actor class for Project Moon TTRPG.
@@ -256,8 +282,7 @@ export class ActorPMTTRPG extends Actor {
       data.attributes.light.value = Math.clamp(
         Number(data.attributes.light.value) || 0, 0, data.attributes.light.max
       );
-      // damagePower / damageMax / attackMax / blockMax / evadeMax are
-      // clash-time bonuses, but we store them for weapon/dice resolution later.
+      // Clash rolls consume these modifiers.
       data.attributes.easyEffectsMods = eeMods;
     } catch (err) {
       console.error('[EasyEffects] Error in Always Active pass:', err);
@@ -528,6 +553,7 @@ export class ActorPMTTRPG extends Actor {
    * @param {"full"|"half"|"double"|"heal"} [options.op="full"]
    * @param {"hp"|"st"|"sp"|Array<"hp"|"st"|"sp">} [options.pool="hp"]
    * @param {string} [options.sourceLabel]
+   * @param {string} [options.formula]
    * @returns {Promise<object|null>}
    */
   async applyDamage(amount, options = {}) {
@@ -542,9 +568,13 @@ export class ActorPMTTRPG extends Actor {
       ? options.sourceLabel.trim()
       : null;
     const sourceLabel = explicitSourceLabel ?? source ?? options.attacker?.name ?? null;
+    const formula = typeof options.formula === "string" && options.formula.trim()
+      ? options.formula.trim()
+      : null;
     const afterResistance = Number(options.afterResistance) || 0;
     const forceSkipResistance = options.skipResistance === true || op === "heal";
-    const useOutfitTypeResists = !source && !forceSkipResistance;
+    const forceApplyResistance = options.skipResistance === false;
+    const useOutfitTypeResists = !forceSkipResistance && (forceApplyResistance || !source);
     const skipEasyEffects = options.skipEasyEffects === true;
 
     const base = Number(amount) || 0;
@@ -563,12 +593,14 @@ export class ActorPMTTRPG extends Actor {
     const breakdown = [];
     if (sourceLabel) breakdown.push({ key: "source", source: sourceLabel });
     if (eeDamageType) breakdown.push({ key: "damageType", damageType: eeDamageType });
+    if (formula) breakdown.push({ key: "roll", formula });
     breakdown.push({ key: "base", amount: base });
     if (op !== "full") breakdown.push({ key: "op", op, from: base, to: sharedAmount });
 
     let amountAfterSource = sharedAmount;
     let poolsAfter = pools;
     let damageTypeForResist = damageType;
+    let afterDeltaByPool = {};
 
     if (op !== "heal" && !skipEasyEffects) {
       const beforeEe = amountAfterSource;
@@ -577,9 +609,13 @@ export class ActorPMTTRPG extends Actor {
         pool: pools.length === 1 ? (pools[0] ?? "hp") : pools.slice(),
         source: source ?? "",
         damageType: eeDamageType,
+        afterDeltaByPool: {},
       };
       await runOnTakingDamage(this, damageCtx, { attacker: options.attacker ?? null });
       amountAfterSource = Math.max(0, Number(damageCtx.amount) || 0);
+      afterDeltaByPool = damageCtx.afterDeltaByPool && typeof damageCtx.afterDeltaByPool === "object"
+        ? damageCtx.afterDeltaByPool
+        : {};
       poolsAfter = normalizePools(damageCtx.pool);
 
       const rawAfter = typeof damageCtx.damageType === "string" ? damageCtx.damageType.trim() : "";
@@ -644,19 +680,24 @@ export class ActorPMTTRPG extends Actor {
             level: resist.key,
             multiplier: resist.multiplier,
             reason: resist.reason,
+            cause: resist.cause ?? null,
             from: before,
             to: newAmount,
           });
         }
-        if (afterResistance) {
-          newAmount = Math.max(0, newAmount + afterResistance);
-          breakdown.push({
-            key: "afterResistance",
-            pool,
-            amount: afterResistance,
-            to: newAmount,
-          });
-        }
+      }
+
+      const afterFlat = afterResistance + (Number(afterDeltaByPool[pool]) || 0);
+      if (afterFlat) {
+        const before = newAmount;
+        newAmount = Math.max(0, newAmount + afterFlat);
+        breakdown.push({
+          key: "afterResistance",
+          pool,
+          amount: afterFlat,
+          from: before,
+          to: newAmount,
+        });
       }
 
       if (newAmount === 0 && op !== "heal") {
@@ -843,6 +884,8 @@ export class ActorPMTTRPG extends Actor {
 
     if (!options.diff || !context || updateData.system === undefined) return; // Nothing to do.
 
+    this._runDepletedEasyEffects(updateData, context, options, userId);
+
     // Exit early if not owner.
     let displayText = this.isOwner;
     if (this.permission.default > 1) displayText = true;
@@ -879,6 +922,29 @@ export class ActorPMTTRPG extends Actor {
   }
 
   /**
+   * Runs [On Depleted] for positive-to-zero pool updates.
+   * @param {object} updateData
+   * @param {object} preUpdate
+   * @param {object} options
+   * @param {string} userId
+   */
+  _runDepletedEasyEffects(updateData, preUpdate, options, userId) {
+    if (userId !== game.userId) return;
+    if (options?.PMTTRPG?.damageUndo) return;
+
+    for (const pool of APPLY_POOLS) {
+      const after = updateData.system?.attributes?.[pool]?.value;
+      if (after === undefined || Number(after) !== 0) continue;
+
+      const before = Number(preUpdate.system?.attributes?.[pool]?.value);
+      if (!Number.isFinite(before) || before <= 0) continue;
+
+      const max = Number(preUpdate.system?.attributes?.[pool]?.max) || 0;
+      runDepletedEasyEffects(this, { pool, before, max });
+    }
+  }
+
+  /**
    * Returns the current stack count of a named status on this actor.
    * Count = number of owned items with type 'status' and matching name.
    *
@@ -886,8 +952,9 @@ export class ActorPMTTRPG extends Actor {
    * @returns {number}
    */
   getStatusStacks(statusName) {
+    const name = ActorPMTTRPG.normalizeStatusRefName(statusName);
     const matching = this.items.filter(
-      i => i.type === 'status' && i.name === statusName
+      i => i.type === 'status' && i.name === name && !isPendingStatus(i)
     );
     if (!matching.length) return 0;
 
@@ -902,6 +969,43 @@ export class ActorPMTTRPG extends Actor {
   }
 
   /**
+   * @param {string} statusName
+   * @returns {string}
+   */
+  getStatusOrigin(statusName) {
+    const matching = this._activeStatusItems(statusName);
+    if (!matching.length) return "";
+    return ActorPMTTRPG._normalizeOriginUuid(matching[0].system?.origin);
+  }
+
+  getPendingStatusStacks(statusName, arrival = null) {
+    const name = ActorPMTTRPG.normalizeStatusRefName(statusName);
+    return this.items
+      .filter(i => {
+        if (i.type !== 'status' || i.name !== name || !isPendingStatus(i)) return false;
+        if (arrival == null) return true;
+        return normalizeArrival(i.system?.arrival) === normalizeArrival(arrival);
+      })
+      .reduce((sum, i) => sum + Math.max(0, Number(i.system?.stacks ?? 0) || 0), 0);
+  }
+
+  _activeStatusItems(statusName) {
+    const name = ActorPMTTRPG.normalizeStatusRefName(statusName);
+    return this.items.filter(
+      i => i.type === 'status' && i.name === name && !isPendingStatus(i)
+    );
+  }
+
+  _pendingStatusItems(statusName, arrival = null) {
+    const name = ActorPMTTRPG.normalizeStatusRefName(statusName);
+    return this.items.filter(i => {
+      if (i.type !== 'status' || i.name !== name || !isPendingStatus(i)) return false;
+      if (arrival == null) return true;
+      return normalizeArrival(i.system?.arrival) === normalizeArrival(arrival);
+    });
+  }
+
+  /**
    * Max stacks for a status definition (0 = unlimited).
    * @param {Item|object} source
    * @returns {number}
@@ -910,41 +1014,68 @@ export class ActorPMTTRPG extends Actor {
     return Math.max(0, Number(source?.system?.stackMax ?? 0) || 0);
   }
 
+  static _normalizeOriginUuid(value) {
+    if (!value) return "";
+    if (typeof value === "object") {
+      if (typeof value.uuid === "string") return value.uuid;
+      return "";
+    }
+    return String(value).trim();
+  }
+
   /**
-   * Add status stacks, creating the item from the system pack if needed.
    * @param {string} statusName
    * @param {number} [amount=1]
-   * @param {Item|object|null} [source=null]  Optional template when not already on the actor / in a pack
+   * @param {Item|object|null} [source=null]
+   * @param {{ origin?: string|Actor|null, originUuid?: string|null }} [options]
    * @returns {Promise<Item[]>}
    */
-  async addStatusStacks(statusName, amount = 1, source = null) {
+  async addStatusStacks(statusName, amount = 1, source = null, options = {}) {
     const add = Math.max(0, Math.trunc(Number(amount) || 0));
     if (add <= 0) return [];
 
-    const matching = this.items.filter(
-      i => i.type === 'status' && i.name === statusName
-    );
+    const statusRef = String(statusName ?? "").trim();
+    let canonicalName = ActorPMTTRPG.normalizeStatusRefName(statusRef);
+    let matching = this._activeStatusItems(canonicalName);
 
     let sourceItem = matching[0];
     let itemData;
     if (sourceItem) {
       itemData = sourceItem.toObject();
+      canonicalName = sourceItem.name;
     } else if (source) {
       itemData = typeof source.toObject === "function"
         ? source.toObject()
         : foundry.utils.duplicate(source);
+      canonicalName = itemData?.name || canonicalName;
+      matching = this._activeStatusItems(canonicalName);
+      sourceItem = matching[0] ?? null;
     } else {
-      itemData = await ActorPMTTRPG._fetchStatusFromCompendium(statusName);
+      itemData = await ActorPMTTRPG._resolveStatusTemplate(statusRef);
       if (!itemData) {
-        const warning = game.i18n.format("PMTTRPG.StatusNotFound", { name: statusName });
+        const warning = game.i18n.format("PMTTRPG.StatusNotFound", { name: statusRef });
         console.warn(`PMTTRPG | ${warning}`);
         ui.notifications?.warn(warning);
         return [];
       }
+      canonicalName = itemData.name;
+      matching = this._activeStatusItems(canonicalName);
+      sourceItem = matching[0] ?? null;
     }
 
+    // A pending item used as a template must become active.
+    if (itemData.system) {
+      itemData.system.pending = false;
+      itemData.system.arrival = "";
+      itemData.system.shelved = false;
+    }
+
+    const originUuid = ActorPMTTRPG._normalizeOriginUuid(
+      options.originUuid ?? options.origin ?? source?.system?.origin ?? itemData?.system?.origin
+    );
+
     const stackMax = ActorPMTTRPG._statusStackMax(itemData);
-    const current = this.getStatusStacks(statusName);
+    const current = this.getStatusStacks(canonicalName);
     const room = stackMax > 0 ? Math.max(0, stackMax - current) : add;
     const toAdd = stackMax > 0 ? Math.min(add, room) : add;
     if (toAdd <= 0) return sourceItem ? [sourceItem] : [];
@@ -958,6 +1089,10 @@ export class ActorPMTTRPG extends Actor {
       delete created._id;
       created.system = created.system ?? {};
       created.system.stacks = nextStacks;
+      created.system.pending = false;
+      created.system.arrival = "";
+      created.system.shelved = false;
+      created.system.origin = originUuid;
       if (stackMax > 0) created.system.stackMax = stackMax;
       const docs = await this.createEmbeddedDocuments('Item', [created]);
       kept = docs[0];
@@ -965,7 +1100,17 @@ export class ActorPMTTRPG extends Actor {
       // Merge legacy copies into the kept item.
       kept = matching[0];
       const extras = matching.slice(1).map(i => i.id);
-      await kept.update({ 'system.stacks': nextStacks });
+      const updates = {
+        'system.stacks': nextStacks,
+        'system.pending': false,
+        'system.arrival': "",
+        'system.shelved': false,
+      };
+      // Do not replace the first applier.
+      if (originUuid && !ActorPMTTRPG._normalizeOriginUuid(kept.system?.origin)) {
+        updates['system.origin'] = originUuid;
+      }
+      await kept.update(updates);
       if (extras.length) await this.deleteEmbeddedDocuments('Item', extras);
     }
 
@@ -973,8 +1118,20 @@ export class ActorPMTTRPG extends Actor {
       Hooks.callAll("pmttrpg.statusApplied", {
         actor: this,
         item: kept,
-        statusName,
+        statusName: canonicalName,
         stacks: nextStacks,
+        origin: kept.system?.origin ?? originUuid ?? "",
+      });
+    }
+    if (kept) {
+      await emitStatusStackHook(this, "pmttrpg.statusGained", {
+        actor: this,
+        item: kept,
+        statusName: canonicalName,
+        before: current,
+        after: nextStacks,
+        amount: toAdd,
+        origin: kept.system?.origin ?? originUuid ?? "",
       });
     }
     return kept ? [kept] : [];
@@ -984,34 +1141,37 @@ export class ActorPMTTRPG extends Actor {
    * Sets the stack count of a status to an exact value.
    * Adds or removes items as needed.
    *
-   * @param {string} statusName
+   * @param {string} statusName  Display name or Document UUID
    * @param {number} target
    * @returns {Promise<void>}
    */
   async setStatusStacks(statusName, target) {
     let desired = Math.max(0, Math.trunc(Number(target) || 0));
-    const matching = this.items.filter(
-      i => i.type === 'status' && i.name === statusName
-    );
-
-    const stackMax = matching[0]
+    const statusRef = String(statusName ?? "").trim();
+    let canonicalName = ActorPMTTRPG.normalizeStatusRefName(statusRef);
+    let matching = this._activeStatusItems(canonicalName);
+    let stackMax = matching[0]
       ? ActorPMTTRPG._statusStackMax(matching[0])
       : 0;
+
+    if (!matching.length && desired > 0) {
+      const itemData = await ActorPMTTRPG._resolveStatusTemplate(statusRef);
+      if (itemData) {
+        stackMax = ActorPMTTRPG._statusStackMax(itemData);
+        canonicalName = itemData.name || canonicalName;
+        matching = this._activeStatusItems(canonicalName);
+      }
+    }
     if (stackMax > 0 && desired > 0) desired = Math.min(desired, stackMax);
 
     if (desired <= 0) {
       if (!matching.length) return;
-      const item = matching[0];
-      await this.deleteEmbeddedDocuments('Item', matching.map(i => i.id));
-      Hooks.callAll("pmttrpg.statusRemoved", {
-        actor: this,
-        item,
-        statusName,
-      });
+      const current = this.getStatusStacks(canonicalName);
+      await this.removeStatusStacks(canonicalName, Math.max(current, 1));
       return;
     }
 
-    const current = this.getStatusStacks(statusName);
+    const current = this.getStatusStacks(canonicalName);
     if (current === desired && matching.length === 1) {
       if (Number(matching[0].system?.stacks ?? 1) !== desired) {
         await matching[0].update({ 'system.stacks': desired });
@@ -1020,8 +1180,8 @@ export class ActorPMTTRPG extends Actor {
     }
 
     const delta = desired - current;
-    if (delta > 0) await this.addStatusStacks(statusName, delta);
-    else if (delta < 0) await this.removeStatusStacks(statusName, Math.abs(delta));
+    if (delta > 0) await this.addStatusStacks(statusRef, delta);
+    else if (delta < 0) await this.removeStatusStacks(canonicalName, Math.abs(delta));
     else if (matching.length > 1) {
       // The total matches, but legacy copies still need merging.
       await matching[0].update({ 'system.stacks': desired });
@@ -1039,17 +1199,25 @@ export class ActorPMTTRPG extends Actor {
     const remove = Math.max(0, Math.trunc(Number(amount) || 0));
     if (remove <= 0) return [];
 
-    const matching = this.items.filter(
-      i => i.type === 'status' && i.name === statusName
-    );
+    const matching = this._activeStatusItems(statusName);
     if (!matching.length) return [];
 
     const current = this.getStatusStacks(statusName);
     const next = Math.max(0, current - remove);
+    if (next === current) return [];
     const item = matching[0];
+    const lost = current - next;
 
     if (next <= 0) {
       const deleted = await this.deleteEmbeddedDocuments('Item', matching.map(i => i.id));
+      await emitStatusStackHook(this, "pmttrpg.statusLost", {
+        actor: this,
+        item,
+        statusName,
+        before: current,
+        after: 0,
+        amount: lost,
+      });
       Hooks.callAll("pmttrpg.statusRemoved", {
         actor: this,
         item,
@@ -1061,7 +1229,231 @@ export class ActorPMTTRPG extends Actor {
     const extras = matching.slice(1).map(i => i.id);
     await item.update({ 'system.stacks': next });
     if (extras.length) await this.deleteEmbeddedDocuments('Item', extras);
+    await emitStatusStackHook(this, "pmttrpg.statusLost", {
+      actor: this,
+      item,
+      statusName,
+      before: current,
+      after: next,
+      amount: lost,
+    });
     return extras;
+  }
+
+  /**
+   * @param {string} statusName
+   * @param {number} [amount=1]
+   * @param {{ arrival?: "round"|"turn", source?: Item|object|null, origin?: string|Actor|null, originUuid?: string|null }} [options]
+   */
+  async addPendingStatusStacks(statusName, amount = 1, options = {}) {
+    const add = Math.max(0, Math.trunc(Number(amount) || 0));
+    if (add <= 0) return [];
+    const arrival = normalizeArrival(options.arrival ?? "round");
+    const source = options.source ?? null;
+    const statusRef = String(statusName ?? "").trim();
+    let canonicalName = ActorPMTTRPG.normalizeStatusRefName(statusRef);
+
+    let active = this._activeStatusItems(canonicalName);
+    let pending = this._pendingStatusItems(canonicalName, arrival);
+
+    let itemData;
+    if (pending[0]) {
+      itemData = pending[0].toObject();
+      canonicalName = pending[0].name;
+    } else if (active[0]) {
+      itemData = active[0].toObject();
+      canonicalName = active[0].name;
+    } else if (source) {
+      itemData = typeof source.toObject === "function"
+        ? source.toObject()
+        : foundry.utils.duplicate(source);
+      canonicalName = itemData?.name || canonicalName;
+      active = this._activeStatusItems(canonicalName);
+      pending = this._pendingStatusItems(canonicalName, arrival);
+    } else {
+      itemData = await ActorPMTTRPG._resolveStatusTemplate(statusRef);
+      if (!itemData) {
+        const warning = game.i18n.format("PMTTRPG.StatusNotFound", { name: statusRef });
+        console.warn(`PMTTRPG | ${warning}`);
+        ui.notifications?.warn(warning);
+        return [];
+      }
+      canonicalName = itemData.name;
+      active = this._activeStatusItems(canonicalName);
+      pending = this._pendingStatusItems(canonicalName, arrival);
+    }
+
+    const originUuid = ActorPMTTRPG._normalizeOriginUuid(
+      options.originUuid ?? options.origin ?? source?.system?.origin ?? itemData?.system?.origin
+    );
+
+    const stackMax = ActorPMTTRPG._statusStackMax(itemData);
+    const activeStacks = this.getStatusStacks(canonicalName);
+    const pendingStacks = this.getPendingStatusStacks(canonicalName, arrival);
+    // Live and queued stacks share the same cap.
+    const room = stackMax > 0
+      ? Math.max(0, stackMax - activeStacks - pendingStacks)
+      : add;
+    const toAdd = stackMax > 0 ? Math.min(add, room) : add;
+    if (toAdd <= 0) return pending[0] ? [pending[0]] : [];
+
+    const nextStacks = pendingStacks + toAdd;
+    if (pending[0]) {
+      const kept = pending[0];
+      const extras = pending.slice(1).map(i => i.id);
+      const updates = {
+        "system.stacks": nextStacks,
+        "system.pending": true,
+        "system.arrival": arrival,
+        "system.shelved": false,
+      };
+      if (originUuid && !ActorPMTTRPG._normalizeOriginUuid(kept.system?.origin)) {
+        updates["system.origin"] = originUuid;
+      }
+      await kept.update(updates);
+      if (extras.length) await this.deleteEmbeddedDocuments("Item", extras);
+      return [kept];
+    }
+
+    const created = foundry.utils.duplicate(itemData);
+    delete created._id;
+    created.system = created.system ?? {};
+    created.system.stacks = nextStacks;
+    created.system.pending = true;
+    created.system.arrival = arrival;
+    created.system.shelved = false;
+    created.system.origin = originUuid || ActorPMTTRPG._normalizeOriginUuid(created.system.origin);
+    if (stackMax > 0) created.system.stackMax = stackMax;
+    const docs = await this.createEmbeddedDocuments("Item", [created]);
+    return docs;
+  }
+
+  // Reuse the item so Pause does not fire On Lose.
+  async pauseStatusToPending(statusName, options = {}) {
+    const arrival = normalizeArrival(options.arrival ?? "round");
+    const matching = this._activeStatusItems(statusName);
+    const activeStacks = this.getStatusStacks(statusName);
+    if (!matching.length || activeStacks <= 0) return [];
+
+    const kept = matching[0];
+    const pending = this._pendingStatusItems(statusName, arrival);
+    const pendingStacks = this.getPendingStatusStacks(statusName, arrival);
+    const stackMax = ActorPMTTRPG._statusStackMax(kept);
+    let nextStacks = activeStacks + pendingStacks;
+    if (stackMax > 0) nextStacks = Math.min(nextStacks, stackMax);
+
+    const toDelete = [
+      ...matching.slice(1).map(i => i.id),
+      ...pending.map(i => i.id),
+    ];
+
+    await kept.update({
+      "system.stacks": nextStacks,
+      "system.pending": true,
+      "system.arrival": arrival,
+      "system.shelved": true,
+    });
+    if (toDelete.length) await this.deleteEmbeddedDocuments("Item", toDelete);
+    return [kept];
+  }
+
+  // Pause-shelved stacks skip On Gain when restored.
+  async promotePendingStatuses({ arrival = "round" } = {}) {
+    const want = normalizeArrival(arrival);
+    const pending = this.items.filter(
+      i => isPendingStatus(i) && normalizeArrival(i.system?.arrival) === want
+    );
+    if (!pending.length) return;
+
+    for (const item of pending) {
+      const name = item.name;
+      const stacks = Math.max(0, Number(item.system?.stacks ?? 0) || 0);
+      if (stacks <= 0) {
+        await this.deleteEmbeddedDocuments("Item", [item.id]);
+        continue;
+      }
+
+      const active = this._activeStatusItems(name);
+      const shelved = !!item.system?.shelved;
+
+      if (active.length) {
+        await this.addStatusStacks(name, stacks, item);
+        await this.deleteEmbeddedDocuments("Item", [item.id]);
+        continue;
+      }
+
+      await item.update({
+        "system.stacks": stacks,
+        "system.pending": false,
+        "system.arrival": "",
+        "system.shelved": false,
+      });
+
+      if (shelved) continue;
+
+      Hooks.callAll("pmttrpg.statusApplied", {
+        actor: this,
+        item,
+        statusName: name,
+        stacks,
+      });
+      await emitStatusStackHook(this, "pmttrpg.statusGained", {
+        actor: this,
+        item,
+        statusName: name,
+        before: 0,
+        after: stacks,
+        amount: stacks,
+      });
+    }
+  }
+
+  /** @param {string} ref @returns {boolean} */
+  static _looksLikeStatusUuid(ref) {
+    const s = String(ref ?? "").trim();
+    if (!s || !s.includes(".")) return false;
+    return /^(?:Item|Actor|Compendium|Scene)\./.test(s) || s.includes(".Item.");
+  }
+
+  /** @param {string} statusRef @returns {string} */
+  static normalizeStatusRefName(statusRef) {
+    const ref = String(statusRef ?? "").trim();
+    if (!ref || !ActorPMTTRPG._looksLikeStatusUuid(ref)) return ref;
+    try {
+      const doc = globalThis.fromUuidSync?.(ref);
+      if (doc?.type === "status") return doc.name;
+    } catch (_) { /* ignore */ }
+    const worldId = /^Item\.(.+)$/.exec(ref)?.[1];
+    if (worldId) {
+      const it = game.items?.get(worldId);
+      if (it?.type === "status") return it.name;
+    }
+    return ref;
+  }
+
+  /**
+   * Lookup order: UUID, world items, item compendia.
+   * @param {string} statusRef
+   * @returns {Promise<object|null>}
+   */
+  static async _resolveStatusTemplate(statusRef) {
+    const ref = String(statusRef ?? "").trim();
+    if (!ref) return null;
+
+    if (ActorPMTTRPG._looksLikeStatusUuid(ref)) {
+      try {
+        const doc = await fromUuid(ref);
+        if (doc?.type === "status") return doc.toObject();
+      } catch (err) {
+        console.warn(`PMTTRPG | Could not resolve status UUID '${ref}'`, err);
+      }
+      return null;
+    }
+
+    const world = game.items?.find(i => i.type === "status" && i.name === ref) ?? null;
+    if (world) return world.toObject();
+
+    return ActorPMTTRPG._fetchStatusFromCompendium(ref);
   }
 
   /**

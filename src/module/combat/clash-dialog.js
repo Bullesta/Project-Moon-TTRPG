@@ -193,13 +193,14 @@ function _readRetaliationForm(dialog, actor) {
 }
 
 /**
- * Prompt ammo (or dry-fire) for a ranged Counter.
+ * Prompt ammo and dry-fire for ranged attacks.
  *
  * @param {ActorPMTTRPG} actor
  * @param {Item} weapon
+ * @param {{ shootLabel?: string }} [options]
  * @returns {Promise<{ ammo: Item|null, consumeAmmo: boolean, dryFire: boolean }|null>}
  */
-export async function promptRangedCounterAmmo(actor, weapon) {
+export async function promptRangedAmmo(actor, weapon, { shootLabel } = {}) {
   const ammoOptions = (actor.items ?? [])
     .filter(i => i.type === "ammunition" && Number(i.system?.quantity ?? 0) > 0)
     .map((item, index) => ({
@@ -232,7 +233,7 @@ export async function promptRangedCounterAmmo(actor, weapon) {
   if (ammoOptions.length) {
     buttons.push({
       action: "shoot",
-      label: game.i18n.localize("PMTTRPG.Clash.Counter"),
+      label: shootLabel || game.i18n.localize("PMTTRPG.Dialog.roll"),
       icon: "fa-solid fa-bullseye",
       default: true,
       callback: (event, button, dialog) => {
@@ -271,6 +272,13 @@ export async function promptRangedCounterAmmo(actor, weapon) {
     content: html,
     buttons,
     rejectClose: false,
+  });
+}
+
+/** @deprecated Prefer {@link promptRangedAmmo} */
+export async function promptRangedCounterAmmo(actor, weapon) {
+  return promptRangedAmmo(actor, weapon, {
+    shootLabel: game.i18n.localize("PMTTRPG.Clash.Counter"),
   });
 }
 

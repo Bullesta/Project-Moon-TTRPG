@@ -13,12 +13,10 @@ system:
   stacks: 1
   stackMax: 0
   priority: 0
-  macro:
-    uuid: ''
   customNotes: ''
   easyEffects: |-
     [On Taking HP Damage]
-    increase damage by (Smoke //f 2)
+    increase damage by (Smoke //f 2) after resistances
 
     [End of Round]
     lose 2 Smoke

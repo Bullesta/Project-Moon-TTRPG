@@ -11,12 +11,10 @@ system:
   stacks: 1
   stackMax: 0
   priority: 0
-  macro:
-    uuid: ''
   customNotes: ''
   easyEffects: |-
     [On Taking HP Damage]
-    increase damage by Fragile
+    increase damage by Fragile after resistances
 
     [End of Round]
     remove Fragile Fragile on self

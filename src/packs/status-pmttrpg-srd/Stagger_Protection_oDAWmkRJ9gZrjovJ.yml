@@ -12,12 +12,10 @@ system:
   stacks: 1
   stackMax: 0
   priority: 0
-  macro:
-    uuid: ''
   customNotes: ''
   easyEffects: |-
     [On Taking ST Damage]
-    reduce damage by "Stagger Protection"
+    reduce damage by "Stagger Protection" after resistances
                         
     [End of Round]
     remove "Stagger Protection" "Stagger Protection" on self

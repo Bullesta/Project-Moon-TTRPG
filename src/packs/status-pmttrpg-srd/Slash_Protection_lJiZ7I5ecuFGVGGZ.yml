@@ -13,15 +13,13 @@ system:
   stacks: 1
   stackMax: 0
   priority: 0
-  macro:
-    uuid: ''
   customNotes: ''
   easyEffects: |-
     [On Taking Slash Damage]
     reduce damage by "Slash Protection"
 
     [End of Round]
-    lose "Slash Protection" "Slash Protection"
+    lose all "Slash Protection"
 effects: []
 folder: JLnWNuTpQkOQhr5i
 sort: 100391

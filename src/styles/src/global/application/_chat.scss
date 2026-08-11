@@ -354,20 +354,20 @@
 
   .damage-breakdown-row {
     display: grid;
-    grid-template-columns: minmax(0, 1fr) auto;
+    grid-template-columns: max-content minmax(0, 1fr);
     gap: 1em;
     align-items: baseline;
 
     dt {
-      min-width: 0;
       font-weight: 600;
+      white-space: nowrap;
     }
 
     dd {
       margin: 0;
       font-variant-numeric: tabular-nums;
       text-align: right;
-      white-space: nowrap;
+      overflow-wrap: anywhere;
     }
 
     &.is-final {

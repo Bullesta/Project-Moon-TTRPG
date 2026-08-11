@@ -18,16 +18,23 @@ system:
   stacks: 1
   stackMax: 0
   priority: 0
-  macro:
-    uuid: ''
   customNotes: ''
   easyEffects: |-
+    [On Being Hit]
+    create dialog "Proc Tremor Burst?":
+      burst as "Burst",
+      skip as "Do not burst"
+      to attacker
+
+    [On Dialog Answer burst]
+    burst Tremor on self
+
     [On Burst]
-    deal Tremor st damage to self
-    lose Tremor Tremor on self
-                        
+    deal (burst.amount) st damage to self
+    lose all Tremor on self
+
     [End of Round]
-    lose Tremor Tremor on self
+    lose all Tremor on self
   proc:
     turnStart: false
     endOfRound: false
