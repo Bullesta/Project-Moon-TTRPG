@@ -38,6 +38,7 @@ styles:
   - styles/dist/pm-sheet-inventory.css
   - styles/lib/npc-sheet.css
   - styles/lib/clash.css
+  - styles/lib/combat-turn-order.css
 media:
   - type: setup
     url: "systems/projectmoonttrpg/assets/thumbnail.webp"

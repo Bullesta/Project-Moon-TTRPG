@@ -1,0 +1,35 @@
+<!-- This is a full character including details and such -->
+<div class="character">
+    <div class="main-part">
+        <div class="left-side">
+            <div class="avatar" data-action="openSheet" title="{{actorData.name}}">
+                <img src="{{actorData.img}}" alt="{{actorData.name}}">
+            </div>
+            <button 
+                type="button" 
+                class="char-toggle-details" 
+                data-action="toggleDetails"
+                aria-expanded="false" 
+                title="{{localize "PMTTRPG.Common.Details"}}" 
+                aria-label="{{localize "PMTTRPG.Common.Details"}}"
+            >
+                <i class="fas fa-chevron-down" aria-hidden="true"></i>
+            </button>
+        </div>
+
+        <div class="right-side">
+            <span class="name">{{actorData.name}}</span>
+
+            <div class="main-stats">
+                {{> "systems/projectmoonttrpg/templates/combat/parts/initiative-tracker.hbs" initiative=combatantData.initiative }}
+                {{#each mainStats}}
+                    {{> "systems/projectmoonttrpg/templates/combat/parts/main-stat-tracker.hbs" stat=this}}
+                {{/each}}
+            </div>
+        </div>
+    </div>
+
+    <div class="details">
+        Oogly Boogly
+    </div>
+</div>

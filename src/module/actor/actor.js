@@ -786,6 +786,7 @@ export class ActorPMTTRPG extends Actor {
       if (!delta) delta = 0;
 
       const poolColors = {
+        hp: 0xff0000,
         st: 0xffcc00,
         sp: 0x4a9eff,
       };
