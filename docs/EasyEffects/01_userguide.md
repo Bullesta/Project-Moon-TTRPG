@@ -56,7 +56,7 @@ A trigger tells the system **when** to fire your effect. Write it in square brac
 | `[Clash Lose With Attack]` / `[… With Block|Evade|Defense]` | Clash Lose filtered by that side’s reaction |
 | `[On Damage Calc]` | Before damage is finalized |
 | `[On Hit]` | An attack connects, either one-sided or after a Clash Win. Runs on the **attacker** weapon/tool and statuses. After a clash, runs **after** the result card posts |
-| `[On Being Hit]` | Same hit, but runs **status** scripts on the **defender** (`self` = defender, `target`/`attacker` = hitter). Same post-card timing as On Hit |
+| `[On Being Hit]` | Same hit, but runs on the **defender** (`self` = defender, `target`/`attacker` = hitter): equipped items and statuses. Same post-card timing as On Hit |
 | `[On Instant]` | Instant skill activation |
 | `[On Burst]` | Status-local burst body on the status being burst (shorthand for `[On <this status> Burst]`) |
 | `[On <Status> Burst]` | After that status’s burst resolves. Used by skills, addons, and other statuses (e.g. `[On Tremor Burst]`) |

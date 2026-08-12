@@ -365,7 +365,7 @@ That's all — no changes to the lexer, parser, or interpreter.
 | Hook | Payload | Used by |
 |------|---------|---------|
 | `pmttrpg.clashResolved` | `{ winner, loser, attackerItem, defenderItem, attackerRoll, defenderRoll }` | `[Clash Win]`, `[Clash Lose]` |
-| `pmttrpg.attackConnected` | `{ attacker, defender, item }` | `[On Hit]` |
+| `pmttrpg.attackConnected` | `{ attacker, defender, item }` | `[On Hit]`, `[On Being Hit]` |
 | `pmttrpg.actorStaggered` | `{ actor, attacker }` | `[On Stagger]` |
 | `pmttrpg.statusApplied` | `{ actor, item, statusName, stacks }` | `[On Applied]` |
 | `pmttrpg.statusRemoved` | `{ actor, item, statusName }` | `[On Removed]` |

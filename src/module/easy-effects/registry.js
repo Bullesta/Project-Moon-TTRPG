@@ -283,7 +283,10 @@ const TRIGGER_HOOKS = [
   {
     hook: "pmttrpg.attackConnected",
     triggerName: "On Being Hit",
-    getItems: ({ defender }) => defender ? uniqueStatusItems(defender.items) : [],
+    getItems: ({ defender }) => {
+      if (!defender) return [];
+      return [...getEquippedItems(defender), ...uniqueStatusItems(defender.items)];
+    },
     buildContext: ({ attacker, defender, clash }) => {
       if (!defender) return null;
       return {

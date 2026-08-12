@@ -25,6 +25,13 @@ system:
   macro:
     uuid: ''
   customNotes: ''
+  easyEffects: |
+    [On Being Hit]
+    positive:
+    gain N Charge;
+    negative:
+    require (Charge) < (N) then deal (2 * (N - Charge)) hp damage after resistances to self;
+    lose N Charge;
   allowMultiple: true
 effects: []
 sort: 0
