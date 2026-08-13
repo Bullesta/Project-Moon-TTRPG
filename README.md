@@ -2,7 +2,7 @@
 
 A community-built FoundryVTT system for the **Project Moon TTRPG**, based on the community rulebook.
 
-![Foundry v13](https://img.shields.io/badge/Foundry-v13-green)
+![Foundry v14](https://img.shields.io/badge/Foundry-v14-green)
 ![License: GPL](https://img.shields.io/badge/License-GPL-blue)
 ![GitHub issues](https://img.shields.io/github/issues/Leetram519/Project-Moon-TTRPG)
 ![GitHub pull requests](https://img.shields.io/github/issues-pr/Leetram519/Project-Moon-TTRPG)
@@ -48,8 +48,8 @@ This is not yet possible. We're working on it, and it'll come with the MVP 1.0.0
 
 | Foundry Version | Status | Supported Until |
 |----------------|--------|---------------|
-| v13 | ✅ Supported | Until V14 Migration |
-| v14 | 🚧 Migration in progress | Until V16 release |
+| v13 | ✅ Supported | MVP 1.1 |
+| v14 | ✅ Supported | Further Notice |
 
 ---
 
@@ -146,5 +146,5 @@ This project is licensed under the **GNU General Public License (GPL)**. See [LI
 
 ## Acknowledgements
 
-Built by the PMTTRPG West Marches (EN) community in collaboration with [Glasshat Studios](https://glasshat.fr/), based on the [Community Rulebook](https://docs.google.com/document/d/1B5mX63nfjJt36l7GlWmtnO2Gsvv9lCuKm30M-S0fzmw/edit?tab=t.0).  
-This system is a fan project and is not affiliated with or endorsed by Project Moon Co., Ltd., and is not owned by Glasshat Studios.
+Built by the PMTRPG EN community in collaboration with [Glasshat Studios](https://glasshat.fr/), based on the [Community Rulebook](https://docs.google.com/document/d/1B5mX63nfjJt36l7GlWmtnO2Gsvv9lCuKm30M-S0fzmw/edit?tab=t.0).  
+This system is a fan project and is not affiliated with or endorsed by Project Moon Co., Ltd., West Marches, and is not owned by Glasshat Studios.
