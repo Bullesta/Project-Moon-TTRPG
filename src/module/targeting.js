@@ -117,19 +117,68 @@ export function resolveCombatantTarget(combatantId, { combat = game.combat, acto
   return combatant ? buildCombatantTarget(combatant, { actorId }) : null;
 }
 
-function getUserTargetCombatantIds(options = []) {
+function getUserTargetedTokens() {
+  return Array.from(game.user?.targets ?? []).filter(token => token?.actor);
+}
+
+function getTokenId(token) {
+  return token?.id ?? token?.document?.id ?? null;
+}
+
+function resolveCombatantForToken(token, combat = game.combat) {
+  if (!token || !combat) return null;
+
+  const tokenId = getTokenId(token);
+  const byToken = token.combatant
+    ?? token.document?.combatant
+    ?? (tokenId ? getCombatants(combat).find(entry => (entry.tokenId ?? entry.token?.id) === tokenId) : null);
+  if (byToken) return byToken;
+
+  const actorId = token.actor?.id ?? null;
+  const baseActorId = token.document?.actorId ?? token.actor?.id ?? null;
+  return getCombatants(combat).find(entry => {
+    const combatantActorId = entry.actorId ?? entry.actor?.id ?? null;
+    return combatantActorId && (combatantActorId === actorId || combatantActorId === baseActorId);
+  }) ?? null;
+}
+
+function buildTargetFromToken(token, { actorId = null, combat = game.combat } = {}) {
+  if (!token?.actor) return null;
+
+  const combatant = resolveCombatantForToken(token, combat);
+  if (combatant) return buildCombatantTarget(combatant, { actorId });
+
+  const actor = token.actor;
+  const tokenDoc = token.document ?? token;
+  return {
+    combatant: null,
+    combatantId: null,
+    actor,
+    actorId: actor.id ?? null,
+    token: tokenDoc,
+    tokenId: getTokenId(token),
+    name: token.name ?? actor.name ?? '',
+    img: tokenDoc?.texture?.src ?? actor.img ?? 'icons/svg/mystery-man.svg',
+    initiative: null,
+    initiativeLabel: '-',
+    isCurrent: false,
+    isSelf: actorId ? actor.id === actorId : false,
+  };
+}
+
+function getUserTargetCombatantIds(options = [], combat = game.combat) {
   const optionIds = new Set(options.map(option => option.combatantId).filter(Boolean));
-  return Array.from(game.user?.targets ?? [])
-    .map(token => token?.combatant?.id ?? token?.document?.combatant?.id ?? token?.document?.combatantId ?? null)
+  return getUserTargetedTokens()
+    .map(token => resolveCombatantForToken(token, combat)?.id ?? null)
     .filter(id => id && optionIds.has(id));
 }
 
-function getSelectedCombatantId(options = [], preferredCombatantId = null) {
+function getSelectedCombatantId(options = [], preferredCombatantId = null, combat = game.combat) {
   if (preferredCombatantId && options.some(option => option.combatantId === preferredCombatantId)) {
     return preferredCombatantId;
   }
 
-  const targetedIds = getUserTargetCombatantIds(options);
+  const targetedIds = getUserTargetCombatantIds(options, combat);
   if (targetedIds.length) return targetedIds[0];
 
   return options[0]?.combatantId ?? null;
@@ -147,15 +196,16 @@ export async function promptTargetSelection({
   preferredCombatantId = null,
 } = {}) {
   const options = getCombatantTargetOptions({ combat, actorId: actor?.id ?? null, includeHidden });
-  if (!options.length) return undefined;
+  const targetedTokens = getUserTargetedTokens();
 
   // One crosshair target does not need a picker.
-  const userTargetIds = getUserTargetCombatantIds(options);
-  if (userTargetIds.length === 1) {
-    return resolveCombatantTarget(userTargetIds[0], { combat, actorId: actor?.id ?? null });
+  if (targetedTokens.length === 1) {
+    return buildTargetFromToken(targetedTokens[0], { actorId: actor?.id ?? null, combat });
   }
 
-  const selectedCombatantId = getSelectedCombatantId(options, preferredCombatantId);
+  if (!options.length) return undefined;
+
+  const selectedCombatantId = getSelectedCombatantId(options, preferredCombatantId, combat);
   const dialogData = {
     title,
     hint,
