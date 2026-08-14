@@ -3,8 +3,8 @@ import {
   applyResourceOverride,
   applyRuntimeResource,
   emptyAlwaysActiveMods,
-  getMaxField,
-  getPowerField,
+  getMaxFields,
+  getPowerFields,
   getRegenField,
   isRuntimeResource,
   recoverPool,
@@ -791,19 +791,19 @@ const ACTION_HANDLERS = {
   // "dice max up damage 3" → clash.bonuses.damageMax   += 3
   // "regen hp 5"           → clash.bonuses.regenHP     += 5
   //
-  // noun can be: attack | block | evade | damage (for power/dice max)
+  // noun can be: attack | block | evade | defense | damage (for power/dice max)
   //              hp | st | sp | light (for regen)
 
   "power up": async (action, context, amount) => {
-    const field = getPowerField(action.noun);
-    if (!field) { console.warn(`[EasyEffects] Unknown noun for power up/down: '${action.noun}'`); return; }
-    _applyClashBonus(context, field, +amount, action.target ?? "self");
+    const fields = getPowerFields(action.noun);
+    if (!fields.length) { console.warn(`[EasyEffects] Unknown noun for power up/down: '${action.noun}'`); return; }
+    for (const field of fields) _applyClashBonus(context, field, +amount, action.target ?? "self");
   },
 
   "power down": async (action, context, amount) => {
-    const field = getPowerField(action.noun);
-    if (!field) { console.warn(`[EasyEffects] Unknown noun for power up/down: '${action.noun}'`); return; }
-    _applyClashBonus(context, field, -amount, action.target ?? "self");
+    const fields = getPowerFields(action.noun);
+    if (!fields.length) { console.warn(`[EasyEffects] Unknown noun for power up/down: '${action.noun}'`); return; }
+    for (const field of fields) _applyClashBonus(context, field, -amount, action.target ?? "self");
   },
 
   advantage: async (action, context, amount) => {
@@ -817,15 +817,15 @@ const ACTION_HANDLERS = {
   },
 
   "dice max up": async (action, context, amount) => {
-    const field = getMaxField(action.noun);
-    if (!field) { console.warn(`[EasyEffects] Unknown noun for dice max up/down: '${action.noun}'`); return; }
-    _applyClashBonus(context, field, +amount, action.target ?? "self");
+    const fields = getMaxFields(action.noun);
+    if (!fields.length) { console.warn(`[EasyEffects] Unknown noun for dice max up/down: '${action.noun}'`); return; }
+    for (const field of fields) _applyClashBonus(context, field, +amount, action.target ?? "self");
   },
 
   "dice max down": async (action, context, amount) => {
-    const field = getMaxField(action.noun);
-    if (!field) { console.warn(`[EasyEffects] Unknown noun for dice max up/down: '${action.noun}'`); return; }
-    _applyClashBonus(context, field, -amount, action.target ?? "self");
+    const fields = getMaxFields(action.noun);
+    if (!fields.length) { console.warn(`[EasyEffects] Unknown noun for dice max up/down: '${action.noun}'`); return; }
+    for (const field of fields) _applyClashBonus(context, field, -amount, action.target ?? "self");
   },
 
   regen: async (action, context, amount) => {
@@ -1278,27 +1278,31 @@ export function executeAlwaysActive(ast, prepareContext) {
 
           switch (action.verb) {
             case "power up": {
-              const f = getPowerField(action.noun);
-              if (f) mods[f] = (mods[f] ?? 0) + amount;
-              else console.warn(`[EasyEffects] Unknown noun for power up: '${action.noun}'`);
+              const fields = getPowerFields(action.noun);
+              if (fields.length) {
+                for (const f of fields) mods[f] = (mods[f] ?? 0) + amount;
+              } else console.warn(`[EasyEffects] Unknown noun for power up: '${action.noun}'`);
               break;
             }
             case "power down": {
-              const f = getPowerField(action.noun);
-              if (f) mods[f] = (mods[f] ?? 0) - amount;
-              else console.warn(`[EasyEffects] Unknown noun for power down: '${action.noun}'`);
+              const fields = getPowerFields(action.noun);
+              if (fields.length) {
+                for (const f of fields) mods[f] = (mods[f] ?? 0) - amount;
+              } else console.warn(`[EasyEffects] Unknown noun for power down: '${action.noun}'`);
               break;
             }
             case "dice max up": {
-              const f = getMaxField(action.noun);
-              if (f) mods[f] = (mods[f] ?? 0) + amount;
-              else console.warn(`[EasyEffects] Unknown noun for dice max up: '${action.noun}'`);
+              const fields = getMaxFields(action.noun);
+              if (fields.length) {
+                for (const f of fields) mods[f] = (mods[f] ?? 0) + amount;
+              } else console.warn(`[EasyEffects] Unknown noun for dice max up: '${action.noun}'`);
               break;
             }
             case "dice max down": {
-              const f = getMaxField(action.noun);
-              if (f) mods[f] = (mods[f] ?? 0) - amount;
-              else console.warn(`[EasyEffects] Unknown noun for dice max down: '${action.noun}'`);
+              const fields = getMaxFields(action.noun);
+              if (fields.length) {
+                for (const f of fields) mods[f] = (mods[f] ?? 0) - amount;
+              } else console.warn(`[EasyEffects] Unknown noun for dice max down: '${action.noun}'`);
               break;
             }
             case "add":

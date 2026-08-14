@@ -47,6 +47,7 @@
         <input type="hidden" name="system.effects.{{idx}}.count" value="{{effect.count}}" data-dtype="Number"/>
         <input type="hidden" name="system.effects.{{idx}}.stackMax" value="{{effect.stackMax}}" data-dtype="Number"/>
         <input type="hidden" name="system.effects.{{idx}}.procResultLocked" value="{{effect.procResultLocked}}" data-dtype="Boolean"/>
+        <input type="hidden" name="system.effects.{{idx}}.procChoiceLocked" value="{{effect.procChoiceLocked}}" data-dtype="Boolean"/>
         <input type="hidden" name="system.effects.{{idx}}.allowModeToggle" value="{{effect.allowModeToggle}}" data-dtype="Boolean"/>
         <input type="hidden" name="system.effects.{{idx}}.procOn" value="{{effect.procOn}}"/>
         {{#if effect.showProcResult}}
@@ -55,6 +56,13 @@
           {{/if}}
         {{else}}
           <input type="hidden" name="system.effects.{{idx}}.procResult" value="{{effect.procResult}}"/>
+        {{/if}}
+        {{#if effect.showProcChoice}}
+          {{#if effect.procChoiceLocked}}
+            <input type="hidden" name="system.effects.{{idx}}.procChoice" value="{{effect.procChoice}}"/>
+          {{/if}}
+        {{else}}
+          <input type="hidden" name="system.effects.{{idx}}.procChoice" value="{{effect.procChoice}}"/>
         {{/if}}
         {{#unless effect.showProcStat}}
           <input type="hidden" name="system.effects.{{idx}}.procStat" value="{{effect.procStat}}"/>
@@ -80,6 +88,11 @@
           {{#if effect.showProcResult}}
             <select name="system.effects.{{idx}}.procResult" class="effect-row__proc-result-select" data-dtype="String" {{#if effect.procResultLocked}}disabled{{/if}}>
               {{selectOptions ../selects.effectProcResult selected=effect.procResult localize=true}}
+            </select>
+          {{/if}}
+          {{#if effect.showProcChoice}}
+            <select name="system.effects.{{idx}}.procChoice" class="effect-row__proc-choice-select" data-dtype="String" {{#if effect.procChoiceLocked}}disabled{{/if}}>
+              {{selectOptions ../selects.effectProcChoice selected=effect.procChoice localize=true}}
             </select>
           {{/if}}
           {{#if effect.showProcStat}}

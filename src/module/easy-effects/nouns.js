@@ -136,6 +136,13 @@ export const NOUNS = {
     maxField: "evadeMax",
     pathShorthand: ["attributes", "evadeModifier"],
   },
+  defense: {
+    kind: "combat",
+    ops: ["power up", "power down", "dice max up", "dice max down"],
+    powerFields: ["blockPower", "evadePower"],
+    maxFields: ["blockMax", "evadeMax"],
+    aliases: ["defensive"],
+  },
   damage: {
     kind: "combat",
     ops: ["power up", "power down", "dice max up", "dice max down", "deal"],
@@ -272,12 +279,26 @@ export function resolveApplyPool(name) {
   return hit.id;
 }
 
+export function getPowerFields(name) {
+  const def = lookupNoun(name)?.def;
+  if (!def) return [];
+  if (Array.isArray(def.powerFields) && def.powerFields.length) return def.powerFields;
+  return def.powerField ? [def.powerField] : [];
+}
+
 export function getPowerField(name) {
-  return lookupNoun(name)?.def.powerField ?? null;
+  return getPowerFields(name)[0] ?? null;
+}
+
+export function getMaxFields(name) {
+  const def = lookupNoun(name)?.def;
+  if (!def) return [];
+  if (Array.isArray(def.maxFields) && def.maxFields.length) return def.maxFields;
+  return def.maxField ? [def.maxField] : [];
 }
 
 export function getMaxField(name) {
-  return lookupNoun(name)?.def.maxField ?? null;
+  return getMaxFields(name)[0] ?? null;
 }
 
 export function getRegenField(name) {

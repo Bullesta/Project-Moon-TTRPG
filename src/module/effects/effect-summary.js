@@ -1,6 +1,11 @@
 import { PMTTRPGUtility } from "../utility.js";
 
 const CLASH_PROC_TYPES = new Set(["onClash", "onClashResult", "onEitherClashResult"]);
+const CHOICE_PROC_TYPES = new Set(["onClash", "onClashResult", "onEitherClashResult", "onCondition"]);
+
+export function effectShowsProcChoice(procOn = "alwaysActive") {
+  return CHOICE_PROC_TYPES.has(procOn);
+}
 
 function toCssToken(value = "") {
   return `${value}`
@@ -105,7 +110,10 @@ export function buildEffectSummaryGroups(effects = []) {
     }
 
     const procResult = effect?.procResult ?? "none";
-    const groupKey = CLASH_PROC_TYPES.has(procOn) ? `${procOn}:${procResult}` : procOn;
+    const procChoice = effect?.procChoice ?? "none";
+    const groupKey = CLASH_PROC_TYPES.has(procOn)
+      ? `${procOn}:${procResult}:${procChoice}`
+      : (CHOICE_PROC_TYPES.has(procOn) ? `${procOn}:${procChoice}` : procOn);
     const groupLabel = PMTTRPGUtility.formatEffectProcLabel(effect);
     const groupSort = getGroupSort(effect);
     addLine(groupKey, groupLabel, groupSort, "", "", lineText);
@@ -163,6 +171,7 @@ export function computeEffectSummary(entries = [], epMax = 0) {
       entry?.effectUuid ?? '',
       entry?.procOn ?? '',
       entry?.procResult ?? '',
+      entry?.procChoice ?? '',
       entry?.procStat ?? '',
       entry?.procDice ?? '',
       entry?.procAction ?? '',
@@ -212,6 +221,7 @@ export function normalizeEffectEntries(rawEffects = []) {
 
     return {
       effectUuid: entry?.effectUuid ?? entry?.uuid ?? '',
+      easyEffectsTemplate: String(entry?.easyEffectsTemplate ?? ''),
       name: entry?.name ?? '',
       cost,
       stackMax,
@@ -224,6 +234,8 @@ export function normalizeEffectEntries(rawEffects = []) {
       procOn: entry?.procOn ?? 'alwaysActive',
       procResult: entry?.procResult ?? 'none',
       procResultLocked: entry?.procResultLocked ?? false,
+      procChoice: entry?.procChoice ?? 'none',
+      procChoiceLocked: entry?.procChoiceLocked ?? false,
       procStat: entry?.procStat ?? 'any',
       procDice: entry?.procDice ?? 'any',
       procAction: entry?.procAction ?? 'any',
