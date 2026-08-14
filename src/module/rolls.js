@@ -2,6 +2,7 @@ import { PMTTRPGUtility } from "./utility.js";
 import { PMTTRPGTargetingAPI } from "./targeting.js";
 const { renderTemplate } = foundry.applications.handlebars;
 import { initiateAttack } from "./combat/clashing.js";
+import { promptRangedAmmo } from "./combat/clash-dialog.js";
 
 export class PMTTRPGRolls {
 
@@ -156,17 +157,41 @@ export class PMTTRPGRolls {
     const selectedOption = options.find(option => option.id === promptResult.itemId) ?? options[0];
     if (!selectedOption) return false;
 
-    let targetSelection = null;
+    const hostItem = actor.items.get(selectedOption.id) ?? null;
+    if (!hostItem) return false;
+
     if (skillType === 'attack') {
-      targetSelection = await PMTTRPGTargetingAPI.promptTargetSelection({
+      let ammo = null;
+      let consumeAmmo = true;
+      let dryFire = false;
+      if (hostItem.system?.weaponType === 'ranged') {
+        const ammoPick = await promptRangedAmmo(actor, hostItem);
+        if (!ammoPick) return false;
+        ammo = ammoPick.ammo;
+        consumeAmmo = ammoPick.consumeAmmo;
+        dryFire = ammoPick.dryFire;
+      }
+
+      const targetSelection = await PMTTRPGTargetingAPI.promptTargetSelection({
         actor,
         title: skill.name,
-        sourceName: selectedOption.name,
+        sourceName: hostItem.name,
         sourceImg: skill.img,
         preferredCombatantId: game.combat?.combatant?.id ?? null,
       });
-
       if (targetSelection === null) return false;
+
+      return hostItem.roll({
+        configureDialog: false,
+        ammo,
+        consumeAmmo,
+        dryFire,
+        appliedTool: null,
+        consumeAppliedTool: false,
+        declaredSkill: skill,
+        consumeSkillLight: promptResult.consumeLight,
+        targetSelection,
+      });
     }
 
     const lightCost = Math.max(0, Number(skill.system?.lightCost ?? 0));
@@ -177,26 +202,21 @@ export class PMTTRPGRolls {
       });
     }
 
-    const isAttack = skillType === 'attack';
     const flavor = game.i18n.format('PMTTRPG.Dialog.usingSkillWith', { item: selectedOption.name });
-    const rollType = isAttack ? 'damage' : 'defense';
 
     return this.rollMove({
       actor,
       formula: selectedOption.formula,
-      targetSelection,
       templateData: foundry.utils.mergeObject(templateData, {
         image: skill.img,
         title: skill.name,
         flavor,
         details: skill.system?.description ?? '',
-        rollType,
-        defenseType: isAttack ? null : skillType,
-        damageType: selectedOption.damageType,
+        rollType: 'defense',
+        defenseType: skillType,
         skillName: skill.name,
         skillUseName: selectedOption.name,
         skillUseFormula: selectedOption.formula,
-        attackRoll: skillType === 'attack',
       }, { inplace: false })
     });
   }
@@ -354,10 +374,10 @@ export class PMTTRPGRolls {
     
     // Handle dice rolls.
     if (!PMTTRPGUtility.isEmpty(roll)) {
-      // Test if the roll is a formula.
+      // Validate teh roll
       let validRoll = false;
       try {
-        validRoll = await (new Roll(roll.trim(), rollData).evaluate());
+        validRoll = typeof Roll.validate === "function" ? Roll.validate(roll.trim()) : !!(new Roll(roll.trim(), rollData));
       } catch (error) {
         validRoll = false;
       }
@@ -391,7 +411,9 @@ export class PMTTRPGRolls {
         if (formulaOverride && formula.includes('2d6')) {
           let overrideIsValid = false;
           try {
-            overrideIsValid = await (new Roll(formulaOverride.trim(), rollData).evaluate());
+            overrideIsValid = typeof Roll.validate === "function"
+              ? Roll.validate(formulaOverride.trim())
+              : !!(new Roll(formulaOverride.trim(), rollData));
           }
           catch (error) {
             overrideIsValid = false;
@@ -555,40 +577,27 @@ export class PMTTRPGRolls {
               console.warn("[EasyEffects] attackConnected hook failed", error);
             }
           }
-          try{
-            renderTemplate(template, templateData).then(content => {
-              chatData.content = content;
-              chatData.flags = foundry.utils.mergeObject(chatData.flags ?? {}, {
-                projectmoonttrpg: {
-                  damageType: templateData.damageType ?? null,
-                  rollType: templateData.rollType ?? null,
-                },
-              });
-              if (game.dice3d) {
-                game.dice3d.showForRoll(roll, game.user, true, chatData.whisper, chatData.blind).then(displayed => ChatMessage.create(chatData));
-              }
-              else {
-                chatData.sound = CONFIG.sounds.dice;
-                ChatMessage.create(chatData);
-              }
-            });
-          } catch(error) {
-              console.warn('[PMTTRPG] initiateAttack failed', error);
-          }
-
-          roll.render().then(async r => {
-            templateData.rollPMTTRPG = r;
+          try {
+            templateData.rollPMTTRPG = await roll.render();
             templateData.roll = roll;
-            renderTemplate(template, templateData).then(content => {
-              chatData.content = content;
-              if (game.dice3d) {
-                game.dice3d.showForRoll(roll, game.user, true, chatData.whisper, chatData.blind);
-              }
-              else {
-                chatData.sound = CONFIG.sounds.dice;
-              }
+            chatData.content = await renderTemplate(template, templateData);
+            chatData.flags = foundry.utils.mergeObject(chatData.flags ?? {}, {
+              projectmoonttrpg: {
+                damageType: templateData.damageType ?? null,
+                rollType: templateData.rollType ?? null,
+              },
             });
-          });
+            if (game.dice3d) {
+              await game.dice3d.showForRoll(roll, game.user, true, chatData.whisper, chatData.blind);
+              await ChatMessage.create(chatData);
+            }
+            else {
+              chatData.sound = CONFIG.sounds.dice;
+              await ChatMessage.create(chatData);
+            }
+          } catch (error) {
+            console.warn("[PMTTRPG] rollMove chat failed", error);
+          }
         }
       }
     }

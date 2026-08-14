@@ -148,15 +148,16 @@ const CLASH_STANCE_ALIASES = {
 /**
  * @param {string|null|undefined} retaliationType
  * @param {Item|null|undefined} defenderItem
+ * @param {Item|null|undefined} [defenderSkill]
  * @returns {"attack"|"block"|"evade"|null}
  */
-export function resolveDefenderClashStance(retaliationType, defenderItem = null) {
+export function resolveDefenderClashStance(retaliationType, defenderItem = null, defenderSkill = null) {
   const kind = String(retaliationType ?? "").toLowerCase();
   if (kind === "block") return "block";
-  if (kind === "evade") return "evade";
+  if (kind === "evade" || kind === "recycledevade") return "evade";
   if (kind === "counter") return "attack";
   if (kind === "skill") {
-    const skillType = String(defenderItem?.system?.skillType ?? "attack").toLowerCase();
+    const skillType = String((defenderSkill ?? defenderItem)?.system?.skillType ?? "attack").toLowerCase();
     if (skillType === "block") return "block";
     if (skillType === "evade") return "evade";
     return "attack";
@@ -172,25 +173,26 @@ export function resolveDefenderClashStance(retaliationType, defenderItem = null)
  *   side?: "attacker"|"defender"|"all"|null,
  *   retaliationType?: string|null,
  *   defenderItem?: Item|null,
+ *   defenderSkill?: Item|null,
  * }} payload
  * @returns {"attack"|"block"|"evade"|null}
  */
 export function resolveActorClashStance(actor, payload = {}) {
   if (!actor) return null;
 
+  const defenderStance = () => resolveDefenderClashStance(
+    payload.retaliationType,
+    payload.defenderItem,
+    payload.defenderSkill,
+  );
+
   if (payload.side === "attacker") return "attack";
-  if (payload.side === "defender") {
-    return resolveDefenderClashStance(payload.retaliationType, payload.defenderItem);
-  }
+  if (payload.side === "defender") return defenderStance();
 
   if (payload.attacker && actor.id === payload.attacker.id) return "attack";
-  if (payload.defender && actor.id === payload.defender.id) {
-    return resolveDefenderClashStance(payload.retaliationType, payload.defenderItem);
-  }
+  if (payload.defender && actor.id === payload.defender.id) return defenderStance();
   // Win and loss payloads may omit the defender.
-  if (payload.attacker && actor.id !== payload.attacker.id) {
-    return resolveDefenderClashStance(payload.retaliationType, payload.defenderItem);
-  }
+  if (payload.attacker && actor.id !== payload.attacker.id) return defenderStance();
   return null;
 }
 

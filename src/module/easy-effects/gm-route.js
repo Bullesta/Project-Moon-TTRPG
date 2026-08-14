@@ -209,6 +209,14 @@ const HANDLERS = {
     await outfit.update(updates);
     return true;
   },
+
+  clearRecycledEvade: async ({ actor, actorUuid }) => {
+    const a = await resolveActor({ actor, actorUuid });
+    if (!a) return false;
+    const { clearRecycledEvade } = await import("../combat/recycled-evade.js");
+    await clearRecycledEvade(a);
+    return true;
+  },
 };
 
 export function registerGmRouteSocket() {

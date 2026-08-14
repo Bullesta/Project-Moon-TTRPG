@@ -11,14 +11,58 @@ import {
   canConsumeAppliedTool,
   promptAppliedToolDialog,
 } from "./applied-tool.js";
+import {
+  buildDeclaredSkillTemplateData,
+  promptDeclareSkillDialog,
+} from "./declare-skill.js";
 import { applyDiceMaxFloor, formatDiceFormula } from "../easy-effects/dice-formula.js";
 import { promptRangedAmmo } from "../combat/clash-dialog.js";
+
+async function pickWeaponBuyIn(actor, hostItem, {
+  configureDialog = true,
+  appliedTool = undefined,
+  consumeAppliedTool = true,
+  declaredSkill = undefined,
+  consumeSkillLight = true,
+} = {}) {
+  let skill = declaredSkill;
+  let consumeLight = consumeSkillLight !== false;
+
+  if (configureDialog && declaredSkill === undefined) {
+    const skillPick = await promptDeclareSkillDialog(actor, {
+      skillType: "attack",
+      hostItem,
+    });
+    if (skillPick == null) return null;
+    skill = skillPick.skill;
+    consumeLight = !!skillPick.consumeLight;
+  }
+
+  let tool = appliedTool;
+  let consumeTool = consumeAppliedTool;
+
+  if (skill) {
+    tool = null;
+    consumeTool = false;
+  } else if (configureDialog && appliedTool === undefined) {
+    const pick = await promptAppliedToolDialog(actor, {
+      applyTo: "weapon",
+      hostItem,
+    });
+    if (pick == null) return null;
+    tool = pick.tool;
+    consumeTool = pick.consume;
+  }
+
+  return { skill: skill ?? null, consumeLight, tool, consumeTool };
+}
 
 function getEffectSignature(entry) {
   return [
     entry?.effectUuid || entry?.name || '',
     entry?.procOn || '',
     entry?.procResult || '',
+    entry?.procChoice || '',
     entry?.procStat || '',
     entry?.procDice || '',
     entry?.procAction || '',
@@ -338,6 +382,8 @@ export class ItemPMTTRPG extends Item {
       data.procOn = data.procOn ?? 'alwaysActive';
       data.procResult = data.procResult ?? 'none';
       data.procResultLocked = data.procResultLocked ?? (['onClash', 'onClashResult', 'onEitherClashResult'].includes(effectProcOn) && data.procResult !== 'none');
+      data.procChoice = data.procChoice ?? 'none';
+      data.procChoiceLocked = data.procChoiceLocked ?? false;
       data.procStat = data.procStat ?? 'any';
       data.procDice = data.procDice ?? 'any';
       data.procAction = data.procAction ?? 'any';
@@ -348,6 +394,7 @@ export class ItemPMTTRPG extends Item {
         uuid: '',
       }, data.macro ?? {}, { inplace: false });
       data.showProcResult = ['onClashResult', 'onEitherClashResult'].includes(effectProcOn);
+      data.showProcChoice = ['onClash', 'onClashResult', 'onEitherClashResult', 'onCondition'].includes(effectProcOn);
       data.showProcStat = ['onCondition', 'onUse', 'onAction'].includes(effectProcOn);
       data.showProcDice = ['onClash', 'onClashResult', 'onEitherClashResult', 'onBurst', 'onCritical', 'onDevastating'].includes(effectProcOn);
       data.showProcAction = ['onUse', 'onAction'].includes(effectProcOn);
@@ -374,6 +421,8 @@ export class ItemPMTTRPG extends Item {
     dryFire = false,
     appliedTool = undefined,
     consumeAppliedTool = true,
+    declaredSkill = undefined,
+    consumeSkillLight = true,
     targetSelection,
   } = {}) {
     if (this.type == 'tool') {
@@ -450,18 +499,18 @@ export class ItemPMTTRPG extends Item {
       const ammoQuantity = ammo ? Number(ammo.system?.quantity ?? 0) : 0;
       const isDryFire = !!(dryFire || !ammo || ammoQuantity <= 0);
 
-      let tool = appliedTool;
-      let willConsumeTool = consumeAppliedTool;
-
-      if (configureDialog && appliedTool === undefined) {
-        const pick = await promptAppliedToolDialog(this.actor, {
-          applyTo: 'weapon',
-          hostItem: this,
-        });
-        if (pick === null) return;
-        tool = pick.tool;
-        willConsumeTool = pick.consume;
-      }
+      const buyIn = await pickWeaponBuyIn(this.actor, this, {
+        configureDialog,
+        appliedTool,
+        consumeAppliedTool,
+        declaredSkill,
+        consumeSkillLight,
+      });
+      if (!buyIn) return;
+      const tool = buyIn.tool;
+      const willConsumeTool = buyIn.consumeTool;
+      const skill = buyIn.skill;
+      const consumeLight = buyIn.consumeLight;
 
       if (!canConsumeAppliedTool(tool, willConsumeTool)) {
         ui.notifications.warn(game.i18n.localize('PMTTRPG.Dialog.noToolUses'));
@@ -476,7 +525,8 @@ export class ItemPMTTRPG extends Item {
       const titleParts = isDryFire
         ? [this.name, dryFireLabel]
         : [this.name, ammo.name];
-      if (tool) titleParts.push(tool.name);
+      if (skill) titleParts.push(skill.name);
+      else if (tool) titleParts.push(tool.name);
 
       PMTTRPGRolls.rollMove({
         actor: this.actor,
@@ -497,6 +547,7 @@ export class ItemPMTTRPG extends Item {
             || this.system?.damageType
             || null,
           ...buildAppliedToolTemplateData(tool),
+          ...buildDeclaredSkillTemplateData(skill, consumeLight),
         },
         onBeforeChat: buildAppliedToolOnBeforeChat({
           actor: this.actor,
@@ -515,11 +566,14 @@ export class ItemPMTTRPG extends Item {
         const ammoPick = await promptRangedAmmo(this.actor, this);
         if (!ammoPick) return;
 
-        const pick = await promptAppliedToolDialog(this.actor, {
-          applyTo: 'weapon',
-          hostItem: this,
+        const buyIn = await pickWeaponBuyIn(this.actor, this, {
+          configureDialog: true,
+          appliedTool,
+          consumeAppliedTool,
+          declaredSkill,
+          consumeSkillLight,
         });
-        if (pick === null) return;
+        if (!buyIn) return;
 
         const targeting = game.projectmoonttrpg?.targeting;
         const chosenTarget = targeting ? await targeting.promptTargetSelection({
@@ -537,8 +591,10 @@ export class ItemPMTTRPG extends Item {
           ammo: ammoPick.ammo,
           consumeAmmo: ammoPick.consumeAmmo,
           dryFire: ammoPick.dryFire,
-          appliedTool: pick.tool,
-          consumeAppliedTool: pick.consume,
+          appliedTool: buyIn.tool,
+          consumeAppliedTool: buyIn.consumeTool,
+          declaredSkill: buyIn.skill,
+          consumeSkillLight: buyIn.consumeLight,
           targetSelection: chosenTarget
         });
         return;
@@ -546,27 +602,29 @@ export class ItemPMTTRPG extends Item {
     }
 
     if (this.type == 'weapon') {
-      let tool = appliedTool;
-      let willConsumeTool = consumeAppliedTool;
-
-      if (configureDialog && appliedTool === undefined) {
-        const pick = await promptAppliedToolDialog(this.actor, {
-          applyTo: 'weapon',
-          hostItem: this,
-        });
-        if (pick === null) return;
-        tool = pick.tool;
-        willConsumeTool = pick.consume;
-      }
+      const buyIn = await pickWeaponBuyIn(this.actor, this, {
+        configureDialog,
+        appliedTool,
+        consumeAppliedTool,
+        declaredSkill,
+        consumeSkillLight,
+      });
+      if (!buyIn) return;
+      const tool = buyIn.tool;
+      const willConsumeTool = buyIn.consumeTool;
+      const skill = buyIn.skill;
+      const consumeLight = buyIn.consumeLight;
 
       const targeting = game.projectmoonttrpg?.targeting;
-      const chosenTarget = targeting ? await targeting.promptTargetSelection({
-        actor: this.actor,
-        title: this.name,
-        sourceName: this.name,
-        sourceImg: this.img,
-        preferredCombatantId: game.combat?.combatant?.id ?? null,
-      }) : undefined;
+      const chosenTarget = targetSelection !== undefined
+        ? targetSelection
+        : (targeting ? await targeting.promptTargetSelection({
+          actor: this.actor,
+          title: this.name,
+          sourceName: this.name,
+          sourceImg: this.img,
+          preferredCombatantId: game.combat?.combatant?.id ?? null,
+        }) : undefined);
 
       if (chosenTarget === null) return;
 
@@ -575,7 +633,9 @@ export class ItemPMTTRPG extends Item {
         return;
       }
 
-      const title = tool ? `${this.name} · ${tool.name}` : this.name;
+      const titleParts = [this.name];
+      if (skill) titleParts.push(skill.name);
+      else if (tool) titleParts.push(tool.name);
 
       PMTTRPGRolls.rollMove({
         actor: this.actor,
@@ -583,11 +643,12 @@ export class ItemPMTTRPG extends Item {
         targetSelection: chosenTarget,
         templateData: {
           image: this.img,
-          title,
+          title: titleParts.join(' · '),
           details: this.system.description,
           rollType: 'damage',
           damageType: tool?.system?.damageType || this.system?.damageType || null,
           ...buildAppliedToolTemplateData(tool),
+          ...buildDeclaredSkillTemplateData(skill, consumeLight),
         },
         onBeforeChat: buildAppliedToolOnBeforeChat({
           actor: this.actor,
@@ -697,7 +758,7 @@ export class ItemPMTTRPG extends Item {
       status:  ['name', 'img', 'system.description', 'system.proc'],
       effect:  ['name', 'img', 'system.description', 'system.appliesTo', 'system.canPositive',
                 'system.canNegative', 'system.stackMax', 'system.procOn', 'system.procResult',
-                'system.procStat', 'system.procDice', 'system.procAction', 'system.procCondition',
+                'system.procChoice', 'system.procStat', 'system.procDice', 'system.procAction', 'system.procCondition',
                 'system.positive', 'system.negative', 'system.macro']
     };
   }
@@ -716,6 +777,7 @@ export class ItemPMTTRPG extends Item {
         merged.stackMax      = effectDoc.system.stackMax      ?? merged.stackMax;
         merged.procOn        = effectDoc.system.procOn        ?? merged.procOn;
         merged.procResult    = effectDoc.system.procResult    ?? merged.procResult;
+        merged.procChoice    = effectDoc.system.procChoice    ?? merged.procChoice;
         merged.procStat      = effectDoc.system.procStat      ?? merged.procStat;
         merged.procDice      = effectDoc.system.procDice      ?? merged.procDice;
         merged.procAction    = effectDoc.system.procAction    ?? merged.procAction;
@@ -723,6 +785,9 @@ export class ItemPMTTRPG extends Item {
         merged.positive      = effectDoc.system.positive      ?? merged.positive;
         merged.negative      = effectDoc.system.negative      ?? merged.negative;
         merged.macro         = effectDoc.system.macro         ?? merged.macro;
+        if (String(effectDoc.system.easyEffects ?? "").trim()) {
+          merged.easyEffectsTemplate = String(effectDoc.system.easyEffects);
+        }
       }
 
       // Preserve the player's own stack/mode choices.
@@ -731,6 +796,8 @@ export class ItemPMTTRPG extends Item {
         merged.stack = existing.stack;
         merged.count = existing.count;
         merged.mode  = existing.mode;
+        if (existing.procResult) merged.procResult = existing.procResult;
+        if (existing.procChoice) merged.procChoice = existing.procChoice;
       }
 
       return merged;

@@ -22,10 +22,11 @@ export const CLASH_PHASES = Object.freeze({
 });
 
 export const RETALIATION_TYPES = Object.freeze({
-  EVADE:     "evade",
-  BLOCK:     "block",
-  COUNTER:   "counter",
-  ONESIDED:  "onesided"
+  EVADE:          "evade",
+  RECYCLED_EVADE: "recycledEvade",
+  BLOCK:          "block",
+  COUNTER:        "counter",
+  ONESIDED:       "onesided"
 });
 
 export const CLASH_RESULTS = Object.freeze({
@@ -56,6 +57,8 @@ export const CLASH_RESULTS = Object.freeze({
  * @param {object|null} [params.clashBonuses]
  * @param {object[]} [params.attackRollBreakdown]
  * @param {string|null} [params.appliedToolId]
+ * @param {string|null} [params.attackerSkillId]
+ * @param {boolean} [params.consumeSkillLight]
  * @param {boolean} [params.attackerDryFire]
  * @returns {ClashStateData}
  */
@@ -78,6 +81,8 @@ export function createClashState({
   clashBonuses    = null,
   attackRollBreakdown = null,
   appliedToolId   = null,
+  attackerSkillId = null,
+  consumeSkillLight = false,
   attackerDryFire = false,
 }) {
   return {
@@ -91,6 +96,8 @@ export function createClashState({
     attackerItemId,
     attackerItemName,
     appliedToolId: appliedToolId ?? null,
+    attackerSkillId: attackerSkillId ?? null,
+    consumeSkillLight: !!consumeSkillLight,
     attackerDryFire: !!attackerDryFire,
 
     // Primary target (may be overridden by an interceptor)
