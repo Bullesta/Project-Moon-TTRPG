@@ -244,7 +244,8 @@ function _resolveClashDamageAmount(state, pools, message) {
     if (state.hpDamage != null) return Number(state.hpDamage) || 0;
 
     // Evade win heals ST by the defense total.
-    if (state.retaliationType === "evade" && state.defenseRollTotal != null) {
+    if ((state.retaliationType === "evade" || state.retaliationType === "recycledEvade")
+      && state.defenseRollTotal != null) {
       return Number(state.defenseRollTotal) || 0;
     }
     // Block win deals margin as ST (ranged attackers are exempt).

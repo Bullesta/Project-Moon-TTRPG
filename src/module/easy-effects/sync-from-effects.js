@@ -7,10 +7,7 @@ export const SYNC_END = "# <<< synced effects";
 const START_RE = /^#\s*>>>\s*synced effects\s*$/i;
 const END_RE = /^#\s*<<<\s*synced effects\s*$/i;
 
-/**
-
- * @returns {{ trigger: string|null, usesResult: boolean }}
- */
+/** @returns {{ trigger: string|null, usesResult: boolean }} */
 function resolveClashResultTrigger(trigger, resultWord) {
   if (!/\bRESULT\b/i.test(trigger)) return { trigger, usesResult: false };
   if (!resultWord) return { trigger: null, usesResult: true };
@@ -20,14 +17,37 @@ function resolveClashResultTrigger(trigger, resultWord) {
   };
 }
 
+function stripChoiceFromTrigger(trigger) {
+  return String(trigger ?? "")
+    .replace(/\s+with\s+CHOICE\b/gi, "")
+    .replace(/\bCHOICE\b/gi, "")
+    .replace(/\s+/g, " ")
+    .replace(/\[\s+/, "[")
+    .replace(/\s+\]/, "]");
+}
+
+function resolveChoiceText(text, choiceWord, { inTrigger = false } = {}) {
+  if (!/\bCHOICE\b/i.test(text)) return { text, usesChoice: false };
+  if (choiceWord) {
+    return {
+      text: text.replace(/\bCHOICE\b/gi, choiceWord),
+      usesChoice: true,
+    };
+  }
+  if (inTrigger) return { text: stripChoiceFromTrigger(text), usesChoice: true };
+  return { text: null, usesChoice: true };
+}
+
 /**
- * Bake an effect template for one polarity, intensity, and clash result.
- * Template-only tokens: bare `N`, `positive:` / `negative:`, and `RESULT` in triggers.
- */
+ * Bake an effect template for one polarity, intensity, clash result, and Attack/Defense choice.
+ * Template-only tokens: bare `N`, `positive:` / `negative:`, `RESULT` in triggers, and `CHOICE`.
+ * @returns {{ text: string|null, usesChoice: boolean }} 
+*/
 export function stampEffectEasyEffects(source, {
   mode = "positive",
   n = 1,
   procResult = "none",
+  procChoice = "none",
 } = {}) {
   const text = typeof source === "string" ? source : "";
   if (!text.trim()) return "";
@@ -36,6 +56,8 @@ export function stampEffectEasyEffects(source, {
   const wantMode = mode === "negative" ? "negative" : "positive";
   const resultKey = String(procResult ?? "none").toLowerCase();
   const resultWord = resultKey === "win" ? "Win" : resultKey === "lose" ? "Lose" : null;
+  const choiceKey = String(procChoice ?? "none").toLowerCase();
+  const choiceWord = choiceKey === "attack" ? "Attack" : choiceKey === "defense" ? "Defense" : null;
   const lines = text.split(/\r?\n/);
   const out = [];
   let polarity = null; // null = unscoped (kept for any mode)
@@ -52,13 +74,19 @@ export function stampEffectEasyEffects(source, {
 
     if (/^\[.+\]$/.test(trimmed)) {
       polarity = null;
-      const resolved = resolveClashResultTrigger(trimmed, resultWord);
-      if (resolved.usesResult && !resolved.trigger) {
+      const resolvedResult = resolveClashResultTrigger(trimmed, resultWord);
+      if (resolvedResult.usesResult && !resolvedResult.trigger) {
         pendingTrigger = null;
         skipBlock = true;
         continue;
       }
-      pendingTrigger = resolved.trigger;
+      const resolvedChoice = resolveChoiceText(resolvedResult.trigger, choiceWord, { inTrigger: true });
+      if (resolvedChoice.usesChoice && !resolvedChoice.text) {
+        pendingTrigger = null;
+        skipBlock = true;
+        continue;
+      }
+      pendingTrigger = resolvedChoice.text;
       skipBlock = false;
       continue;
     }
@@ -79,6 +107,10 @@ export function stampEffectEasyEffects(source, {
     }
 
     if (polarity && polarity !== wantMode) continue;
+
+    const resolvedEmit = resolveChoiceText(emit, choiceWord);
+    if (resolvedEmit.usesChoice && !resolvedEmit.text) continue;
+    emit = resolvedEmit.text ?? emit;
 
     if (pendingTrigger) {
       if (out.length && out[out.length - 1] !== "") out.push("");
@@ -202,21 +234,35 @@ export function isEasyEffectsSyncDirty(script, expectedInner, previousInner = nu
   return true;
 }
 
+function pendingStampHint(template, { procResult = "none" } = {}) {
+  const needsResult = /\bRESULT\b/i.test(template);
+  const resultOk = !needsResult || ["win", "lose"].includes(String(procResult).toLowerCase());
+  if (resultOk) return "";
+  return "# Set Win/Lose to stamp this effect.";
+}
+
 export async function buildEasyEffectsFromEffects(effects = []) {
   const chunks = [];
   for (const entry of effects ?? []) {
     const effectItem = await resolveEffectDocument(entry);
-    const template = effectItem?.system?.easyEffects ?? "";
-    if (!String(template).trim()) continue;
+    const template = String(effectItem?.system?.easyEffects ?? "").trim()
+      || String(entry?.easyEffectsTemplate ?? "").trim();
+    if (!template) continue;
 
     const stamped = stampEffectEasyEffects(template, {
       mode: entry?.mode === "negative" ? "negative" : "positive",
       n: getEffectStack(entry),
       procResult: entry?.procResult ?? "none",
+      procChoice: entry?.procChoice ?? "none",
     });
-    if (!stamped.trim()) continue;
-
     const label = effectItem?.name ?? entry?.name ?? "Effect";
+    if (!stamped.trim()) {
+      const hint = pendingStampHint(template, entry);
+      if (!hint) continue;
+      chunks.push(`# ${label}\n${hint}`);
+      continue;
+    }
+
     chunks.push(`# ${label}\n${stamped.trim()}`);
   }
   return chunks.join("\n\n");

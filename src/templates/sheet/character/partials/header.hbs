@@ -35,6 +35,10 @@
   </div>
 </div>
 
+{{#if recycledEvade}}
+<p class="pm-recycled-evade-notice">{{recycledEvade.label}}</p>
+{{/if}}
+
 {{#if system.isToken}}
 <p class="pm-warning">{{localize "PMTTRPG.TokenLinkWarning"}}</p>
 {{/if}}

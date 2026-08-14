@@ -73,15 +73,48 @@ function getAST(item) {
 
 Hooks.on("updateItem", (item) => _astCache.delete(item.id));
 
+function isPassiveClashItem(item, npcLoadout) {
+  if (!item) return false;
+  if (item.type === "augment") return true;
+  if (item.type === "outfit") return npcLoadout || item.system?.equipped === true;
+  return false;
+}
+
+function collectSideClashItems(actor, usedItem, appliedTool, declaredSkill) {
+  const out = [];
+  const seen = new Set();
+  const add = (item) => {
+    if (!item) return;
+    const key = item.id || item.uuid;
+    if (!key || seen.has(key)) return;
+    seen.add(key);
+    out.push(item);
+  };
+  add(usedItem);
+  add(appliedTool);
+  add(declaredSkill);
+  if (actor?.items) {
+    const npcLoadout = actor.type === "npc";
+    for (const item of actor.items) {
+      if (isPassiveClashItem(item, npcLoadout)) add(item);
+    }
+  }
+  return out;
+}
+
 function clashStartedItems({
+  attacker = null,
+  defender = null,
   attackerItem,
   defenderItem,
   appliedTool,
   defenderAppliedTool,
+  attackerSkill,
+  defenderSkill,
   side = "all",
 } = {}) {
-  const attackerSide = [attackerItem, appliedTool].filter(Boolean);
-  const defenderSide = [defenderItem, defenderAppliedTool].filter(Boolean);
+  const attackerSide = collectSideClashItems(attacker, attackerItem, appliedTool, attackerSkill);
+  const defenderSide = collectSideClashItems(defender, defenderItem, defenderAppliedTool, defenderSkill);
   if (side === "attacker") return attackerSide;
   if (side === "defender") return defenderSide;
   return [...attackerSide, ...defenderSide];
@@ -96,8 +129,8 @@ function buildClashStartedContext(payload, item) {
 
   let self = item?.actor ?? null;
   if (!self && item) {
-    if (item === payload?.attackerItem || item === payload?.appliedTool) self = attacker;
-    else if (item === payload?.defenderItem || item === payload?.defenderAppliedTool) self = defender;
+    if (item === payload?.attackerItem || item === payload?.appliedTool || item === payload?.attackerSkill) self = attacker;
+    else if (item === payload?.defenderItem || item === payload?.defenderAppliedTool || item === payload?.defenderSkill) self = defender;
   }
   if (!self) self = attacker;
 
@@ -138,29 +171,35 @@ function buildClashStartedActorContext(payload, self) {
 function clashWinItems({
   winner,
   attacker,
+  defender,
   attackerItem,
   defenderItem,
   appliedTool,
   defenderAppliedTool,
+  attackerSkill,
+  defenderSkill,
 } = {}) {
   const attackerWon = winner === attacker;
   return attackerWon
-    ? [attackerItem, appliedTool].filter(Boolean)
-    : [defenderItem, defenderAppliedTool].filter(Boolean);
+    ? collectSideClashItems(attacker, attackerItem, appliedTool, attackerSkill)
+    : collectSideClashItems(defender, defenderItem, defenderAppliedTool, defenderSkill);
 }
 
 function clashLoseItems({
   winner,
   attacker,
+  defender,
   attackerItem,
   defenderItem,
   appliedTool,
   defenderAppliedTool,
+  attackerSkill,
+  defenderSkill,
 } = {}) {
   const attackerWon = winner === attacker;
   return attackerWon
-    ? [defenderItem, defenderAppliedTool].filter(Boolean)
-    : [attackerItem, appliedTool].filter(Boolean);
+    ? collectSideClashItems(defender, defenderItem, defenderAppliedTool, defenderSkill)
+    : collectSideClashItems(attacker, attackerItem, appliedTool, attackerSkill);
 }
 
 function buildClashWinContext(payload = {}) {
@@ -265,8 +304,8 @@ const TRIGGER_HOOKS = [
   {
     hook: "pmttrpg.attackConnected",
     triggerName: "On Hit",
-    getItems: ({ item, appliedTool, attacker }) => {
-      const out = [item, appliedTool].filter(Boolean);
+    getItems: ({ item, appliedTool, attacker, attackerSkill }) => {
+      const out = [item, appliedTool, attackerSkill].filter(Boolean);
       if (attacker) out.push(...uniqueStatusItems(attacker.items));
       return out;
     },
@@ -302,8 +341,8 @@ const TRIGGER_HOOKS = [
   {
     hook: "pmttrpg.damageCalc",
     triggerName: "On Damage Calc",
-    getItems: ({ attackerItem, appliedTool }) =>
-      [attackerItem, appliedTool].filter(Boolean),
+    getItems: ({ attackerItem, appliedTool, attackerSkill }) =>
+      [attackerItem, appliedTool, attackerSkill].filter(Boolean),
     buildContext: ({ attacker, defender, clash }) => ({
       self:   attacker,
       target: defender,
@@ -933,7 +972,7 @@ export function applyAlwaysActiveModifiers(actor) {
       if (isPendingStatus(item)) continue;
     } else if (item.type === "tool") {
       if (!item.system?.equipped || !isToolPresent(item)) continue;
-    } else if (!npcLoadout && !item.system?.equipped) {
+    } else if (item.type !== "augment" && !npcLoadout && !item.system?.equipped) {
       continue;
     }
 
@@ -1038,6 +1077,7 @@ function getEquippedItems(actor) {
   return actor.items.filter(i => {
     if (!["weapon", "outfit", "skill", "augment", "tool"].includes(i.type)) return false;
     if (i.type === "tool") return !!i.system?.equipped && isToolPresent(i);
+    if (i.type === "augment") return true;
     return npcLoadout || i.system?.equipped === true;
   });
 }

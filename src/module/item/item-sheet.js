@@ -1,5 +1,5 @@
 import { PMTTRPGUtility } from "../utility.js";
-import { buildEffectSummaryGroups, computeEffectSummary } from "../effects/effect-summary.js";
+import { buildEffectSummaryGroups, computeEffectSummary, effectShowsProcChoice } from "../effects/effect-summary.js";
 import {
   buildEasyEffectsFromHostEffects,
   isEasyEffectsSyncDirty,
@@ -233,6 +233,11 @@ export class PMTTRPGItemSheet extends HandlebarsApplicationMixin(ItemSheetV2) {
       win: 'PMTTRPG.EffectProcResultWin',
       lose: 'PMTTRPG.EffectProcResultLose'
     };
+    selects.effectProcChoice = {
+      none: 'PMTTRPG.EffectProcChoiceNone',
+      attack: 'PMTTRPG.EffectProcChoiceAttack',
+      defense: 'PMTTRPG.EffectProcChoiceDefense'
+    };
     selects.effectProcStat = {
       any: 'PMTTRPG.EffectProcStatAny',
       for: 'PMTTRPG.AbilityFor',
@@ -367,6 +372,9 @@ export class PMTTRPGItemSheet extends HandlebarsApplicationMixin(ItemSheetV2) {
       }
       for (const el of this.element.querySelectorAll('.effect-row__proc-result-select')) {
         el.addEventListener('change', (e) => this._onEffectProcResultChange(e), { signal });
+      }
+      for (const el of this.element.querySelectorAll('.effect-row__proc-choice-select')) {
+        el.addEventListener('change', (e) => this._onEffectProcChoiceChange(e), { signal });
       }
       for (const el of this.element.querySelectorAll('.effect-row__proc-stat-select')) {
         el.addEventListener('change', (e) => this._onEffectProcStatChange(e), { signal });
@@ -596,6 +604,7 @@ export class PMTTRPGItemSheet extends HandlebarsApplicationMixin(ItemSheetV2) {
       effect?.effectUuid ?? '',
       effect?.procOn ?? '',
       effect?.procResult ?? '',
+      effect?.procChoice ?? '',
       effect?.procStat ?? '',
       effect?.procDice ?? '',
       effect?.procAction ?? '',
@@ -616,7 +625,8 @@ export class PMTTRPGItemSheet extends HandlebarsApplicationMixin(ItemSheetV2) {
     const resolvedMode = mode ?? (Number(system.cost ?? 0) < 0 || (system.canPositive === false && system.canNegative !== false) ? 'negative' : 'positive');
 
     return {
-      effectUuid: effectItem?.uuid ?? '',
+      effectUuid: effectItem?.uuid || effectItem?.effectUuid || '',
+      easyEffectsTemplate: String(system.easyEffects ?? ''),
       name: effectItem?.name ?? '',
       cost: Math.abs(Number(system.cost ?? 0) || 0),
       stack: 1,
@@ -629,6 +639,8 @@ export class PMTTRPGItemSheet extends HandlebarsApplicationMixin(ItemSheetV2) {
       procOn: system.procOn ?? 'alwaysActive',
       procResult: system.procResult ?? 'none',
       procResultLocked: system.procResultLocked ?? (['onClash', 'onClashResult', 'onEitherClashResult'].includes(system.procOn) && system.procResult !== 'none'),
+      procChoice: system.procChoice ?? 'none',
+      procChoiceLocked: system.procChoiceLocked ?? false,
       procStat: system.procStat ?? 'any',
       procDice: system.procDice ?? 'any',
       procAction: system.procAction ?? 'any',
@@ -652,6 +664,10 @@ export class PMTTRPGItemSheet extends HandlebarsApplicationMixin(ItemSheetV2) {
       current.stackMax = Math.min(currentMax, incomingMax);
       current.stack = Math.max(1, Math.min(current.stackMax, this._getEffectStack(current) + this._getEffectStack(incomingEffect)));
       current.count = current.stack;
+      if (!current.effectUuid && incomingEffect.effectUuid) current.effectUuid = incomingEffect.effectUuid;
+      if (!current.easyEffectsTemplate && incomingEffect.easyEffectsTemplate) {
+        current.easyEffectsTemplate = incomingEffect.easyEffectsTemplate;
+      }
       return effects;
     }
 
@@ -728,6 +744,7 @@ export class PMTTRPGItemSheet extends HandlebarsApplicationMixin(ItemSheetV2) {
     const effects = foundry.utils.duplicate(this.document.system.effects ?? []).map(effect => {
       const stack = this._getEffectStack(effect);
       const showProcResult = ['onClash', 'onClashResult', 'onEitherClashResult'].includes(effect.procOn);
+      const showProcChoice = effectShowsProcChoice(effect.procOn);
       const showProcStat = ['onUse', 'onAction'].includes(effect.procOn);
       const showProcAction = ['onUse', 'onAction'].includes(effect.procOn);
       return {
@@ -740,9 +757,11 @@ export class PMTTRPGItemSheet extends HandlebarsApplicationMixin(ItemSheetV2) {
         totalCost: ((effect.mode === 'negative' ? -1 : 1) * Math.abs(Number(effect.cost ?? 0))) * stack,
         allowModeToggle: effect.canPositive !== false && effect.canNegative !== false,
         showProcResult,
+        showProcChoice,
         showProcStat,
         showProcAction,
         procResultLocked: effect.procResultLocked ?? (['onClash', 'onClashResult', 'onEitherClashResult'].includes(effect.procOn) && effect.procResult !== 'none'),
+        procChoiceLocked: effect.procChoiceLocked ?? false,
         modeLabel: effect.mode === 'negative' ? game.i18n.localize('PMTTRPG.EffectModeNegative') : game.i18n.localize('PMTTRPG.EffectModePositive')
       };
     });
@@ -907,11 +926,31 @@ export class PMTTRPGItemSheet extends HandlebarsApplicationMixin(ItemSheetV2) {
     const index = Number(row?.dataset?.index ?? -1);
     if (index < 0) return;
 
-    const effects = foundry.utils.duplicate(this.document.system.effects ?? []);
+    const previousEffects = foundry.utils.duplicate(this.document.system.effects ?? []);
+    const effects = foundry.utils.duplicate(previousEffects);
     if (!effects[index] || effects[index].procResultLocked) return;
 
     effects[index].procResult = `${event.currentTarget.value ?? 'none'}`;
     await this.document.update({ 'system.effects': effects });
+    await this._maybeAutoSyncEasyEffects(previousEffects);
+  }
+
+  async _onEffectProcChoiceChange(event) {
+    event.preventDefault();
+    event.stopPropagation();
+    if (!this._supportsEffects()) return;
+
+    const row = event.currentTarget.closest('.effect-row');
+    const index = Number(row?.dataset?.index ?? -1);
+    if (index < 0) return;
+
+    const previousEffects = foundry.utils.duplicate(this.document.system.effects ?? []);
+    const effects = foundry.utils.duplicate(previousEffects);
+    if (!effects[index] || effects[index].procChoiceLocked) return;
+
+    effects[index].procChoice = `${event.currentTarget.value ?? 'none'}`;
+    await this.document.update({ 'system.effects': effects });
+    await this._maybeAutoSyncEasyEffects(previousEffects);
   }
 
   async _onEffectProcStatChange(event) {
@@ -1010,6 +1049,10 @@ export class PMTTRPGItemSheet extends HandlebarsApplicationMixin(ItemSheetV2) {
     const incoming = this._createHostEffectEntry(effectData, {
       mode: effectData.system?.cost < 0 || effectData.system?.canPositive === false ? 'negative' : 'positive'
     });
+    incoming.effectUuid = incoming.effectUuid || effectChoice.uuid || effectChoice.effect?.uuid || '';
+    if (!incoming.easyEffectsTemplate) {
+      incoming.easyEffectsTemplate = String(effectChoice.effect?.system?.easyEffects ?? '');
+    }
 
     const previousEffects = foundry.utils.duplicate(this.document.system.effects ?? []);
     const effects = this._mergeHostEffectEntries(previousEffects, incoming);

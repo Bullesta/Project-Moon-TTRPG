@@ -593,13 +593,14 @@ increase damage by N*2;
 reduce damage by Protection after resistances;
 ```
 
-## Effect templates (`N`, `positive:`, `negative:`, `RESULT`)
+## Effect templates (`N`, `positive:`, `negative:`, `RESULT`, `CHOICE`)
 
 Catalog **effect** items (Burn Resistance, etc.) can ship an EasyEffects template. Those templates may use:
 
 - bare `N` (also inside math like `N*2`) - equals the number of buyins for that effect on the equipment.
 - `positive:` / `negative:` - keep only the branch that matches the entry's Positive/Negative mode (sticky until the next polarity label or trigger)
 - `RESULT` inside a clash trigger - filled from the gear entry's Win / Lose / None dropdown (`procResult`). `Win` → `Win`, `Lose` → `Lose`. `None` drops that whole trigger block.
+- `CHOICE` in a trigger or action - filled from the gear entry's Attack / Defense dropdown (`procChoice`). `Attack` → `Attack`. `Defense` → `Defense` (Block and Evade). Leave the dropdown on **Attack / Defense** to drop `with CHOICE` from the trigger (`[Clash Win]`) and skip body lines that still have `CHOICE`.
 
 Those tokens are **effect-template only**. They do not exist on equipment after sync.
 
@@ -613,7 +614,7 @@ reduce damage by 2;
 # <<< synced effects
 ```
 
-Adding, removing, or changing an effect's intensity, mode, or clash result updates only that block. Put custom scripts **outside** the markers so they are not overwritten.
+Adding, removing, or changing an effect's intensity, mode, clash result, or Attack/Defense choice updates only that block. Put custom scripts **outside** the markers so they are not overwritten.
 
 If you edit *inside* the synced block, auto-update pauses and warns you. Use **Sync with current effects** twice to confirm a rebuild; text outside the markers is preserved.
 
@@ -630,21 +631,32 @@ increase damage by N;
 Example template for a clash buy-in (Inflict Burn, etc.):
 
 ```
-[Clash RESULT]
+[Clash RESULT with CHOICE]
 positive:
 inflict N Burn;
 negative:
 gain N Burn;
 ```
 
-With intensity `2` and clash result **Win**, sync stamps:
+With intensity `2`, clash result **Win**, and Attack/Defense **Attack**, sync stamps:
 
 ```
-[Clash Win]
+[Clash Win with Attack]
 inflict 2 Burn;
 ```
 
+Leave Attack/Defense unset to stamp `[Clash Win]` with no `with`.
+
 `[Clash RESULT With Evade]` and `[On Clash RESULT]` work the same way.
+
+Augment conditionals such as Burn Bonus use `CHOICE` without `RESULT`:
+
+```
+[On Clash Start with CHOICE]
+require 2 target Burn then power up CHOICE 1;
+```
+
+With **Defense** chosen, that becomes `[On Clash Start with Defense]` and `power up Defense 1` (both Block and Evade).
 
 Combat runs **only** the host's EasyEffects (not the catalog effect document).
 
@@ -858,8 +870,8 @@ power down evade 1 on target;
 | `set <slash\|pierce\|blunt> resistance to <level> [on <t>]` | One damage type, both HP and ST |
 | `set maxHp\|maxSt\|maxSp\|maxLight to <N>` | Absolute max (`[Always Active]` only) |
 | `do heal <N> on <target>` | Restore HP |
-| `power <up/down> <attack/block/evade> <N> [on <target>]` | Dice Power on that side's roll |
-| `dice max <up/down> <attack/block/evade> <N> [on <target>]` | Dice Max (faces) on that side's roll |
+| `power <up/down> <attack/block/evade/defense> <N> [on <target>]` | Dice Power on that side's roll (`defense` = Block and Evade) |
+| `dice max <up/down> <attack/block/evade/defense> <N> [on <target>]` | Dice Max (faces) on that side's roll (`defense` = Block and Evade) |
 | `advantage` / `disadvantage` `[on\|to <t>]` | Clash-side Adv/Disadv (cancel if both; `[On Clash Start]`) |
 | `regen <hp/st/sp/light> <N>` | Shorthand to gain HP/ST/SP/Light |
 
