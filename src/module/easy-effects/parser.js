@@ -948,14 +948,14 @@ class Parser {
     return { noun: "damage", pool, damageType };
   }
 
-  /** Parses the noun for power up/down and dice max up/down: attack|block|evade|damage */
+  /** Parses the noun for power up/down and dice max up/down: attack|block|evade|defense|damage */
   _parseBonusNoun() {
     const tok = this.peek();
     if ((tok.type === "IDENT" || tok.type === "KEYWORD") && isBonusNoun(tok.value)) {
       this.advance();
       return lookupNoun(tok.value).id;
     }
-    throw new ParseError(`Expected bonus noun (attack/block/evade/damage) after verb, got '${tok.value}'`, tok);
+    throw new ParseError(`Expected bonus noun (attack/block/evade/defense/damage) after verb, got '${tok.value}'`, tok);
   }
 
   /** Parses the noun for regen: hp|st */

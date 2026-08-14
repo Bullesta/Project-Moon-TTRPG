@@ -344,6 +344,8 @@ Item:
     procOn: alwaysActive
     procResult: none
     procResultLocked: false
+    procChoice: none
+    procChoiceLocked: false
     procStat: any
     procDice: any
     procAction: any

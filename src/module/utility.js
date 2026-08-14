@@ -75,12 +75,19 @@ export class PMTTRPGUtility {
       : procResult === 'win'
         ? game.i18n.localize('PMTTRPG.EffectProcResultWin')
         : '';
+    const procChoice = `${effect?.procChoice ?? 'none'}`;
+    const choiceLabel = procChoice === 'defense'
+      ? game.i18n.localize('PMTTRPG.EffectProcChoiceDefense')
+      : procChoice === 'attack'
+        ? game.i18n.localize('PMTTRPG.EffectProcChoiceAttack')
+        : '';
 
+    const clashResultHeading = resultLabel ? `Clash ${resultLabel}` : game.i18n.localize('PMTTRPG.EffectProcOnClash');
     const labels = {
       alwaysActive: game.i18n.localize('PMTTRPG.EffectProcAlwaysActive'),
       onCondition: procCondition ? `${game.i18n.localize('PMTTRPG.EffectProcOnCondition')} ${procCondition}` : game.i18n.localize('PMTTRPG.EffectProcOnCondition'),
-      onClash: resultLabel ? `${game.i18n.localize('PMTTRPG.EffectProcOnClash')} ${resultLabel}` : game.i18n.localize('PMTTRPG.EffectProcOnClash'),
-      onClashResult: resultLabel ? `${game.i18n.localize('PMTTRPG.EffectProcOnClash')} ${resultLabel}` : game.i18n.localize('PMTTRPG.EffectProcOnClash'),
+      onClash: clashResultHeading,
+      onClashResult: clashResultHeading,
       onEitherClashResult: resultLabel ? `${game.i18n.localize('PMTTRPG.EffectProcOnEitherClashResult').replace('[Result]', resultLabel)}` : game.i18n.localize('PMTTRPG.EffectProcOnEitherClashResult').replace(' [Result]', ''),
       onUse: game.i18n.localize('PMTTRPG.EffectProcOnUse'),
       onBurst: game.i18n.localize('PMTTRPG.EffectProcOnBurst'),
@@ -90,14 +97,11 @@ export class PMTTRPGUtility {
     };
 
     let heading = labels[procOn] ?? procOn;
-    const extraParts = [];
+    if (choiceLabel) heading = `${heading} with ${choiceLabel}`;
 
     if (['onUse', 'onAction'].includes(procOn) && procStat !== 'any' && procStat !== 'offensive' && procStat !== 'defensive') {
-      extraParts.push(effect?.procStat === 'for' ? game.i18n.localize('PMTTRPG.AbilityFor') : effect?.procStat === 'pru' ? game.i18n.localize('PMTTRPG.AbilityPru') : effect?.procStat === 'jus' ? game.i18n.localize('PMTTRPG.AbilityJus') : effect?.procStat === 'cha' ? game.i18n.localize('PMTTRPG.AbilityCha') : effect?.procStat === 'ins' ? game.i18n.localize('PMTTRPG.AbilityIns') : effect?.procStat === 'tem' ? game.i18n.localize('PMTTRPG.AbilityTem') : procStat);
-    }
-
-    if (extraParts.length) {
-      heading = `${heading}, ${extraParts.join(', ')}`;
+      const statLabel = effect?.procStat === 'for' ? game.i18n.localize('PMTTRPG.AbilityFor') : effect?.procStat === 'pru' ? game.i18n.localize('PMTTRPG.AbilityPru') : effect?.procStat === 'jus' ? game.i18n.localize('PMTTRPG.AbilityJus') : effect?.procStat === 'cha' ? game.i18n.localize('PMTTRPG.AbilityCha') : effect?.procStat === 'ins' ? game.i18n.localize('PMTTRPG.AbilityIns') : effect?.procStat === 'tem' ? game.i18n.localize('PMTTRPG.AbilityTem') : procStat;
+      heading = `${heading}, ${statLabel}`;
     }
 
     return heading;
