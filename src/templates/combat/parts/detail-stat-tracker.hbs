@@ -1,0 +1,18 @@
+<div class="detail-stat-card">
+    <img class="detail-stat-icon" src="{{stat.icon}}" alt="{{stat.name}}">
+    <span
+        class="detail-stat-value {{#if stat.editable}}editable{{/if}}"
+        {{#if stat.editable}}
+            contenteditable="true"
+            data-stat-path="{{stat.path}}"
+            data-actor-id="{{actorData._id}}"
+        {{/if}}
+    >
+        {{stat.amount}}
+    </span>
+    <span class="detail-stat-value">
+    {{#if stat.max}}
+        <span class="detail-stat-sep"> / </span><span class="detail-stat-max">{{stat.max}}</span>
+    {{/if}}
+    </span>
+</div>

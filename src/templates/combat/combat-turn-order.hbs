@@ -1,3 +1,6 @@
-{{#each combatants}}
-    {{> "systems/projectmoonttrpg/templates/combat/parts/character.hbs" combatant=this }}
-{{/each}}
+<div class="ct combat-tracker">
+    {{#each combatants}}
+        {{> "systems/projectmoonttrpg/templates/combat/parts/character.hbs" combatant=this }}
+        <hr class="initiative-divider">
+    {{/each}}
+</div>

@@ -61,7 +61,8 @@
     // Combat turn order partials
     "systems/projectmoonttrpg/templates/combat/parts/character.hbs",
     "systems/projectmoonttrpg/templates/combat/parts/initiative-tracker.hbs",
-    "systems/projectmoonttrpg/templates/combat/parts/main-stat-tracker.hbs"
+    "systems/projectmoonttrpg/templates/combat/parts/main-stat-tracker.hbs",
+    "systems/projectmoonttrpg/templates/combat/parts/detail-stat-tracker.hbs",
   ];
 
   // Load the template parts

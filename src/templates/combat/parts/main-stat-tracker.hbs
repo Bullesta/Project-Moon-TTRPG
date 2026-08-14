@@ -1,8 +1,17 @@
-<div class="main-stat-display-card">
-    <div class="stat-image" style="--percent: {{stat.percent}};">
-        <img src="{{stat.icon}}" alt="{{stat.name}}">
-        <img src="{{stat.icon}}" class="grayscale" alt="{{stat.name}}">
+<!-- main-stat-tracker.hbs -->
+<!-- stat: { icon, name, amount, percent (0–1) } -->
+<div class="main-stat-card">
+    <!-- Dual-layer icon: colour on top, greyscale fills from bottom based on percent -->
+    <div class="stat-icon-wrap" style="--percent: {{stat.percent}};">
+        <img src="{{stat.icon}}" class="stat-icon stat-icon--grey"   alt="">
+        <img src="{{stat.icon}}" class="stat-icon stat-icon--colour" alt="{{stat.name}}">
     </div>
-
-    <span class="stat-amount">{{stat.amount}}</span>
+    <span
+        class="stat-amount {{#if stat.editable}}editable{{/if}}"
+        {{#if stat.editable}}
+            contenteditable="true"
+            data-stat-path="{{stat.path}}"
+            data-actor-id="{{actorData._id}}"
+        {{/if}}
+    >{{stat.amount}}</span>
 </div>

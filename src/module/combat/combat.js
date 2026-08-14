@@ -7,22 +7,62 @@ const combatTurnSnapshots = new Map();
  * Helper class to handle rendering the custom combat tracker.
  */
 export class CombatSidebarPMTTRPG {
+
+  /** Tracks which combatant IDs are currently expanded. Survives re-renders. */
+  #expandedIds = new Set();
+
   startup() {
 
     // Add support for damage rolls via event delegation.
     Hooks.on('ready', () => {
-      // Damage rolls from the combat tracker.
-      $('body').on('click', '.PMTTRPG-rollable', (event) => {
-        let $self = $(event.currentTarget);
-        let $actorElem = $self.parents('.actor-elem');
-        let combatant_id = $actorElem.length > 0 ? $actorElem.attr('data-combatant-id') : null;
-        if (combatant_id) {
-          let combatant = game.combat.combatants.get(combatant_id);
-          let actor = combatant.actor ? combatant.actor : null;
-          if (actor) {
-            actor._onRoll(event, actor);
-          }
+      // Toggle expand/collapse — delegated so it survives re-renders.
+      $('body').on('click', '.ct [data-action="toggleDetails"]', (event) => {
+        const $btn = $(event.currentTarget);
+        const combatantId = $btn.closest('[data-combatant-id]').data('combatant-id');
+        if (!combatantId) return;
+
+        if (this.#expandedIds.has(combatantId)) {
+          this.#expandedIds.delete(combatantId);
+        } else {
+          this.#expandedIds.add(combatantId);
         }
+
+        // Re-render the tracker so the template picks up the new state.
+        ui.combat.render();
+      });
+
+      // Commit edits to the actor on blur (clicking away).
+      $('body').on('blur', '.ct [contenteditable][data-stat-path]', async (event) => {
+          const $el = $(event.currentTarget);
+          const actorId = $el.data('actor-id');
+          const path = $el.data('stat-path');
+          const raw = $el.text().trim();
+          const value = Number(raw);
+
+          // Bail out if it's not a valid number.
+          if (isNaN(value)) {
+              ui.combat.render(); // Reset to current value.
+              return;
+          }
+
+          const actor = game.actors.get(actorId);
+          if (!actor) return;
+
+          console.log(path);
+          console.log(value);
+          console.log(actor);
+
+          await actor.update({ [path]: value });
+
+          console.log(actor);
+      });
+
+      // Prevent Enter from inserting a newline — commit instead.
+      $('body').on('keydown', '.ct [contenteditable][data-stat-path]', (event) => {
+          if (event.key === 'Enter') {
+              event.preventDefault();
+              event.currentTarget.blur();
+          }
       });
     });
 
@@ -128,21 +168,16 @@ export class CombatSidebarPMTTRPG {
         newHtml = $(html);
       }
 
-      // If there's as combat, we can proceed.
       if (game.combat) {
-        // Retrieve a list of the combatants grouped by actor type and sorted
-        // by their initiative count.
         let combatants = this.getCombatantsData();
 
-        console.log(JSON.stringify(combatants));
+        combatants.sort((a, b) => b.combatantData.initiative - a.combatantData.initiative);
 
-        // Get the custom template.
         let template = 'systems/projectmoonttrpg/templates/combat/combat-turn-order.hbs';
         let templateData = {
           combatants: combatants
         };
 
-        // Render the template and update the markup with our new version.
         let content = await foundry.applications.handlebars.renderTemplate(template, templateData)
         newHtml.find('.combat-tracker').remove();
         newHtml.find('.combat-tracker-header').after(content);
@@ -164,7 +199,7 @@ export class CombatSidebarPMTTRPG {
 
     for (const combatant of game.combat.combatants) {
       if (!combatant.actor) {
-        toDelete.push(combatant.id);
+        toDelete.push(combatant._id);
         continue;
       }
 
@@ -175,28 +210,76 @@ export class CombatSidebarPMTTRPG {
           name: "Health",
           icon: "systems/projectmoonttrpg/assets/icons/sheet/hp_healthy.webp",
           amount: actorData.system.hp.value,
-          percent: (actorData.system.hp.value / actorData.system.hp.max) * 100
+          path: "system.attributes.hp.value",
+          percent: (actorData.system.hp.value / actorData.system.hp.max) * 100,
+          editable: combatant.isOwner || game.user.isGM
         },
         {
           name: "Stagger",
           icon: "systems/projectmoonttrpg/assets/icons/sheet/01_stagger.webp",
           amount: actorData.system.st.value,
-          percent: (actorData.system.st.value / actorData.system.st.max) * 100
+          path: "system.attributes.st.value",
+          percent: (actorData.system.st.value / actorData.system.st.max) * 100,
+          editable: combatant.isOwner || game.user.isGM
         },
         {
           name: "Sanity",
           icon: "systems/projectmoonttrpg/assets/icons/sheet/SanityIcons_SanityBase.webp",
           amount: actorData.system.sp.value,
-          percent: (actorData.system.sp.value / actorData.system.sp.max) * 100
+          path: "system.attributes.sp.value",
+          percent: (actorData.system.sp.value / actorData.system.sp.max) * 100,
+          editable: combatant.isOwner || game.user.isGM
         }
       ];
-      const detailedStats = [];
+      const detailedStats = [
+        {
+          name: "Actions",
+          icon: "systems/projectmoonttrpg/assets/icons/sheet/03_danger3.webp",
+          amount: actorData.system.attributes.actions.value,
+          path: "system.attributes.actions.value",
+          max: actorData.system.attributes.actions.max,
+          percent: (actorData.system.attributes.actions.value / actorData.system.attributes.actions.max) * 100,
+          editable: combatant.isOwner || game.user.isGM
+        },
+        {
+          name: "Reactions",
+          icon: "systems/projectmoonttrpg/assets/icons/sheet/03_danger2.webp",
+          amount: actorData.system.attributes.reactions.value,
+          path: "system.attributes.reactions.value",
+          max: actorData.system.attributes.reactions.max,
+          percent: (actorData.system.attributes.reactions.value / actorData.system.attributes.reactions.max) * 100,
+          editable: combatant.isOwner || game.user.isGM
+        },
+        {
+          name: "Movement",
+          icon: "systems/projectmoonttrpg/assets/icons/sheet/03_danger1.webp",
+          amount: 0,
+          percent: 100,
+          editable: false
+        },
+        {
+          name: "Light",
+          icon: "systems/projectmoonttrpg/assets/icons/sheet/00_light.webp",
+          path: "system.light.value",
+          amount: actorData.system.light.value,
+          max: actorData.system.light.max,
+          percent: (actorData.system.light.value / actorData.system.light.max) * 100,
+          editable: combatant.isOwner || game.user.isGM
+        }
+      ];
+      let isCurrentTurn = false;
+
+      if(combatant === game.combat.combatant) {
+        isCurrentTurn = true;
+      }
 
       combatants.push({
         combatantData: combatant,
         actorData,
         mainStats,
         detailedStats,
+        isCurrentTurn,
+        isExpanded: this.#expandedIds.has(combatant._id),
         editable: combatant.isOwner || game.user.isGM
       })
     }
