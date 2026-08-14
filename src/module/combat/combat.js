@@ -208,6 +208,22 @@ export class CombatSidebarPMTTRPG {
       ui.combat.render();
     });
 
+    Hooks.on('deleteCombat', async (combat, _options, userId) => {
+      if (game.user.id !== userId) return;
+      try {
+        const { runAsOwnerOrGM } = await import("../easy-effects/gm-route.js");
+        const seen = new Set();
+        for (const combatant of combat.combatants ?? []) {
+          const actor = combatant?.actor;
+          if (!actor || seen.has(actor.id)) continue;
+          seen.add(actor.id);
+          await runAsOwnerOrGM(actor, "clearRecycledEvade");
+        }
+      } catch (error) {
+        console.warn("[PMTTRPG] recycled evade combat-end clear failed", error);
+      }
+    });
+
     Hooks.on('preUpdateCombat', (combat, updateData) => {
       if (updateData.turn === undefined && updateData.round === undefined) return;
       combatTurnSnapshots.set(combat.id, {
@@ -298,6 +314,15 @@ export class CombatSidebarPMTTRPG {
           });
         } catch (error) {
           console.warn("[EasyEffects] turnStart hook failed", error);
+        }
+        // We sure to clear Recycled Evade on Turn Start.
+        if (game.user.id === userId) {
+          try {
+            const { runAsOwnerOrGM } = await import("../easy-effects/gm-route.js");
+            await runAsOwnerOrGM(turnActor, "clearRecycledEvade");
+          } catch (error) {
+            console.warn("[PMTTRPG] recycled evade clear failed", error);
+          }
         }
         // The Action Economy refreshes at the start of the character's turn.
         if (turnActor.isOwner) {

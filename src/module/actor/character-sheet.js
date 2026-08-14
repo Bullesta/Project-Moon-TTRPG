@@ -281,6 +281,18 @@ export class PMTTRPGCharacterSheet extends HandlebarsApplicationMixin(ActorSheet
     context.assetPath = ASSET_PATH;
     context.profileHeader = this._buildProfileHeader(context.system.attributes ?? {});
 
+    const recycled = this.actor.getFlag("projectmoonttrpg", "recycledEvade");
+    const recycledActive = recycled?.active === true && game.combat;
+    context.recycledEvade = recycledActive
+      ? {
+          active: true,
+          penalty: Math.max(0, Number(recycled.penalty) || 2),
+          label: game.i18n.format("PMTTRPG.Clash.RecycledEvadeNotice", {
+            penalty: Math.max(0, Number(recycled.penalty) || 2),
+          }),
+        }
+      : null;
+
     // update tracker defs with dynamic icon data
     for(const def of TRACKER_DEFS) {
       switch(def.key) {

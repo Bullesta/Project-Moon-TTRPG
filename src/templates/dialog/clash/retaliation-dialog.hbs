@@ -26,14 +26,18 @@
         >
 
         <span class="clash-option__icon">
-          <img 
-            class="" 
-            src="{{icon}}.webp" 
+          <img
+            class=""
+            src="{{icon}}.webp"
           >
         </span>
 
         <span class="clash-option__label">
-          {{localize label}}
+          {{#if labelText}}
+            {{labelText}}
+          {{else}}
+            {{localize label}}
+          {{/if}}
         </span>
 
         {{!-- Inline item data for JS to read --}}
@@ -53,15 +57,38 @@
     {{/each}}
   </div>
 
-  {{!-- Item picker — shown only when counter/skill is selected --}}
+  {{!-- Item picker — shown only when counter/evade/block/recycled is selected --}}
   <div class="clash-item-picker" style="display: none;">
     <label class="clash-item-picker__label">
       <i class="fa-solid fa-list"></i>
       {{i18n.weapon}}
     </label>
     <select name="retaliationItemId" class="clash-item-picker__select">
-      {{!-- Populated dynamically by _bindRetaliationDialogListeners --}}
     </select>
+  </div>
+
+  {{!-- Optional Skill matching the chosen Reaction --}}
+  <div class="clash-skill-picker" data-none-label="{{i18n.skillNone}}" style="display: none;">
+    <label class="clash-item-picker__label">
+      <i class="fa-solid fa-bolt"></i>
+      {{i18n.skillOptional}}
+    </label>
+    <select name="declaredSkillId" class="clash-item-picker__select">
+      <option value="">{{i18n.skillNone}}</option>
+    </select>
+    {{#each skills}}
+      <span
+        class="clash-skill-option"
+        data-skill-type="{{skillType}}"
+        data-item-id="{{id}}"
+        data-item-name="{{name}}"
+        hidden
+      ></span>
+    {{/each}}
+    <label class="consume-toggle clash-skill-consume" style="display: none;">
+      <input type="checkbox" name="consumeSkillLight" checked />
+      <span>{{i18n.consumeLight}}</span>
+    </label>
   </div>
 
 </form>

@@ -3,7 +3,8 @@
  *
  *   showRetaliationDialog(actor, state, { isIntercept })
  *     Shown when a player clicks Retaliate or Intercept.
- *     Lets them pick: Evade / Block / Counter (+ weapon) / Use Skill (+ skill item)
+ *     Lets them pick: Evade / Recycled Evade / Block / Counter (+ weapon)
+ *     Optional matching Skill on Block / Evade / Counter / Recycled Evade.
  *     Returns a RetaliationChoice or null if cancelled.
  *
  *   showInterceptConfirmDialog()
@@ -11,8 +12,11 @@
  *     Returns true (confirmed) or false.
  *
  * @typedef {object} RetaliationChoice
- * @property {"evade"|"block"|"counter"|"intercept"|"skill"|"onesided"} type
- * @property {Item|null} item   — chosen weapon/skill for counter/skill options
+ * @property {"evade"|"recycledEvade"|"block"|"counter"|"intercept"|"onesided"} type
+ * @property {Item|null} item   — chosen weapon for counter; outfit for evade/block
+ * @property {Item|null} [skillItem]
+ * @property {boolean} [consumeSkillLight]
+ * @property {boolean} [recycled]
  * @property {Item|null} [ammo]
  * @property {boolean} [consumeAmmo]
  * @property {boolean} [dryFire]
@@ -20,6 +24,7 @@
 
 import { PMTTRPGUtility } from "../utility.js";
 import { RETALIATION_TYPES } from "./clash-state.js";
+import { getRecycledEvade } from "./recycled-evade.js";
 
 const { renderTemplate } = foundry.applications.handlebars;
 
@@ -56,7 +61,6 @@ export async function showInterceptConfirmDialog() {
  * @returns {Promise<RetaliationChoice|null>}
  */
 export async function showRetaliationDialog(actor, state, { isIntercept = false } = {}) {
-  // Gather equipped weapons and skills for counter/skill options.
   const equippedWeapons = actor.items
     .filter(i => i.type === "weapon" && i.system?.equipped)
     .map(i => ({ id: i.id, name: i.name, img: i.img, type: "weapon" }));
@@ -65,9 +69,12 @@ export async function showRetaliationDialog(actor, state, { isIntercept = false 
     .filter(i => i.type === "outfit" && i.system?.equipped)
     .map(i => ({ id: i.id, name: i.name, img: i.img, type: "outfit" }));
 
-  const equippedSkills = actor.items
-    .filter(i => i.type === "skill" && i.system?.equipped)
-    .map(i => ({ id: i.id, name: i.name, img: i.img, skillType: i.system?.skillType ?? "attack" }));
+  const skills = actor.items
+    .filter(i => i.type === "skill")
+    .map(i => ({ id: i.id, name: i.name, img: i.img, skillType: String(i.system?.skillType ?? "attack").toLowerCase() }))
+    .sort((a, b) => a.name.localeCompare(b.name));
+
+  const recycled = getRecycledEvade(actor);
 
   const templateData = {
     actor,
@@ -75,8 +82,9 @@ export async function showRetaliationDialog(actor, state, { isIntercept = false 
     isIntercept,
     equippedWeapons,
     equippedOutfits,
-    equippedSkills,
-    options: _buildRetaliationOptions(equippedWeapons, equippedOutfits, equippedSkills),
+    skills,
+    recycledEvade: recycled,
+    options: _buildRetaliationOptions(equippedWeapons, equippedOutfits, recycled),
     i18n: {
       title:      isIntercept
         ? game.i18n.localize("PMTTRPG.Clash.InterceptTitle")
@@ -84,12 +92,14 @@ export async function showRetaliationDialog(actor, state, { isIntercept = false 
       evade:      game.i18n.localize("PMTTRPG.Clash.Evade"),
       block:      game.i18n.localize("PMTTRPG.Clash.Block"),
       counter:    game.i18n.localize("PMTTRPG.Clash.Counter"),
-      useSkill:   game.i18n.localize("PMTTRPG.Clash.UseSkill"),
       onesided:   game.i18n.localize("PMTTRPG.Clash.OneSided"),
       attackedBy: game.i18n.format("PMTTRPG.Clash.AttackedBy", { name: state.attackerName }),
       outfit:     game.i18n.localize("PMTTRPG.Clash.ChooseOutfit"),
       weapon:     game.i18n.localize("PMTTRPG.Clash.ChooseWeapon"),
       skill:      game.i18n.localize("PMTTRPG.Clash.ChooseSkill"),
+      skillOptional: game.i18n.localize("PMTTRPG.Clash.OptionalSkill"),
+      skillNone:  game.i18n.localize("PMTTRPG.Clash.NoSkill"),
+      consumeLight: game.i18n.localize("PMTTRPG.Dialog.consumeLight"),
       confirm:    game.i18n.localize("PMTTRPG.Clash.Confirm"),
       cancel:     game.i18n.localize("PMTTRPG.Dialog.cancel"),
     },
@@ -126,43 +136,62 @@ export async function showRetaliationDialog(actor, state, { isIntercept = false 
 /**
  * Builds the ordered list of retaliation options for the template.
  */
-function _buildRetaliationOptions(weapons, outfits, skills) {
-  return [
-    ...(outfits.length ? [{
+function _buildRetaliationOptions(weapons, outfits, recycled) {
+  const options = [];
+
+  if (recycled && outfits.length) {
+    options.push({
+      type: RETALIATION_TYPES.RECYCLED_EVADE,
+      labelText: game.i18n.format("PMTTRPG.Clash.RecycledEvade", { penalty: recycled.penalty }),
+      icon: "systems/projectmoonttrpg/assets/icons/sheet/01_evade",
+      requiresItem: true,
+      items: outfits,
+      recycled: true,
+    });
+  }
+
+  if (outfits.length) {
+    options.push({
       type: RETALIATION_TYPES.EVADE,
       label: "PMTTRPG.Clash.Evade",
       icon: "systems/projectmoonttrpg/assets/icons/sheet/01_evade",
       requiresItem: true,
       items: outfits,
-    }] : []),
-    ...(outfits.length ? [{
+    });
+    options.push({
       type: RETALIATION_TYPES.BLOCK,
       label: "PMTTRPG.Clash.Block",
       icon: "systems/projectmoonttrpg/assets/icons/sheet/01_defense",
       requiresItem: true,
       items: outfits,
-    }] : []),
-    ...(weapons.length ? [{
+    });
+  }
+
+  if (weapons.length) {
+    options.push({
       type: RETALIATION_TYPES.COUNTER,
       label: "PMTTRPG.Clash.Counter",
       icon: "systems/projectmoonttrpg/assets/icons/sheet/00_slash",
       requiresItem: true,
       items: weapons,
-    }] : []),
-    ...(skills.length ? [{
-      type: "skill",
-      label: "PMTTRPG.Clash.UseSkill",
-      icon: "systems/projectmoonttrpg/assets/icons/sheet/00_light",
-      requiresItem: true,
-      items: skills,
-    }] : []),
-    {
-      type: "onesided",
-      label: "PMTTRPG.Clash.OneSided",
-      icon: "systems/projectmoonttrpg/assets/icons/sheet/03_danger1",
-      requiresItem: false,
-    }
-  ];
+    });
+  }
+
+  options.push({
+    type: "onesided",
+    label: "PMTTRPG.Clash.OneSided",
+    icon: "systems/projectmoonttrpg/assets/icons/sheet/03_danger1",
+    requiresItem: false,
+  });
+
+  return options;
+}
+
+function _skillTypeForRetaliation(type) {
+  if (type === RETALIATION_TYPES.BLOCK) return "block";
+  if (type === RETALIATION_TYPES.EVADE || type === RETALIATION_TYPES.RECYCLED_EVADE) return "evade";
+  if (type === RETALIATION_TYPES.COUNTER) return "attack";
+  return null;
 }
 
 /**
@@ -175,6 +204,8 @@ function _readRetaliationForm(dialog, actor) {
 
   const type   = form.querySelector("[name='retaliationType']:checked")?.value ?? null;
   const itemId = form.querySelector("[name='retaliationItemId']")?.value?.trim() ?? null;
+  const skillId = form.querySelector("[name='declaredSkillId']")?.value?.trim() ?? "";
+  const consumeSkillLight = form.querySelector("[name='consumeSkillLight']")?.checked !== false;
 
   if (!type) return null;
 
@@ -182,14 +213,28 @@ function _readRetaliationForm(dialog, actor) {
   if (itemId) {
     item = actor.items.get(itemId) ?? null;
   }
-
-  // For counter/skill, require an item selection.
-  if ([RETALIATION_TYPES.COUNTER, "skill"].includes(type) && !item) {
+  // For counter, require an item selection.
+  if (type === RETALIATION_TYPES.COUNTER && !item) {
     ui.notifications.warn(game.i18n.localize("PMTTRPG.Clash.NoItemSelected"));
     return null;
   }
 
-  return { type, item };
+  const wantType = _skillTypeForRetaliation(type);
+  let skillItem = null;
+  if (wantType && skillId) {
+    const picked = actor.items.get(skillId) ?? null;
+    if (picked?.type === "skill" && String(picked.system?.skillType ?? "attack").toLowerCase() === wantType) {
+      skillItem = picked;
+    }
+  }
+
+  return {
+    type,
+    item,
+    skillItem,
+    consumeSkillLight: !!skillItem && consumeSkillLight,
+    recycled: type === RETALIATION_TYPES.RECYCLED_EVADE,
+  };
 }
 
 /**
@@ -291,29 +336,65 @@ function _bindRetaliationDialogListeners(dialog) {
 
   const radios    = el.querySelectorAll("[name='retaliationType']");
   const itemPicker = el.querySelector(".clash-item-picker");
+  const skillPicker = el.querySelector(".clash-skill-picker");
+  const skillSelect = el.querySelector("[name='declaredSkillId']");
+  const consumeWrap = el.querySelector(".clash-skill-consume");
 
   const refreshPicker = () => {
     const selected = el.querySelector("[name='retaliationType']:checked")?.value;
-    const needsItem = [RETALIATION_TYPES.BLOCK, RETALIATION_TYPES.EVADE, RETALIATION_TYPES.COUNTER, "skill"].includes(selected);
+    const needsItem = [
+      RETALIATION_TYPES.BLOCK,
+      RETALIATION_TYPES.EVADE,
+      RETALIATION_TYPES.RECYCLED_EVADE,
+      RETALIATION_TYPES.COUNTER,
+    ].includes(selected);
     if (itemPicker) itemPicker.style.display = needsItem ? "" : "none";
 
-    // Populate item picker options based on type
     const itemSelect = el.querySelector("[name='retaliationItemId']");
-    if (!itemSelect || !needsItem) return;
-
-    const items = el.querySelectorAll(`.clash-item-option[data-type="${selected}"]`);
-    itemSelect.innerHTML = "";
-    for (const item of items) {
-      const opt = document.createElement("option");
-      opt.value   = item.dataset.itemId;
-      opt.textContent = item.dataset.itemName;
-      itemSelect.appendChild(opt);
+    if (itemSelect && needsItem) {
+      const items = el.querySelectorAll(`.clash-item-option[data-type="${selected}"]`);
+      itemSelect.innerHTML = "";
+      for (const item of items) {
+        const opt = document.createElement("option");
+        opt.value   = item.dataset.itemId;
+        opt.textContent = item.dataset.itemName;
+        itemSelect.appendChild(opt);
+      }
     }
+
+    const wantType = _skillTypeForRetaliation(selected);
+    if (skillSelect) {
+      skillSelect.innerHTML = "";
+      const none = document.createElement("option");
+      none.value = "";
+      none.textContent = el.querySelector(".clash-skill-picker")?.dataset?.noneLabel
+        ?? game.i18n.localize("PMTTRPG.Clash.NoSkill");
+      skillSelect.appendChild(none);
+      if (wantType) {
+        const skillOpts = el.querySelectorAll(`.clash-skill-option[data-skill-type="${wantType}"]`);
+        for (const item of skillOpts) {
+          const opt = document.createElement("option");
+          opt.value = item.dataset.itemId;
+          opt.textContent = item.dataset.itemName;
+          skillSelect.appendChild(opt);
+        }
+      }
+    }
+
+    const hasSkills = wantType && el.querySelector(`.clash-skill-option[data-skill-type="${wantType}"]`);
+    if (skillPicker) skillPicker.style.display = hasSkills ? "" : "none";
+    refreshConsume();
+  };
+
+  const refreshConsume = () => {
+    const hasSkill = !!skillSelect?.value;
+    if (consumeWrap) consumeWrap.style.display = hasSkill ? "" : "none";
   };
 
   for (const radio of radios) {
     radio.addEventListener("change", refreshPicker);
   }
+  skillSelect?.addEventListener("change", refreshConsume);
 
   refreshPicker();
 }

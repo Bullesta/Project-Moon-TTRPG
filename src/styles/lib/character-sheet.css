@@ -767,6 +767,13 @@
   margin: 0;
 }
 
+.pm-sheet .pm-recycled-evade-notice {
+  color: #d7b66a;
+  font-size: 12px;
+  margin: 4px 0 0;
+  font-weight: 600;
+}
+
 .pm-sheet .stats-row {
   container-type: inline-size;
   container-name: stats-row;

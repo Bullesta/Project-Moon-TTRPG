@@ -80,7 +80,8 @@ export async function postResultCard(state, defenseRoll = null, messageId = null
   const blockWin        = defenderWon && state.retaliationType === "block";
   const blockWinSt      = blockWin && !state.blockWinStExempt;
   const blockWinExempt  = blockWin && state.blockWinStExempt;
-  const evadeWin        = defenderWon && state.retaliationType === "evade";
+  const evadeWin        = defenderWon && (state.retaliationType === "evade"
+    || state.retaliationType === "recycledEvade");
   const counterWin      = defenderWon && state.retaliationType === "counter";
   const counterHit      = counterWin && state.counterInRange === true;
   const counterOutOfRange = counterWin && state.counterInRange === false;

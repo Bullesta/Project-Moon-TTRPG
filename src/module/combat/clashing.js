@@ -47,6 +47,19 @@ import {
 } from "./clash-dialog.js";
 
 import { createClashContext, emitAttackConnected, emitClashStarted, emitClashResolved } from "../easy-effects/registry.js";
+import {
+  bumpRecycledEvade,
+  clearRecycledEvade,
+  getRecycledEvade,
+  grantRecycledEvade,
+  recycledPowerPenalty,
+} from "./recycled-evade.js";
+
+const REACTIONS_THAT_CLEAR_RECYCLED = new Set([
+  RETALIATION_TYPES.EVADE,
+  RETALIATION_TYPES.BLOCK,
+  RETALIATION_TYPES.COUNTER,
+]);
 
 // ── Phase 1: Initiate Attack ──────────────────────────────────────────────────
 
@@ -68,11 +81,21 @@ export async function initiateAttack(attackPayload) {
   });
 
   const dryFireShort = game.i18n.localize("PMTTRPG.Clash.DryFireShort");
-  const attackerItemName = attackPayload.templateData?.dryFire
+  let attackerItemName = attackPayload.templateData?.dryFire
     ? `${attackPayload.item.name} · ${dryFireShort}`
     : (attackPayload.templateData?.ammoName
       ? `${attackPayload.item.name} · ${attackPayload.templateData.ammoName}`
       : attackPayload.item.name);
+  const skillName = attackPayload.templateData?.skillName;
+  if (skillName) attackerItemName = `${attackerItemName} · ${skillName}`;
+
+  const attackerSkillId = attackPayload.templateData?.skillId ?? null;
+  const consumeSkillLight = !!attackerSkillId && attackPayload.templateData?.consumeSkillLight !== false;
+
+  if (consumeSkillLight) {
+    const skill = attackPayload.actor?.items.get(attackerSkillId) ?? null;
+    await _spendSkillLight(attackPayload.actor, skill);
+  }
 
   const state = createClashState({
     attackerActorId:   attackPayload.actorId,
@@ -95,6 +118,8 @@ export async function initiateAttack(attackPayload) {
     clashBonuses:      null,
     attackRollBreakdown: null,
     appliedToolId:     attackPayload.templateData?.appliedToolId ?? null,
+    attackerSkillId,
+    consumeSkillLight,
     attackerDryFire:   attackPayload.templateData?.dryFire === true,
   });
 
@@ -134,6 +159,11 @@ export async function handleRetaliateClick(state, { isIntercept = false } = {}) 
 
   const choice = await showRetaliationDialog(retaliatorActor, state, { isIntercept });
   if (!choice) return;
+  if (choice.type === RETALIATION_TYPES.RECYCLED_EVADE && !getRecycledEvade(retaliatorActor)) {
+    ui.notifications.warn(game.i18n.localize("PMTTRPG.Clash.RecycledEvadeGone"));
+    return;
+  }
+
   if (choice.type === RETALIATION_TYPES.COUNTER && _isRangedWeapon(choice.item)) {
     const ammoPick = await promptRangedCounterAmmo(retaliatorActor, choice.item);
     if (!ammoPick) return;
@@ -148,12 +178,8 @@ export async function handleRetaliateClick(state, { isIntercept = false } = {}) 
   state.retaliatorTokenId   = retaliatorActor.getActiveTokens(true)[0]?.id ?? null;
   state.retaliatorName      = retaliatorActor.name;
   state.retaliatorImg       = retaliatorActor.img;
-  state.retaliationItemId   = choice.item?.id   ?? null;
-  state.retaliatorItemName  = choice.ammo
-    ? `${choice.item?.name ?? ""} · ${choice.ammo.name}`
-    : (choice.dryFire && choice.item
-      ? `${choice.item.name} · ${game.i18n.localize("PMTTRPG.Clash.DryFireShort")}`
-      : (choice.item?.name ?? null));
+  state.retaliationItemId   = choice.item?.id ?? null;
+  state.retaliatorItemName  = _retaliatorItemLabel(choice);
   state.retaliationType     = choice.type;
 
   await updateAttackCard(state.attackMessageId, state);
@@ -177,17 +203,38 @@ async function _executeClash(state, retaliatorActor, choice) {
   const appliedTool  = state.appliedToolId
     ? (attackerActor?.items.get(state.appliedToolId) ?? null)
     : null;
+  const attackerSkill = state.attackerSkillId
+    ? (attackerActor?.items.get(state.attackerSkillId) ?? null)
+    : null;
 
   if(choice.type === RETALIATION_TYPES.ONESIDED) {
     choice.item = null;
+    choice.skillItem = null;
     state.retaliationItemId = null;
     state.retaliatorItemName = null;
   }
 
-  // Skill lifecycle — fire Always Active start if retaliating with a skill.
-  const isSkill = choice.type === "skill" && choice.item;
-  if (isSkill) {
-    Hooks.callAll("pmttrpg.skillUseStart", { actor: retaliatorActor, skillItem: choice.item });
+  let isRecycled = choice.type === RETALIATION_TYPES.RECYCLED_EVADE || choice.recycled === true;
+  if (isRecycled && !getRecycledEvade(retaliatorActor)) {
+    isRecycled = false;
+    choice.type = RETALIATION_TYPES.EVADE;
+    choice.recycled = false;
+    state.retaliationType = RETALIATION_TYPES.EVADE;
+    ui.notifications.warn(game.i18n.localize("PMTTRPG.Clash.RecycledEvadeGone"));
+  }
+  if (!isRecycled && REACTIONS_THAT_CLEAR_RECYCLED.has(choice.type)) {
+    await clearRecycledEvade(retaliatorActor);
+  }
+
+  const defenderSkill = choice.skillItem ?? null;
+  if (attackerSkill) {
+    Hooks.callAll("pmttrpg.skillUseStart", { actor: attackerActor, skillItem: attackerSkill });
+  }
+  if (defenderSkill) {
+    Hooks.callAll("pmttrpg.skillUseStart", { actor: retaliatorActor, skillItem: defenderSkill });
+  }
+  if (defenderSkill && choice.consumeSkillLight !== false) {
+    await _spendSkillLight(retaliatorActor, defenderSkill);
   }
 
   // Consume ammo once for the Counter Reaction.
@@ -203,13 +250,18 @@ async function _executeClash(state, retaliatorActor, choice) {
 
   // Rebuild clash context so EasyEffects On Clash can add bonuses before the roll.
   const clashCtx = createClashContext();
+  clashCtx.isRecycledEvade = isRecycled;
+  const defenderItem = choice.item ?? null;
   const clashPayloadBase = {
     attacker:     attackerActor,
     defender:     retaliatorActor,
     attackerItem,
-    defenderItem: choice.item ?? null,
+    defenderItem,
     appliedTool,
+    attackerSkill,
+    defenderSkill,
     retaliationType: choice.type,
+    isRecycledEvade: isRecycled,
     clash:        clashCtx,
   };
 
@@ -223,6 +275,10 @@ async function _executeClash(state, retaliatorActor, choice) {
   if (counterDryFire) {
     clashCtx.bonuses.defender.disadvantage =
       (Number(clashCtx.bonuses.defender.disadvantage) || 0) + 1;
+  }
+  if (isRecycled) {
+    clashCtx.bonuses.defender.evadePower =
+      (Number(clashCtx.bonuses.defender.evadePower) || 0) + recycledPowerPenalty(retaliatorActor);
   }
 
   state.clashBonuses = foundry.utils.deepClone(clashCtx.bonuses);
@@ -301,6 +357,7 @@ async function _executeClash(state, retaliatorActor, choice) {
     defender:     retaliatorActor,
     attackerItem,
     appliedTool,
+    attackerSkill,
     clash:        clashCtx,
   });
 
@@ -359,17 +416,29 @@ async function _executeClash(state, retaliatorActor, choice) {
     attacker:      attackerActor,
     defender:      retaliatorActor,
     attackerItem:  attackerItem,
-    defenderItem:  choice.item ?? null,
+    defenderItem,
     appliedTool,
+    attackerSkill,
+    defenderSkill,
     retaliationType: choice.type,
+    isRecycledEvade: isRecycled,
     attackerRoll:  state.attackRollTotal,
     defenderRoll:  defenseResult.total,
     clash:         clashCtx,
   });
 
-  // End skill lifecycle.
-  if (isSkill) {
-    Hooks.callAll("pmttrpg.skillUseEnd", { actor: retaliatorActor, skillItem: choice.item });
+  if (attackerSkill) {
+    Hooks.callAll("pmttrpg.skillUseEnd", { actor: attackerActor, skillItem: attackerSkill });
+  }
+  if (defenderSkill) {
+    Hooks.callAll("pmttrpg.skillUseEnd", { actor: retaliatorActor, skillItem: defenderSkill });
+  }
+
+  if (isRecycled && result === CLASH_RESULTS.ATTACK_WIN) {
+    await clearRecycledEvade(retaliatorActor);
+  } else if (result === CLASH_RESULTS.DEFENSE_WIN && _isEvadeLike(choice)) {
+    if (isRecycled) await bumpRecycledEvade(retaliatorActor);
+    else await grantRecycledEvade(retaliatorActor);
   }
 
   if (result === CLASH_RESULTS.ATTACK_WIN) {
@@ -378,15 +447,16 @@ async function _executeClash(state, retaliatorActor, choice) {
       defender: retaliatorActor,
       item:     attackerItem,
       appliedTool,
+      attackerSkill,
       damageType: state.damageType,
       clash:    clashCtx,
     });
   } else if (counterConnects) {
-    // Counter connects as a normal attack from the retaliator onto the original attacker.
     await emitAttackConnected({
       attacker: retaliatorActor,
       defender: attackerActor,
       item:     counterItem,
+      attackerSkill: defenderSkill,
       damageType: state.damageType,
       clash:    clashCtx,
     });
@@ -448,19 +518,12 @@ function _isTargetInWeaponRange(fromTokenId, toTokenId, weapon) {
 async function _rollDefense(retaliatorActor, choice, attackerItem, bonuses, rollOptions = {}) {
   switch (choice.type) {
     case RETALIATION_TYPES.EVADE:
+    case RETALIATION_TYPES.RECYCLED_EVADE:
       return rollEvade(retaliatorActor, bonuses, rollOptions);
     case RETALIATION_TYPES.BLOCK:
       return rollBlock(retaliatorActor, bonuses, rollOptions);
     case RETALIATION_TYPES.COUNTER:
       return rollCounter(retaliatorActor, choice.item ?? attackerItem, bonuses, rollOptions);
-    case "skill": {
-      // Skill reactions use the dice for their skill type.
-      const skillType = String(choice.item?.system?.skillType ?? "attack").toLowerCase();
-      if (skillType === "block") return rollBlock(retaliatorActor, bonuses, rollOptions);
-      if (skillType === "evade") return rollEvade(retaliatorActor, bonuses, rollOptions);
-      const weapon = _equippedWeapon(retaliatorActor) ?? choice.item ?? attackerItem;
-      return rollCounter(retaliatorActor, weapon, bonuses, rollOptions);
-    }
     case RETALIATION_TYPES.ONESIDED:
       return {
         total:   0,
@@ -474,8 +537,38 @@ async function _rollDefense(retaliatorActor, choice, attackerItem, bonuses, roll
   }
 }
 
-function _equippedWeapon(actor) {
-  return actor?.items?.find(i => i.type === "weapon" && i.system?.equipped) ?? null;
+function _isEvadeLike(choice) {
+  if (!choice) return false;
+  return choice.type === RETALIATION_TYPES.EVADE || choice.type === RETALIATION_TYPES.RECYCLED_EVADE;
+}
+
+function _retaliatorItemLabel(choice) {
+  if (choice?.ammo) {
+    return `${choice.item?.name ?? ""} · ${choice.ammo.name}`;
+  }
+  if (choice?.dryFire && choice.item) {
+    return `${choice.item.name} · ${game.i18n.localize("PMTTRPG.Clash.DryFireShort")}`;
+  }
+  if (choice?.type === RETALIATION_TYPES.RECYCLED_EVADE) {
+    const recycledTag = game.i18n.localize("PMTTRPG.Clash.RecycledEvadeShort");
+    const outfitName = choice.item?.name?.trim();
+    const base = outfitName
+      ? game.i18n.format("PMTTRPG.Clash.RecycledEvadeItem", { item: outfitName, tag: recycledTag })
+      : recycledTag;
+    return choice.skillItem ? `${base} · ${choice.skillItem.name}` : base;
+  }
+  const itemName = choice?.item?.name ?? null;
+  if (itemName && choice?.skillItem?.name) return `${itemName} · ${choice.skillItem.name}`;
+  return itemName;
+}
+
+async function _spendSkillLight(actor, skill) {
+  const lightCost = Math.max(0, Number(skill?.system?.lightCost ?? 0));
+  if (!actor || lightCost <= 0) return;
+  const currentLight = Number(actor.system?.attributes?.light?.value ?? 0);
+  await actor.update({
+    "system.attributes.light.value": Math.max(0, currentLight - lightCost),
+  });
 }
 
 /**
