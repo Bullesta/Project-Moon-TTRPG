@@ -323,6 +323,7 @@ export class ActorPMTTRPG extends Actor {
    * Spend from an action-economy pool.
    * @param {"actions"|"reactions"|"movement"} poolKey
    * @param {number} [amount=1]
+   * @returns {Promise<boolean>}
    */
   async spendActionEconomy(poolKey, amount = 1) {
     const allowed = new Set(['actions', 'reactions', 'movement']);
@@ -330,9 +331,9 @@ export class ActorPMTTRPG extends Actor {
       throw new Error(`Invalid action economy pool: ${poolKey}`);
     }
     const pool = this.system.attributes?.[poolKey];
-    if (!pool) return this;
+    if (!pool) return false;
     const spent = Math.max(0, Number(amount) || 0);
-    if (spent === 0) return this;
+    if (spent === 0) return false;
     const current = Number(pool.value) || 0;
     if (current < spent) {
       ui.notifications.warn(game.i18n.format('PMTTRPG.Notifications.actionEconomyInsufficient', {
@@ -345,10 +346,10 @@ export class ActorPMTTRPG extends Actor {
         current,
         needed: spent,
       }));
+      return false;
     }
-    const next = Math.max(0, current - spent);
-    if (next === current) return this;
-    return this.update({ [`system.attributes.${poolKey}.value`]: next });
+    await this.update({ [`system.attributes.${poolKey}.value`]: current - spent });
+    return true;
   }
 
   /**

@@ -16,6 +16,39 @@
     </div>
   </section>
 
+  <section class="equipment-section equipment-section--used">
+    <header class="tab-section-header tab-section-header--used">
+      <h3 class="tab-section-title">{{localize "PMTTRPG.ActionEconomy"}}</h3>
+      <div class="combat-used-actions">
+        <button type="button" class="combat-used" data-action="usedActionEconomy" data-kind="action" title="{{localize "PMTTRPG.UsedActionHint"}}" {{#if (eq system.attributes.actions.value 0)}}disabled{{/if}}>{{localize "PMTTRPG.UsedAction"}}</button>
+        <button type="button" class="combat-used" data-action="usedActionEconomy" data-kind="reaction" title="{{localize "PMTTRPG.UsedReactionHint"}}" {{#if (eq system.attributes.reactions.value 0)}}disabled{{/if}}>{{localize "PMTTRPG.UsedReaction"}}</button>
+      </div>
+    </header>
+    <div class="combat-modifiers__grid combat-economy__grid">
+      <label class="stat-field">{{localize "PMTTRPG.Actions"}}
+        <span class="combat-economy__readout">
+          <input type="text" name="system.attributes.actions.value" value="{{system.attributes.actions.value}}" data-dtype="Number" aria-label="{{localize "PMTTRPG.ActionsRemaining"}}">
+          <span class="combat-economy__sep" aria-hidden="true">/</span>
+          <span class="combat-economy__max" title="{{localize "PMTTRPG.Actions"}}">{{system.attributes.actions.max}}</span>
+        </span>
+      </label>
+      <label class="stat-field">{{localize "PMTTRPG.Reactions"}}
+        <span class="combat-economy__readout">
+          <input type="text" name="system.attributes.reactions.value" value="{{system.attributes.reactions.value}}" data-dtype="Number" aria-label="{{localize "PMTTRPG.ReactionsRemaining"}}">
+          <span class="combat-economy__sep" aria-hidden="true">/</span>
+          <span class="combat-economy__max" title="{{localize "PMTTRPG.Reactions"}}">{{system.attributes.reactions.max}}</span>
+        </span>
+      </label>
+      <label class="stat-field">{{localize "PMTTRPG.Movement"}}
+        <span class="combat-economy__readout">
+          <input type="text" name="system.attributes.movement.value" value="{{system.attributes.movement.value}}" data-dtype="Number" aria-label="{{localize "PMTTRPG.MovementRemaining"}}">
+          <span class="combat-economy__sep" aria-hidden="true">/</span>
+          <span class="combat-economy__max" title="{{localize "PMTTRPG.Movement"}}">{{system.attributes.movement.max}}</span>
+        </span>
+      </label>
+    </div>
+  </section>
+
   <section class="equipment-section equipment-section--initiative">
     <header class="tab-section-header tab-section-header--initiative">
       <h3 class="tab-section-title">{{localize "PMTTRPG.InitiativeRoll"}}</h3>

@@ -4,6 +4,7 @@ import { PMTTRPGTargetingAPI } from "../targeting.js";
 import { buildEffectSummaryGroups } from "../effects/effect-summary.js";
 import { groupStatuses } from "../status/group-statuses.js";
 import { EasyEffectsEditor } from "../apps/easy-effects-editor.js";
+import { emitActorAction } from "../easy-effects/registry.js";
 import { buildEffectiveResistanceDisplay, DAMAGE_TYPES } from "../damage-application.js";
 
 const { ActorSheetV2 } = foundry.applications.sheets;
@@ -72,6 +73,7 @@ export class PMTTRPGCharacterSheet extends HandlebarsApplicationMixin(ActorSheet
       editImage: PMTTRPGCharacterSheet.prototype._onEditImage,
       rollable: PMTTRPGCharacterSheet.prototype._onRollable,
       initiativeRoll: PMTTRPGCharacterSheet.prototype._onInitiativeRoll,
+      usedActionEconomy: PMTTRPGCharacterSheet.prototype._onUsedActionEconomy,
       toggleEdit: PMTTRPGCharacterSheet.prototype._onToggleEdit,
       toggleTracker: PMTTRPGCharacterSheet.prototype._onToggleTracker,
       itemCreate: PMTTRPGCharacterSheet.prototype._onItemCreate,
@@ -894,6 +896,24 @@ export class PMTTRPGCharacterSheet extends HandlebarsApplicationMixin(ActorSheet
     const macroMisc = Number(this.actor.flags?.projectmoonttrpg?.initiative?.macroMisc ?? 0) || 0;
     const manualMisc = Number(form?.querySelector('input[name="flags.projectmoonttrpg.initiative.manualMisc"]')?.value ?? this.actor.flags?.projectmoonttrpg?.initiative?.manualMisc ?? 0 ) || 0;
     await PMTTRPGTargetingAPI.rollInitiative(this.actor, { macroMisc, manualMisc });
+  }
+
+  async _onUsedActionEconomy(event, target) {
+    event.preventDefault();
+    if (!this.actor.isOwner) return;
+    const kind = target?.dataset?.kind === "reaction" ? "reaction" : "action";
+    const poolKey = kind === "reaction" ? "reactions" : "actions";
+    const spent = await this.actor.spendActionEconomy(poolKey, 1);
+    if (!spent) return;
+    try {
+      await emitActorAction({
+        actor: this.actor,
+        actorId: this.actor.id,
+        actionType: kind,
+      });
+    } catch (error) {
+      console.warn("[EasyEffects] actorAction hook failed", error);
+    }
   }
 
   async _onEditImage(event, target) {

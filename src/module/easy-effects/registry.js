@@ -383,13 +383,20 @@ const TRIGGER_HOOKS = [
   {
     hook: "pmttrpg.actorAction",
     triggerName: "On Action",
-    getItems: ({ item }) => item ? [item] : [],
-    buildContext: ({ actor, target }) => ({
-      self:   actor,
-      target: target ?? null,
-      ally:   null,
-      clash:  null,
-    }),
+    getItems: ({ actor, item }) => {
+      if (item) return [item];
+      if (!actor) return [];
+      return [...getEquippedItems(actor), ...uniqueStatusItems(actor.items)];
+    },
+    buildContext: ({ actor, target }) => {
+      if (!actor) return null;
+      return {
+        self:   actor,
+        target: target ?? null,
+        ally:   null,
+        clash:  null,
+      };
+    },
   },
 
   // ── [On Stagger] ────────────────────────────────────────────────────────────
@@ -493,6 +500,7 @@ const TRIGGER_HOOKS = [
 let _emittingAttackConnected = false;
 let _emittingClashStarted = false;
 let _emittingClashResolved = false;
+let _emittingActorAction = false;
 
 async function runActorScriptsForDef(def, payload) {
   let entries;
@@ -528,6 +536,7 @@ export function registerEasyEffectsHooks() {
       if (def.hook === "pmttrpg.attackConnected" && _emittingAttackConnected) return;
       if (def.hook === "pmttrpg.clashStarted" && _emittingClashStarted) return;
       if (def.hook === "pmttrpg.clashResolved" && _emittingClashResolved) return;
+      if (def.hook === "pmttrpg.actorAction" && _emittingActorAction) return;
 
       const payload = hookArgs[0] ?? {};
       const items = def.getItems(payload);
@@ -560,6 +569,36 @@ export async function runItemEasyEffects(item, triggerName, context = {}) {
   if (!ast) return false;
   await execute(ast, triggerName, { ...context, item });
   return true;
+}
+
+/**
+ * @param {object} payload
+ * @returns {Promise<void>}
+ */
+export async function emitActorAction(payload) {
+  _emittingActorAction = true;
+  try {
+    const eeDefs = TRIGGER_HOOKS.filter((d) => d.hook === "pmttrpg.actorAction");
+    for (const def of eeDefs) {
+      const items = def.getItems(payload);
+      for (const item of items) {
+        const context = def.buildContext(payload, item);
+        if (!context) continue;
+        try {
+          await runItemEasyEffects(item, def.triggerName, context);
+        } catch (err) {
+          console.error(
+            `[EasyEffects] ${def.triggerName} failed on '${item?.name}':`,
+            err
+          );
+        }
+      }
+      await runActorScriptsForDef(def, payload);
+    }
+    Hooks.callAll("pmttrpg.actorAction", payload);
+  } finally {
+    _emittingActorAction = false;
+  }
 }
 
 /**
