@@ -30,10 +30,9 @@ function accruedCost(waypoint) {
 
 function squareBudget(actor) {
   const squares = actor?.system?.attributes?.squares;
-  const remaining = Number(squares?.remaining);
-  const used = Number(squares?.used);
-  if (Number.isFinite(remaining) && Number.isFinite(used)) {
-    return Math.max(0, remaining + used);
+  if (squares?.exhausted) {
+    const used = Number(squares.used);
+    return Math.max(0, Number.isFinite(used) ? used : 0);
   }
   const source = Number(actor?._source?.system?.attributes?.squares?.value);
   if (Number.isFinite(source)) return Math.max(0, source);

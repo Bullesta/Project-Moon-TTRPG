@@ -331,7 +331,8 @@ export class ActorPMTTRPG extends Actor {
       squaresPool.value = Math.max(0, Number(squaresPool.value) || 0);
       const usedSquares = actorHistorySquareCost(this);
       squaresPool.used = usedSquares;
-      squaresPool.remaining = actorSquaresExhausted(this)
+      squaresPool.exhausted = actorSquaresExhausted(this);
+      squaresPool.remaining = squaresPool.exhausted
         ? 0
         : Math.max(0, squaresPool.value - usedSquares);
     }
