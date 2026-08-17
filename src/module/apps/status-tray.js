@@ -113,7 +113,9 @@ export class StatusTray extends HandlebarsApplicationMixin(ApplicationV2) {
             i => i.type === "status" && i.name === name && i.system?.pending
               && String(i.system?.arrival || "round") === arrival
           );
-          if (item) await item.delete();
+          if (item) {
+            await item.delete({ PMTTRPG: { statusTextDelta: -stacks } });
+          }
         }
         return;
       }
@@ -123,11 +125,15 @@ export class StatusTray extends HandlebarsApplicationMixin(ApplicationV2) {
           i => i.id === el.dataset.itemId && i.system?.pending
         );
         if (!item) return;
-        const next = Math.max(0, Number(item.system?.stacks ?? 0) - amount);
-        if (next <= 0) await item.delete();
-        else await item.update({ "system.stacks": next });
+        const current = Math.max(0, Number(item.system?.stacks ?? 0) || 0);
+        const next = Math.max(0, current - amount);
+        if (next <= 0) {
+          await item.delete({ PMTTRPG: { statusTextDelta: -current } });
+        } else {
+          await item.update({ "system.stacks": next }, { PMTTRPG: { silentStatusText: true } });
+        }
       } else {
-        await actor.addPendingStatusStacks(name, amount, { arrival });
+        await actor.addPendingStatusStacks(name, amount, { arrival, silent: true });
       }
       return;
     }
@@ -138,8 +144,12 @@ export class StatusTray extends HandlebarsApplicationMixin(ApplicationV2) {
     }
 
     const amount = (event.ctrlKey || event.metaKey) ? 5 : 1;
-    if (event.button === 2) await actor.removeStatusStacks(name, amount);
-    else await actor.addStatusStacks(name, amount, null, { originUuid: actor.uuid });
+    if (event.button === 2) {
+      const current = actor.getStatusStacks(name);
+      await actor.removeStatusStacks(name, amount, { silent: current > amount });
+    } else {
+      await actor.addStatusStacks(name, amount, null, { originUuid: actor.uuid, silent: true });
+    }
   }
 }
 
@@ -169,12 +179,14 @@ function tokenAtPoint(x, y) {
       || (b.document.sort - a.document.sort))[0] ?? null;
 }
 
-function showStatusScrollingText(actor, statusName, added) {
+function showStatusScrollingText(actor, statusName, added, amount = 1) {
   if (!canvas.ready || !actor) return;
   const tokens = actor.getActiveTokens(true);
   if (!tokens.length) return;
 
-  const content = `${added ? "+" : "-"} ${statusName}`;
+  const n = Math.max(1, Math.trunc(Number(amount) || 1));
+  const sign = added ? "+" : "-";
+  const content = n === 1 ? `${sign}${statusName}` : `${sign}${n} ${statusName}`;
   for (const token of tokens) {
     if (!token?.center) continue;
     canvas.interface.createScrollingText(token.center, content, {
@@ -218,37 +230,75 @@ function registerStatusCanvasDrop() {
   });
 }
 
-const pendingStatusClears = new Set();
+const pendingStatusText = new Map();
+const STATUS_TEXT_MS = 150;
 
-function queueStatusClearedText(actor, statusName) {
-  const key = `${actor.uuid}:${statusName}`;
-  if (pendingStatusClears.has(key)) return;
-  pendingStatusClears.add(key);
-  queueMicrotask(() => {
-    pendingStatusClears.delete(key);
-    if (actor.getStatusStacks(statusName) === 0) {
-      showStatusScrollingText(actor, statusName, false);
-    }
+function statusTextSilent(options) {
+  return !!options?.PMTTRPG?.silentStatusText;
+}
+
+function statusTextDelta(options, fallback = 0) {
+  if (statusTextSilent(options)) return 0;
+  const delta = Number(options?.PMTTRPG?.statusTextDelta);
+  if (Number.isFinite(delta)) return delta;
+  return fallback;
+}
+
+function flushStatusDeltaText(key) {
+  const entry = pendingStatusText.get(key);
+  if (!entry) return;
+  pendingStatusText.delete(key);
+  if (!entry.amount) return;
+  showStatusScrollingText(entry.actor, entry.statusName, entry.amount > 0, Math.abs(entry.amount));
+}
+
+function queueStatusDeltaText(actor, statusName, delta) {
+  const amount = Math.trunc(Number(delta) || 0);
+  if (!actor || !statusName || !amount) return;
+  const key = `${actor.uuid}:${statusName}:${amount > 0 ? "+" : "-"}`;
+  const existing = pendingStatusText.get(key);
+  if (existing) {
+    existing.amount += amount;
+    clearTimeout(existing.timer);
+    existing.timer = setTimeout(() => flushStatusDeltaText(key), STATUS_TEXT_MS);
+    return;
+  }
+  pendingStatusText.set(key, {
+    actor,
+    statusName,
+    amount,
+    timer: setTimeout(() => flushStatusDeltaText(key), STATUS_TEXT_MS),
   });
 }
 
 function registerStatusScrollingText() {
-  Hooks.on("createItem", (item) => {
+  Hooks.on("createItem", (item, options) => {
     if (item.type !== "status") return;
     const actor = item.parent ?? item.actor;
-    if (!actor?.getStatusStacks) return;
-    // Only the first time this status lands on the actor.
-    if (actor.getStatusStacks(item.name) !== Number(item.system?.stacks ?? 1)) return;
-    const others = actor.items.filter((i) => i.type === "status" && i.name === item.name && i.id !== item.id);
-    if (others.length) return;
-    showStatusScrollingText(actor, item.name, true);
+    if (typeof actor?.getActiveTokens !== "function") return;
+    const amount = statusTextDelta(options, Number(item.system?.stacks ?? 1));
+    if (amount > 0) queueStatusDeltaText(actor, item.name, amount);
   });
-  Hooks.on("deleteItem", (item) => {
+  Hooks.on("updateItem", (item, _changed, options) => {
     if (item.type !== "status") return;
     const actor = item.parent ?? item.actor;
-    if (!actor?.getStatusStacks) return;
-    if (actor.getStatusStacks(item.name) !== 0) return;
-    queueStatusClearedText(actor, item.name);
+    if (typeof actor?.getActiveTokens !== "function") return;
+    const amount = statusTextDelta(options, 0);
+    if (amount) queueStatusDeltaText(actor, item.name, amount);
+  });
+  Hooks.on("deleteItem", (item, options) => {
+    if (item.type !== "status") return;
+    if (statusTextSilent(options)) return;
+    const actor = item.parent ?? item.actor;
+    if (typeof actor?.getActiveTokens !== "function") return;
+    const amount = statusTextDelta(options, NaN);
+    if (Number.isFinite(amount) && amount) {
+      queueStatusDeltaText(actor, item.name, amount);
+      return;
+    }
+    if (!actor.getStatusStacks || actor.getStatusStacks(item.name) !== 0) return;
+    const stacks = Math.max(1, Math.trunc(Number(item.system?.stacks ?? 1) || 1));
+    queueStatusDeltaText(actor, item.name, -stacks);
   });
 }
 

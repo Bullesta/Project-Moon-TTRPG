@@ -1,5 +1,33 @@
 import { isPendingStatus, normalizeArrival } from "./pending.js";
 
+function statusAppliedAt(item) {
+  const created = Number(item?._stats?.createdTime);
+  if (Number.isFinite(created) && created > 0) return created;
+  const sort = Number(item?.sort);
+  return Number.isFinite(sort) ? sort : 0;
+}
+
+function sortByName(statuses) {
+  statuses.sort((a, b) => a.name.localeCompare(b.name));
+}
+
+function sortByPriorityThenApplied(statuses) {
+  statuses.sort((a, b) =>
+    (b.priority - a.priority)
+    || (a.appliedAt - b.appliedAt)
+    || a.name.localeCompare(b.name)
+  );
+}
+
+function sortByDisplay(statuses) {
+  statuses.sort((a, b) =>
+    (b.priority - a.priority)
+    || (b.fillRatio - a.fillRatio)
+    || (b.count - a.count)
+    || a.name.localeCompare(b.name)
+  );
+}
+
 export function groupStatuses(actor, { sort = "display" } = {}) {
   if (!actor?.items) return [];
 
@@ -16,6 +44,7 @@ export function groupStatuses(actor, { sort = "display" } = {}) {
 
     const entryMax = Math.max(0, Number(item.system?.stackMax ?? 0) || 0);
     const entryPriority = Math.max(0, Math.min(100, Number(item.system?.priority ?? 0) || 0));
+    const appliedAt = statusAppliedAt(item);
 
     if (isPendingStatus(item)) {
       pendingEntries.push({
@@ -25,6 +54,7 @@ export function groupStatuses(actor, { sort = "display" } = {}) {
         count: entryStacks,
         stackMax: entryMax,
         priority: entryPriority,
+        appliedAt,
         itemId: item.id,
         description: item.system?.description ?? "",
         representative: item,
@@ -47,6 +77,7 @@ export function groupStatuses(actor, { sort = "display" } = {}) {
         count: entryStacks,
         stackMax: entryMax,
         priority: entryPriority,
+        appliedAt,
         itemId: item.id,
         description: item.system?.description ?? "",
         representative: item,
@@ -71,6 +102,7 @@ export function groupStatuses(actor, { sort = "display" } = {}) {
       existing.stackMax = entryMax;
     }
     existing.priority = Math.max(existing.priority, entryPriority);
+    existing.appliedAt = Math.min(existing.appliedAt, appliedAt);
     existing.img ||= item.img;
     existing.description ||= item.system?.description ?? "";
   }
@@ -87,22 +119,16 @@ export function groupStatuses(actor, { sort = "display" } = {}) {
     };
   });
 
-  const sortActive = (statuses) => {
-    if (sort === "name") {
-      statuses.sort((a, b) => a.name.localeCompare(b.name));
-    } else if (sort === "display" || sort === "applied") {
-      statuses.sort((a, b) =>
-        (b.priority - a.priority)
-        || (b.fillRatio - a.fillRatio)
-        || (b.count - a.count)
-        || a.name.localeCompare(b.name)
-      );
-    }
-    return statuses;
-  };
-
-  sortActive(active);
-  pendingEntries.sort((a, b) => a.name.localeCompare(b.name));
+  if (sort === "name") {
+    sortByName(active);
+    sortByName(pendingEntries);
+  } else if (sort === "applied") {
+    sortByPriorityThenApplied(active);
+    sortByPriorityThenApplied(pendingEntries);
+  } else {
+    sortByDisplay(active);
+    sortByName(pendingEntries);
+  }
 
   return [...active, ...pendingEntries];
 }

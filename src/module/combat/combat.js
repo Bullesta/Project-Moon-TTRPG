@@ -286,13 +286,20 @@ export class CombatSidebarPMTTRPG {
 
       if (currentCombatant?.actor) {
         const turnActor = currentCombatant.actor;
-        // Promote turn arrivals before turn-start hooks.
+        // Promote turn arrivals, refresh action economy, then turn-start hooks.
         if (game.user.id === userId) {
           try {
             const { runAsOwnerOrGM } = await import("../easy-effects/gm-route.js");
             await runAsOwnerOrGM(turnActor, "promotePendingStatuses", { arrival: "turn" });
           } catch (error) {
             console.warn("[PMTTRPG] promote pending (turn) failed", error);
+          }
+        }
+        if (turnActor.isOwner) {
+          try {
+            await turnActor.refreshActionEconomy();
+          } catch (error) {
+            console.warn("[PMTTRPG] action economy refresh failed", error);
           }
         }
         await statusMacros.emitTurnStart({
@@ -315,21 +322,12 @@ export class CombatSidebarPMTTRPG {
         } catch (error) {
           console.warn("[EasyEffects] turnStart hook failed", error);
         }
-        // We sure to clear Recycled Evade on Turn Start.
         if (game.user.id === userId) {
           try {
             const { runAsOwnerOrGM } = await import("../easy-effects/gm-route.js");
             await runAsOwnerOrGM(turnActor, "clearRecycledEvade");
           } catch (error) {
             console.warn("[PMTTRPG] recycled evade clear failed", error);
-          }
-        }
-        // The Action Economy refreshes at the start of the character's turn.
-        if (turnActor.isOwner) {
-          try {
-            await turnActor.refreshActionEconomy();
-          } catch (error) {
-            console.warn("[PMTTRPG] action economy refresh failed", error);
           }
         }
       }
