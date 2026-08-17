@@ -40,3 +40,5 @@ export function getActionEconomyFromRank(rank) {
 
 export const RANK_UP_LEVELS = [3, 6, 9, 12, 15];
 export const XP_PER_LEVEL = 8;
+
+export const TACTICAL_SQUARES_BASE = 6;

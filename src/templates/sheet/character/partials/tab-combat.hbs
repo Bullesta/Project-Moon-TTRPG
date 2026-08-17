@@ -41,9 +41,9 @@
       </label>
       <label class="stat-field">{{localize "PMTTRPG.Movement"}}
         <span class="combat-economy__readout">
-          <input type="text" name="system.attributes.movement.value" value="{{system.attributes.movement.value}}" data-dtype="Number" aria-label="{{localize "PMTTRPG.MovementRemaining"}}">
+          <input type="text" value="{{system.attributes.squares.remaining}}" data-dtype="Number" readonly tabindex="-1" aria-label="{{localize "PMTTRPG.MovementRemaining"}}">
           <span class="combat-economy__sep" aria-hidden="true">/</span>
-          <span class="combat-economy__max" title="{{localize "PMTTRPG.Movement"}}">{{system.attributes.movement.max}}</span>
+          <span class="combat-economy__max" title="{{localize "PMTTRPG.Movement"}}">{{system.attributes.squares.max}}</span>
         </span>
       </label>
     </div>

@@ -104,6 +104,15 @@ export const NOUNS = {
     pathShorthand: true,
     aliases: ["reactions"],
   },
+  movement: {
+    kind: "resource",
+    path: "system.attributes.squares.value",
+    readPath: "system.attributes.squares.remaining",
+    alwaysActive: false,
+    ops: ["gain", "lose", "set"],
+    pathShorthand: true,
+    aliases: ["square", "squares", "sqr", "sqrs"],
+  },
   speed: {
     kind: "resource",
     path: "system.attributes.speed.bonus",
@@ -332,7 +341,7 @@ export function resolvePathShorthand(actor, segment) {
   const hit = lookupNoun(segment);
   if (!hit?.def) return null;
   if (hit.def.pathShorthand === true && hit.def.path) {
-    return readActorSystemPath(actor, hit.def.path);
+    return readActorSystemPath(actor, hit.def.readPath ?? hit.def.path);
   }
   const sh = hit.def.pathShorthand;
   if (!sh) return null;

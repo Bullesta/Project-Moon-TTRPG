@@ -47,6 +47,7 @@ import {
 } from "./clash-dialog.js";
 
 import { createClashContext, emitAttackConnected, emitClashStarted, emitClashResolved } from "../easy-effects/registry.js";
+import { exhaustRemainingSquares } from "./movement.js";
 import {
   bumpRecycledEvade,
   clearRecycledEvade,
@@ -95,6 +96,14 @@ export async function initiateAttack(attackPayload) {
   if (consumeSkillLight) {
     const skill = attackPayload.actor?.items.get(attackerSkillId) ?? null;
     await _spendSkillLight(attackPayload.actor, skill);
+  }
+
+  if (_rangedAttackConsumesMovement(attackPayload.item)) {
+    try {
+      await exhaustRemainingSquares(attackPayload.actor);
+    } catch (error) {
+      console.warn("[PMTTRPG] exhaust remaining squares failed", error);
+    }
   }
 
   const state = createClashState({
@@ -467,6 +476,10 @@ async function _executeClash(state, retaliatorActor, choice) {
 
 function _isRangedWeapon(weapon) {
   return weapon?.system?.weaponType === "ranged";
+}
+
+function _rangedAttackConsumesMovement(weapon) {
+  return _isRangedWeapon(weapon) && weapon.system?.formProperty !== "lowCaliber";
 }
 
 /**

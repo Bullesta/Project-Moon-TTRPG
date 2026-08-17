@@ -494,6 +494,26 @@ const TRIGGER_HOOKS = [
     },
   },
 
+  // ── [On Move] ───────────────────────────────────────────────────────────────
+  {
+    hook: "pmttrpg.tokenMoved",
+    triggerName: "On Move",
+    getItems: ({ actor }) => {
+      if (!actor) return [];
+      return [...getEquippedItems(actor), ...uniqueStatusItems(actor.items)];
+    },
+    buildContext: ({ actor, moved }) => {
+      if (!actor) return null;
+      return {
+        self: actor,
+        target: null,
+        ally: null,
+        clash: null,
+        moved: moved ?? null,
+      };
+    },
+  },
+
 ];
 
 // Prevent hook listeners from rerunning awaited emitters.
@@ -501,6 +521,7 @@ let _emittingAttackConnected = false;
 let _emittingClashStarted = false;
 let _emittingClashResolved = false;
 let _emittingActorAction = false;
+let _emittingTokenMoved = false;
 
 async function runActorScriptsForDef(def, payload) {
   let entries;
@@ -537,6 +558,7 @@ export function registerEasyEffectsHooks() {
       if (def.hook === "pmttrpg.clashStarted" && _emittingClashStarted) return;
       if (def.hook === "pmttrpg.clashResolved" && _emittingClashResolved) return;
       if (def.hook === "pmttrpg.actorAction" && _emittingActorAction) return;
+      if (def.hook === "pmttrpg.tokenMoved" && _emittingTokenMoved) return;
 
       const payload = hookArgs[0] ?? {};
       const items = def.getItems(payload);
@@ -598,6 +620,36 @@ export async function emitActorAction(payload) {
     Hooks.callAll("pmttrpg.actorAction", payload);
   } finally {
     _emittingActorAction = false;
+  }
+}
+
+/**
+ * @param {object} payload
+ * @returns {Promise<void>}
+ */
+export async function emitTokenMoved(payload) {
+  _emittingTokenMoved = true;
+  try {
+    const eeDefs = TRIGGER_HOOKS.filter((d) => d.hook === "pmttrpg.tokenMoved");
+    for (const def of eeDefs) {
+      const items = def.getItems(payload);
+      for (const item of items) {
+        const context = def.buildContext(payload, item);
+        if (!context) continue;
+        try {
+          await runItemEasyEffects(item, def.triggerName, context);
+        } catch (err) {
+          console.error(
+            `[EasyEffects] ${def.triggerName} failed on '${item?.name}':`,
+            err
+          );
+        }
+      }
+      await runActorScriptsForDef(def, payload);
+    }
+    Hooks.callAll("pmttrpg.tokenMoved", payload);
+  } finally {
+    _emittingTokenMoved = false;
   }
 }
 
