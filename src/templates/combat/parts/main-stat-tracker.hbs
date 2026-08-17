@@ -6,12 +6,13 @@
         <img src="{{stat.icon}}" class="stat-icon stat-icon--grey"   alt="">
         <img src="{{stat.icon}}" class="stat-icon stat-icon--colour" alt="{{stat.name}}">
     </div>
-    <span
-        class="stat-amount {{#if stat.editable}}editable{{/if}}"
+    <input
+        class="stat-amount {{#if stat.editable}}editable{{/if}} {{#inputFontSize stat.amount}}{{/inputFontSize}} num cur"
+        type="text"
         {{#if stat.editable}}
-            contenteditable="true"
-            data-stat-path="{{stat.path}}"
-            data-actor-id="{{actorData._id}}"
+            name="{{stat.name}}"
+            value="{{stat.amount}}"
+            data-dtype="Number"
         {{/if}}
-    >{{stat.amount}}</span>
+    ></input>
 </div>
