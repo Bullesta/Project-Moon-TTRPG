@@ -16,13 +16,14 @@ const KEYWORDS = new Set([
   "isStaggered", "isPanicking", "hasStatus",
   "dialog", "message", "create",
   "action", "actions", "reaction", "reactions",
+  "movement", "square", "squares", "sqr", "sqrs",
   "hp", "st", "sp", "light", "stagger", "sanity",
   "tempHp", "tempSt", "tempSp",
   "maxHp", "maxSt", "maxSp", "maxLight",
   "resistance", "resistances",
   "fatal", "weak", "normal", "endured", "ineffective", "immune",
   "slash", "pierce", "blunt",
-  "incoming", "damage", "changed", "depleted", "clash", "item", "burst",
+  "incoming", "damage", "changed", "depleted", "moved", "clash", "item", "burst",
   "status", "uuid", "name", "id", "origin",
 ]);
 

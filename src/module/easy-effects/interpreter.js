@@ -360,6 +360,22 @@ function resolvePath(segments, context) {
     return 0;
   }
 
+  if (root === "moved") {
+    const moved = context.moved;
+    if (!moved) {
+      console.warn("[EasyEffects] 'moved.*' used outside [On Move] context.");
+      return 0;
+    }
+    const key = segments[1];
+    if (key === "squares" || key === "spaces" || key === "movement") {
+      return Number(moved[key] ?? moved.squares ?? moved.spaces) || 0;
+    }
+    if (key === "forced") return moved.forced ? 1 : 0;
+    if (key === "method") return moved.method ?? "";
+    console.warn(`[EasyEffects] Unknown moved path 'moved.${key}'`);
+    return 0;
+  }
+
   if (root === "burst") {
     const burst = context.burst;
     if (!burst) {

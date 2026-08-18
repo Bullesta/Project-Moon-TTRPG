@@ -1,5 +1,6 @@
 import { PMTTRPGUtility } from '../utility.js';
-import { getActionEconomyFromRank, getRankFromLevel } from './progression.js';
+import { getActionEconomyFromRank, getRankFromLevel, TACTICAL_SQUARES_BASE } from './progression.js';
+import { actorHistorySquareCost, actorSquaresExhausted } from '../combat/movement.js';
 const { renderTemplate } = foundry.applications.handlebars;
 import { applyAlwaysActiveModifiers, runOnTakingDamage } from '../easy-effects/registry.js';
 import { runDepletedEasyEffects } from '../easy-effects/actor-scripts.js';
@@ -20,6 +21,17 @@ import {
 
 const STATUS_STACK_HOOK_MAX_DEPTH = 8;
 const _statusStackHookDepth = new WeakMap();
+
+function statusMutationOptions(options = {}, delta = 0) {
+  const silent = !!options.silent;
+  const amount = Math.trunc(Number(delta) || 0);
+  return {
+    PMTTRPG: {
+      silentStatusText: silent,
+      statusTextDelta: silent ? 0 : amount,
+    },
+  };
+}
 
 async function emitStatusStackHook(actor, hookName, payload) {
   const depth = _statusStackHookDepth.get(actor) ?? 0;
@@ -204,6 +216,18 @@ export class ActorPMTTRPG extends Actor {
       }
     }
 
+    const squares = data.attributes.squares || {};
+    data.attributes.squares = squares;
+    squares.min = 0;
+    squares.maxBase = TACTICAL_SQUARES_BASE;
+    squares.maxMisc = Number(squares.maxMisc) || 0;
+    squares.max = Math.max(0, squares.maxBase + squares.maxMisc);
+    if (squares.value === undefined || squares.value === null) {
+      squares.value = squares.max;
+    } else {
+      squares.value = Math.max(0, Number(squares.value) || 0);
+    }
+
     // Equipped outfit bonuses. NPCs always use their loadout outfits.
     let outfitBlockBonus = 0;
     let outfitEvadeBonus = 0;
@@ -298,6 +322,21 @@ export class ActorPMTTRPG extends Actor {
         : Math.clamp(raw, 0, pool.max);
     }
 
+    const squaresPool = data.attributes.squares;
+    if (squaresPool) {
+      squaresPool.max = Math.max(
+        0,
+        (Number(squaresPool.maxBase) || TACTICAL_SQUARES_BASE) + (Number(squaresPool.maxMisc) || 0)
+      );
+      squaresPool.value = Math.max(0, Number(squaresPool.value) || 0);
+      const usedSquares = actorHistorySquareCost(this);
+      squaresPool.used = usedSquares;
+      squaresPool.exhausted = actorSquaresExhausted(this);
+      squaresPool.remaining = squaresPool.exhausted
+        ? 0
+        : Math.max(0, squaresPool.value - usedSquares);
+    }
+
     applyInventorySlotUsage(data.attributes, actorData.items);
     for (const key of ['toolSlots', 'narrativeSlots', 'stockSlots']) {
       const pool = data.attributes[key];
@@ -307,7 +346,10 @@ export class ActorPMTTRPG extends Actor {
 
   async refreshActionEconomy() {
     const updates = {};
-    for (const key of ['actions', 'reactions', 'movement']) {
+    if (this.getFlag("projectmoonttrpg", "squaresExhausted")) {
+      updates["flags.projectmoonttrpg.squaresExhausted"] = false;
+    }
+    for (const key of ['actions', 'reactions', 'movement', 'squares']) {
       const pool = this.system.attributes?.[key];
       if (!pool) continue;
       const max = Number(pool.max) || 0;
@@ -323,6 +365,7 @@ export class ActorPMTTRPG extends Actor {
    * Spend from an action-economy pool.
    * @param {"actions"|"reactions"|"movement"} poolKey
    * @param {number} [amount=1]
+   * @returns {Promise<boolean>}
    */
   async spendActionEconomy(poolKey, amount = 1) {
     const allowed = new Set(['actions', 'reactions', 'movement']);
@@ -330,9 +373,9 @@ export class ActorPMTTRPG extends Actor {
       throw new Error(`Invalid action economy pool: ${poolKey}`);
     }
     const pool = this.system.attributes?.[poolKey];
-    if (!pool) return this;
+    if (!pool) return false;
     const spent = Math.max(0, Number(amount) || 0);
-    if (spent === 0) return this;
+    if (spent === 0) return false;
     const current = Number(pool.value) || 0;
     if (current < spent) {
       ui.notifications.warn(game.i18n.format('PMTTRPG.Notifications.actionEconomyInsufficient', {
@@ -345,10 +388,10 @@ export class ActorPMTTRPG extends Actor {
         current,
         needed: spent,
       }));
+      return false;
     }
-    const next = Math.max(0, current - spent);
-    if (next === current) return this;
-    return this.update({ [`system.attributes.${poolKey}.value`]: next });
+    await this.update({ [`system.attributes.${poolKey}.value`]: current - spent });
+    return true;
   }
 
   /**
@@ -827,7 +870,6 @@ export class ActorPMTTRPG extends Actor {
       if (!delta) delta = 0;
 
       const poolColors = {
-        hp: 0xff0000,
         st: 0xffcc00,
         sp: 0x4a9eff,
       };
@@ -1028,7 +1070,7 @@ export class ActorPMTTRPG extends Actor {
    * @param {string} statusName
    * @param {number} [amount=1]
    * @param {Item|object|null} [source=null]
-   * @param {{ origin?: string|Actor|null, originUuid?: string|null }} [options]
+   * @param {{ origin?: string|Actor|null, originUuid?: string|null, silent?: boolean }} [options]
    * @returns {Promise<Item[]>}
    */
   async addStatusStacks(statusName, amount = 1, source = null, options = {}) {
@@ -1095,7 +1137,7 @@ export class ActorPMTTRPG extends Actor {
       created.system.shelved = false;
       created.system.origin = originUuid;
       if (stackMax > 0) created.system.stackMax = stackMax;
-      const docs = await this.createEmbeddedDocuments('Item', [created]);
+      const docs = await this.createEmbeddedDocuments('Item', [created], statusMutationOptions(options, toAdd));
       kept = docs[0];
     } else {
       // Merge legacy copies into the kept item.
@@ -1111,8 +1153,10 @@ export class ActorPMTTRPG extends Actor {
       if (originUuid && !ActorPMTTRPG._normalizeOriginUuid(kept.system?.origin)) {
         updates['system.origin'] = originUuid;
       }
-      await kept.update(updates);
-      if (extras.length) await this.deleteEmbeddedDocuments('Item', extras);
+      await kept.update(updates, statusMutationOptions(options, toAdd));
+      if (extras.length) {
+        await this.deleteEmbeddedDocuments('Item', extras, statusMutationOptions(options, 0));
+      }
     }
 
     if (wasAbsent && kept) {
@@ -1144,9 +1188,10 @@ export class ActorPMTTRPG extends Actor {
    *
    * @param {string} statusName  Display name or Document UUID
    * @param {number} target
+   * @param {{ silent?: boolean }} [options]
    * @returns {Promise<void>}
    */
-  async setStatusStacks(statusName, target) {
+  async setStatusStacks(statusName, target, options = {}) {
     let desired = Math.max(0, Math.trunc(Number(target) || 0));
     const statusRef = String(statusName ?? "").trim();
     let canonicalName = ActorPMTTRPG.normalizeStatusRefName(statusRef);
@@ -1168,25 +1213,29 @@ export class ActorPMTTRPG extends Actor {
     if (desired <= 0) {
       if (!matching.length) return;
       const current = this.getStatusStacks(canonicalName);
-      await this.removeStatusStacks(canonicalName, Math.max(current, 1));
+      await this.removeStatusStacks(canonicalName, Math.max(current, 1), options);
       return;
     }
 
     const current = this.getStatusStacks(canonicalName);
     if (current === desired && matching.length === 1) {
       if (Number(matching[0].system?.stacks ?? 1) !== desired) {
-        await matching[0].update({ 'system.stacks': desired });
+        await matching[0].update({ 'system.stacks': desired }, statusMutationOptions(options, 0));
       }
       return;
     }
 
     const delta = desired - current;
-    if (delta > 0) await this.addStatusStacks(statusRef, delta);
-    else if (delta < 0) await this.removeStatusStacks(canonicalName, Math.abs(delta));
+    if (delta > 0) await this.addStatusStacks(statusRef, delta, null, options);
+    else if (delta < 0) await this.removeStatusStacks(canonicalName, Math.abs(delta), options);
     else if (matching.length > 1) {
       // The total matches, but legacy copies still need merging.
-      await matching[0].update({ 'system.stacks': desired });
-      await this.deleteEmbeddedDocuments('Item', matching.slice(1).map(i => i.id));
+      await matching[0].update({ 'system.stacks': desired }, statusMutationOptions(options, 0));
+      await this.deleteEmbeddedDocuments(
+        'Item',
+        matching.slice(1).map(i => i.id),
+        statusMutationOptions(options, 0),
+      );
     }
   }
 
@@ -1194,9 +1243,10 @@ export class ActorPMTTRPG extends Actor {
    * Remove status stacks, clamping at zero.
    * @param {string} statusName
    * @param {number} [amount=1]
+   * @param {{ silent?: boolean }} [options]
    * @returns {Promise<string[]>}
    */
-  async removeStatusStacks(statusName, amount = 1) {
+  async removeStatusStacks(statusName, amount = 1, options = {}) {
     const remove = Math.max(0, Math.trunc(Number(amount) || 0));
     if (remove <= 0) return [];
 
@@ -1210,7 +1260,15 @@ export class ActorPMTTRPG extends Actor {
     const lost = current - next;
 
     if (next <= 0) {
-      const deleted = await this.deleteEmbeddedDocuments('Item', matching.map(i => i.id));
+      const extras = matching.slice(1).map(i => i.id);
+      if (extras.length) {
+        await this.deleteEmbeddedDocuments('Item', extras, statusMutationOptions({ silent: true }, 0));
+      }
+      const deleted = await this.deleteEmbeddedDocuments(
+        'Item',
+        [item.id],
+        statusMutationOptions(options, -lost),
+      );
       await emitStatusStackHook(this, "pmttrpg.statusLost", {
         actor: this,
         item,
@@ -1228,8 +1286,10 @@ export class ActorPMTTRPG extends Actor {
     }
 
     const extras = matching.slice(1).map(i => i.id);
-    await item.update({ 'system.stacks': next });
-    if (extras.length) await this.deleteEmbeddedDocuments('Item', extras);
+    await item.update({ 'system.stacks': next }, statusMutationOptions(options, -lost));
+    if (extras.length) {
+      await this.deleteEmbeddedDocuments('Item', extras, statusMutationOptions({ silent: true }, 0));
+    }
     await emitStatusStackHook(this, "pmttrpg.statusLost", {
       actor: this,
       item,
@@ -1244,7 +1304,7 @@ export class ActorPMTTRPG extends Actor {
   /**
    * @param {string} statusName
    * @param {number} [amount=1]
-   * @param {{ arrival?: "round"|"turn", source?: Item|object|null, origin?: string|Actor|null, originUuid?: string|null }} [options]
+   * @param {{ arrival?: "round"|"turn", source?: Item|object|null, origin?: string|Actor|null, originUuid?: string|null, silent?: boolean }} [options]
    */
   async addPendingStatusStacks(statusName, amount = 1, options = {}) {
     const add = Math.max(0, Math.trunc(Number(amount) || 0));
@@ -1311,8 +1371,10 @@ export class ActorPMTTRPG extends Actor {
       if (originUuid && !ActorPMTTRPG._normalizeOriginUuid(kept.system?.origin)) {
         updates["system.origin"] = originUuid;
       }
-      await kept.update(updates);
-      if (extras.length) await this.deleteEmbeddedDocuments("Item", extras);
+      await kept.update(updates, statusMutationOptions(options, toAdd));
+      if (extras.length) {
+        await this.deleteEmbeddedDocuments("Item", extras, statusMutationOptions(options, 0));
+      }
       return [kept];
     }
 
@@ -1325,7 +1387,7 @@ export class ActorPMTTRPG extends Actor {
     created.system.shelved = false;
     created.system.origin = originUuid || ActorPMTTRPG._normalizeOriginUuid(created.system.origin);
     if (stackMax > 0) created.system.stackMax = stackMax;
-    const docs = await this.createEmbeddedDocuments("Item", [created]);
+    const docs = await this.createEmbeddedDocuments("Item", [created], statusMutationOptions(options, toAdd));
     return docs;
   }
 
@@ -1353,8 +1415,10 @@ export class ActorPMTTRPG extends Actor {
       "system.pending": true,
       "system.arrival": arrival,
       "system.shelved": true,
-    });
-    if (toDelete.length) await this.deleteEmbeddedDocuments("Item", toDelete);
+    }, statusMutationOptions({ silent: true }, 0));
+    if (toDelete.length) {
+      await this.deleteEmbeddedDocuments("Item", toDelete, statusMutationOptions({ silent: true }, 0));
+    }
     return [kept];
   }
 
@@ -1370,7 +1434,7 @@ export class ActorPMTTRPG extends Actor {
       const name = item.name;
       const stacks = Math.max(0, Number(item.system?.stacks ?? 0) || 0);
       if (stacks <= 0) {
-        await this.deleteEmbeddedDocuments("Item", [item.id]);
+        await this.deleteEmbeddedDocuments("Item", [item.id], statusMutationOptions({ silent: true }, 0));
         continue;
       }
 
@@ -1378,8 +1442,8 @@ export class ActorPMTTRPG extends Actor {
       const shelved = !!item.system?.shelved;
 
       if (active.length) {
-        await this.addStatusStacks(name, stacks, item);
-        await this.deleteEmbeddedDocuments("Item", [item.id]);
+        await this.addStatusStacks(name, stacks, item, { silent: true });
+        await this.deleteEmbeddedDocuments("Item", [item.id], statusMutationOptions({ silent: true }, 0));
         continue;
       }
 
@@ -1388,7 +1452,7 @@ export class ActorPMTTRPG extends Actor {
         "system.pending": false,
         "system.arrival": "",
         "system.shelved": false,
-      });
+      }, statusMutationOptions({ silent: true }, 0));
 
       if (shelved) continue;
 

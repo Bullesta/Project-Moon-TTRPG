@@ -17,6 +17,7 @@
     "systems/projectmoonttrpg/templates/parts/item-slug-field.hbs",
     "systems/projectmoonttrpg/templates/apps/status-tray.hbs",
     "systems/projectmoonttrpg/templates/apps/easy-effects-editor.hbs",
+    "systems/projectmoonttrpg/templates/hud/waypoint-label.hbs",
     // Character sheet (AppV2) partials referenced by sheet.hbs
     "systems/projectmoonttrpg/templates/sheet/character/partials/tracker.hbs",
     "systems/projectmoonttrpg/templates/sheet/character/partials/resists.hbs",

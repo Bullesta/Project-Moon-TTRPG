@@ -215,15 +215,15 @@
   font-size: 32px;
 }
 
-.ct .stat-amount .input--large {
+.ct .stat-amount.input--large {
   font-size: 32px;
 }
 
-.ct .stat-amount .input--medium {
+.ct .stat-amount.input--medium {
   font-size: 26px;
 }
 
-.ct .stat-amount .input--small {
+.ct .stat-amount.input--small {
   font-size: 20px;
 }
 

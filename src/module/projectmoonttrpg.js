@@ -23,6 +23,7 @@ import { preloadHandlebarsTemplates } from "./templates.js";
 import { PMTTRPGUtility } from "./utility.js";
 import { PMTTRPGTargetingAPI } from "./targeting.js";
 import { CombatSidebarPMTTRPG } from "./combat/combat.js";
+import { registerCombatMovement } from "./combat/movement.js";
 import { PMTTRPGStatusMacroAPI } from "./status-macro-api.js";
 import { registerEasyEffectsHooks } from "./easy-effects/registry.js";
 import { registerActorScriptHooks } from "./easy-effects/actor-scripts.js";
@@ -57,7 +58,7 @@ Hooks.once("init", async function() {
     PMTTRPGUtility,
     targeting: PMTTRPGTargetingAPI,
     statusMacros: PMTTRPGStatusMacroAPI,
-    clash: PMTTRPGClashAPI
+    clash: PMTTRPGClashAPI,
   };
 
   // TODO: Extend the combat class.
@@ -122,6 +123,7 @@ Hooks.once("init", async function() {
 
   let combatPMTTRPG = new CombatSidebarPMTTRPG();
   combatPMTTRPG.startup();
+  registerCombatMovement();
 
   /**
    * Track the system version upon which point a migration was last applied

@@ -99,6 +99,12 @@ Actor:
         maxBase: 0
         maxMisc: 0
         max: 0
+      squares:
+        value: 6
+        min: 0
+        maxBase: 6
+        maxMisc: 0
+        max: 6
       attackModifier:
         value: 0
         min: 0
@@ -173,6 +179,12 @@ Actor:
         maxBase: 0
         maxMisc: 0
         max: 0
+      squares:
+        value: 6
+        min: 0
+        maxBase: 6
+        maxMisc: 0
+        max: 6
       attackModifier:
         value: 0
         min: 0

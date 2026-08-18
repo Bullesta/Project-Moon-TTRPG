@@ -17,6 +17,7 @@ const RESERVED_PROC_NAMES = new Set([
   "removed",
   "turn start",
   "end of round",
+  "move",
   "taking damage",
   "depleted",
   "always active",
@@ -26,8 +27,8 @@ const RESERVED_PROC_NAMES = new Set([
 export const RESERVED_PROC_BIND_NAMES = new Set([
   "self", "target", "ally", "attacker", "originator",
   "enemies", "allies", "all",
-  "damage", "incoming", "item", "clash", "changed", "burst", "depleted", "roll",
-  "proc", "N",
+  "damage", "incoming", "item", "clash", "changed", "burst",   "depleted", "roll",
+  "proc", "N", "moved",
 ]);
 
 /** @param {string} name @returns {string} */
