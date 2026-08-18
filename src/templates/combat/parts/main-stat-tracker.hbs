@@ -7,11 +7,12 @@
         <img src="{{stat.icon}}" class="stat-icon stat-icon--colour" alt="{{stat.name}}">
     </div>
     <input
-        class="stat-amount {{#if stat.editable}}editable{{/if}} {{#inputFontSize stat.amount}}{{/inputFontSize}} num cur"
+        class="stat-amount {{#if stat.editable}}editable{{/if}} {{inputFontSize stat.amount}} num cur"
         type="text"
+        value="{{stat.amount}}"
         {{#if stat.editable}}
-            name="{{stat.name}}"
-            value="{{stat.amount}}"
+            data-stat-path="{{stat.path}}"
+            data-actor-id="{{actorData._id}}"
             data-dtype="Number"
         {{/if}}
     ></input>

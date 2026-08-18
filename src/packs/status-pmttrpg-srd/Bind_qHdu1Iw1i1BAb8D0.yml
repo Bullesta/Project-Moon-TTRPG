@@ -12,7 +12,18 @@ system:
   stackMax: 0
   priority: 0
   customNotes: ''
-  easyEffects: ''
+  easyEffects: |-
+    [On Gain]
+    lose (changed.amount) movement;
+
+    [On Lose]
+    gain (changed.before - changed.after) movement;
+
+    [Turn Start]
+    lose (self.status.Bind) movement;
+
+    [End of Round]
+    lose all Bind;
 effects: []
 folder: jtSvJ9E0Hm5t7NVJ
 sort: 200000

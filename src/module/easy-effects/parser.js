@@ -22,7 +22,7 @@ const FLAG_KEYWORDS  = new Set(["isStaggered", "isPanicking", "hasStatus"]);
 const MUL_OPS = new Set(["*", "/", "%", "//", "//f", "//c"]);
 const EXPR_PATH_ROOTS = new Set([
   "self", "target", "ally", "attacker", "originator",
-  "damage", "incoming", "item", "clash", "changed", "burst", "depleted", "roll", "proc",
+  "damage", "incoming", "item", "clash", "changed", "burst", "depleted", "moved", "roll", "proc",
 ]);
 
 const NUMERIC_COMPARE_OPS = new Set([">", "<", ">=", "<="]);

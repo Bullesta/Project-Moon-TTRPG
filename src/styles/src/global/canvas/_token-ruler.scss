@@ -1,0 +1,22 @@
+#measurement {
+  --pmttrpg-ruler-scale: 1;
+
+  .waypoint-label {
+    transform: scale(calc(0.55 * var(--pmttrpg-ruler-scale)));
+
+    .total-measurement {
+      color: var(--color-text-emphatic, #f0f0e0);
+    }
+
+    .overage {
+      color: #e23d28;
+      font-weight: 700;
+      margin-left: 0.15em;
+    }
+
+    &.pmttrpg-over-budget .total-measurement {
+      color: #e23d28;
+      font-weight: 700;
+    }
+  }
+}

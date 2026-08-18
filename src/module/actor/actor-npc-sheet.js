@@ -22,6 +22,7 @@ export class PMTTRPGActorNpcSheet extends PMTTRPGCharacterSheet {
       editImage: PMTTRPGCharacterSheet.prototype._onEditImage,
       rollable: PMTTRPGCharacterSheet.prototype._onRollable,
       initiativeRoll: PMTTRPGCharacterSheet.prototype._onInitiativeRoll,
+      usedActionEconomy: PMTTRPGCharacterSheet.prototype._onUsedActionEconomy,
       toggleEdit: PMTTRPGCharacterSheet.prototype._onToggleEdit,
       toggleTracker: PMTTRPGCharacterSheet.prototype._onToggleTracker,
       itemCreate: PMTTRPGActorNpcSheet.prototype._onItemCreate,

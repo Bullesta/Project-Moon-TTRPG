@@ -68,6 +68,7 @@ A trigger tells the system **when** to fire your effect. Write it in square brac
 | `[On Gain]` | This status gained stacks (every increase, including first apply) |
 | `[On Lose]` | This status lost stacks (every decrease, including full clear) |
 | `[Turn Start]` | The start of the item's actor's turn in combat |
+| `[On Move]` | After a token walk on the actor's turn |
 | `[End of Round]` | When the combat round advances |
 | `[On Taking Damage]` | Before damage is applied to the defender (flat resists, etc.) |
 | `[On Taking <Filter> Damage]` | Same, but only when the hit matches a pool, status source, or damage type (see below) |
@@ -863,7 +864,7 @@ power down evade 1 on target;
 | `deal <N> [<type>] [hp\|st\|sp\|light] damage [before\|after resistances] [to\|on <target>]` | Deal damage (default **after** resistances) |
 | `do deal damage <N> on <target>` | Deal HP damage (standard form) |
 | `convert [amount] damage to <pool\|type>` | Rewrite pending hit on `[On Taking Damage]` |
-| `gain`/`lose`/`set` `Action`\|`Reaction` `[on <t>]` | Current action-economy pools (`actions` / `reactions` aliases) |
+| `gain`/`lose`/`set` `Action`\|`Reaction`\|`movement` `[on <t>]` | Current action-economy / tactical SQR pools (`actions` / `reactions` / `squares` / `sqr` aliases) |
 | `gain`/`lose`/`set` `tempHp`\|`tempSt`\|`tempSp` `[on <t>]` | Temporary pool buffers |
 | `set hp\|st\|sp\|light to <N\|max> [on\|to <t>]` | Set current pool (`max` = that actor’s current max) |
 | `set resistances to <level> [on <t>]` | All HP+ST Slash/Pierce/Blunt outfit resists (Always Active = override; event = write outfit) |
@@ -882,7 +883,7 @@ power down evade 1 on target;
 |------|-------|
 | `self.hp` / `sp` / `st` / `light` | Core attributes |
 | `self.hp%` / `sp%` / `st%` / `light%` | Current fill as 0–100 of that pool’s max |
-| `self.action` / `self.reaction` | Remaining Actions / Reactions |
+| `self.action` / `self.reaction` / `self.movement` | Remaining Actions / Reactions / tactical SQRs |
 | `self.tempHp` / `tempSt` / `tempSp` | Temporary buffers |
 | `self.rank` | Rank |
 | `self.attack` / `evade` / `block` | Combat modifiers |
@@ -896,6 +897,7 @@ power down evade 1 on target;
 | `clash.attackerRoll` / `clash.defenderRoll` | Raw clash dice |
 | `incoming.amount` / `.pool` / `.source` / `.damageType` | Pending damage (`damage.*` also works) |
 | `burst.status` / `.amount` / `.before` / `.after` | Active Burst snapshot |
+| `moved.squares` / `.spaces` / `.movement` / `.forced` | `[On Move]` tiles walked (`forced` is 0 or 1) |
 | `proc.name` / `proc.<Bind>` | Active Proc name / `with … as` binds (bare `<Bind>` also works) |
 | `roll` / `roll.<name>` | Last / named roll-once totals |
 

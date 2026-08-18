@@ -32,11 +32,10 @@ export class CombatSidebarPMTTRPG {
       });
 
       // Commit edits to the actor on blur (clicking away).
-      $('body').on('blur', '.ct [contenteditable][data-stat-path]', async (event) => {
+      $('body').on('blur', '.ct [data-stat-path]', async (event) => {
           const $el = $(event.currentTarget);
-          const actorId = $el.data('actor-id');
           const path = $el.data('stat-path');
-          const raw = $el.text().trim();
+          const raw = ($el.is('input') ? $el.val() : $el.text()).trim();
           const value = Number(raw);
 
           // Bail out if it's not a valid number.
@@ -45,7 +44,9 @@ export class CombatSidebarPMTTRPG {
               return;
           }
 
-          const actor = game.actors.get(actorId);
+          // combatant.actor covers unlinked tokens as game.actors.get would miss those buggers.
+          const combatantId = $el.closest('[data-combatant-id]').data('combatant-id');
+          const actor = game.combat?.combatants.get(combatantId)?.actor;
           if (!actor) return;
 
           console.log(path);
@@ -58,7 +59,7 @@ export class CombatSidebarPMTTRPG {
       });
 
       // Prevent Enter from inserting a newline — commit instead.
-      $('body').on('keydown', '.ct [contenteditable][data-stat-path]', (event) => {
+      $('body').on('keydown', '.ct [data-stat-path]', (event) => {
           if (event.key === 'Enter') {
               event.preventDefault();
               event.currentTarget.blur();
@@ -149,13 +150,20 @@ export class CombatSidebarPMTTRPG {
 
       if (currentCombatant?.actor) {
         const turnActor = currentCombatant.actor;
-        // Promote turn arrivals before turn-start hooks.
+        // Promote turn arrivals, refresh action economy, then turn-start hooks.
         if (game.user.id === userId) {
           try {
             const { runAsOwnerOrGM } = await import("../easy-effects/gm-route.js");
             await runAsOwnerOrGM(turnActor, "promotePendingStatuses", { arrival: "turn" });
           } catch (error) {
             console.warn("[PMTTRPG] promote pending (turn) failed", error);
+          }
+        }
+        if (turnActor.isOwner) {
+          try {
+            await turnActor.refreshActionEconomy();
+          } catch (error) {
+            console.warn("[PMTTRPG] action economy refresh failed", error);
           }
         }
         await statusMacros.emitTurnStart({
@@ -178,21 +186,12 @@ export class CombatSidebarPMTTRPG {
         } catch (error) {
           console.warn("[EasyEffects] turnStart hook failed", error);
         }
-        // We sure to clear Recycled Evade on Turn Start.
         if (game.user.id === userId) {
           try {
             const { runAsOwnerOrGM } = await import("../easy-effects/gm-route.js");
             await runAsOwnerOrGM(turnActor, "clearRecycledEvade");
           } catch (error) {
             console.warn("[PMTTRPG] recycled evade clear failed", error);
-          }
-        }
-        // The Action Economy refreshes at the start of the character's turn.
-        if (turnActor.isOwner) {
-          try {
-            await turnActor.refreshActionEconomy();
-          } catch (error) {
-            console.warn("[PMTTRPG] action economy refresh failed", error);
           }
         }
       }
@@ -248,7 +247,7 @@ export class CombatSidebarPMTTRPG {
         continue;
       }
 
-      const actorData = canvas.tokens.get(combatant.tokenId).actor;
+      const actorData = combatant.actor;
 
       const mainStats = [
         {
@@ -298,8 +297,11 @@ export class CombatSidebarPMTTRPG {
         {
           name: "Movement",
           icon: "systems/projectmoonttrpg/assets/icons/sheet/03_danger1.webp",
-          amount: 0,
-          percent: 100,
+          amount: actorData.system.attributes.squares.remaining,
+          max: actorData.system.attributes.squares.max,
+          percent: actorData.system.attributes.squares.max
+            ? (actorData.system.attributes.squares.remaining / actorData.system.attributes.squares.max) * 100
+            : 0,
           editable: false
         },
         {
