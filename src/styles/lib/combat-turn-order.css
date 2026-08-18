@@ -167,8 +167,8 @@
     line-height: 1;
 
     color: var(--gold-text);
-    background: color-mix(in srgb, var(--gold-border) 12%, transparent);
-    border: 1px solid color-mix(in srgb, var(--gold-border) 55%, transparent);
+    background: color-mix(in srgb, var(--ct-bg-card) 80%, transparent);
+    border: 1px solid color-mix(in srgb, var(--gold-border) 90%, transparent);
     border-radius: 4px;
     text-transform: uppercase;
 

@@ -1,6 +1,6 @@
 <div 
     class="character {{#if isExpanded}}is-expanded{{/if}} {{#if isCurrentTurn}}current-turn{{/if}}" 
-    {{#if actorData.system.details.color}}style="background: color-mix(var(--ct-bg), {{actorData.system.details.color}} 50%)"{{/if}}
+    {{#if actorData.system.details.color}}style="background: color-mix(var(--ct-bg), {{actorData.system.details.color}} 30%)"{{/if}}
     data-combatant-id="{{combatantData._id}}"
 >
     <div class="main-part">
@@ -9,6 +9,7 @@
                 <img src="{{actorData.img}}" alt="{{actorData.name}}">
             </div>
 
+            {{#if editable}}
             <button
                 type="button"
                 class="char-toggle-details"
@@ -19,6 +20,7 @@
             >
                 <i class="fas {{#if isExpanded}}fa-chevron-up{{else}}fa-chevron-down{{/if}}" aria-hidden="true"></i>
             </button>
+            {{/if}}
         </div>
 
         <div class="right-side">
@@ -33,19 +35,28 @@
             </div>
 
             <div class="main-stats">
+                {{#if editable}}
                 {{> "systems/projectmoonttrpg/templates/combat/parts/initiative-tracker.hbs"
                     initiative=combatantData.initiative }}
+                {{else}}
+                {{> "systems/projectmoonttrpg/templates/combat/parts/initiative-tracker.hbs"
+                    initiative="?" }}
+                {{/if}}
 
+                {{#if editable}}
                 {{#each mainStats}}
                     {{> "systems/projectmoonttrpg/templates/combat/parts/main-stat-tracker.hbs" stat=this actorData=../actorData}}
                 {{/each}}
+                {{/if}}
             </div>
         </div>
     </div>
 
+    {{#if editable}}
     <div class="details" aria-hidden="{{#unless isExpanded}}true{{/unless}}">
         {{#each detailedStats}}
             {{> "systems/projectmoonttrpg/templates/combat/parts/detail-stat-tracker.hbs" stat=this actorData=../actorData}}
         {{/each}}
     </div>
+    {{/if}}
 </div>

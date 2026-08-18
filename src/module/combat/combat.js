@@ -289,7 +289,7 @@ export class CombatSidebarPMTTRPG {
         },
         {
           name: "Reactions",
-          icon: "systems/projectmoonttrpg/assets/icons/sheet/Reaction_Action.webp",
+          icon: "systems/projectmoonttrpg/assets/icons/sheet/Action_Reaction.webp",
           amount: actorData.system.attributes.reactions.value,
           path: "system.attributes.reactions.value",
           max: actorData.system.attributes.reactions.max,
@@ -298,13 +298,13 @@ export class CombatSidebarPMTTRPG {
         },
         {
           name: "Movement",
-          icon: "systems/projectmoonttrpg/assets/icons/sheet/Movement_Action.webp",
+          icon: "systems/projectmoonttrpg/assets/icons/sheet/Action_Movement.webp",
           amount: actorData.system.attributes.squares.remaining,
           max: actorData.system.attributes.squares.max,
           percent: actorData.system.attributes.squares.max
             ? (actorData.system.attributes.squares.remaining / actorData.system.attributes.squares.max) * 100
             : 0,
-          editable: false
+          editable: combatant.isOwner || game.user.isGM
         },
         {
           name: "Light",
