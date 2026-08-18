@@ -10,6 +10,11 @@
     --ct-gradient: linear-gradient(90deg, #ffbf00a0 0%, #ffc100ff 50%, #ffc100a0 100%);
     --ct-radius:    8px;
     --ct-gap:       6px;
+
+    --gold-border: #c4785a;
+    --gold-label: #8a5a48;
+    --gold-text: #c4896a;
+    --gold-tab: #b8896a;
     --ct-font: "ExcelsiorSans", "Trebuchet MS", sans-serif;
     font-family: var(--ct-font);
 }
@@ -17,6 +22,8 @@
 .ct .initiative-divider {
     background-image: var(--ct-gradient);
     margin: 0px;
+    z-index: 5;
+    position: relative;
 }
 
 .ct .initiative-divider:last-of-type {
@@ -101,7 +108,7 @@
 }
 
 /* ── Character name ── */
-.ct .char-name {
+/* .ct .char-name {
     font-family: var(--ct-font);
     font-weight: 500;
     color: var(--ct-text);
@@ -110,6 +117,64 @@
     overflow: hidden;
     text-overflow: ellipsis;
     text-shadow: 0 0 2px rgba(0, 0, 0, 0.7);
+}
+
+/* ── Character name row ── */
+.ct .name-container {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    width: 100%;
+    min-width: 0;
+    gap: var(--ct-gap);
+    padding: 0 0 2px 0;
+}
+
+/* ── Faction badge ── */
+.ct .faction-badge {
+    flex-shrink: 0;
+    width: 24px;
+    height: 24px;
+    object-fit: contain;
+    display: block;
+}
+
+/* ── Character name ── */
+.ct .char-name {
+    flex: 1 1 auto;
+    min-width: 0;
+
+    font-family: var(--ct-font);
+    font-weight: 500;
+    color: var(--ct-text);
+    text-decoration: underline;
+
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+
+    text-shadow: 0 0 2px rgba(0, 0, 0, 0.7);
+}
+
+/* ── NPC badge ── */
+.ct .npc-badge {
+    flex-shrink: 0;
+    margin-left: auto;
+
+    font-family: var(--ct-font);
+    font-size: 0.75em;
+    font-weight: 600;
+    line-height: 1;
+
+    color: var(--gold-text);
+    background: color-mix(in srgb, var(--gold-border) 12%, transparent);
+    border: 1px solid color-mix(in srgb, var(--gold-border) 55%, transparent);
+    border-radius: 4px;
+    text-transform: uppercase;
+
+    padding: 4px 6px;
+
+    white-space: nowrap;
 }
 
 /* ── Stat row ── */
@@ -134,6 +199,7 @@
     padding: 1% 1.5%;
     gap: 0.5%;
     flex-shrink: 0;
+    box-shadow: 0px 3px 4px 0px rgba(0, 0, 0, 0.5);
 }
 
 .ct .initiative-icon {
@@ -163,6 +229,7 @@
     padding: 1% 2%;
     flex: 1 1 0%;
     min-width: 0;
+    box-shadow: 0px 3px 4px 0px rgba(0, 0, 0, 0.7);
 }
 
 /* Icon wrap — relative sizing, square via aspect-ratio */
@@ -253,6 +320,7 @@
     padding: 1% 2%;
     flex: 1 1 0%;
     min-width: 0;
+    box-shadow: 0px 3px 4px 0px rgba(0, 0, 0, 0.7);
 }
 
 .ct .detail-stat-icon {

@@ -52,6 +52,8 @@ Actor:
           over: false
           min: 0
       details:
+        badge: ''
+        color: ''
         biography: 
           occupation: ''
           age: ''

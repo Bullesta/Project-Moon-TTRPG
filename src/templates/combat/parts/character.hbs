@@ -1,4 +1,8 @@
-<div class="character {{#if isExpanded}}is-expanded{{/if}} {{#if isCurrentTurn}}{{/if}}" data-combatant-id="{{combatantData._id}}">
+<div 
+    class="character {{#if isExpanded}}is-expanded{{/if}} {{#if isCurrentTurn}}current-turn{{/if}}" 
+    {{#if actorData.system.details.color}}style="background: color-mix(var(--ct-bg), {{actorData.system.details.color}} 50%)"{{/if}}
+    data-combatant-id="{{combatantData._id}}"
+>
     <div class="main-part">
         <div class="avatar-side">
             <div class="avatar" data-action="openSheet" title="{{actorData.name}}">
@@ -18,7 +22,15 @@
         </div>
 
         <div class="right-side">
-            <span class="char-name">{{actorData.name}}</span>
+            <div class="name-container">
+                {{#if actorData.system.details.badge}}
+                    <img class="faction-badge" src="{{actorData.system.details.badge}}">
+                {{/if}}
+                <span class="char-name">{{actorData.name}}</span>
+                {{#ifEquals actorData.type 'npc'}}
+                    <span class="npc-badge">NPC</span>
+                {{/ifEquals}}
+            </div>
 
             <div class="main-stats">
                 {{> "systems/projectmoonttrpg/templates/combat/parts/initiative-tracker.hbs"

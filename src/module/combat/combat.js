@@ -225,6 +225,8 @@ export class CombatSidebarPMTTRPG {
         let content = await foundry.applications.handlebars.renderTemplate(template, templateData)
         newHtml.find('.combat-tracker').remove();
         newHtml.find('.combat-tracker-header').after(content);
+
+        newHtml.find('.combat-tracker-header strong.encounter-title').text(` Round ${game.combat.round} `);
       }
     });
   }
@@ -278,7 +280,7 @@ export class CombatSidebarPMTTRPG {
       const detailedStats = [
         {
           name: "Actions",
-          icon: "systems/projectmoonttrpg/assets/icons/sheet/03_danger3.webp",
+          icon: "systems/projectmoonttrpg/assets/icons/sheet/Attack_Action.webp",
           amount: actorData.system.attributes.actions.value,
           path: "system.attributes.actions.value",
           max: actorData.system.attributes.actions.max,
@@ -287,7 +289,7 @@ export class CombatSidebarPMTTRPG {
         },
         {
           name: "Reactions",
-          icon: "systems/projectmoonttrpg/assets/icons/sheet/03_danger2.webp",
+          icon: "systems/projectmoonttrpg/assets/icons/sheet/Reaction_Action.webp",
           amount: actorData.system.attributes.reactions.value,
           path: "system.attributes.reactions.value",
           max: actorData.system.attributes.reactions.max,
@@ -296,7 +298,7 @@ export class CombatSidebarPMTTRPG {
         },
         {
           name: "Movement",
-          icon: "systems/projectmoonttrpg/assets/icons/sheet/03_danger1.webp",
+          icon: "systems/projectmoonttrpg/assets/icons/sheet/Movement_Action.webp",
           amount: actorData.system.attributes.squares.remaining,
           max: actorData.system.attributes.squares.max,
           percent: actorData.system.attributes.squares.max
