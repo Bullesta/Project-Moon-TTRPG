@@ -473,9 +473,9 @@ const TRIGGER_HOOKS = [
     hook: "pmttrpg.turnStart",
     triggerName: "Turn Start",
     getItems: ({ actor }) => actor ? getEquippedItems(actor) : [],
-    buildContext: ({ actor }) => {
+    buildContext: ({ actor, combat }) => {
       if (!actor) return null;
-      return { self: actor, target: null, ally: null, clash: null };
+      return { self: actor, target: null, ally: null, clash: null, combat: combat ?? null };
     },
   },
 
@@ -488,9 +488,9 @@ const TRIGGER_HOOKS = [
       if (!actor) return [];
       return [...getEquippedItems(actor), ...uniqueStatusItems(actor.items)];
     },
-    buildContext: ({ actor }) => {
+    buildContext: ({ actor, combat }) => {
       if (!actor) return null;
-      return { self: actor, target: null, ally: null, clash: null };
+      return { self: actor, target: null, ally: null, clash: null, combat: combat ?? null };
     },
   },
 
@@ -503,9 +503,9 @@ const TRIGGER_HOOKS = [
       if (!actor) return [];
       return [...getEquippedItems(actor), ...uniqueStatusItems(actor.items)];
     },
-    buildContext: ({ actor }) => {
+    buildContext: ({ actor, combat }) => {
       if (!actor) return null;
-      return { self: actor, target: null, ally: null, clash: null };
+      return { self: actor, target: null, ally: null, clash: null, combat: combat ?? null };
     },
   },
 

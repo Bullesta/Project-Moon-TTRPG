@@ -232,8 +232,35 @@ function resolveEffectSourceLabel(context) {
   return null;
 }
 
+function resolveEncounterCombat(context) {
+  return context?.combat ?? globalThis.game?.combat ?? null;
+}
+
+function resolveCombatRound(context) {
+  const combat = resolveEncounterCombat(context);
+  if (!combat) return 0;
+  return Math.max(0, Number(combat.round) || 0);
+}
+
 function resolvePath(segments, context) {
   const root = segments[0];
+
+  if (root === "round") {
+    const n = resolveCombatRound(context);
+    if (segments.length === 1) return n;
+    const key = segments[1];
+    if (key === "number" || key === "value") return n;
+    console.warn(`[EasyEffects] Unknown round path 'round.${key}'`);
+    return 0;
+  }
+
+  if (root === "combat") {
+    if (segments.length === 1) return resolveCombatRound(context);
+    const key = segments[1];
+    if (key === "round") return resolveCombatRound(context);
+    console.warn(`[EasyEffects] Unknown combat path 'combat.${key}'`);
+    return 0;
+  }
 
   if (root === "roll") {
     const bag = context.rolls;
@@ -1315,6 +1342,7 @@ export function executeAlwaysActive(ast, prepareContext) {
     ally: null,
     item: prepareContext.item ?? null,
     clash: null,
+    combat: prepareContext.combat ?? globalThis.game?.combat ?? null,
   };
 
   for (const block of ast.blocks) {

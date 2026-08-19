@@ -146,6 +146,7 @@ self.stat.for  .pru  .jus  .cha  .ins  .tem
 self.status.Burn
 self.status."Stagger Fragile"
 clash.margin   clash.attackerRoll   clash.defenderRoll
+round          round.number         combat.round
 incoming.amount   incoming.pool   incoming.source   incoming.damageType
 damage.amount     damage.pool     damage.source     damage.damageType
 ```
@@ -220,6 +221,12 @@ halve Burn
 # Conditional on clash margin
 [Clash Win]
 if (clash.margin) >= 5 do add status Poise 2 on self;
+
+# First round of combat 
+[Start of Round]
+require (round) == 1 then ...
+[On Hit]
+require (round) == 1 then ...;
 
 # Rank-scaling effect
 [On Hit]

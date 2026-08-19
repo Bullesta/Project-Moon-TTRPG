@@ -24,6 +24,7 @@ const KEYWORDS = new Set([
   "fatal", "weak", "normal", "endured", "ineffective", "immune",
   "slash", "pierce", "blunt",
   "incoming", "damage", "changed", "depleted", "moved", "clash", "item", "burst",
+  "combat", "round",
   "status", "uuid", "name", "id", "origin",
 ]);
 

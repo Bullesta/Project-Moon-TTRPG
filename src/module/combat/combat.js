@@ -159,6 +159,11 @@ export class CombatSidebarPMTTRPG {
           } catch (error) {
             console.warn("[EasyEffects] startOfRound hook failed", error);
           }
+          try {
+            payload.actor.prepareData();
+          } catch (error) {
+            console.warn("[PMTTRPG] prepareData after startOfRound failed", error);
+          }
         });
       }
 
