@@ -24,6 +24,7 @@ require (<expr>) <op> <value> then <actions>;
 require <cond> and <cond> then <actions>;
 require <cond> then require <cond> then <actions>;
 require <cond> then roll <dice> [as <name>];
+require <cond> then spend <N> <Status> [on <target>] to <actions>;
 on roll <dice> <op> <value> then <actions>;
 
 # Standard syntax (full control)

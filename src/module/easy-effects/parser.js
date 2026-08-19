@@ -1021,6 +1021,24 @@ class Parser {
       return this.parseThenBody(pre, parsed.roll, [...post, parsed.condition]);
     }
 
+    // I add a bit of desugaring here for spend.
+    if (this.check("KEYWORD", "spend")) {
+      const spend = this.parseSpendBody();
+      this.consumeStatementEnd();
+      const spendPre = roll ? pre : [...pre, spend.condition];
+      const spendPost = roll ? [...post, spend.condition] : post;
+      const stmt = {
+        type: "Statement",
+        condition: packConditions(spendPre),
+        actions: spend.actions,
+        polarity: null,
+      };
+      if (roll) stmt.roll = roll;
+      const packedPost = packConditions(spendPost);
+      if (packedPost) stmt.postCondition = packedPost;
+      return stmt;
+    }
+
     const actions = this.parseNaturalActionChain();
     this.consumeStatementEnd();
     const stmt = { type: "Statement", condition: packConditions(pre), actions, polarity: null };
@@ -1792,6 +1810,12 @@ class Parser {
 
   // ── Spend ─────────────────────────────────────────────────────────────────
   parseSpendStatement() {
+    const spend = this.parseSpendBody();
+    this.consumeStatementEnd();
+    return { type: "Statement", condition: spend.condition, actions: spend.actions, polarity: null };
+  }
+
+  parseSpendBody() {
     this.consume("KEYWORD", "spend");
 
     let spendAmount;
@@ -1818,7 +1842,6 @@ class Parser {
     this.consume("KEYWORD", "to");
     if (this.check("KEYWORD", "do")) this.consume("KEYWORD", "do");
     const gainActions = this.parseNaturalActionChain();
-    this.consumeStatementEnd();
 
     const condition = {
       type: "Condition",
@@ -1833,7 +1856,7 @@ class Parser {
       amount: spendAmount, per: null, target: spendTarget,
     };
 
-    return { type: "Statement", condition, actions: [...gainActions, loseAction] };
+    return { condition, actions: [...gainActions, loseAction] };
   }
 }
 
