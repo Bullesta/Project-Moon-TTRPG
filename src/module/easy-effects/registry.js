@@ -494,6 +494,21 @@ const TRIGGER_HOOKS = [
     },
   },
 
+  // ── [Start of Round] ────────────────────────────────────────────────────────
+  // Fired from combat.js when the round number increases (once per combatant).
+  {
+    hook: "pmttrpg.startOfRound",
+    triggerName: "Start of Round",
+    getItems: ({ actor }) => {
+      if (!actor) return [];
+      return [...getEquippedItems(actor), ...uniqueStatusItems(actor.items)];
+    },
+    buildContext: ({ actor }) => {
+      if (!actor) return null;
+      return { self: actor, target: null, ally: null, clash: null };
+    },
+  },
+
   // ── [On Move] ───────────────────────────────────────────────────────────────
   {
     hook: "pmttrpg.tokenMoved",

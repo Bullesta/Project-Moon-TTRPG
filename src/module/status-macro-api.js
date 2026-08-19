@@ -12,6 +12,10 @@ const STATUS_EVENTS = {
     hook: 'projectmoonttrpg.onEndOfRound',
     procField: 'endOfRound'
   },
+  onStartOfRound: {
+    hook: 'projectmoonttrpg.onStartOfRound',
+    procField: 'startOfRound'
+  },
   onTurnEnd: {
     hook: 'projectmoonttrpg.onEndOfRound',
     procField: 'endOfRound'
@@ -152,6 +156,7 @@ export const PMTTRPGStatusMacroAPI = {
   registerManualButtonCallback,
 
   onEndOfRound(callback) { return registerEventCallback('onEndOfRound', callback); },
+  onStartOfRound(callback) { return registerEventCallback('onStartOfRound', callback); },
   onTurnEnd(callback) { return registerEventCallback('onTurnEnd', callback); },
   onTurnStart(callback) { return registerEventCallback('onTurnStart', callback); },
   onActionOrReaction(callback) { return registerEventCallback('onActionOrReaction', callback); },
@@ -165,6 +170,7 @@ export const PMTTRPGStatusMacroAPI = {
 
   emitTurnStart(payload) { return emitStatusEvent('onTurnStart', payload); },
   emitEndOfRound(payload) { return emitStatusEvent('onEndOfRound', payload); },
+  emitStartOfRound(payload) { return emitStatusEvent('onStartOfRound', payload); },
   emitTurnEnd(payload) { return emitStatusEvent('onEndOfRound', payload); },
   emitActionOrReaction(payload) { return emitStatusEvent('onActionOrReaction', payload); },
   emitAttackerBurst(payload) { return emitStatusEvent('onAttackerBurst', payload); },

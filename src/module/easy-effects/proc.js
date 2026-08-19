@@ -17,6 +17,7 @@ const RESERVED_PROC_NAMES = new Set([
   "removed",
   "turn start",
   "end of round",
+  "start of round",
   "move",
   "taking damage",
   "depleted",

@@ -941,6 +941,14 @@ const ACTION_HANDLERS = {
     await postChatMessage(action.argument, action.target ?? "self", context);
   },
 
+  roll: async (action, context, resolvedAmount) => {
+    const bag = ensureRollsBag(context);
+    const total = Number(resolvedAmount) || 0;
+    bag.last = total;
+    const bind = action.bind ?? action.argument ?? null;
+    if (bind) bag.named[bind] = total;
+  },
+
   pause: async (action, context) => {
     if (action.noun !== "status") throw new InterpretError(`'pause' only supports a status name`);
     const statusName = action.argument;
@@ -977,23 +985,66 @@ async function resolveLhs(lhs, context) {
 }
 
 async function resolveRhs(rhs, context) {
+  if (!rhs) return 0;
   if (rhs.type === "NUMBER")   return rhs.value;
+  if (rhs.type === "EFFECT_N") return Math.max(0, Number(context.effectN) || 0);
   if (rhs.type === "ACCESSOR") return evaluateExpr(rhs.expr, context);
+  if (rhs.type === "DICE")     return evaluateDiceFormula(rhs.value, context);
   if (rhs.type === "IDENT" || rhs.type === "STRING") return rhs.value;
   return 0;
 }
 
-async function evaluateCondition(condition, context) {
-  const lhs = await resolveLhs(condition.lhs, context);
-  const rhs = await resolveRhs(condition.rhs, context);
-  switch (condition.operator) {
+function resolveRhsSync(rhs, context) {
+  if (!rhs) return 0;
+  if (rhs.type === "NUMBER")   return rhs.value;
+  if (rhs.type === "EFFECT_N") return Math.max(0, Number(context.effectN) || 0);
+  if (rhs.type === "ACCESSOR") return evaluateExprSync(rhs.expr, context);
+  if (rhs.type === "IDENT" || rhs.type === "STRING") return rhs.value;
+  if (rhs.type === "DICE") {
+    console.warn("[EasyEffects] Dice not allowed in [Always Active]");
+    return 0;
+  }
+  return 0;
+}
+
+function compareValues(operator, lhs, rhs) {
+  switch (operator) {
     case ">":  return lhs >  rhs;
     case "<":  return lhs <  rhs;
     case ">=": return lhs >= rhs;
     case "<=": return lhs <= rhs;
     case "==": return lhs === rhs;
     case "!=": return lhs !== rhs;
-    default: throw new InterpretError(`Unknown operator '${condition.operator}'`);
+    default: throw new InterpretError(`Unknown operator '${operator}'`);
+  }
+}
+
+async function evaluateCondition(condition, context) {
+  if (!condition) return true;
+  if (condition.type === "And") {
+    for (const inner of condition.conditions) {
+      if (!(await evaluateCondition(inner, context))) return false;
+    }
+    return true;
+  }
+  const lhs = await resolveLhs(condition.lhs, context);
+  const rhs = await resolveRhs(condition.rhs, context);
+  return compareValues(condition.operator, lhs, rhs);
+}
+
+function evaluateConditionSync(condition, context) {
+  if (!condition) return true;
+  if (condition.type === "And") {
+    return condition.conditions.every((inner) => evaluateConditionSync(inner, context));
+  }
+  const lhs = condition.lhs.type === "ACCESSOR"
+    ? evaluateExprSync(condition.lhs.expr, context)
+    : resolveFlag(condition.lhs, context);
+  const rhs = resolveRhsSync(condition.rhs, context);
+  try {
+    return compareValues(condition.operator, lhs, rhs);
+  } catch {
+    return false;
   }
 }
 
@@ -1093,11 +1144,13 @@ export async function execute(ast, trigger, context) {
           continue;
         }
 
+        if (stmt.condition && !(await evaluateCondition(stmt.condition, context))) continue;
+
         if (stmt.roll) {
           await applyRollToContext(stmt.roll.formula, context, stmt.roll.bind ?? null);
         }
 
-        if (stmt.condition && !(await evaluateCondition(stmt.condition, context))) continue;
+        if (stmt.postCondition && !(await evaluateCondition(stmt.postCondition, context))) continue;
 
         let inheritedTarget = "self";
         for (const action of stmt.actions) {
@@ -1269,25 +1322,7 @@ export function executeAlwaysActive(ast, prepareContext) {
     for (const stmt of block.statements) {
       try {
         // Condition (sync eval only — no dice)
-        if (stmt.condition) {
-          const lhs = stmt.condition.lhs.type === "ACCESSOR"
-            ? evaluateExprSync(stmt.condition.lhs.expr, context)
-            : resolveFlag(stmt.condition.lhs, context);
-          const rhs = stmt.condition.rhs.type === "NUMBER"
-            ? stmt.condition.rhs.value
-            : evaluateExprSync(stmt.condition.rhs.expr, context);
-
-          let pass = false;
-          switch (stmt.condition.operator) {
-            case ">":  pass = lhs >  rhs; break;
-            case "<":  pass = lhs <  rhs; break;
-            case ">=": pass = lhs >= rhs; break;
-            case "<=": pass = lhs <= rhs; break;
-            case "==": pass = lhs === rhs; break;
-            case "!=": pass = lhs !== rhs; break;
-          }
-          if (!pass) continue;
-        }
+        if (stmt.condition && !evaluateConditionSync(stmt.condition, context)) continue;
 
         for (const action of stmt.actions) {
           const amount = Math.max(0, Math.round(resolveAmountSync(action.amount, context)));

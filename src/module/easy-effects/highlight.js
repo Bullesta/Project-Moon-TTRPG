@@ -28,7 +28,7 @@ const KEYWORDS = new Set([
 ]);
 
 const WORD_RE = /^[A-Za-z_][A-Za-z0-9_]*/;
-const NUMBER_RE = /^\d+(?:\.\d+)?(?:d\d+)?/i;
+const NUMBER_RE = /^\d+(?:\.\d+)?(?:d\d+(?:[kd][hl]\d*)*)?/i;
 
 function escapeHtml(text) {
   return String(text)
