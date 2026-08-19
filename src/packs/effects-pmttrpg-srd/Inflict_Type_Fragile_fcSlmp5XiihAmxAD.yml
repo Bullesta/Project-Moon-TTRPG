@@ -1,0 +1,62 @@
+folder: HgeENWG6ft89uL2A
+name: Inflict Type Fragile
+type: effect
+_id: fcSlmp5XiihAmxAD
+img: >-
+  systems/projectmoonttrpg/assets/icons/limbus_assets/Basic%20Effects/Fragility/Blunt%20Fragility.webp
+system:
+  name: ''
+  description: ''
+  slug: ''
+  cost: 1
+  stackMax: 5
+  appliesTo: weapon
+  canPositive: true
+  canNegative: true
+  procOn: alwaysActive
+  procResult: none
+  procResultLocked: false
+  procStat: any
+  procDice: any
+  procAction: any
+  procCondition: ''
+  positive: ''
+  negative: ''
+  macro:
+    uuid: ''
+  customNotes: ''
+  easyEffects: |+
+    [Clash RESULT]
+    positive:
+    create dialog "Inflict [Type] Fragile": 
+      slash as "Slash Fragile",
+      pierce as "Pierce Fragile",
+      blunt as "Blunt Fragile"
+      to self;
+
+    [On Dialog Answer slash]
+    inflict N "Slash Fragile" to target;
+
+    [On Dialog Answer pierce]
+    inflict N "Pierce Fragile" to target;
+
+    [On Dialog Answer blunt]
+    inflict N "Blunt Fragile" to target;
+
+effects: []
+sort: 0
+ownership:
+  default: 0
+  yWsvx4DXrmYcZsue: 3
+flags: {}
+_stats:
+  coreVersion: '14.364'
+  systemId: projectmoonttrpg
+  systemVersion: 0.0.1
+  createdTime: 1786529750173
+  modifiedTime: 1786529780379
+  lastModifiedBy: yWsvx4DXrmYcZsue
+  compendiumSource: null
+  duplicateSource: null
+  exportSource: null
+_key: '!items!fcSlmp5XiihAmxAD'

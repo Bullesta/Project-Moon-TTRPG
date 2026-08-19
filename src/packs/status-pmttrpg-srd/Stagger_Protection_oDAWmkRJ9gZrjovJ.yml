@@ -12,13 +12,17 @@ system:
   stacks: 1
   stackMax: 0
   priority: 0
+  pending: false
+  arrival: ''
+  shelved: false
+  origin: ''
   customNotes: ''
   easyEffects: |-
     [On Taking ST Damage]
     reduce damage by "Stagger Protection" after resistances
                         
     [End of Round]
-    remove "Stagger Protection" "Stagger Protection" on self
+    lose all "Stagger Protection" on self
 effects: []
 folder: JLnWNuTpQkOQhr5i
 sort: 106250
@@ -34,6 +38,6 @@ _stats:
   systemId: projectmoonttrpg
   systemVersion: 0.0.1
   createdTime: 1785256667353
-  modifiedTime: 1785426569243
+  modifiedTime: 1786513354395
   lastModifiedBy: yWsvx4DXrmYcZsue
 _key: '!items!oDAWmkRJ9gZrjovJ'

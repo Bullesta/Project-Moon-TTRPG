@@ -23,8 +23,14 @@ system:
   macro:
     uuid: ''
   customNotes: ''
-  easyEffects: |
-    [On Taking Damage]
+  easyEffects: |-
+    [On Taking HP Damage]
+    positive:
+    reduce damage by N;
+    negative:
+    increase damage by N;
+
+    [On Taking ST Damage]
     positive:
     reduce damage by N;
     negative:
@@ -44,7 +50,7 @@ _stats:
   systemId: projectmoonttrpg
   systemVersion: 0.0.1
   createdTime: 1780308634956
-  modifiedTime: 1785441217329
+  modifiedTime: 1786528131765
   lastModifiedBy: yWsvx4DXrmYcZsue
 _id: xmYEYDbDsrDT62TM
 _key: '!items!xmYEYDbDsrDT62TM'

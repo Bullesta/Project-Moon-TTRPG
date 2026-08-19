@@ -5,7 +5,7 @@ img: systems/projectmoonttrpg/assets/icons/Statuses/Burn.webp
 system:
   name: ''
   description: ''
-  slug: flash-fire
+  slug: ''
   cost: 1
   stackMax: 5
   appliesTo: augment
@@ -14,6 +14,8 @@ system:
   procOn: onClash
   procResult: none
   procResultLocked: false
+  procChoice: none
+  procChoiceLocked: false
   procStat: any
   procDice: offensive
   procAction: action
@@ -28,7 +30,19 @@ system:
   macro:
     uuid: ''
   customNotes: ''
-  easyEffects: ''
+  easyEffects: |-
+    [On Clash Win With Attack]
+    positive:
+    require (round) == 1 then
+      inflict N Burn;
+    negative:
+    require (round) == 1 then
+      gain N Burn;
+
+    [On Taking Burn Damage]
+    negative:
+    require (round) == 1 then
+      increase damage by N;
 effects: []
 sort: 100000
 ownership:
@@ -43,7 +57,7 @@ _stats:
   systemId: projectmoonttrpg
   systemVersion: 0.0.1
   createdTime: 1785485141804
-  modifiedTime: 1785485141804
+  modifiedTime: 1787173029020
   lastModifiedBy: yWsvx4DXrmYcZsue
 _id: TCMTDCBIiK6hkhWb
 _key: '!items!TCMTDCBIiK6hkhWb'

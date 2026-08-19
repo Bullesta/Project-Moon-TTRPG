@@ -5,6 +5,7 @@ img: systems/projectmoonttrpg/assets/icons/Statuses/Charge.webp
 system:
   name: ''
   description: ''
+  slug: ''
   cost: 4
   stackMax: 1
   appliesTo: outfit
@@ -25,6 +26,19 @@ system:
   macro:
     uuid: ''
   customNotes: ''
+  easyEffects: |-
+    [On Clash Start]
+    create dialog "Power Engine":
+      powerengine as "Consume 8 Charge: +1 Dice Power"
+      powerengineover as "Consume 1 Overcharge: +2 Dice Power"
+      nopowerengine as "Do not"
+      to self;
+
+    [On Dialog Answer powerengine]
+    spend 8 Charge to power up evade 1 and power up block 1;
+
+    [On Dialog Answer powerengineover]
+    spend 1 Overcharge to power up evade 2 and power up block 2;
   allowMultiple: false
 effects: []
 sort: 0
@@ -36,11 +50,11 @@ _stats:
   compendiumSource: null
   duplicateSource: Item.D8z3BVjE79O0ElAs
   exportSource: null
-  coreVersion: '13.351'
+  coreVersion: '14.364'
   systemId: projectmoonttrpg
   systemVersion: 0.0.1
   createdTime: 1780308622217
-  modifiedTime: 1780308622217
+  modifiedTime: 1786541906450
   lastModifiedBy: yWsvx4DXrmYcZsue
 _id: GXsm3eW8QoIsnGQU
 _key: '!items!GXsm3eW8QoIsnGQU'

@@ -4,8 +4,8 @@ type: effect
 img: systems/projectmoonttrpg/assets/icons/Statuses/Combo.webp
 system:
   name: ''
-  description: ''
-  slug: retracting-cable
+  description: '<p><em>Note: This effect is not yet automated.</em></p>'
+  slug: ''
   cost: 2
   stackMax: 1
   appliesTo: augment
@@ -14,6 +14,8 @@ system:
   procOn: alwaysActive
   procResult: none
   procResultLocked: false
+  procChoice: none
+  procChoiceLocked: false
   procStat: any
   procDice: any
   procAction: any
@@ -40,7 +42,7 @@ _stats:
   systemId: projectmoonttrpg
   systemVersion: 0.0.1
   createdTime: 1785485122327
-  modifiedTime: 1785485122327
+  modifiedTime: 1787166471884
   lastModifiedBy: yWsvx4DXrmYcZsue
 _id: jiOYgQUR8FJ6sac1
 _key: '!items!jiOYgQUR8FJ6sac1'

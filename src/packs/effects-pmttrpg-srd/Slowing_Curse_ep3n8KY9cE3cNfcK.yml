@@ -5,7 +5,7 @@ img: systems/projectmoonttrpg/assets/icons/Statuses/Devastation.webp
 system:
   name: ''
   description: ''
-  slug: slowing-curse
+  slug: ''
   cost: 4
   stackMax: 1
   appliesTo: augment
@@ -14,6 +14,8 @@ system:
   procOn: onDevastating
   procResult: none
   procResultLocked: false
+  procChoice: none
+  procChoiceLocked: false
   procStat: any
   procDice: any
   procAction: action
@@ -25,7 +27,9 @@ system:
   macro:
     uuid: ''
   customNotes: ''
-  easyEffects: ''
+  easyEffects: |-
+    [On DevastatingHit]
+    inflict 2 "Bind" next turn;
 effects: []
 sort: 100000
 ownership:
@@ -40,7 +44,7 @@ _stats:
   systemId: projectmoonttrpg
   systemVersion: 0.0.1
   createdTime: 1785485141813
-  modifiedTime: 1785485141813
+  modifiedTime: 1787164700332
   lastModifiedBy: yWsvx4DXrmYcZsue
 _id: ep3n8KY9cE3cNfcK
 _key: '!items!ep3n8KY9cE3cNfcK'

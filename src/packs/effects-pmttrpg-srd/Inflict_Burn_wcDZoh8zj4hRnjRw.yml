@@ -6,10 +6,15 @@ img: systems/projectmoonttrpg/assets/icons/Statuses/Burn.webp
 system:
   name: ''
   description: ''
+  slug: ''
   cost: 2
-  allowMultiple: true
+  stackMax: 5
+  appliesTo: weapon
+  canPositive: true
+  canNegative: true
   procOn: onClash
   procResult: none
+  procResultLocked: false
   procStat: any
   procDice: any
   procAction: any
@@ -19,11 +24,13 @@ system:
   macro:
     uuid: ''
   customNotes: ''
-  appliesTo: weapon
-  canPositive: true
-  canNegative: true
-  stackMax: 5
-  procResultLocked: false
+  easyEffects: |-
+    [Clash RESULT]
+    positive:
+    inflict N Burn;
+    negative:
+    gain N Burn;
+  allowMultiple: true
 effects: []
 sort: 0
 ownership:
@@ -34,10 +41,10 @@ _stats:
   compendiumSource: null
   duplicateSource: null
   exportSource: null
-  coreVersion: '13.351'
+  coreVersion: '14.364'
   systemId: projectmoonttrpg
   systemVersion: 0.0.1
   createdTime: 1779651087474
-  modifiedTime: 1779651087474
+  modifiedTime: 1786512739552
   lastModifiedBy: yWsvx4DXrmYcZsue
 _key: '!items!wcDZoh8zj4hRnjRw'

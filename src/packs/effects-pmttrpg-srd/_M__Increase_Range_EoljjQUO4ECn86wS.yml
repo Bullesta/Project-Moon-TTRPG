@@ -4,11 +4,18 @@ type: effect
 img: systems/projectmoonttrpg/assets/icons/Statuses/Mark.webp
 system:
   name: ''
-  description: ''
+  description: '<p><em>Note : This effect isn''t currently automated.</em></p>'
+  slug: ''
   cost: 4
-  allowMultiple: false
+  stackMax: 1
+  appliesTo: weapon
+  canPositive: true
+  canNegative: false
   procOn: alwaysActive
   procResult: none
+  procResultLocked: false
+  procChoice: none
+  procChoiceLocked: false
   procStat: any
   procDice: any
   procAction: any
@@ -18,11 +25,8 @@ system:
   macro:
     uuid: ''
   customNotes: ''
-  appliesTo: weapon
-  canPositive: true
-  canNegative: false
-  stackMax: 1
-  procResultLocked: false
+  easyEffects: ''
+  allowMultiple: false
 effects: []
 sort: 0
 ownership:
@@ -33,11 +37,11 @@ _stats:
   compendiumSource: null
   duplicateSource: Item.yxwlH6NbaIz8GJ7h
   exportSource: null
-  coreVersion: '13.351'
+  coreVersion: '14.364'
   systemId: projectmoonttrpg
   systemVersion: 0.0.1
   createdTime: 1779651087474
-  modifiedTime: 1779651087474
+  modifiedTime: 1787149516319
   lastModifiedBy: yWsvx4DXrmYcZsue
 _id: EoljjQUO4ECn86wS
 _key: '!items!EoljjQUO4ECn86wS'

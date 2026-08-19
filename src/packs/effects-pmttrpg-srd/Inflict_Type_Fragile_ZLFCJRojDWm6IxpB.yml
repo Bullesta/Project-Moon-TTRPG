@@ -16,6 +16,8 @@ system:
   procOn: onClashResult
   procResult: none
   procResultLocked: false
+  procChoice: none
+  procChoiceLocked: false
   procStat: any
   procDice: any
   procAction: any
@@ -27,7 +29,24 @@ system:
   macro:
     uuid: ''
   customNotes: ''
-  easyEffects: ''
+  easyEffects: |+
+    [Clash RESULT]
+    positive:
+    create dialog "Inflict [Type] Fragile": 
+      slash as "Slash Fragile",
+      pierce as "Pierce Fragile",
+      blunt as "Blunt Fragile"
+      to self;
+
+    [On Dialog Answer slash]
+    inflict N "Slash Fragile" next turn to target;
+
+    [On Dialog Answer pierce]
+    inflict N "Pierce Fragile" next turn to target;
+
+    [On Dialog Answer blunt]
+    inflict N "Blunt Fragile" next turn to target;
+
 effects: []
 sort: 0
 ownership:
@@ -39,7 +58,7 @@ _stats:
   systemId: projectmoonttrpg
   systemVersion: 0.0.1
   createdTime: 1785514690497
-  modifiedTime: 1785514780256
+  modifiedTime: 1787062243039
   lastModifiedBy: yWsvx4DXrmYcZsue
   compendiumSource: null
   duplicateSource: null

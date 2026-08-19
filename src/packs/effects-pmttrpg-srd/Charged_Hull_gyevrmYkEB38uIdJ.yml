@@ -5,6 +5,7 @@ img: systems/projectmoonttrpg/assets/icons/Statuses/Charge.webp
 system:
   name: ''
   description: ''
+  slug: ''
   cost: 4
   stackMax: 1
   appliesTo: outfit
@@ -24,6 +25,15 @@ system:
   macro:
     uuid: ''
   customNotes: ''
+  easyEffects: |-
+    [On Taking Damage]
+    create dialog "Charged Hull":
+      chargedhull as "Consume 1 Overcharge: Reduce HP/ST damage by 3 each.",
+      nochargedhull as "Do not"
+      to self;
+
+    [On Dialog Answer chargedhull]
+    spend 1 Overcharge to reduce damage by 3;
   allowMultiple: false
 effects: []
 sort: 0
@@ -35,11 +45,11 @@ _stats:
   compendiumSource: null
   duplicateSource: Item.GXsm3eW8QoIsnGQU
   exportSource: null
-  coreVersion: '13.351'
+  coreVersion: '14.364'
   systemId: projectmoonttrpg
   systemVersion: 0.0.1
   createdTime: 1780308622217
-  modifiedTime: 1780308622217
+  modifiedTime: 1786542723824
   lastModifiedBy: yWsvx4DXrmYcZsue
 _id: gyevrmYkEB38uIdJ
 _key: '!items!gyevrmYkEB38uIdJ'

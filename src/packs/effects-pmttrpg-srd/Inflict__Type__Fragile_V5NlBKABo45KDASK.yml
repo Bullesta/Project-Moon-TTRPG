@@ -1,0 +1,66 @@
+folder: Dbdr87yHQ7lJhOXz
+name: Inflict [Type] Fragile
+type: effect
+img: systems/projectmoonttrpg/assets/icons/Statuses/Blunt%20Fragility.webp
+system:
+  name: ''
+  description: ''
+  slug: ''
+  cost: 4
+  stackMax: 5
+  appliesTo: skill
+  canPositive: true
+  canNegative: false
+  procOn: onClashResult
+  procResult: none
+  procResultLocked: false
+  procChoice: none
+  procChoiceLocked: false
+  procStat: any
+  procDice: any
+  procAction: any
+  procCondition: ''
+  positive: >-
+    <p>Apply [N] [Type] Fragile to the target next round. The Type of Fragile is
+    chosen on use.</p>
+  negative: ''
+  macro:
+    uuid: ''
+  customNotes: ''
+  easyEffects: |-
+    [Clash RESULT]
+    positive:
+    create dialog "Inflict [Type] Fragile": 
+      slash as "Slash Fragile",
+      pierce as "Pierce Fragile",
+      blunt as "Blunt Fragile"
+      to self;
+
+    [On Dialog Answer slash]
+    inflict N "Slash Fragile" next turn to target;
+
+    [On Dialog Answer pierce]
+    inflict N "Pierce Fragile" next turn to target;
+
+    [On Dialog Answer blunt]
+    inflict N "Blunt Fragile" next turn to target;
+effects: []
+sort: 100000
+ownership:
+  default: 0
+  yWsvx4DXrmYcZsue: 3
+flags:
+  projectmoonttrpg:
+    syncDismissedAt: 1780345610668
+_stats:
+  compendiumSource: Item.Je0fG3h1pB3ZeY5A
+  duplicateSource: Item.Je0fG3h1pB3ZeY5A
+  exportSource: null
+  coreVersion: '14.364'
+  systemId: projectmoonttrpg
+  systemVersion: 0.0.1
+  createdTime: 1787171613139
+  modifiedTime: 1787171713143
+  lastModifiedBy: yWsvx4DXrmYcZsue
+_id: V5NlBKABo45KDASK
+_key: '!items!V5NlBKABo45KDASK'

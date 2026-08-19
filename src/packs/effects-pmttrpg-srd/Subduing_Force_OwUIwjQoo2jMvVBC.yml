@@ -4,8 +4,8 @@ type: effect
 img: systems/projectmoonttrpg/assets/icons/Statuses/Stagger%20Boost.webp
 system:
   name: ''
-  description: ''
-  slug: subduing-force
+  description: '<p><em>Note: This effect is not yet automated.</em></p>'
+  slug: ''
   cost: 2
   stackMax: 1
   appliesTo: augment
@@ -14,6 +14,8 @@ system:
   procOn: alwaysActive
   procResult: none
   procResultLocked: false
+  procChoice: none
+  procChoiceLocked: false
   procStat: any
   procDice: any
   procAction: any
@@ -38,7 +40,7 @@ _stats:
   systemId: projectmoonttrpg
   systemVersion: 0.0.1
   createdTime: 1785485122329
-  modifiedTime: 1785485122329
+  modifiedTime: 1787166492373
   lastModifiedBy: yWsvx4DXrmYcZsue
 _id: OwUIwjQoo2jMvVBC
 _key: '!items!OwUIwjQoo2jMvVBC'

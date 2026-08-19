@@ -5,14 +5,14 @@ color: '#b771b5'
 sorting: a
 _id: OsS83U82yvcIdkjc
 description: ''
-sort: 0
+sort: 500000
 flags: {}
 _stats:
   coreVersion: '14.364'
   systemId: projectmoonttrpg
   systemVersion: 0.0.1
   createdTime: 1785431749279
-  modifiedTime: 1785431749279
+  modifiedTime: 1787144465729
   lastModifiedBy: yWsvx4DXrmYcZsue
   compendiumSource: null
   duplicateSource: null

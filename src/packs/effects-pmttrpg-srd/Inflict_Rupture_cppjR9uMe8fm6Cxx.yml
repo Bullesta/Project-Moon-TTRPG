@@ -5,7 +5,7 @@ img: systems/projectmoonttrpg/assets/icons/Statuses/Rupture.webp
 system:
   name: ''
   description: ''
-  slug: inflict-rupture
+  slug: ''
   cost: 1
   stackMax: 6
   appliesTo: augment
@@ -14,6 +14,8 @@ system:
   procOn: onClash
   procResult: none
   procResultLocked: false
+  procChoice: none
+  procChoiceLocked: false
   procStat: any
   procDice: any
   procAction: action
@@ -23,7 +25,9 @@ system:
   macro:
     uuid: ''
   customNotes: ''
-  easyEffects: ''
+  easyEffects: |-
+    [On Clash RESULT with CHOICE]
+    inflict N Rupture next turn
 effects: []
 sort: 100000
 ownership:
@@ -38,7 +42,7 @@ _stats:
   systemId: projectmoonttrpg
   systemVersion: 0.0.1
   createdTime: 1785485141806
-  modifiedTime: 1785485141806
+  modifiedTime: 1787152518059
   lastModifiedBy: yWsvx4DXrmYcZsue
 _id: cppjR9uMe8fm6Cxx
 _key: '!items!cppjR9uMe8fm6Cxx'

@@ -12,6 +12,10 @@ system:
   stacks: 1
   stackMax: 0
   priority: 0
+  pending: false
+  arrival: ''
+  shelved: false
+  origin: ''
   customNotes: ''
   easyEffects: |-
     [On Applied]
@@ -23,7 +27,7 @@ system:
 
     [On Removed]
     set st to max;
-    heal 10 st to self;
+    gain 10 tempSt on self;
 effects: []
 folder: null
 sort: 100000
@@ -36,7 +40,7 @@ _stats:
   systemId: projectmoonttrpg
   systemVersion: 0.0.1
   createdTime: 1785319503000
-  modifiedTime: 1785520712954
+  modifiedTime: 1787166829610
   lastModifiedBy: yWsvx4DXrmYcZsue
   compendiumSource: null
   duplicateSource: null

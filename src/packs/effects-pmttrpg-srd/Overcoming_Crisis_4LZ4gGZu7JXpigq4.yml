@@ -1,0 +1,50 @@
+folder: qZ5uzhep6qammKdU
+name: Overcoming Crisis
+type: effect
+img: systems/projectmoonttrpg/assets/icons/Statuses/Strength.webp
+system:
+  name: ''
+  description: ''
+  slug: ''
+  cost: 2
+  stackMax: 5
+  appliesTo: skill
+  canPositive: true
+  canNegative: false
+  procOn: alwaysActive
+  procResult: none
+  procResultLocked: false
+  procChoice: none
+  procChoiceLocked: false
+  procStat: any
+  procDice: any
+  procAction: any
+  procCondition: ''
+  positive: >-
+    <p>When HP is less than or equal to [100 - N*20]%, increase the Dice Power
+    by [N] (max 4).</p>
+  negative: ''
+  macro:
+    uuid: ''
+  customNotes: ''
+  easyEffects: |-
+    [On Clash Start]
+    require (self.hp%) <= (100 - N*20) then power up attack N;
+effects: []
+sort: 0
+ownership:
+  default: 0
+  yWsvx4DXrmYcZsue: 3
+flags: {}
+_stats:
+  compendiumSource: null
+  duplicateSource: Item.e4hwY9sW2P6v8pY5
+  exportSource: null
+  coreVersion: '14.364'
+  systemId: projectmoonttrpg
+  systemVersion: 0.0.1
+  createdTime: 1787170912488
+  modifiedTime: 1787171504161
+  lastModifiedBy: yWsvx4DXrmYcZsue
+_id: 4LZ4gGZu7JXpigq4
+_key: '!items!4LZ4gGZu7JXpigq4'

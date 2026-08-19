@@ -4,8 +4,10 @@ type: effect
 img: systems/projectmoonttrpg/assets/icons/Statuses/Unlock.webp
 system:
   name: ''
-  description: ''
-  slug: mercurial
+  description: >-
+    <p><strong>Note: This effect is not automated or supported in the current
+    version. Emotions are WIP.</strong></p>
+  slug: ''
   cost: 2
   stackMax: 1
   appliesTo: augment
@@ -14,6 +16,8 @@ system:
   procOn: alwaysActive
   procResult: none
   procResultLocked: false
+  procChoice: none
+  procChoiceLocked: false
   procStat: any
   procDice: any
   procAction: any
@@ -38,7 +42,7 @@ _stats:
   systemId: projectmoonttrpg
   systemVersion: 0.0.1
   createdTime: 1785485130072
-  modifiedTime: 1785485130072
+  modifiedTime: 1787169725217
   lastModifiedBy: yWsvx4DXrmYcZsue
 _id: gDJb4adCWUWCG7FN
 _key: '!items!gDJb4adCWUWCG7FN'

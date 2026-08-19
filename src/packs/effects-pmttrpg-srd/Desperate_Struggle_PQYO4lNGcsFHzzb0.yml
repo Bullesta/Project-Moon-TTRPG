@@ -4,8 +4,8 @@ type: effect
 img: systems/projectmoonttrpg/assets/icons/Statuses/Panic.webp
 system:
   name: ''
-  description: ''
-  slug: desperate-struggle
+  description: '<p><em>Note: This effect is not yet automated.</em></p>'
+  slug: ''
   cost: 4
   stackMax: 1
   appliesTo: augment
@@ -14,6 +14,8 @@ system:
   procOn: alwaysActive
   procResult: none
   procResultLocked: false
+  procChoice: none
+  procChoiceLocked: false
   procStat: any
   procDice: any
   procAction: any
@@ -43,7 +45,7 @@ _stats:
   systemId: projectmoonttrpg
   systemVersion: 0.0.1
   createdTime: 1785485122324
-  modifiedTime: 1785485122324
+  modifiedTime: 1787167423954
   lastModifiedBy: yWsvx4DXrmYcZsue
 _id: PQYO4lNGcsFHzzb0
 _key: '!items!PQYO4lNGcsFHzzb0'

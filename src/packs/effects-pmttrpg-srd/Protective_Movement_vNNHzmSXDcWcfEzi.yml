@@ -4,8 +4,8 @@ type: effect
 img: systems/projectmoonttrpg/assets/icons/Statuses/Protection.webp
 system:
   name: ''
-  description: ''
-  slug: protective-movement
+  description: '<p><em>Note: This effect is not yet automated.</em></p>'
+  slug: ''
   cost: 4
   stackMax: 1
   appliesTo: augment
@@ -14,6 +14,8 @@ system:
   procOn: alwaysActive
   procResult: none
   procResultLocked: false
+  procChoice: none
+  procChoiceLocked: false
   procStat: any
   procDice: any
   procAction: any
@@ -43,7 +45,7 @@ _stats:
   systemId: projectmoonttrpg
   systemVersion: 0.0.1
   createdTime: 1785485122326
-  modifiedTime: 1785485122326
+  modifiedTime: 1787166505949
   lastModifiedBy: yWsvx4DXrmYcZsue
 _id: vNNHzmSXDcWcfEzi
 _key: '!items!vNNHzmSXDcWcfEzi'

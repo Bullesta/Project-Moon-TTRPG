@@ -9,12 +9,30 @@ system:
   stacks: 1
   stackMax: 0
   priority: 0
+  pending: false
+  arrival: ''
+  shelved: false
+  origin: ''
   customNotes: ''
   easyEffects: |-
     [On Hit]
-    on roll 1d10 <= Poise then
-      proc Critical
-      and lose all Poise on self;
+    require ("Slasher Stance") == 1 then proc RollForSlasherPoise;
+    require ("Slasher Stance") == 0 then proc RollForNoStancePoise;
+
+    [On RollForNoStancePoise]
+    on roll 1d10 <= Poise then proc AskForCritical
+
+    [On AskForCritical]
+    create dialog "Proc Critical?":
+      procCritical as "Do a Critical Hit",
+      gainCritical as "Gain 1 Critical and lose all Poise"
+      to self;
+
+    [On Dialog Answer procCritical]
+    proc Critical and lose all Poise on self;
+
+    [On Dialog Answer gainCritical]
+    gain 1 Critical and lose (Poise - 1) Poise;
 
     [On Gain]
     require (changed.before) == 0 then set Critical to 1;
@@ -43,7 +61,7 @@ _stats:
   systemId: projectmoonttrpg
   systemVersion: 0.0.1
   createdTime: 1779621123777
-  modifiedTime: 1785575290448
+  modifiedTime: 1787150003844
   lastModifiedBy: yWsvx4DXrmYcZsue
 _id: ydPGqz7mrTUDuduT
 sort: 300000

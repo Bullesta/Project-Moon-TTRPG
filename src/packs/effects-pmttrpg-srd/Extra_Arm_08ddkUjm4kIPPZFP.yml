@@ -4,8 +4,8 @@ type: effect
 img: systems/projectmoonttrpg/assets/icons/Statuses/Strength.webp
 system:
   name: ''
-  description: ''
-  slug: extra-arm
+  description: '<p><em>Note: This effect is not yet automated.</em></p>'
+  slug: ''
   cost: 4
   stackMax: 5
   appliesTo: augment
@@ -14,6 +14,8 @@ system:
   procOn: alwaysActive
   procResult: none
   procResultLocked: false
+  procChoice: none
+  procChoiceLocked: false
   procStat: any
   procDice: any
   procAction: any
@@ -41,7 +43,7 @@ _stats:
   systemId: projectmoonttrpg
   systemVersion: 0.0.1
   createdTime: 1785485122325
-  modifiedTime: 1785485122325
+  modifiedTime: 1787166448067
   lastModifiedBy: yWsvx4DXrmYcZsue
 _id: 08ddkUjm4kIPPZFP
 _key: '!items!08ddkUjm4kIPPZFP'

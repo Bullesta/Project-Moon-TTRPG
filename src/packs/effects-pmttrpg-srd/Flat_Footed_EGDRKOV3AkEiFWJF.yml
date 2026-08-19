@@ -4,8 +4,8 @@ type: effect
 img: systems/projectmoonttrpg/assets/icons/Statuses/Bind.webp
 system:
   name: ''
-  description: ''
-  slug: flat-footed
+  description: '<p><em>Note: This effect is not yet automated.</em></p>'
+  slug: ''
   cost: 2
   stackMax: 5
   appliesTo: augment
@@ -14,6 +14,8 @@ system:
   procOn: alwaysActive
   procResult: none
   procResultLocked: false
+  procChoice: none
+  procChoiceLocked: false
   procStat: any
   procDice: any
   procAction: any
@@ -38,7 +40,7 @@ _stats:
   systemId: projectmoonttrpg
   systemVersion: 0.0.1
   createdTime: 1785485134516
-  modifiedTime: 1785485134516
+  modifiedTime: 1787170176182
   lastModifiedBy: yWsvx4DXrmYcZsue
 _id: EGDRKOV3AkEiFWJF
 _key: '!items!EGDRKOV3AkEiFWJF'

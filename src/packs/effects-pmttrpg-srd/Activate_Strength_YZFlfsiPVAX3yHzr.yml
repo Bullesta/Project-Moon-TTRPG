@@ -6,7 +6,7 @@ img: systems/projectmoonttrpg/assets/icons/Statuses/Strength.webp
 system:
   name: ''
   description: ''
-  slug: activate-strength
+  slug: ''
   cost: 6
   stackMax: 1
   appliesTo: augment
@@ -15,6 +15,8 @@ system:
   procOn: alwaysActive
   procResult: none
   procResultLocked: false
+  procChoice: none
+  procChoiceLocked: false
   procStat: any
   procDice: any
   procAction: any
@@ -26,7 +28,12 @@ system:
   macro:
     uuid: ''
   customNotes: ''
-  easyEffects: ''
+  easyEffects: |-
+    [Start of Round]
+    positive:
+    gain 1 "Strength" per (3 - (self.hp% //f 25));
+    negative:
+    gain 1 "Feeble" per (3 - (self.hp% //f 25));
 effects: []
 sort: 0
 ownership:
@@ -41,6 +48,6 @@ _stats:
   systemId: projectmoonttrpg
   systemVersion: 0.0.1
   createdTime: 1785485124303
-  modifiedTime: 1785485124303
+  modifiedTime: 1787165070371
   lastModifiedBy: yWsvx4DXrmYcZsue
 _key: '!items!YZFlfsiPVAX3yHzr'

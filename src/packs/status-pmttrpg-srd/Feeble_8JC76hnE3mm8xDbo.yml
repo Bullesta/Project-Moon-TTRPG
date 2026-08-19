@@ -12,13 +12,17 @@ system:
   stacks: 1
   stackMax: 0
   priority: 0
+  pending: false
+  arrival: ''
+  shelved: false
+  origin: ''
   customNotes: ''
   easyEffects: |-
     [On Clash Start]
-    power down attack Feeble
+    power down attack (Feeble)
 
     [End of Round]
-    remove Feeble Feeble
+    lose all Feeble
 effects: []
 folder: jtSvJ9E0Hm5t7NVJ
 sort: 112500
@@ -31,7 +35,7 @@ _stats:
   systemId: projectmoonttrpg
   systemVersion: 0.0.1
   createdTime: 1785318638916
-  modifiedTime: 1785426706064
+  modifiedTime: 1786446269334
   lastModifiedBy: yWsvx4DXrmYcZsue
   compendiumSource: null
   duplicateSource: null

@@ -5,7 +5,7 @@ img: systems/projectmoonttrpg/assets/icons/Statuses/Overcharge.webp
 system:
   name: ''
   description: ''
-  slug: concentrated-overcharge
+  slug: ''
   cost: 2
   stackMax: 1
   appliesTo: augment
@@ -14,6 +14,8 @@ system:
   procOn: alwaysActive
   procResult: none
   procResultLocked: false
+  procChoice: none
+  procChoiceLocked: false
   procStat: any
   procDice: any
   procAction: any
@@ -27,7 +29,9 @@ system:
   macro:
     uuid: ''
   customNotes: ''
-  easyEffects: ''
+  easyEffects: |-
+    [On SelfStagger]
+    gain 4 "Overcharge";
 effects: []
 sort: 0
 ownership:
@@ -42,7 +46,7 @@ _stats:
   systemId: projectmoonttrpg
   systemVersion: 0.0.1
   createdTime: 1785485122324
-  modifiedTime: 1785485122324
+  modifiedTime: 1787166864043
   lastModifiedBy: yWsvx4DXrmYcZsue
 _id: UJYCqUmu3lvnAlxE
 _key: '!items!UJYCqUmu3lvnAlxE'

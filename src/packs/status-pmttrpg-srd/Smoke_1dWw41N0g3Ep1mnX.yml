@@ -13,6 +13,10 @@ system:
   stacks: 1
   stackMax: 0
   priority: 0
+  pending: false
+  arrival: ''
+  shelved: false
+  origin: ''
   customNotes: ''
   easyEffects: |-
     [On Taking HP Damage]
@@ -20,7 +24,7 @@ system:
 
     [End of Round]
     lose 2 Smoke
-    require Smoke > 10 then lose 2 Smoke
+    require (Smoke) > 10 then lose 2 Smoke
 effects: []
 folder: fMFB6OnVCAkgdA96
 sort: 400000
@@ -33,7 +37,7 @@ _stats:
   systemId: projectmoonttrpg
   systemVersion: 0.0.1
   createdTime: 1785318920602
-  modifiedTime: 1785426658469
+  modifiedTime: 1786446056179
   lastModifiedBy: yWsvx4DXrmYcZsue
   compendiumSource: null
   duplicateSource: null

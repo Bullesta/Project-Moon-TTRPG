@@ -13,13 +13,17 @@ system:
   stacks: 1
   stackMax: 0
   priority: 0
+  pending: false
+  arrival: ''
+  shelved: false
+  origin: ''
   customNotes: ''
   easyEffects: |-
     [On Taking Blunt Damage]
     increase damage by "Blunt Fragile"
 
     [End of Round]
-    remove "Blunt Fragile" "Blunt Fragile"
+    lose all "Blunt Fragile"
 effects: []
 folder: JLnWNuTpQkOQhr5i
 sort: 150000
@@ -32,7 +36,7 @@ _stats:
   systemId: projectmoonttrpg
   systemVersion: 0.0.1
   createdTime: 1785318357679
-  modifiedTime: 1785426555321
+  modifiedTime: 1786513312847
   lastModifiedBy: yWsvx4DXrmYcZsue
   compendiumSource: null
   duplicateSource: null

@@ -4,8 +4,8 @@ type: effect
 img: systems/projectmoonttrpg/assets/icons/Statuses/Haste.webp
 system:
   name: ''
-  description: ''
-  slug: reposition
+  description: '<p><em>Note: This effect is not yet automated.</em></p>'
+  slug: ''
   cost: 1
   stackMax: 5
   appliesTo: augment
@@ -14,6 +14,8 @@ system:
   procOn: alwaysActive
   procResult: none
   procResultLocked: false
+  procChoice: none
+  procChoiceLocked: false
   procStat: any
   procDice: any
   procAction: any
@@ -42,7 +44,7 @@ _stats:
   systemId: projectmoonttrpg
   systemVersion: 0.0.1
   createdTime: 1785485122327
-  modifiedTime: 1785485122327
+  modifiedTime: 1787167280709
   lastModifiedBy: yWsvx4DXrmYcZsue
 _id: p980eyvqnY4FVazl
 _key: '!items!p980eyvqnY4FVazl'

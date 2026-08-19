@@ -1,7 +1,7 @@
 type: Item
 folder: yzmXHYki2NatMnVq
 name: Outfit
-color: null
+color: '#0038a8'
 sorting: a
 _id: gV2OtwsEpoX2RrP0
 description: ''
@@ -11,10 +11,10 @@ _stats:
   compendiumSource: null
   duplicateSource: null
   exportSource: null
-  coreVersion: '13.351'
+  coreVersion: '14.364'
   systemId: projectmoonttrpg
   systemVersion: 0.0.1
   createdTime: 1779651087321
-  modifiedTime: 1780308607421
+  modifiedTime: 1787151822503
   lastModifiedBy: yWsvx4DXrmYcZsue
 _key: '!folders!gV2OtwsEpoX2RrP0'

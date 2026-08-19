@@ -6,17 +6,29 @@ img: >-
 system:
   name: ''
   description: >-
-    <p>At the start of the Round, gain Temp. HP equal to Charge Barrier x 3. For
-    every 3 Temp. HP lost that was sourced from this status, reduce Charge
-    Barrier by 1. </p><p>At the end of the Round, gain Charge equal to Charge
-    Barrier, then lose all Charge Barrier & Temp. HP gained from this status.
-    </p>
+    <p><strong>NOTE : You need to manually track Temp HP gained from Charge
+    Barrier.</strong></p><hr><p>At the start of the Round, gain Temp. HP equal
+    to Charge Barrier x 3. For every 3 Temp. HP lost that was sourced from this
+    status, reduce Charge Barrier by 1.</p><p>At the end of the Round, gain
+    Charge equal to Charge Barrier, then lose all Charge Barrier & Temp. HP
+    gained from this status.</p>
   slug: ''
   stacks: 1
   stackMax: 0
   priority: 0
+  pending: false
+  arrival: ''
+  shelved: false
+  origin: ''
   customNotes: ''
-  easyEffects: ''
+  easyEffects: |-
+    [Turn Start]
+    gain (3 * "Charge Barrier") tempHp;
+    proc ChargeBarrierProc on self;
+
+    [End of Round]
+    gain (1 * "Charge Barrier") "Charge" on self;
+    lose all "Charge Barrier";
 effects: []
 folder: OMSNi4hdekwHrB1H
 sort: 100000
@@ -29,7 +41,7 @@ _stats:
   systemId: projectmoonttrpg
   systemVersion: 0.0.1
   createdTime: 1785319269473
-  modifiedTime: 1785575312994
+  modifiedTime: 1786541793498
   lastModifiedBy: yWsvx4DXrmYcZsue
   compendiumSource: null
   duplicateSource: null

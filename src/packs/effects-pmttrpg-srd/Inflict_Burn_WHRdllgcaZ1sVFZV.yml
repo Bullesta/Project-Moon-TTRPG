@@ -5,7 +5,7 @@ img: systems/projectmoonttrpg/assets/icons/Statuses/Burn.webp
 system:
   name: ''
   description: ''
-  slug: inflict-burn
+  slug: ''
   cost: 2
   stackMax: 5
   appliesTo: augment
@@ -14,6 +14,8 @@ system:
   procOn: onClash
   procResult: none
   procResultLocked: false
+  procChoice: none
+  procChoiceLocked: false
   procStat: any
   procDice: any
   procAction: action
@@ -23,7 +25,9 @@ system:
   macro:
     uuid: ''
   customNotes: ''
-  easyEffects: ''
+  easyEffects: |-
+    [On Clash RESULT with CHOICE]
+    inflict N Burn
 effects: []
 sort: 100000
 ownership:
@@ -38,7 +42,7 @@ _stats:
   systemId: projectmoonttrpg
   systemVersion: 0.0.1
   createdTime: 1785485141805
-  modifiedTime: 1785485141805
+  modifiedTime: 1787152480667
   lastModifiedBy: yWsvx4DXrmYcZsue
 _id: WHRdllgcaZ1sVFZV
 _key: '!items!WHRdllgcaZ1sVFZV'

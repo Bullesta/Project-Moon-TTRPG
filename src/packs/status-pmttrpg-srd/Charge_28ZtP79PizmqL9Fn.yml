@@ -15,10 +15,12 @@ system:
   stacks: 1
   stackMax: 0
   priority: 0
+  pending: false
+  arrival: ''
+  shelved: false
+  origin: ''
   customNotes: ''
-  easyEffects: |-
-    [End of Round]
-    require Charge > 15 then lose 3 Charge per (Charge * 15)
+  easyEffects: ''
 effects: []
 folder: OMSNi4hdekwHrB1H
 sort: 0
@@ -31,7 +33,7 @@ _stats:
   systemId: projectmoonttrpg
   systemVersion: 0.0.1
   createdTime: 1785319248810
-  modifiedTime: 1785433355279
+  modifiedTime: 1786446404146
   lastModifiedBy: yWsvx4DXrmYcZsue
   compendiumSource: null
   duplicateSource: null

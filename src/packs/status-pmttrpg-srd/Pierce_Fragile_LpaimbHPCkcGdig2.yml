@@ -13,13 +13,17 @@ system:
   stacks: 1
   stackMax: 0
   priority: 0
+  pending: false
+  arrival: ''
+  shelved: false
+  origin: ''
   customNotes: ''
   easyEffects: |-
     [On Taking Pierce Damage]
     increase damage by "Pierce Fragile"
 
     [End of Round]
-    remove "Pierce Fragile" "Pierce Fragile"
+    lose all "Pierce Fragile"
 effects: []
 folder: JLnWNuTpQkOQhr5i
 sort: 103125
@@ -32,7 +36,7 @@ _stats:
   systemId: projectmoonttrpg
   systemVersion: 0.0.1
   createdTime: 1785318408735
-  modifiedTime: 1785426574680
+  modifiedTime: 1786513305922
   lastModifiedBy: yWsvx4DXrmYcZsue
   compendiumSource: null
   duplicateSource: null

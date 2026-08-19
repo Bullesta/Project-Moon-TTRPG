@@ -5,7 +5,7 @@ img: systems/projectmoonttrpg/assets/icons/Statuses/Strength.webp
 system:
   name: ''
   description: ''
-  slug: caged-strength
+  slug: ''
   cost: 6
   stackMax: 1
   appliesTo: augment
@@ -14,6 +14,8 @@ system:
   procOn: alwaysActive
   procResult: none
   procResultLocked: false
+  procChoice: none
+  procChoiceLocked: false
   procStat: any
   procDice: any
   procAction: any
@@ -25,7 +27,9 @@ system:
   macro:
     uuid: ''
   customNotes: ''
-  easyEffects: ''
+  easyEffects: |-
+    [Start of Round]
+    require (self.sp) > 0 then gain 1 "Strength" per (3 - (self.sp% //f 25));
 effects: []
 sort: 0
 ownership:
@@ -40,7 +44,7 @@ _stats:
   systemId: projectmoonttrpg
   systemVersion: 0.0.1
   createdTime: 1785485124305
-  modifiedTime: 1785485124305
+  modifiedTime: 1787165200592
   lastModifiedBy: yWsvx4DXrmYcZsue
 _id: MOEP4STZqMKBNFNv
 _key: '!items!MOEP4STZqMKBNFNv'

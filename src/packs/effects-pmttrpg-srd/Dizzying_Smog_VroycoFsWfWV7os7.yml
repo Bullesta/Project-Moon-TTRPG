@@ -5,7 +5,7 @@ img: systems/projectmoonttrpg/assets/icons/Statuses/Smoke.webp
 system:
   name: ''
   description: ''
-  slug: dizzying-smog
+  slug: ''
   cost: 4
   stackMax: 1
   appliesTo: augment
@@ -14,6 +14,8 @@ system:
   procOn: alwaysActive
   procResult: none
   procResultLocked: false
+  procChoice: none
+  procChoiceLocked: false
   procStat: any
   procDice: any
   procAction: action
@@ -26,7 +28,9 @@ system:
   macro:
     uuid: ''
   customNotes: ''
-  easyEffects: ''
+  easyEffects: |-
+    [On Hit]
+    deal (target.status.Smoke //f 2) st damage to target;
 effects: []
 sort: 100000
 ownership:
@@ -41,7 +45,7 @@ _stats:
   systemId: projectmoonttrpg
   systemVersion: 0.0.1
   createdTime: 1785485141802
-  modifiedTime: 1785485141802
+  modifiedTime: 1787152736199
   lastModifiedBy: yWsvx4DXrmYcZsue
 _id: VroycoFsWfWV7os7
 _key: '!items!VroycoFsWfWV7os7'

@@ -5,7 +5,7 @@ img: systems/projectmoonttrpg/assets/icons/Statuses/Bleed.webp
 system:
   name: ''
   description: ''
-  slug: bleed-vigor
+  slug: ''
   cost: 6
   stackMax: 1
   appliesTo: augment
@@ -14,6 +14,8 @@ system:
   procOn: alwaysActive
   procResult: none
   procResultLocked: false
+  procChoice: none
+  procChoiceLocked: false
   procStat: any
   procDice: any
   procAction: action
@@ -25,7 +27,11 @@ system:
   macro:
     uuid: ''
   customNotes: ''
-  easyEffects: ''
+  easyEffects: |-
+    [On Clash Start]
+    require (Bleed) >= 2 then power up CHOICE 1;
+    require (Bleed) >= 4 then power up CHOICE 1;
+    require (Bleed) >= 6 then power up CHOICE 1;
 effects: []
 sort: 0
 ownership:
@@ -40,7 +46,7 @@ _stats:
   systemId: projectmoonttrpg
   systemVersion: 0.0.1
   createdTime: 1785485127254
-  modifiedTime: 1785485127254
+  modifiedTime: 1787152197627
   lastModifiedBy: yWsvx4DXrmYcZsue
 _id: aSQJrC7vRelCZbZ8
 _key: '!items!aSQJrC7vRelCZbZ8'

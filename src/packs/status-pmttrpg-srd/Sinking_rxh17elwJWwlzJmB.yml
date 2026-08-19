@@ -9,14 +9,27 @@ system:
   stacks: 1
   stackMax: 0
   priority: 0
+  pending: false
+  arrival: ''
+  shelved: false
+  origin: ''
   customNotes: ''
   easyEffects: |-
+    [On Being Hit]
+    create dialog "Proc Sinking Burst?":
+      burst as "Burst",
+      skip as "Do not burst"
+      to attacker
+
+    [On Dialog Answer burst]
+    burst Sinking on self
+
     [On Burst]
-    deal Sinking sp damage to self
-    lose Sinking Sinking on self
-                        
+    deal (burst.amount) sp damage to self
+    lose all Sinking on self
+
     [End of Round]
-    lose Sinking Sinking on self
+    lose all Sinking on self
   proc:
     turnStart: false
     endOfRound: false
@@ -39,7 +52,7 @@ _stats:
   systemId: projectmoonttrpg
   systemVersion: 0.0.1
   createdTime: 1779621129486
-  modifiedTime: 1785426655266
+  modifiedTime: 1786446030909
   lastModifiedBy: yWsvx4DXrmYcZsue
 _id: rxh17elwJWwlzJmB
 sort: 196875

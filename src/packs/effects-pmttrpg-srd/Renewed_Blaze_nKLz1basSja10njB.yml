@@ -1,0 +1,52 @@
+folder: qcW5669jVri2uXNk
+name: Renewed Blaze
+type: effect
+img: >-
+  systems/projectmoonttrpg/assets/icons/limbus_assets/Basic%20Effects/Burn/Embers.webp
+system:
+  name: ''
+  description: ''
+  slug: renewed-blaze
+  cost: 6
+  stackMax: 1
+  appliesTo: skill
+  canPositive: true
+  canNegative: false
+  procOn: onClashResult
+  procResult: none
+  procResultLocked: false
+  procChoice: none
+  procChoiceLocked: false
+  procStat: any
+  procDice: any
+  procAction: any
+  procCondition: ''
+  positive: >-
+    <p>Burns on this target do not reduce at the end of this round.</p>
+
+    <p>This also prevents Burn from being reduced by Reduce Status or other
+    effects that immediately activate Burn. When immediately activating Burn, do
+    not halve Burn and remove this effect.</p>
+  negative: ''
+  macro:
+    uuid: ''
+  customNotes: ''
+  easyEffects: ''
+effects: []
+sort: 0
+ownership:
+  default: 0
+  yWsvx4DXrmYcZsue: 3
+flags: {}
+_stats:
+  compendiumSource: null
+  duplicateSource: Item.YSu23ylO7FiQ0JLy
+  exportSource: null
+  coreVersion: '14.364'
+  systemId: projectmoonttrpg
+  systemVersion: 0.0.1
+  createdTime: 1787171976160
+  modifiedTime: 1787171976160
+  lastModifiedBy: yWsvx4DXrmYcZsue
+_id: nKLz1basSja10njB
+_key: '!items!nKLz1basSja10njB'

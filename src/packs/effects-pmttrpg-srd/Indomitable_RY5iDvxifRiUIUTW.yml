@@ -4,8 +4,8 @@ type: effect
 img: systems/projectmoonttrpg/assets/icons/Statuses/Stagger%20Protection.webp
 system:
   name: ''
-  description: ''
-  slug: indomitable
+  description: '<p><em>Note: This effect is not yet automated.</em></p>'
+  slug: ''
   cost: 8
   stackMax: 1
   appliesTo: augment
@@ -14,6 +14,8 @@ system:
   procOn: alwaysActive
   procResult: none
   procResultLocked: false
+  procChoice: none
+  procChoiceLocked: false
   procStat: any
   procDice: any
   procAction: any
@@ -40,7 +42,7 @@ _stats:
   systemId: projectmoonttrpg
   systemVersion: 0.0.1
   createdTime: 1785485136623
-  modifiedTime: 1785485136623
+  modifiedTime: 1787169185369
   lastModifiedBy: yWsvx4DXrmYcZsue
 _id: RY5iDvxifRiUIUTW
 _key: '!items!RY5iDvxifRiUIUTW'

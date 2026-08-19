@@ -11,19 +11,14 @@ system:
   stacks: 1
   stackMax: 0
   priority: 0
+  pending: false
+  arrival: ''
+  shelved: false
+  origin: ''
   customNotes: ''
   easyEffects: |-
-    [On Gain]
-    gain (changed.amount) movement;
-
-    [On Lose]
-    lose (changed.before - changed.after) movement;
-
-    [Turn Start]
-    gain (self.status.Haste) movement;
-
-    [End of Round]
-    lose all Haste;
+    [Always Active]
+    gain (Haste) movement;
 effects: []
 folder: jtSvJ9E0Hm5t7NVJ
 sort: 150000
@@ -36,7 +31,7 @@ _stats:
   systemId: projectmoonttrpg
   systemVersion: 0.0.1
   createdTime: 1785318840364
-  modifiedTime: 1785575323026
+  modifiedTime: 1787144098939
   lastModifiedBy: yWsvx4DXrmYcZsue
   compendiumSource: null
   duplicateSource: null

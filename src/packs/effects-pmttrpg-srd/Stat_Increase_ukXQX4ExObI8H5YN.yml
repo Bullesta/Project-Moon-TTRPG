@@ -4,8 +4,8 @@ type: effect
 img: systems/projectmoonttrpg/assets/icons/Statuses/Fortune.webp
 system:
   name: ''
-  description: ''
-  slug: stat-increase
+  description: '<p><em>Note: Apply this manually to your character.</em></p>'
+  slug: ''
   cost: 6
   stackMax: 1
   appliesTo: augment
@@ -14,6 +14,8 @@ system:
   procOn: alwaysActive
   procResult: none
   procResultLocked: false
+  procChoice: none
+  procChoiceLocked: false
   procStat: any
   procDice: any
   procAction: any
@@ -38,7 +40,7 @@ _stats:
   systemId: projectmoonttrpg
   systemVersion: 0.0.1
   createdTime: 1785485122328
-  modifiedTime: 1785485122328
+  modifiedTime: 1787166402705
   lastModifiedBy: yWsvx4DXrmYcZsue
 _id: ukXQX4ExObI8H5YN
 _key: '!items!ukXQX4ExObI8H5YN'

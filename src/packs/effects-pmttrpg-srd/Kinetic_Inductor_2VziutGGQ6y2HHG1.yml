@@ -5,6 +5,7 @@ img: systems/projectmoonttrpg/assets/icons/Statuses/Charge.webp
 system:
   name: ''
   description: ''
+  slug: ''
   cost: 1
   stackMax: 6
   appliesTo: outfit
@@ -25,6 +26,13 @@ system:
   macro:
     uuid: ''
   customNotes: ''
+  easyEffects: |-
+    [On Being Hit]
+    positive:
+    gain N Charge;
+    negative:
+    deal (N*2 - N*Charge) hp damage after resistances;
+    lose N Charge;
   allowMultiple: true
 effects: []
 sort: 0
@@ -36,11 +44,11 @@ _stats:
   compendiumSource: null
   duplicateSource: Item.D8z3BVjE79O0ElAs
   exportSource: null
-  coreVersion: '13.351'
+  coreVersion: '14.364'
   systemId: projectmoonttrpg
   systemVersion: 0.0.1
   createdTime: 1780308622217
-  modifiedTime: 1780308622217
+  modifiedTime: 1786542333086
   lastModifiedBy: yWsvx4DXrmYcZsue
 _id: 2VziutGGQ6y2HHG1
 _key: '!items!2VziutGGQ6y2HHG1'

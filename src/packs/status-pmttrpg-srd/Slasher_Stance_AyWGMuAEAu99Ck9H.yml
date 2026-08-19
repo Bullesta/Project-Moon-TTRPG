@@ -11,10 +11,18 @@ system:
     status). </p><p><strong>Your Critical dice becomes a D6.</strong></p>
   slug: ''
   stacks: 1
-  stackMax: 0
+  stackMax: 1
   priority: 0
+  pending: false
+  arrival: ''
+  shelved: false
+  origin: ''
   customNotes: ''
-  easyEffects: ''
+  easyEffects: |-
+    # Implemented in Poise & Critical
+    [On RollForSlasherPoise]
+    on roll 1d6 <= Poise then
+      proc Critical and lose all Poise on self;
 effects: []
 sort: 0
 ownership:
@@ -26,7 +34,7 @@ _stats:
   systemId: projectmoonttrpg
   systemVersion: 0.0.1
   createdTime: 1785433578152
-  modifiedTime: 1785433876820
+  modifiedTime: 1787144486585
   lastModifiedBy: yWsvx4DXrmYcZsue
   compendiumSource: null
   duplicateSource: null

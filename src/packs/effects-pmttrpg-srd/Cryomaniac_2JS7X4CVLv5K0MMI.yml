@@ -5,7 +5,7 @@ img: systems/projectmoonttrpg/assets/icons/Statuses/Frostbite.webp
 system:
   name: ''
   description: ''
-  slug: cryomaniac
+  slug: ''
   cost: 1
   stackMax: 5
   appliesTo: augment
@@ -14,6 +14,8 @@ system:
   procOn: onClash
   procResult: none
   procResultLocked: false
+  procChoice: none
+  procChoiceLocked: false
   procStat: any
   procDice: offensive
   procAction: action
@@ -25,7 +27,18 @@ system:
   macro:
     uuid: ''
   customNotes: ''
-  easyEffects: ''
+  easyEffects: |-
+    [On Clash Win With Attack]
+    create dialog "Cryomaniac: Transfer Frostbite?":
+      transferStT as "Transfer from Self to Target",
+      transferTtS as "Transfer from Target to Self"
+      to self;
+
+    [On Dialog Result transferStT]
+    lose N Frostbite on self and inflict N Frostbite;
+
+    [On Dialog Result transferTtS]
+    lose N Frostbite on target and gain N Frostbite;
 effects: []
 sort: 100000
 ownership:
@@ -40,7 +53,7 @@ _stats:
   systemId: projectmoonttrpg
   systemVersion: 0.0.1
   createdTime: 1785485141802
-  modifiedTime: 1785485141802
+  modifiedTime: 1787153068534
   lastModifiedBy: yWsvx4DXrmYcZsue
 _id: 2JS7X4CVLv5K0MMI
 _key: '!items!2JS7X4CVLv5K0MMI'

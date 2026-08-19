@@ -4,8 +4,11 @@ type: effect
 img: systems/projectmoonttrpg/assets/icons/Statuses/Panic.webp
 system:
   name: ''
-  description: ''
-  slug: altered-psyche-freeze
+  description: >-
+    <p>Note: To use this effect, you need to modify the Actor EE Script. Click
+    on the kebab menu on the actor's character sheet, then Actor EE Script. From
+    there, remove any unwanted Panic Types.</p>
+  slug: ''
   cost: 2
   stackMax: 1
   appliesTo: augment
@@ -14,6 +17,8 @@ system:
   procOn: alwaysActive
   procResult: none
   procResultLocked: false
+  procChoice: none
+  procChoiceLocked: false
   procStat: any
   procDice: any
   procAction: any
@@ -40,7 +45,7 @@ _stats:
   systemId: projectmoonttrpg
   systemVersion: 0.0.1
   createdTime: 1785485122323
-  modifiedTime: 1785485122323
+  modifiedTime: 1787167389429
   lastModifiedBy: yWsvx4DXrmYcZsue
 _id: bzwAguP7vnh1hWmI
 _key: '!items!bzwAguP7vnh1hWmI'
