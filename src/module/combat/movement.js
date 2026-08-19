@@ -104,6 +104,9 @@ function refreshActorFromToken(tokenDoc) {
   if (!actor) return;
   actor.prepareData();
   if (actor.sheet?.rendered) actor.sheet.render(false);
+  if (game.combat && ui.combat?.rendered && combatantForToken(tokenDoc)) {
+    ui.combat.render();
+  }
 }
 
 function isUndoMovement(movement, operation) {

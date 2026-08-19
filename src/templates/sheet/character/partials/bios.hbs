@@ -1,4 +1,16 @@
 <section class="sheet-biography">
+  <div class="bio-fields__grid bio-fields__grid--badge-row">
+    <div class="bio-field bio-field--badge">
+      <span class="bio-field__label">{{localize "PMTTRPG.Bios-Badge"}}</span>
+      <div class="badge-wrap">
+        <img class="badge" src="{{system.details.badge}}" data-action="editBadgeImage" data-edit="system.details.badge" title="{{system.details.badge}}"/>
+      </div>
+    </div>
+    <label class="bio-field bio-field--color">
+      <span class="bio-field__label">{{localize "PMTTRPG.Bios-Color"}}</span>
+      <input type="text" name="system.details.color" value="{{system.details.color}}" data-dtype="String" {{#if locked}}readonly{{/if}}>
+    </label>
+  </div>
   <div class="bio-fields__grid bio-fields__grid--short">
     <label class="bio-field">
       <span class="bio-field__label">{{localize "PMTTRPG.Bios-Occupation"}}</span>

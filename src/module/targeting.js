@@ -304,9 +304,13 @@ export async function rollInitiative(actor, { macroMisc = null, manualMisc = nul
 
   const combat = game.combat;
   if (combat) {
-    const combatant = combat.combatants.find(entry => entry.actor?.id === actor.id) ?? null;
+    const tokenId = actor.token?.id ?? null;
+    const combatant = tokenId
+      ? combat.combatants.find(entry => entry.tokenId === tokenId)
+      : combat.combatants.find(entry => entry.actorId === actor.id) ?? null;
+
     if (combatant) {
-      await combat.updateEmbeddedDocuments('Combatant', [{ _id: combatant.id, initiative: roll.total }]);
+      await combatant.update({ initiative: roll.total });
     }
   }
 

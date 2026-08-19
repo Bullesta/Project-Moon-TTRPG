@@ -1,0 +1,19 @@
+<!-- main-stat-tracker.hbs -->
+<!-- stat: { icon, name, amount, percent (0–1) } -->
+<div class="main-stat-card">
+    <!-- Dual-layer icon: colour on top, greyscale fills from bottom based on percent -->
+    <div class="stat-icon-wrap" style="--percent: {{stat.percent}};">
+        <img src="{{stat.icon}}" class="stat-icon stat-icon--grey"   alt="">
+        <img src="{{stat.icon}}" class="stat-icon stat-icon--colour" alt="{{stat.name}}">
+    </div>
+    <input
+        class="stat-amount {{#if stat.editable}}editable{{/if}} {{inputFontSize stat.amount}} num cur"
+        type="text"
+        value="{{stat.amount}}"
+        {{#if stat.editable}}
+            data-stat-path="{{stat.path}}"
+            data-actor-id="{{actorData._id}}"
+            data-dtype="Number"
+        {{/if}}
+    ></input>
+</div>

@@ -377,10 +377,6 @@ Hooks.on('createActor', async (actor, options, id) => {
 
     // Link the token.
     updates['token.actorLink'] = true;
-    updates['token.bar1'] = { attribute: 'attributes.hp' };
-    updates['token.bar2'] = { attribute: 'attributes.xp' };
-    updates['token.displayBars'] = 20;
-    updates['token.disposition'] = 1;
 
     // Add to the actor.
     const movesToAdd = moves.map(m => foundry.utils.duplicate(m));
@@ -400,13 +396,6 @@ Hooks.on('createActor', async (actor, options, id) => {
       await actor.createEmbeddedDocuments('Item', movesToAdd, {});
       console.log(movesToAdd);
     }
-  }
-
-  if (actor.type == 'npc') {
-    updates['token.bar1'] = { attribute: 'attributes.hp' };
-    updates['token.bar2'] = { attribute: null };
-    updates['token.displayBars'] = 20;
-    updates['token.disposition'] = -1;
   }
 
   if (updates && Object.keys(updates).length > 0) {

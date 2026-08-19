@@ -44,5 +44,13 @@ export class PMTTRPGRegisterHelpers {
       args.pop(); // options
       return args.every(Boolean);
     });
+
+    Handlebars.registerHelper('inputFontSize', function (value) {
+      const length = String(value ?? '').length;
+
+      if (length <= 2) return 'input--large';
+      if (length === 3) return 'input--medium';
+      return 'input--small';
+    });
   }
 }

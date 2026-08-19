@@ -71,6 +71,7 @@ export class PMTTRPGCharacterSheet extends HandlebarsApplicationMixin(ActorSheet
     actions: {
       tab: PMTTRPGCharacterSheet.prototype._onTabClick,
       editImage: PMTTRPGCharacterSheet.prototype._onEditImage,
+      editBadgeImage: PMTTRPGCharacterSheet.prototype._onEditBadgeImage,
       rollable: PMTTRPGCharacterSheet.prototype._onRollable,
       initiativeRoll: PMTTRPGCharacterSheet.prototype._onInitiativeRoll,
       usedActionEconomy: PMTTRPGCharacterSheet.prototype._onUsedActionEconomy,
@@ -919,6 +920,19 @@ export class PMTTRPGCharacterSheet extends HandlebarsApplicationMixin(ActorSheet
   async _onEditImage(event, target) {
     event.preventDefault();
     const attr = target.dataset.edit || "img";
+    const current = foundry.utils.getProperty(this.document, attr);
+    const fp = new foundry.applications.apps.FilePicker.implementation({
+      type: "image",
+      current,
+      callback: (path) => this.document.update({ [attr]: path }),
+      position: { top: (this.position.top ?? 0) + 40, left: (this.position.left ?? 0) + 10 },
+    });
+    return fp.browse();
+  }
+
+  async _onEditBadgeImage(event, target) {
+    event.preventDefault();
+    const attr = target.dataset.edit || "system.details.badge";
     const current = foundry.utils.getProperty(this.document, attr);
     const fp = new foundry.applications.apps.FilePicker.implementation({
       type: "image",

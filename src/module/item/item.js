@@ -468,7 +468,7 @@ export class ItemPMTTRPG extends Item {
       }
 
       const formula = mode == 'evade' ? this.system.evadeDiceComputed : this.system.blockDiceComputed;
-      const flavor = mode == 'evade' ? 'PMTTRPG.Evade' : 'PMTTRPG.Def';
+      const flavor = mode == 'evade' ? 'PMTTRPG.SkillTypeEvade' : 'PMTTRPG.SkillTypeBlock';
       const title = tool ? `${this.name} · ${tool.name}` : this.name;
       const actionType = mode === 'evade' ? 'evade' : 'block';
 

@@ -63,6 +63,7 @@ export class PMTTRPGActorNpcSheet extends PMTTRPGCharacterSheet {
     const defs = [
       { id: "combat", labelKey: "PMTTRPG.TabCombat" },
       { id: "brief", labelKey: "PMTTRPG.TabBrief" },
+      { id: "bio", labelKey: "PMTTRPG.TabBio" },
     ];
     const tabs = {};
     for (const def of defs) {

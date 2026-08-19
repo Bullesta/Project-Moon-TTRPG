@@ -1,0 +1,19 @@
+<div class="detail-stat-card">
+    <img class="detail-stat-icon" src="{{stat.icon}}" alt="{{stat.name}}">
+
+    <input
+        class="detail-stat-value {{#if stat.editable}}editable{{/if}} {{inputFontSize stat.amount}} num cur"
+        type="text"
+        value="{{stat.amount}}"
+        {{#if stat.editable}}
+            data-stat-path="{{stat.path}}"
+            data-actor-id="{{actorData._id}}"
+            data-dtype="Number"
+        {{/if}}
+    ></input>
+    <span class="detail-stat-value">
+    {{#if stat.max}}
+        <span class="detail-stat-sep"> / </span><span class="detail-stat-max">{{stat.max}}</span>
+    {{/if}}
+    </span>
+</div>
