@@ -38,6 +38,37 @@ function readFloorOperator(source, index) {
   return { value: "//", length: 2 };
 }
 
+function readKeepDropSuffixes(source, index) {
+  let i = index;
+  while (i < source.length) {
+    const a = source[i]?.toLowerCase();
+    const b = source[i + 1]?.toLowerCase();
+    if ((a !== "k" && a !== "d") || (b !== "h" && b !== "l")) break;
+    i += 2;
+    while (i < source.length && /[0-9]/.test(source[i])) i++;
+  }
+  return i === index ? null : { length: i - index };
+}
+
+function readNumberOrDice(source, index, diceError) {
+  let i = index;
+  let num = "";
+  while (i < source.length && /[0-9]/.test(source[i])) num += source[i++];
+  if (source[i] === "d" || source[i] === "D") {
+    let diceStr = `${num}d`;
+    i++;
+    if (!/[0-9]/.test(source[i])) throw new LexError(diceError, i);
+    while (i < source.length && /[0-9]/.test(source[i])) diceStr += source[i++];
+    const keep = readKeepDropSuffixes(source, i);
+    if (keep) {
+      diceStr += source.slice(i, i + keep.length);
+      i += keep.length;
+    }
+    return { type: "DICE", value: diceStr, length: i - index };
+  }
+  return { type: "NUMBER", value: num, length: i - index };
+}
+
 /**
  * @param {string} source
  * @returns {{ type: string, value: string }[]}
@@ -147,16 +178,9 @@ export function tokenize(source) {
 
     // NUMBER or DICE
     if (/[0-9]/.test(source[i])) {
-      let num = "";
-      while (i < source.length && /[0-9]/.test(source[i])) num += source[i++];
-      if (source[i] === "d" || source[i] === "D") {
-        let diceStr = num + "d"; i++;
-        if (!/[0-9]/.test(source[i])) throw new LexError("Expected number after 'd' in dice expression", i);
-        while (i < source.length && /[0-9]/.test(source[i])) diceStr += source[i++];
-        tokens.push({ type: "DICE", value: diceStr });
-      } else {
-        tokens.push({ type: "NUMBER", value: num });
-      }
+      const tok = readNumberOrDice(source, i, "Expected number after 'd' in dice expression");
+      tokens.push({ type: tok.type, value: tok.value });
+      i += tok.length;
       continue;
     }
 
@@ -208,16 +232,9 @@ export function tokenizeExpression(source) {
     }
 
     if (/[0-9]/.test(source[i])) {
-      let num = "";
-      while (i < source.length && /[0-9]/.test(source[i])) num += source[i++];
-      if (source[i] === "d" || source[i] === "D") {
-        let diceStr = num + "d"; i++;
-        if (!/[0-9]/.test(source[i])) throw new LexError("Expected number after 'd'", i);
-        while (i < source.length && /[0-9]/.test(source[i])) diceStr += source[i++];
-        tokens.push({ type: "DICE", value: diceStr });
-      } else {
-        tokens.push({ type: "NUMBER", value: num });
-      }
+      const tok = readNumberOrDice(source, i, "Expected number after 'd'");
+      tokens.push({ type: tok.type, value: tok.value });
+      i += tok.length;
       continue;
     }
 

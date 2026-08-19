@@ -21,6 +21,11 @@ set maxHp|maxSt|maxSp|maxLight to <N>;
 spend <N> <Status> [on <target>] to <actions>;
 require <N> <target> <Status> then <actions>;
 require (<expr>) <op> <value> then <actions>;
+require <cond> and <cond> then <actions>;
+require <cond> then require <cond> then <actions>;
+require <cond> then roll <dice> [as <name>];
+require <cond> then spend <N> <Status> [on <target>] to <actions>;
+on roll <dice> <op> <value> then <actions>;
 
 # Standard syntax (full control)
 if (<expr>) <op> <value> do <verb> <noun> <arg> <amount> [per (<expr>)] [on <target>];
@@ -37,7 +42,7 @@ if (<expr>) <op> <value> do <verb> <noun> <arg> <amount> [per (<expr>)] [on <tar
 
 ```
 [Clash Win]      [Clash Lose]      [On Hit]
-[On Stagger]     [Turn Start]      [End of Round]
+[On Stagger]     [Turn Start]      [Start of Round]      [End of Round]
 [On Applied]      [On Removed]
 [On Taking Damage]
 [On Taking Burn Damage]   [On Taking HP Damage]   [On Taking Slash Damage]
@@ -114,6 +119,7 @@ Synced effects live between `# >>> synced effects` and `# <<< synced effects`. K
 ```
 3              # flat number
 1d6            # dice roll
+2d10kh         # keep highest (also kl, kh3, dh, dl)
 (self.rank)    # actor value
 (1d6 + self.rank)   # dice + math
 (self.rank * 2 + 1) # full expression
@@ -140,6 +146,7 @@ self.stat.for  .pru  .jus  .cha  .ins  .tem
 self.status.Burn
 self.status."Stagger Fragile"
 clash.margin   clash.attackerRoll   clash.defenderRoll
+round          round.number         combat.round
 incoming.amount   incoming.pool   incoming.source   incoming.damageType
 damage.amount     damage.pool     damage.source     damage.damageType
 ```
@@ -160,6 +167,8 @@ hasStatus Burn self/target == 1
 hasStatus "Stagger Fragile" target == 0
 require damage from Burn then …   # [On Taking Damage] only
 # or use [On Taking Burn Damage] instead of require damage from
+require A and B then …            # both conditions
+on roll 2d10kh <= Poise - 4 then …
 ```
 
 ---
@@ -212,6 +221,12 @@ halve Burn
 # Conditional on clash margin
 [Clash Win]
 if (clash.margin) >= 5 do add status Poise 2 on self;
+
+# First round of combat 
+[Start of Round]
+require (round) == 1 then ...
+[On Hit]
+require (round) == 1 then ...;
 
 # Rank-scaling effect
 [On Hit]

@@ -111,24 +111,28 @@ export class CombatSidebarPMTTRPG {
       const prevRound = Number(snapshot.round ?? 0);
       const nextRound = Number(combat.round ?? 0);
       const roundEnded = nextRound > prevRound && prevRound >= 1;
+      const roundStarted = nextRound > prevRound;
+      const current = { turn: combat.turn, round: combat.round };
 
-      if (roundEnded) {
+      const eachCombatActor = async (fn) => {
         const seenActors = new Set();
-        const current = { turn: combat.turn, round: combat.round };
         for (const combatant of combat.combatants) {
           const actor = combatant?.actor;
           if (!actor || seenActors.has(actor.id)) continue;
           seenActors.add(actor.id);
-
-          const payload = {
+          await fn({
             actor,
             actorId: actor.id,
             combat,
             combatant,
             previous: snapshot,
             current,
-          };
+          });
+        }
+      };
 
+      if (roundEnded) {
+        await eachCombatActor(async (payload) => {
           await statusMacros.emitEndOfRound(payload);
           try {
             Hooks.callAll("pmttrpg.endOfRound", payload);
@@ -136,16 +140,31 @@ export class CombatSidebarPMTTRPG {
             console.warn("[EasyEffects] endOfRound hook failed", error);
           }
 
-          // Promote round arrivals after end-of-round scripts clear live statuses.
           if (game.user.id === userId) {
             try {
               const { runAsOwnerOrGM } = await import("../easy-effects/gm-route.js");
-              await runAsOwnerOrGM(actor, "promotePendingStatuses", { arrival: "round" });
+              await runAsOwnerOrGM(payload.actor, "promotePendingStatuses", { arrival: "round" });
             } catch (error) {
               console.warn("[PMTTRPG] promote pending (round) failed", error);
             }
           }
-        }
+        });
+      }
+
+      if (roundStarted) {
+        await eachCombatActor(async (payload) => {
+          await statusMacros.emitStartOfRound(payload);
+          try {
+            Hooks.callAll("pmttrpg.startOfRound", payload);
+          } catch (error) {
+            console.warn("[EasyEffects] startOfRound hook failed", error);
+          }
+          try {
+            payload.actor.prepareData();
+          } catch (error) {
+            console.warn("[PMTTRPG] prepareData after startOfRound failed", error);
+          }
+        });
       }
 
       if (currentCombatant?.actor) {

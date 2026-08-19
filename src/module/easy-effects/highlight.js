@@ -24,11 +24,12 @@ const KEYWORDS = new Set([
   "fatal", "weak", "normal", "endured", "ineffective", "immune",
   "slash", "pierce", "blunt",
   "incoming", "damage", "changed", "depleted", "moved", "clash", "item", "burst",
+  "combat", "round",
   "status", "uuid", "name", "id", "origin",
 ]);
 
 const WORD_RE = /^[A-Za-z_][A-Za-z0-9_]*/;
-const NUMBER_RE = /^\d+(?:\.\d+)?(?:d\d+)?/i;
+const NUMBER_RE = /^\d+(?:\.\d+)?(?:d\d+(?:[kd][hl]\d*)*)?/i;
 
 function escapeHtml(text) {
   return String(text)
