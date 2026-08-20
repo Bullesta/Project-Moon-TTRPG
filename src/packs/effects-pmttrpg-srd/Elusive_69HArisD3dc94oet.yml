@@ -1,0 +1,71 @@
+folder: uFoSX9OejNWgkKaM
+name: Elusive
+type: effect
+img: >-
+  systems/projectmoonttrpg/assets/icons/limbus_assets/Basic%20Effects/Battlefield%20Retreat.webp
+system:
+  name: ''
+  description: ''
+  slug: ''
+  cost: 2
+  stackMax: 5
+  appliesTo: skill
+  canPositive: true
+  canNegative: false
+  procOn: alwaysActive
+  procResult: none
+  procResultLocked: false
+  procChoice: none
+  procChoiceLocked: false
+  procStat: any
+  procDice: any
+  procAction: any
+  procCondition: ''
+  positive: >-
+    <p>Evade can roll Poise to check for Critical Hit. The character doesn't
+    deal Critical Damage with this skill.</p>
+
+    <p>[On Crit] Give the character [N] SQRs of Movement without provoking
+    Opportunity Attacks. Gain extra SQRs of movement by the result of the
+    Critical Hit / 2.</p>
+  negative: ''
+  macro:
+    uuid: ''
+  customNotes: ''
+  easyEffects: >-
+    [On Clash Win With Evade]
+
+    roll 1d10 as poiseRoll
+
+    require (poiseRoll) <= (Poise - "Scattering Dance" - (4 * "Slasher Stance"))
+    then proc Critical with (1) as IgnoreDamage
+
+    require (poiseRoll) > (Poise - "Scattering Dance" - (4 * "Slasher Stance"))
+    then proc ElusiveCritFail
+
+
+    [On Critical]
+
+    gain N movement;
+
+    gain (1d10 //f 2) movement per Critical;
+effects: []
+sort: 100000
+ownership:
+  default: 0
+  yWsvx4DXrmYcZsue: 3
+flags:
+  projectmoonttrpg:
+    syncDismissedAt: 1780427877255
+_stats:
+  compendiumSource: Item.EUMoSNacE4zxC5uh
+  duplicateSource: Item.a9tsg0PzRSeRuEzO
+  exportSource: null
+  coreVersion: '14.364'
+  systemId: projectmoonttrpg
+  systemVersion: 0.0.1
+  createdTime: 1787226336936
+  modifiedTime: 1787228802052
+  lastModifiedBy: yWsvx4DXrmYcZsue
+_id: 69HArisD3dc94oet
+_key: '!items!69HArisD3dc94oet'

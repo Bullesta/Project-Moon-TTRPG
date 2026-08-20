@@ -1,0 +1,38 @@
+folder: 8tfinV0q66z2Egqy
+name: Ruin Pause
+type: status
+_id: 0eVypRZF0HuuGJs0
+img: >-
+  systems/projectmoonttrpg/assets/icons/limbus_assets/Misc%20Enemy%20Exclusive/Canto%209/Dawn_s%20First%20Crow%20(%E9%9B%9E%E9%B3%B4).webp
+system:
+  name: ''
+  description: <p>Nobody can roll Ruin against you for this round.</p>
+  slug: ''
+  stacks: 1
+  stackMax: 0
+  priority: 0
+  pending: false
+  arrival: ''
+  shelved: false
+  origin: ''
+  customNotes: ''
+  easyEffects: |-
+    [End of Round]
+    lose all "Ruin Pause";
+effects: []
+sort: 0
+ownership:
+  default: 0
+  yWsvx4DXrmYcZsue: 3
+flags: {}
+_stats:
+  coreVersion: '14.364'
+  systemId: projectmoonttrpg
+  systemVersion: 0.0.1
+  createdTime: 1787229480111
+  modifiedTime: 1787229574959
+  lastModifiedBy: yWsvx4DXrmYcZsue
+  compendiumSource: null
+  duplicateSource: null
+  exportSource: null
+_key: '!items!0eVypRZF0HuuGJs0'

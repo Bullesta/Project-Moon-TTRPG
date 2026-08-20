@@ -1,0 +1,66 @@
+folder: uFoSX9OejNWgkKaM
+name: Scattering Dance
+type: effect
+img: >-
+  systems/projectmoonttrpg/assets/icons/limbus_assets/Basic%20Effects/Bleed/Fatal%20Wound.webp
+system:
+  name: ''
+  description: >-
+    <p><em>Note: Scattering Dance stacks are removed <strong>at the end of the
+    round</strong>, instead of at the end of the skill.</em></p>
+  slug: ''
+  cost: 2
+  stackMax: 5
+  appliesTo: skill
+  canPositive: true
+  canNegative: false
+  procOn: alwaysActive
+  procResult: none
+  procResultLocked: false
+  procChoice: none
+  procChoiceLocked: false
+  procStat: any
+  procDice: any
+  procAction: any
+  procCondition: ''
+  positive: >-
+    <p>If the target has [N] or more Bleed, when rolling to Critically Hit treat
+    your roll as [N] lower when checking against your Poise.</p>
+
+    <p>[On Crit] Inflict 1 Hemorrhage per Critical Spent (Max 3).</p>
+  negative: ''
+  macro:
+    uuid: ''
+  customNotes: ''
+  easyEffects: |-
+    [On Clash Start]
+    gain N "Scattering Dance";
+
+    [End of Round]
+    lose N "Scattering Dance";
+
+    [On Critical]
+    require (Critical) >= 3 then
+      inflict 3 "Bleed - Hemorrhage";
+    require (Critical) < 3 then
+      inflict (Critical) "Bleed - Hemorrhage";
+effects: []
+sort: 100000
+ownership:
+  default: 0
+  yWsvx4DXrmYcZsue: 3
+flags:
+  projectmoonttrpg:
+    syncDismissedAt: 1780427877255
+_stats:
+  compendiumSource: Item.EUMoSNacE4zxC5uh
+  duplicateSource: Item.KsK8SAIp3TpRlsAg
+  exportSource: null
+  coreVersion: '14.364'
+  systemId: projectmoonttrpg
+  systemVersion: 0.0.1
+  createdTime: 1787226336938
+  modifiedTime: 1787228199392
+  lastModifiedBy: yWsvx4DXrmYcZsue
+_id: a9tsg0PzRSeRuEzO
+_key: '!items!a9tsg0PzRSeRuEzO'

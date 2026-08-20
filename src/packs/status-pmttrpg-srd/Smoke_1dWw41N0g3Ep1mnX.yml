@@ -12,7 +12,7 @@ system:
   slug: ''
   stacks: 1
   stackMax: 0
-  priority: 0
+  priority: 5
   pending: false
   arrival: ''
   shelved: false
@@ -37,7 +37,7 @@ _stats:
   systemId: projectmoonttrpg
   systemVersion: 0.0.1
   createdTime: 1785318920602
-  modifiedTime: 1786446056179
+  modifiedTime: 1787225193679
   lastModifiedBy: yWsvx4DXrmYcZsue
   compendiumSource: null
   duplicateSource: null

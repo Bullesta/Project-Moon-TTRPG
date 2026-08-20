@@ -6,7 +6,7 @@ img: >-
 system:
   name: ''
   description: ''
-  slug: smokey-detonate
+  slug: ''
   cost: 6
   stackMax: 1
   appliesTo: skill
@@ -23,16 +23,17 @@ system:
   procCondition: ''
   positive: >-
     <p>"Inflict Burn" effects on the same Attack occur before this effect
-    triggers.</p>
-
-    <p>Any Burn on the target is activated immediately, then reduces by half as
-    if Round End occured. The target then gains Smoke equal to the amount of
-    Burn remaining.</p>
+    triggers.</p><p>Any Burn on the target is activated immediately, then
+    reduces by half as if Round End occured. Then, Inflict Smoke equal to the
+    amount of Burn remaining.</p>
   negative: ''
   macro:
     uuid: ''
   customNotes: ''
-  easyEffects: ''
+  easyEffects: |-
+    [On Clash Win With Attack]
+    proc Burn on target;
+    inflict (target.status.Burn) Smoke;
 effects: []
 sort: 0
 ownership:
@@ -47,7 +48,7 @@ _stats:
   systemId: projectmoonttrpg
   systemVersion: 0.0.1
   createdTime: 1787171976160
-  modifiedTime: 1787171976160
+  modifiedTime: 1787224765686
   lastModifiedBy: yWsvx4DXrmYcZsue
 _id: YSu23ylO7FiQ0JLy
 _key: '!items!YSu23ylO7FiQ0JLy'

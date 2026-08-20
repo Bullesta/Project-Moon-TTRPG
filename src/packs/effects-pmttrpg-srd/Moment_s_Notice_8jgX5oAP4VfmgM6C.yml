@@ -1,0 +1,51 @@
+folder: QRjV4nJJMmRoY7md
+name: Moment's Notice
+type: effect
+img: >-
+  systems/projectmoonttrpg/assets/icons/limbus_assets/Misc%20Enemy%20Exclusive/To%20Claim%20Their%20Bones/Grudge.webp
+system:
+  name: ''
+  description: '<p><em>Note: This effect is not yet automated.</em></p>'
+  slug: moments-notice
+  cost: 8
+  stackMax: 1
+  appliesTo: skill
+  canPositive: true
+  canNegative: false
+  procOn: onClash
+  procResult: none
+  procResultLocked: false
+  procChoice: none
+  procChoiceLocked: false
+  procStat: any
+  procDice: any
+  procAction: any
+  procCondition: ''
+  positive: >-
+    <p>(Reaction Only) You must have at least 4 Haste to activate this
+    effect.</p><p>You may declare a skill with this effect in response to an
+    enemy that has already rolled for the clash. Your reaction becomes the type
+    this skill is assigned to.</p>
+  negative: ''
+  macro:
+    uuid: ''
+  customNotes: ''
+  easyEffects: ''
+effects: []
+sort: 0
+ownership:
+  default: 0
+  yWsvx4DXrmYcZsue: 3
+flags: {}
+_stats:
+  coreVersion: '14.364'
+  systemId: projectmoonttrpg
+  systemVersion: 0.0.1
+  createdTime: 1787243655062
+  modifiedTime: 1787243655062
+  lastModifiedBy: yWsvx4DXrmYcZsue
+  compendiumSource: null
+  duplicateSource: Item.D1plB5R2Ri1be8te
+  exportSource: null
+_id: 8jgX5oAP4VfmgM6C
+_key: '!items!8jgX5oAP4VfmgM6C'

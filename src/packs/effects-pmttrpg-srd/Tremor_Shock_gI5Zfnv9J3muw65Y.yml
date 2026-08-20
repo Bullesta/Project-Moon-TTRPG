@@ -1,0 +1,49 @@
+folder: AjubTmmqnDZcHg2N
+name: Tremor Shock
+type: effect
+_id: gI5Zfnv9J3muw65Y
+img: >-
+  systems/projectmoonttrpg/assets/icons/limbus_assets/Basic%20Effects/Tremor/Tremor%20-%20Chain.webp
+system:
+  name: ''
+  description: '<p><em>Note: This effect is not yet implemented.</em></p>'
+  slug: tremor-shock
+  cost: 4
+  stackMax: 1
+  appliesTo: skill
+  canPositive: true
+  canNegative: false
+  procOn: onBurst
+  procResult: none
+  procResultLocked: false
+  procChoice: none
+  procChoiceLocked: false
+  procStat: any
+  procDice: any
+  procAction: any
+  procCondition: ''
+  positive: <p>On Tremor Burst, inflict 3 Bind to the target next round.</p>
+  negative: ''
+  macro:
+    uuid: ''
+  customNotes: ''
+  easyEffects: |-
+    [On Rupture Burst]
+    inflict 3 Bind next round;
+effects: []
+sort: 0
+ownership:
+  default: 0
+  yWsvx4DXrmYcZsue: 3
+flags: {}
+_stats:
+  coreVersion: '14.364'
+  systemId: projectmoonttrpg
+  systemVersion: 0.0.1
+  createdTime: 1787232171756
+  modifiedTime: 1787232171756
+  lastModifiedBy: yWsvx4DXrmYcZsue
+  compendiumSource: null
+  duplicateSource: null
+  exportSource: null
+_key: '!items!gI5Zfnv9J3muw65Y'

@@ -6,7 +6,7 @@ img: >-
 system:
   name: ''
   description: ''
-  slug: renewed-blaze
+  slug: ''
   cost: 6
   stackMax: 1
   appliesTo: skill
@@ -31,7 +31,9 @@ system:
   macro:
     uuid: ''
   customNotes: ''
-  easyEffects: ''
+  easyEffects: |-
+    [On Clash Win]
+    inflict 1 "Burn - Renewed Blaze";
 effects: []
 sort: 0
 ownership:
@@ -46,7 +48,7 @@ _stats:
   systemId: projectmoonttrpg
   systemVersion: 0.0.1
   createdTime: 1787171976160
-  modifiedTime: 1787171976160
+  modifiedTime: 1787224794455
   lastModifiedBy: yWsvx4DXrmYcZsue
 _id: nKLz1basSja10njB
 _key: '!items!nKLz1basSja10njB'

@@ -1,0 +1,48 @@
+folder: Zac3Xkc5Y82RXJkZ
+name: Charge - Fragile
+type: effect
+img: systems/projectmoonttrpg/assets/icons/Statuses/Fragile.webp
+system:
+  name: ''
+  description: ''
+  slug: charge-fragile
+  cost: 2
+  stackMax: 5
+  appliesTo: skill
+  canPositive: true
+  canNegative: false
+  procOn: onClashResult
+  procResult: none
+  procResultLocked: false
+  procChoice: none
+  procChoiceLocked: false
+  procStat: any
+  procDice: any
+  procAction: any
+  procCondition: ''
+  positive: <p>Consume [N*3] Charge to inflict [N] Fragile to the target next round.</p>
+  negative: ''
+  macro:
+    uuid: ''
+  customNotes: ''
+  easyEffects: |-
+    [On Clash RESULT]
+    spend (N*3) Charge to inflict (N) Fragile next turn;
+effects: []
+sort: 2500000
+ownership:
+  default: 0
+  yWsvx4DXrmYcZsue: 3
+flags: {}
+_stats:
+  coreVersion: '14.364'
+  systemId: projectmoonttrpg
+  systemVersion: 0.0.1
+  createdTime: 1787251585546
+  modifiedTime: 1787251585546
+  lastModifiedBy: yWsvx4DXrmYcZsue
+  compendiumSource: null
+  duplicateSource: Item.6P7DEoJ6NYMSGFtZ
+  exportSource: null
+_id: 4ODeg3rRYIbJysvP
+_key: '!items!4ODeg3rRYIbJysvP'

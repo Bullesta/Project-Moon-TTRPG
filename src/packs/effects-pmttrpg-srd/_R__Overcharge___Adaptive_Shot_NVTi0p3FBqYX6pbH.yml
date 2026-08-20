@@ -1,0 +1,51 @@
+folder: tgOfSJhMwrzok7lS
+name: '[R] Overcharge - Adaptive Shot'
+type: effect
+img: systems/projectmoonttrpg/assets/icons/Statuses/Overcharge.webp
+system:
+  name: ''
+  description: '<p><em>Note: This effect is not yet automated.</em></p>'
+  slug: r-overcharge-adaptive-shot
+  cost: 8
+  stackMax: 1
+  appliesTo: skill
+  canPositive: true
+  canNegative: false
+  procOn: alwaysActive
+  procResult: none
+  procResultLocked: false
+  procChoice: none
+  procChoiceLocked: false
+  procStat: any
+  procDice: any
+  procAction: any
+  procCondition: ''
+  positive: >-
+    <p>Consume 2 Overcharge.</p><p>This effect counts as "Shooting
+    Star".</p><p>On Hit, you may change the trajectory of your Shooting Star
+    line, up to two times. This attack cannot be used against the same target
+    multiple times, and the distance is still limited according to the [Weapon
+    Range*2] SQRs.</p>
+  negative: ''
+  macro:
+    uuid: ''
+  customNotes: ''
+  easyEffects: ''
+effects: []
+sort: 100000
+ownership:
+  default: 0
+  yWsvx4DXrmYcZsue: 3
+flags: {}
+_stats:
+  coreVersion: '14.364'
+  systemId: projectmoonttrpg
+  systemVersion: 0.0.1
+  createdTime: 1787252052444
+  modifiedTime: 1787252052444
+  lastModifiedBy: yWsvx4DXrmYcZsue
+  compendiumSource: null
+  duplicateSource: Item.ruZbaHho2qw4TmWR
+  exportSource: null
+_id: NVTi0p3FBqYX6pbH
+_key: '!items!NVTi0p3FBqYX6pbH'

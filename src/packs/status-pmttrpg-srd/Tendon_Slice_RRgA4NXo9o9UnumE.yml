@@ -1,0 +1,39 @@
+folder: 8tfinV0q66z2Egqy
+name: Tendon Slice
+type: status
+_id: RRgA4NXo9o9UnumE
+img: >-
+  systems/projectmoonttrpg/assets/icons/limbus_assets/Basic%20Effects/Bleed/Mauled%20Color%20%5BRouge%5D.webp
+system:
+  name: ''
+  description: ''
+  slug: ''
+  stacks: 1
+  stackMax: 1
+  priority: 2
+  pending: false
+  arrival: ''
+  shelved: false
+  origin: ''
+  customNotes: ''
+  easyEffects: |-
+    [On Move]
+    proc Bleed on self;
+    lose all "Tendon Slice";
+effects: []
+sort: 0
+ownership:
+  default: 0
+  yWsvx4DXrmYcZsue: 3
+flags: {}
+_stats:
+  coreVersion: '14.364'
+  systemId: projectmoonttrpg
+  systemVersion: 0.0.1
+  createdTime: 1787226171092
+  modifiedTime: 1787226200922
+  lastModifiedBy: yWsvx4DXrmYcZsue
+  compendiumSource: null
+  duplicateSource: null
+  exportSource: null
+_key: '!items!RRgA4NXo9o9UnumE'

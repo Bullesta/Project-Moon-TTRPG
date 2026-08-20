@@ -1,0 +1,51 @@
+folder: b9dl4lonxKcL2W3l
+name: Inflict Frostbite
+type: effect
+img: systems/projectmoonttrpg/assets/icons/Statuses/Frostbite.webp
+system:
+  name: ''
+  description: ''
+  slug: ''
+  cost: 2
+  stackMax: 5
+  appliesTo: skill
+  canPositive: true
+  canNegative: true
+  procOn: onClashResult
+  procResult: none
+  procResultLocked: false
+  procChoice: none
+  procChoiceLocked: false
+  procStat: any
+  procDice: any
+  procAction: any
+  procCondition: ''
+  positive: <p>Apply [N] Frostbite to the target.</p>
+  negative: <p>Apply [N] Frostbite to the character.</p>
+  macro:
+    uuid: ''
+  customNotes: ''
+  easyEffects: |-
+    [On Clash RESULT]
+    positive:
+    inflict N Frostbite;
+    negative:
+    gain N Frostbite;
+effects: []
+sort: 100000
+ownership:
+  default: 0
+  yWsvx4DXrmYcZsue: 3
+flags: {}
+_stats:
+  compendiumSource: null
+  duplicateSource: Item.r02vKLOziJkIolSV
+  exportSource: null
+  coreVersion: '14.364'
+  systemId: projectmoonttrpg
+  systemVersion: 0.0.1
+  createdTime: 1787225390419
+  modifiedTime: 1787225434264
+  lastModifiedBy: yWsvx4DXrmYcZsue
+_id: 1ZrlBUwng1X8Fh8f
+_key: '!items!1ZrlBUwng1X8Fh8f'

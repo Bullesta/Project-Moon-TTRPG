@@ -1,0 +1,48 @@
+folder: Zac3Xkc5Y82RXJkZ
+name: Charge - Inflict Ruin
+type: effect
+img: systems/projectmoonttrpg/assets/icons/Statuses/Ruin.webp
+system:
+  name: ''
+  description: ''
+  slug: charge-inflict-ruin
+  cost: 1
+  stackMax: 5
+  appliesTo: skill
+  canPositive: true
+  canNegative: false
+  procOn: onClashResult
+  procResult: none
+  procResultLocked: false
+  procChoice: none
+  procChoiceLocked: false
+  procStat: any
+  procDice: any
+  procAction: any
+  procCondition: ''
+  positive: <p>Consume [N*2] Charge to inflict [N] Ruin to the target.</p>
+  negative: ''
+  macro:
+    uuid: ''
+  customNotes: ''
+  easyEffects: |-
+    [On Clash RESULT]
+    spend (2*N) Charge to inflict (N) Ruin;
+effects: []
+sort: 1700000
+ownership:
+  default: 0
+  yWsvx4DXrmYcZsue: 3
+flags: {}
+_stats:
+  coreVersion: '14.364'
+  systemId: projectmoonttrpg
+  systemVersion: 0.0.1
+  createdTime: 1787251585543
+  modifiedTime: 1787251585543
+  lastModifiedBy: yWsvx4DXrmYcZsue
+  compendiumSource: null
+  duplicateSource: Item.YYTisfvk2oAkfIuK
+  exportSource: null
+_id: 7qPHg0ExS7MtFXlU
+_key: '!items!7qPHg0ExS7MtFXlU'

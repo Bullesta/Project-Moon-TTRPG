@@ -1,0 +1,66 @@
+folder: QRjV4nJJMmRoY7md
+name: '[M] Galeforce'
+type: effect
+img: >-
+  systems/projectmoonttrpg/assets/icons/limbus_assets/Basic%20Effects/Unfocused%20Volley.webp
+system:
+  name: ''
+  description: >-
+    <p><em>Note: This effect is not yet automated. <strong>Though, there is a
+    text message telling you how to apply this.</strong></em></p>
+  slug: m-galeforce
+  cost: 4
+  stackMax: 1
+  appliesTo: skill
+  canPositive: true
+  canNegative: false
+  procOn: alwaysActive
+  procResult: none
+  procResultLocked: false
+  procChoice: none
+  procChoiceLocked: false
+  procStat: any
+  procDice: any
+  procAction: any
+  procCondition: ''
+  positive: >-
+    <p>[Attack Replacement] Replaces Attack with 3 Attacks. These attacks may be
+    directed at any target within [Haste] SQRs, max 1 per target, with a main
+    target designated as the first attacked. If not enough targets are within
+    range, any remaining attacks are lost.</p>
+  negative: ''
+  macro:
+    uuid: ''
+  customNotes: ''
+  easyEffects: >-
+    [Always Active]
+
+    power down attack 2;
+
+
+    [On Clash Win]
+
+    create message 
+
+    "[Attack Replacement / Galeforce] Press [Shift + T] to target multiple
+    tokens. Apply the damage to three targets within (Haste) SQRs of the
+    attacker, max 1 attack per target. Apply status inflictions at half
+    efficiency, rounded down, for any hits after the first."
+effects: []
+sort: 0
+ownership:
+  default: 0
+  yWsvx4DXrmYcZsue: 3
+flags: {}
+_stats:
+  coreVersion: '14.364'
+  systemId: projectmoonttrpg
+  systemVersion: 0.0.1
+  createdTime: 1787243655059
+  modifiedTime: 1787243655059
+  lastModifiedBy: yWsvx4DXrmYcZsue
+  compendiumSource: null
+  duplicateSource: Item.pjKInWJNwRBlJfRH
+  exportSource: null
+_id: glBzfdb7LFCPS7Xy
+_key: '!items!glBzfdb7LFCPS7Xy'

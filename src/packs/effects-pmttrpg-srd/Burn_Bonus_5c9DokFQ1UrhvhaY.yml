@@ -30,7 +30,7 @@ system:
   customNotes: ''
   easyEffects: |-
     [On Clash Start]
-    require (target.Burn) >= (N+3) then
+    require (target.status.Burn) >= (N+3) then
       power up attack N and power up defense N;
 effects: []
 sort: 0
@@ -46,7 +46,7 @@ _stats:
   systemId: projectmoonttrpg
   systemVersion: 0.0.1
   createdTime: 1787171976158
-  modifiedTime: 1787172375430
+  modifiedTime: 1787224730803
   lastModifiedBy: yWsvx4DXrmYcZsue
 _id: 5c9DokFQ1UrhvhaY
 _key: '!items!5c9DokFQ1UrhvhaY'

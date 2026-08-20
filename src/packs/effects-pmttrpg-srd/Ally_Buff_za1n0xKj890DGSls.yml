@@ -1,0 +1,20 @@
+type: Item
+folder: Bk5tS5sF849QJvJc
+name: Ally Buff
+color: null
+sorting: a
+_id: za1n0xKj890DGSls
+description: ''
+sort: 1400000
+flags: {}
+_stats:
+  compendiumSource: null
+  duplicateSource: null
+  exportSource: null
+  coreVersion: '14.364'
+  systemId: projectmoonttrpg
+  systemVersion: 0.0.1
+  createdTime: 1787244693352
+  modifiedTime: 1787244693411
+  lastModifiedBy: yWsvx4DXrmYcZsue
+_key: '!folders!za1n0xKj890DGSls'

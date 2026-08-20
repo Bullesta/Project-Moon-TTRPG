@@ -29,7 +29,13 @@ system:
   macro:
     uuid: ''
   customNotes: ''
-  easyEffects: ''
+  easyEffects: >-
+    [On Clash Win]
+
+    create message "Fireball: (target.status.Burn) damage to all targets within
+    (N) SQRs of (target.name)." on self;
+
+    proc Burn on target;
 effects: []
 sort: 0
 ownership:
@@ -44,7 +50,7 @@ _stats:
   systemId: projectmoonttrpg
   systemVersion: 0.0.1
   createdTime: 1787171976159
-  modifiedTime: 1787172077019
+  modifiedTime: 1787224962104
   lastModifiedBy: yWsvx4DXrmYcZsue
 _id: 8BkBOzJM59NqTgsm
 _key: '!items!8BkBOzJM59NqTgsm'

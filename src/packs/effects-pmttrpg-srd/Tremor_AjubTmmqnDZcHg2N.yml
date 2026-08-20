@@ -1,0 +1,20 @@
+type: Item
+folder: Bk5tS5sF849QJvJc
+name: Tremor
+color: '#a7b300'
+sorting: a
+_id: AjubTmmqnDZcHg2N
+description: ''
+sort: 900000
+flags: {}
+_stats:
+  compendiumSource: null
+  duplicateSource: null
+  exportSource: null
+  coreVersion: '14.364'
+  systemId: projectmoonttrpg
+  systemVersion: 0.0.1
+  createdTime: 1787232171715
+  modifiedTime: 1787232178098
+  lastModifiedBy: yWsvx4DXrmYcZsue
+_key: '!folders!AjubTmmqnDZcHg2N'

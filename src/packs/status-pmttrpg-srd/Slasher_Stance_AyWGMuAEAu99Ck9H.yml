@@ -12,17 +12,13 @@ system:
   slug: ''
   stacks: 1
   stackMax: 1
-  priority: 0
+  priority: 15
   pending: false
   arrival: ''
   shelved: false
   origin: ''
   customNotes: ''
-  easyEffects: |-
-    # Implemented in Poise & Critical
-    [On RollForSlasherPoise]
-    on roll 1d6 <= Poise then
-      proc Critical and lose all Poise on self;
+  easyEffects: ''
 effects: []
 sort: 0
 ownership:
@@ -34,7 +30,7 @@ _stats:
   systemId: projectmoonttrpg
   systemVersion: 0.0.1
   createdTime: 1785433578152
-  modifiedTime: 1787144486585
+  modifiedTime: 1787228263610
   lastModifiedBy: yWsvx4DXrmYcZsue
   compendiumSource: null
   duplicateSource: null

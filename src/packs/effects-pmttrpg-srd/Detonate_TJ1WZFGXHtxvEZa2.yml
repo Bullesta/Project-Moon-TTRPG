@@ -6,7 +6,7 @@ img: >-
 system:
   name: ''
   description: ''
-  slug: detonate
+  slug: ''
   cost: 4
   stackMax: 1
   appliesTo: skill
@@ -31,7 +31,9 @@ system:
   macro:
     uuid: ''
   customNotes: ''
-  easyEffects: ''
+  easyEffects: |-
+    [On Clash Win With Attack]
+    proc Burn on target;
 effects: []
 sort: 0
 ownership:
@@ -46,7 +48,7 @@ _stats:
   systemId: projectmoonttrpg
   systemVersion: 0.0.1
   createdTime: 1787171976159
-  modifiedTime: 1787171976159
+  modifiedTime: 1787224595145
   lastModifiedBy: yWsvx4DXrmYcZsue
 _id: TJ1WZFGXHtxvEZa2
 _key: '!items!TJ1WZFGXHtxvEZa2'

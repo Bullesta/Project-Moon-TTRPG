@@ -8,7 +8,7 @@ system:
   slug: ''
   stacks: 1
   stackMax: 0
-  priority: 0
+  priority: 7
   pending: false
   arrival: ''
   shelved: false
@@ -16,7 +16,13 @@ system:
   customNotes: ''
   easyEffects: |-
     [On Being Hit]
-    on roll 1d10 <= Ruin then proc AskForDevastation
+    require ("Ruin Pause") == 0 then 
+      proc RollForRuin;
+
+    [On RollForRuin]
+    roll 1d10 as RuinRoll
+    require (RuinRoll) <= Ruin then proc AskForDevastation
+    require (RuinRoll) > Ruin then proc FailedDevastationRoll
 
     [On AskForDevastation]
     create dialog "Proc Devastation?":
@@ -61,7 +67,7 @@ _stats:
   systemId: projectmoonttrpg
   systemVersion: 0.0.1
   createdTime: 1779621125369
-  modifiedTime: 1787170446328
+  modifiedTime: 1787229594900
   lastModifiedBy: yWsvx4DXrmYcZsue
 _id: mbzVf2O1T6s7qAgy
 sort: 193750

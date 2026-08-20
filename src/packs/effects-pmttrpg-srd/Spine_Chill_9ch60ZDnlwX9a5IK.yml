@@ -1,0 +1,51 @@
+folder: jV6V7T4DGnxC2G2X
+name: Spine Chill
+type: effect
+img: >-
+  systems/projectmoonttrpg/assets/icons/limbus_assets/Basic%20Effects/Sinking/Mauled%20Color%20%5BBleu%5D.webp
+system:
+  name: ''
+  description: ''
+  slug: spine-chill
+  cost: 4
+  stackMax: 1
+  appliesTo: skill
+  canPositive: true
+  canNegative: false
+  procOn: onBurst
+  procResult: none
+  procResultLocked: false
+  procChoice: none
+  procChoiceLocked: false
+  procStat: any
+  procDice: any
+  procAction: any
+  procCondition: ''
+  positive: >-
+    <p>On Sinking Burst, inflict (Sinking/2) Frostbite to the target next
+    round.</p>
+  negative: ''
+  macro:
+    uuid: ''
+  customNotes: ''
+  easyEffects: |-
+    [On Sinking Burst]
+    inflict (burst.amount //f 2) Frostbite;
+effects: []
+sort: 100000
+ownership:
+  default: 0
+  yWsvx4DXrmYcZsue: 3
+flags: {}
+_stats:
+  coreVersion: '14.364'
+  systemId: projectmoonttrpg
+  systemVersion: 0.0.1
+  createdTime: 1787233598768
+  modifiedTime: 1787233598768
+  lastModifiedBy: yWsvx4DXrmYcZsue
+  compendiumSource: null
+  duplicateSource: Item.caYVTdQfXdja4S8X
+  exportSource: null
+_id: 9ch60ZDnlwX9a5IK
+_key: '!items!9ch60ZDnlwX9a5IK'

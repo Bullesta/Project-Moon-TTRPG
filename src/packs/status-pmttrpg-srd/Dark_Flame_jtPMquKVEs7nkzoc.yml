@@ -1,0 +1,42 @@
+folder: 8tfinV0q66z2Egqy
+name: Dark Flame
+type: status
+_id: jtPMquKVEs7nkzoc
+img: >-
+  systems/projectmoonttrpg/assets/icons/limbus_assets/Basic%20Effects/Burn/Dark%20Flame.webp
+system:
+  name: ''
+  description: >-
+    <p>When Burn is halved at the end of this round, deal SP Damage equal to the
+    amount of Burn remaining on target.</p><p><strong>Activated after
+    Burn.</strong></p>
+  slug: ''
+  stacks: 1
+  stackMax: 1
+  priority: 2
+  pending: false
+  arrival: ''
+  shelved: false
+  origin: ''
+  customNotes: ''
+  easyEffects: |-
+    [On Burn]
+    deal (Burn) sp damage to self;
+    lose all "Dark Flame";
+effects: []
+sort: 0
+ownership:
+  default: 0
+  yWsvx4DXrmYcZsue: 3
+flags: {}
+_stats:
+  coreVersion: '14.364'
+  systemId: projectmoonttrpg
+  systemVersion: 0.0.1
+  createdTime: 1787225009069
+  modifiedTime: 1787225250171
+  lastModifiedBy: yWsvx4DXrmYcZsue
+  compendiumSource: null
+  duplicateSource: null
+  exportSource: null
+_key: '!items!jtPMquKVEs7nkzoc'

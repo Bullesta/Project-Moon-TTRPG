@@ -1,0 +1,49 @@
+folder: QRjV4nJJMmRoY7md
+name: Follow Through
+type: effect
+img: systems/projectmoonttrpg/assets/icons/Statuses/Haste.webp
+system:
+  name: ''
+  description: '<p><em>Note: This effect is not yet automated.</em></p>'
+  slug: follow-through
+  cost: 2
+  stackMax: null
+  appliesTo: skill
+  canPositive: true
+  canNegative: false
+  procOn: onClashResult
+  procResult: none
+  procResultLocked: false
+  procChoice: none
+  procChoiceLocked: false
+  procStat: any
+  procDice: offensive
+  procAction: any
+  procCondition: ''
+  positive: >-
+    <p>You must have at least [N*2] Haste to activate this effect.</p><p>If you
+    moved at least [N*2] SQRs directly towards the target before performing this
+    attack, the target takes [N] dice of Force Damage. </p>
+  negative: ''
+  macro:
+    uuid: ''
+  customNotes: ''
+  easyEffects: ''
+effects: []
+sort: 0
+ownership:
+  default: 0
+  yWsvx4DXrmYcZsue: 3
+flags: {}
+_stats:
+  coreVersion: '14.364'
+  systemId: projectmoonttrpg
+  systemVersion: 0.0.1
+  createdTime: 1787243655061
+  modifiedTime: 1787243655061
+  lastModifiedBy: yWsvx4DXrmYcZsue
+  compendiumSource: null
+  duplicateSource: Item.ATWIWw9l1dLziapL
+  exportSource: null
+_id: B8q6N6Qj5cP7G38g
+_key: '!items!B8q6N6Qj5cP7G38g'

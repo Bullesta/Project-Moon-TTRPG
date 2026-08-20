@@ -1,0 +1,49 @@
+folder: tgOfSJhMwrzok7lS
+name: Overcharge - Loaded Branding
+type: effect
+img: systems/projectmoonttrpg/assets/icons/Statuses/Mark_Exploit.webp
+system:
+  name: ''
+  description: '<p><em>Note: This effect is not yet automated.</em></p>'
+  slug: overcharge-loaded-branding
+  cost: 4
+  stackMax: 1
+  appliesTo: skill
+  canPositive: true
+  canNegative: false
+  procOn: onClashResult
+  procResult: none
+  procResultLocked: false
+  procChoice: none
+  procChoiceLocked: false
+  procStat: any
+  procDice: any
+  procAction: any
+  procCondition: ''
+  positive: >-
+    <p>Consume 2 Overcharge.</p><p>Mark the Target. This can apply any Mark
+    without the applicable Augment Effects, and counts as a single separate
+    source of Mark (per user, not per use).</p>
+  negative: ''
+  macro:
+    uuid: ''
+  customNotes: ''
+  easyEffects: ''
+effects: []
+sort: 100000
+ownership:
+  default: 0
+  yWsvx4DXrmYcZsue: 3
+flags: {}
+_stats:
+  coreVersion: '14.364'
+  systemId: projectmoonttrpg
+  systemVersion: 0.0.1
+  createdTime: 1787252052443
+  modifiedTime: 1787252052443
+  lastModifiedBy: yWsvx4DXrmYcZsue
+  compendiumSource: null
+  duplicateSource: Item.ruZbaHho2qw4TmWR
+  exportSource: null
+_id: 7Z0XXxnUrDxyXTak
+_key: '!items!7Z0XXxnUrDxyXTak'

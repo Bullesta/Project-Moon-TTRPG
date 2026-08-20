@@ -1,0 +1,48 @@
+folder: QRjV4nJJMmRoY7md
+name: Circle Throw
+type: effect
+img: systems/projectmoonttrpg/assets/icons/Statuses/Haste.webp
+system:
+  name: ''
+  description: '<p><em>Note: This effect is not yet automated.</em></p>'
+  slug: circle-throw
+  cost: 1
+  stackMax: null
+  appliesTo: skill
+  canPositive: true
+  canNegative: false
+  procOn: onClashResult
+  procResult: none
+  procResultLocked: false
+  procChoice: none
+  procChoiceLocked: false
+  procStat: any
+  procDice: any
+  procAction: any
+  procCondition: ''
+  positive: >-
+    <p>If the character has [N]+ Haste stacks, push the enemy [N] tiles in any
+    direction. This counts as Forced Movement.</p>
+  negative: ''
+  macro:
+    uuid: ''
+  customNotes: ''
+  easyEffects: ''
+effects: []
+sort: 0
+ownership:
+  default: 0
+  yWsvx4DXrmYcZsue: 3
+flags: {}
+_stats:
+  coreVersion: '14.364'
+  systemId: projectmoonttrpg
+  systemVersion: 0.0.1
+  createdTime: 1787243655060
+  modifiedTime: 1787243655060
+  lastModifiedBy: yWsvx4DXrmYcZsue
+  compendiumSource: null
+  duplicateSource: Item.IwScklvMeCVWPGdE
+  exportSource: null
+_id: ATWIWw9l1dLziapL
+_key: '!items!ATWIWw9l1dLziapL'

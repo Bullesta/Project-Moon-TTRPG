@@ -1,0 +1,49 @@
+folder: tgOfSJhMwrzok7lS
+name: Overcharge - Refraction Strike
+type: effect
+img: systems/projectmoonttrpg/assets/icons/Statuses/Overcharge.webp
+system:
+  name: ''
+  description: '<p><em>Note: This effect is not yet automated.</em></p>'
+  slug: overcharge-refraction-strike
+  cost: 4
+  stackMax: 1
+  appliesTo: skill
+  canPositive: true
+  canNegative: false
+  procOn: onClashResult
+  procResult: none
+  procResultLocked: false
+  procChoice: none
+  procChoiceLocked: false
+  procStat: any
+  procDice: any
+  procAction: any
+  procCondition: ''
+  positive: >-
+    <p>Consume 1 Overcharge and forfeit any number of Reactions, minimum
+    1.</p><p>Increase the Dice Power by the number of Reactions forfeited, with
+    a max of 6 Power.</p>
+  negative: ''
+  macro:
+    uuid: ''
+  customNotes: ''
+  easyEffects: ''
+effects: []
+sort: 100000
+ownership:
+  default: 0
+  yWsvx4DXrmYcZsue: 3
+flags: {}
+_stats:
+  coreVersion: '14.364'
+  systemId: projectmoonttrpg
+  systemVersion: 0.0.1
+  createdTime: 1787252052442
+  modifiedTime: 1787252052442
+  lastModifiedBy: yWsvx4DXrmYcZsue
+  compendiumSource: null
+  duplicateSource: Item.Ceo6B7C0Mwz7tXgb
+  exportSource: null
+_id: ruZbaHho2qw4TmWR
+_key: '!items!ruZbaHho2qw4TmWR'

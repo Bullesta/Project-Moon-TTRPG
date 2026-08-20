@@ -1,0 +1,51 @@
+folder: 6wiMFTgDZGZKBM7u
+name: Regen ST
+type: effect
+img: systems/projectmoonttrpg/assets/icons/Statuses/Staggered.webp
+system:
+  name: ''
+  description: ''
+  slug: regen-st
+  cost: 1
+  stackMax: 5
+  appliesTo: skill
+  canPositive: true
+  canNegative: true
+  procOn: onClashResult
+  procResult: none
+  procResultLocked: false
+  procChoice: none
+  procChoiceLocked: false
+  procStat: any
+  procDice: any
+  procAction: any
+  procCondition: ''
+  positive: <p>Recover [N] ST to the character.</p>
+  negative: <p>Deal [N] After Resistances ST Damage to the character.</p>
+  macro:
+    uuid: ''
+  customNotes: ''
+  easyEffects: |-
+    [On Clash RESULT]
+    positive:
+    regen st (N);
+    negative:
+    deal (N) st damage after resistances;
+effects: []
+sort: 0
+ownership:
+  default: 0
+  yWsvx4DXrmYcZsue: 3
+flags: {}
+_stats:
+  coreVersion: '14.364'
+  systemId: projectmoonttrpg
+  systemVersion: 0.0.1
+  createdTime: 1787244129542
+  modifiedTime: 1787244129542
+  lastModifiedBy: yWsvx4DXrmYcZsue
+  compendiumSource: null
+  duplicateSource: Item.dsfA61XRLPWJLC1e
+  exportSource: null
+_id: rR8bbyBrsxDn23D1
+_key: '!items!rR8bbyBrsxDn23D1'

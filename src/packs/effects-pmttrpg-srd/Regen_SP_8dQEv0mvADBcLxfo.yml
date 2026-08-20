@@ -1,0 +1,52 @@
+folder: 6wiMFTgDZGZKBM7u
+name: Regen SP
+type: effect
+img: >-
+  systems/projectmoonttrpg/assets/icons/limbus_assets/Basic%20Effects/SP%20Heal%20Efficiency.webp
+system:
+  name: ''
+  description: ''
+  slug: regen-sp
+  cost: 1
+  stackMax: 5
+  appliesTo: skill
+  canPositive: true
+  canNegative: true
+  procOn: onClashResult
+  procResult: none
+  procResultLocked: false
+  procChoice: none
+  procChoiceLocked: false
+  procStat: any
+  procDice: any
+  procAction: any
+  procCondition: ''
+  positive: <p>Recover [N] SP to the character.</p>
+  negative: <p>Deal [N] After Resistances SP Damage to the character.</p>
+  macro:
+    uuid: ''
+  customNotes: ''
+  easyEffects: |-
+    [On Clash RESULT]
+    positive:
+    regen sp (N);
+    negative:
+    deal (N) sp damage after resistances;
+effects: []
+sort: 0
+ownership:
+  default: 0
+  yWsvx4DXrmYcZsue: 3
+flags: {}
+_stats:
+  coreVersion: '14.364'
+  systemId: projectmoonttrpg
+  systemVersion: 0.0.1
+  createdTime: 1787244129542
+  modifiedTime: 1787244129542
+  lastModifiedBy: yWsvx4DXrmYcZsue
+  compendiumSource: null
+  duplicateSource: Item.rR8bbyBrsxDn23D1
+  exportSource: null
+_id: 8dQEv0mvADBcLxfo
+_key: '!items!8dQEv0mvADBcLxfo'

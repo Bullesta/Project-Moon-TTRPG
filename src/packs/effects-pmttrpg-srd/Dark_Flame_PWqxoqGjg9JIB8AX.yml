@@ -6,7 +6,7 @@ img: >-
 system:
   name: ''
   description: ''
-  slug: dark-flame
+  slug: ''
   cost: 12
   stackMax: 1
   appliesTo: skill
@@ -28,7 +28,9 @@ system:
   macro:
     uuid: ''
   customNotes: ''
-  easyEffects: ''
+  easyEffects: |-
+    [On Clash Win]
+    inflict 1 "Dark Flame";
 effects: []
 sort: 0
 ownership:
@@ -43,7 +45,7 @@ _stats:
   systemId: projectmoonttrpg
   systemVersion: 0.0.1
   createdTime: 1787171976159
-  modifiedTime: 1787171976159
+  modifiedTime: 1787225271295
   lastModifiedBy: yWsvx4DXrmYcZsue
 _id: PWqxoqGjg9JIB8AX
 _key: '!items!PWqxoqGjg9JIB8AX'

@@ -1,0 +1,52 @@
+folder: Zac3Xkc5Y82RXJkZ
+name: Charge - Dice Max Up
+type: effect
+img: >-
+  systems/projectmoonttrpg/assets/icons/limbus_assets/Basic%20Effects/Charge/Charge.webp
+system:
+  name: ''
+  description: ''
+  slug: charge-dice-max-up
+  cost: 1
+  stackMax: 5
+  appliesTo: skill
+  canPositive: true
+  canNegative: false
+  procOn: alwaysActive
+  procResult: none
+  procResultLocked: false
+  procChoice: none
+  procChoiceLocked: false
+  procStat: any
+  procDice: any
+  procAction: any
+  procCondition: ''
+  positive: <p>Consume [N*3] Charge to increase the Dice Max by [N].</p>
+  negative: ''
+  macro:
+    uuid: ''
+  customNotes: ''
+  easyEffects: |-
+    [On Clash With Attack]
+    spend (3*N) Charge to dice max up attack N
+
+    [On Clash With Defense]
+    spend (3*N) Charge to dice max up defense N
+effects: []
+sort: 400000
+ownership:
+  default: 0
+  yWsvx4DXrmYcZsue: 3
+flags: {}
+_stats:
+  coreVersion: '14.364'
+  systemId: projectmoonttrpg
+  systemVersion: 0.0.1
+  createdTime: 1787251585536
+  modifiedTime: 1787251585536
+  lastModifiedBy: yWsvx4DXrmYcZsue
+  compendiumSource: null
+  duplicateSource: Item.B2oMDP0t0CT351p8
+  exportSource: null
+_id: yHwApoxvxMwLGyFN
+_key: '!items!yHwApoxvxMwLGyFN'

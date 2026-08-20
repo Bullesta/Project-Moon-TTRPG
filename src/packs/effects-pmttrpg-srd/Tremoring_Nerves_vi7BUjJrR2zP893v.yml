@@ -1,0 +1,52 @@
+folder: AjubTmmqnDZcHg2N
+name: Tremoring Nerves
+type: effect
+img: >-
+  systems/projectmoonttrpg/assets/icons/limbus_assets/Basic%20Effects/Tremor/Tremor%20-%20Everlasting.webp
+system:
+  name: ''
+  description: ''
+  slug: tremoring-nerves
+  cost: 8
+  stackMax: 1
+  appliesTo: skill
+  canPositive: true
+  canNegative: false
+  procOn: onBurst
+  procResult: none
+  procResultLocked: false
+  procChoice: none
+  procChoiceLocked: false
+  procStat: any
+  procDice: any
+  procAction: any
+  procCondition: ''
+  positive: >-
+    <p>On Tremor Burst, if the enemy had 4+ Tremor, inflict 2 Feeble and 2
+    Disarm next round.</p>
+  negative: ''
+  macro:
+    uuid: ''
+  customNotes: ''
+  easyEffects: |-
+    [On Tremor Burst]
+    require (burst.amount) >= 4 then
+      inflict 2 Feeble next turn and inflict 2 Disarm next turn;
+effects: []
+sort: 0
+ownership:
+  default: 0
+  yWsvx4DXrmYcZsue: 3
+flags: {}
+_stats:
+  coreVersion: '14.364'
+  systemId: projectmoonttrpg
+  systemVersion: 0.0.1
+  createdTime: 1787232171758
+  modifiedTime: 1787232171758
+  lastModifiedBy: yWsvx4DXrmYcZsue
+  compendiumSource: null
+  duplicateSource: Item.MpkXDbVfYV8WLNeE
+  exportSource: null
+_id: vi7BUjJrR2zP893v
+_key: '!items!vi7BUjJrR2zP893v'

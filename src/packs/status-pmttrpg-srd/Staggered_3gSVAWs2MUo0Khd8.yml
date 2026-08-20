@@ -10,8 +10,8 @@ system:
     Round after, recover all ST, and lose Staggered.</p>
   slug: ''
   stacks: 1
-  stackMax: 0
-  priority: 0
+  stackMax: 1
+  priority: 90
   pending: false
   arrival: ''
   shelved: false
@@ -40,7 +40,7 @@ _stats:
   systemId: projectmoonttrpg
   systemVersion: 0.0.1
   createdTime: 1785319503000
-  modifiedTime: 1787166829610
+  modifiedTime: 1787225221984
   lastModifiedBy: yWsvx4DXrmYcZsue
   compendiumSource: null
   duplicateSource: null

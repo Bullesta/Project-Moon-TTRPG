@@ -10,8 +10,12 @@ system:
     end of combat.</p>
   slug: ''
   stacks: 1
-  stackMax: 0
-  priority: 0
+  stackMax: 1
+  priority: 95
+  pending: false
+  arrival: ''
+  shelved: false
+  origin: ''
   customNotes: ''
   easyEffects: ''
 effects: []
@@ -26,7 +30,7 @@ _stats:
   systemId: projectmoonttrpg
   systemVersion: 0.0.1
   createdTime: 1785426370278
-  modifiedTime: 1785426713261
+  modifiedTime: 1787225215987
   lastModifiedBy: yWsvx4DXrmYcZsue
   compendiumSource: null
   duplicateSource: null

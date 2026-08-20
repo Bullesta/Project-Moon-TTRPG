@@ -1,0 +1,48 @@
+folder: tgOfSJhMwrzok7lS
+name: Overcharge - Replicating Shell
+type: effect
+img: systems/projectmoonttrpg/assets/icons/Statuses/Charge%20Barrier.webp
+system:
+  name: ''
+  description: '<p><em>Note: This effect is not yet automated.</em></p>'
+  slug: overcharge-replicating-shell
+  cost: 4
+  stackMax: 5
+  appliesTo: skill
+  canPositive: true
+  canNegative: false
+  procOn: alwaysActive
+  procResult: none
+  procResultLocked: false
+  procChoice: none
+  procChoiceLocked: false
+  procStat: any
+  procDice: any
+  procAction: any
+  procCondition: ''
+  positive: >-
+    <p>Consume [N] Overcharge.</p><p>Give 5 Charge Barrier next round to [N]
+    allies in a radius of 3 SQR around you.</p>
+  negative: ''
+  macro:
+    uuid: ''
+  customNotes: ''
+  easyEffects: ''
+effects: []
+sort: 100000
+ownership:
+  default: 0
+  yWsvx4DXrmYcZsue: 3
+flags: {}
+_stats:
+  coreVersion: '14.364'
+  systemId: projectmoonttrpg
+  systemVersion: 0.0.1
+  createdTime: 1787252052444
+  modifiedTime: 1787252052444
+  lastModifiedBy: yWsvx4DXrmYcZsue
+  compendiumSource: null
+  duplicateSource: Item.7YlaeLHHAFkmphpd
+  exportSource: null
+_id: z7H8vAlITTKRxSWW
+_key: '!items!z7H8vAlITTKRxSWW'

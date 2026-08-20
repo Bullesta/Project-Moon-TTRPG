@@ -1,0 +1,54 @@
+folder: dwDk7079sgUAXjmr
+name: Rupture Bonus
+type: effect
+img: >-
+  systems/projectmoonttrpg/assets/icons/limbus_assets/Basic%20Effects/Rupture/Rupture.webp
+system:
+  name: ''
+  description: ''
+  slug: rupture-bonus
+  cost: 2
+  stackMax: 5
+  appliesTo: skill
+  canPositive: true
+  canNegative: false
+  procOn: alwaysActive
+  procResult: none
+  procResultLocked: false
+  procChoice: none
+  procChoiceLocked: false
+  procStat: any
+  procDice: any
+  procAction: any
+  procCondition: ''
+  positive: >-
+    <p>If the target has [N*2+2] or more Rupture stacks, increase Dice Power by
+    [N].</p>
+  negative: ''
+  macro:
+    uuid: ''
+  customNotes: ''
+  easyEffects: |-
+    [On Clash Start]
+    require (target.status.Rupture) >= ((N*2)+2) then
+      power up attack N and power up defense N;
+effects: []
+sort: 100000
+ownership:
+  default: 0
+  yWsvx4DXrmYcZsue: 3
+flags:
+  projectmoonttrpg:
+    syncDismissedAt: 1787230188687
+_stats:
+  compendiumSource: Item.AJw18BNflIyYZeup
+  duplicateSource: Item.OtLagKLPn86Edshr
+  exportSource: null
+  coreVersion: '14.364'
+  systemId: projectmoonttrpg
+  systemVersion: 0.0.1
+  createdTime: 1787230920024
+  modifiedTime: 1787230920024
+  lastModifiedBy: yWsvx4DXrmYcZsue
+_id: XOyaiGQGMtbB0Aq6
+_key: '!items!XOyaiGQGMtbB0Aq6'

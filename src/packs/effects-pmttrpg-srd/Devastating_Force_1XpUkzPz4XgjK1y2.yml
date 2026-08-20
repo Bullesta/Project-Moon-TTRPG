@@ -1,0 +1,50 @@
+folder: H1Mmnc2yMHYbjA8t
+name: Devastating Force
+type: effect
+img: systems/projectmoonttrpg/assets/icons/Statuses/Devastation.webp
+system:
+  name: ''
+  description: '<p><em>Note: This effect is not yet automated.</em></p>'
+  slug: ''
+  cost: 2
+  stackMax: 5
+  appliesTo: skill
+  canPositive: true
+  canNegative: false
+  procOn: onDevastating
+  procResult: none
+  procResultLocked: false
+  procChoice: none
+  procChoiceLocked: false
+  procStat: any
+  procDice: any
+  procAction: any
+  procCondition: ''
+  positive: >-
+    <p>Push the target back 1 SQR per Devastation dice rolled (max [N]). This
+    counts as Forced Movement and can deal Force Damage per unspent SQR.</p>
+  negative: ''
+  macro:
+    uuid: ''
+  customNotes: ''
+  easyEffects: ''
+effects: []
+sort: 100000
+ownership:
+  default: 0
+  yWsvx4DXrmYcZsue: 3
+flags:
+  projectmoonttrpg:
+    syncDismissedAt: 1780732288366
+_stats:
+  compendiumSource: Item.E4HpJQh7hckViUs6
+  duplicateSource: Item.2HBO6JZ1QrK9bjSn
+  exportSource: null
+  coreVersion: '14.364'
+  systemId: projectmoonttrpg
+  systemVersion: 0.0.1
+  createdTime: 1787229135229
+  modifiedTime: 1787229897382
+  lastModifiedBy: yWsvx4DXrmYcZsue
+_id: 1XpUkzPz4XgjK1y2
+_key: '!items!1XpUkzPz4XgjK1y2'

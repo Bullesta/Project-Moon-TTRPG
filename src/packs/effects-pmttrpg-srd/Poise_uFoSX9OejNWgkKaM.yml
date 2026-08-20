@@ -1,0 +1,20 @@
+type: Item
+folder: Bk5tS5sF849QJvJc
+name: Poise
+color: '#919191'
+sorting: a
+_id: uFoSX9OejNWgkKaM
+description: ''
+sort: 600000
+flags: {}
+_stats:
+  compendiumSource: null
+  duplicateSource: null
+  exportSource: null
+  coreVersion: '14.364'
+  systemId: projectmoonttrpg
+  systemVersion: 0.0.1
+  createdTime: 1787226336907
+  modifiedTime: 1787226347183
+  lastModifiedBy: yWsvx4DXrmYcZsue
+_key: '!folders!uFoSX9OejNWgkKaM'

@@ -1,0 +1,54 @@
+folder: b9dl4lonxKcL2W3l
+name: Frostbite Vigor
+type: effect
+img: systems/projectmoonttrpg/assets/icons/Statuses/Frostbite.webp
+system:
+  name: ''
+  description: ''
+  slug: ''
+  cost: 2
+  stackMax: 5
+  appliesTo: skill
+  canPositive: true
+  canNegative: false
+  procOn: alwaysActive
+  procResult: none
+  procResultLocked: false
+  procChoice: none
+  procChoiceLocked: false
+  procStat: any
+  procDice: any
+  procAction: any
+  procCondition: ''
+  positive: >-
+    <p>If the character has [N+2] or more Frostbite stacks, increase the Dice
+    Power by [N]. If you have an effect of the same name on your Augment,
+    increase the amount of Frostbite required by 1.</p>
+  negative: ''
+  macro:
+    uuid: ''
+  customNotes: ''
+  easyEffects: |-
+    [On Clash Start]
+    require (Frostbite) >= (N+2) then
+      power up attack N and power up defense N;
+effects: []
+sort: 100000
+ownership:
+  default: 0
+  yWsvx4DXrmYcZsue: 3
+flags:
+  projectmoonttrpg:
+    syncDismissedAt: 1780347057182
+_stats:
+  compendiumSource: Item.1ZrlBUwng1X8Fh8f
+  duplicateSource: Item.N44RUGgAkBC3mNWE
+  exportSource: null
+  coreVersion: '14.364'
+  systemId: projectmoonttrpg
+  systemVersion: 0.0.1
+  createdTime: 1787225390419
+  modifiedTime: 1787225467014
+  lastModifiedBy: yWsvx4DXrmYcZsue
+_id: PcIaGY5hTf2rr044
+_key: '!items!PcIaGY5hTf2rr044'

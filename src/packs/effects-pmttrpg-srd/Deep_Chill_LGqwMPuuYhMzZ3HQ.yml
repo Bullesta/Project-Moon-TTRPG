@@ -1,0 +1,54 @@
+folder: b9dl4lonxKcL2W3l
+name: Deep Chill
+type: effect
+_id: LGqwMPuuYhMzZ3HQ
+img: systems/projectmoonttrpg/assets/icons/Statuses/Deep_Chill.webp
+system:
+  name: ''
+  description: ''
+  slug: ''
+  cost: 10
+  stackMax: 1
+  appliesTo: skill
+  canPositive: true
+  canNegative: false
+  procOn: onClashResult
+  procResult: none
+  procResultLocked: false
+  procChoice: none
+  procChoiceLocked: false
+  procStat: any
+  procDice: any
+  procAction: any
+  procCondition: ''
+  positive: >-
+    <p>Frostbite stacks on this target do not reduce at the end of this
+    turn.</p>
+
+    <p>This also prevents Frostbite from being reduced by Reduce Status or other
+    effects that immediately activate Frostbite. When immediately activating
+    Frostbite, do not clear Frostbite and remove this effect.</p>
+  negative: ''
+  macro:
+    uuid: ''
+  customNotes: ''
+  easyEffects: |-
+    [On Clash Win]
+    inflict 1 "Frostbite - Deep Chill";
+effects: []
+sort: 0
+ownership:
+  default: 0
+  yWsvx4DXrmYcZsue: 3
+flags: {}
+_stats:
+  compendiumSource: null
+  duplicateSource: null
+  exportSource: null
+  coreVersion: '14.364'
+  systemId: projectmoonttrpg
+  systemVersion: 0.0.1
+  createdTime: 1787225390418
+  modifiedTime: 1787225656329
+  lastModifiedBy: yWsvx4DXrmYcZsue
+_key: '!items!LGqwMPuuYhMzZ3HQ'

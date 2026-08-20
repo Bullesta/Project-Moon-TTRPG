@@ -1,0 +1,51 @@
+folder: H1Mmnc2yMHYbjA8t
+name: Inflict Ruin
+type: effect
+img: systems/projectmoonttrpg/assets/icons/Statuses/Ruin.webp
+system:
+  name: ''
+  description: ''
+  slug: ''
+  cost: 2
+  stackMax: 5
+  appliesTo: skill
+  canPositive: true
+  canNegative: true
+  procOn: onClashResult
+  procResult: none
+  procResultLocked: false
+  procChoice: none
+  procChoiceLocked: false
+  procStat: any
+  procDice: any
+  procAction: any
+  procCondition: ''
+  positive: <p>Apply [N] Ruin to the target.</p>
+  negative: <p>Apply [N] Ruin to the character.</p>
+  macro:
+    uuid: ''
+  customNotes: ''
+  easyEffects: |-
+    [On Clash RESULT]
+    positive:
+    inflict N Ruin;
+    negative:
+    gain N Ruin;
+effects: []
+sort: 100000
+ownership:
+  default: 0
+  yWsvx4DXrmYcZsue: 3
+flags: {}
+_stats:
+  compendiumSource: null
+  duplicateSource: Item.EUMoSNacE4zxC5uh
+  exportSource: null
+  coreVersion: '14.364'
+  systemId: projectmoonttrpg
+  systemVersion: 0.0.1
+  createdTime: 1787229135230
+  modifiedTime: 1787229167946
+  lastModifiedBy: yWsvx4DXrmYcZsue
+_id: E4HpJQh7hckViUs6
+_key: '!items!E4HpJQh7hckViUs6'

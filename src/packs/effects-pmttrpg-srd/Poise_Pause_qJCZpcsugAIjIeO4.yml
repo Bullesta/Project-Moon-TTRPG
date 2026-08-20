@@ -1,0 +1,53 @@
+folder: uFoSX9OejNWgkKaM
+name: Poise Pause
+type: effect
+img: >-
+  systems/projectmoonttrpg/assets/icons/limbus_assets/Basic%20Effects/Poise/Poised%20Showdown.webp
+system:
+  name: ''
+  description: ''
+  slug: ''
+  cost: 2
+  stackMax: 1
+  appliesTo: skill
+  canPositive: true
+  canNegative: false
+  procOn: onUse
+  procResult: none
+  procResultLocked: false
+  procChoice: none
+  procChoiceLocked: false
+  procStat: any
+  procDice: any
+  procAction: any
+  procCondition: ''
+  positive: >-
+    <p>This skill cannot roll for Critical Hits.</p><p>You do not roll for
+    Critical Hits for the rest of the round.</p>
+  negative: ''
+  macro:
+    uuid: ''
+  customNotes: ''
+  easyEffects: |-
+    [On Clash Start]
+    gain 1 "Poise Pause";
+effects: []
+sort: 100000
+ownership:
+  default: 0
+  yWsvx4DXrmYcZsue: 3
+flags:
+  projectmoonttrpg:
+    syncDismissedAt: 1780427877255
+_stats:
+  compendiumSource: Item.EUMoSNacE4zxC5uh
+  duplicateSource: Item.aEUTdgBfSmVBxNzs
+  exportSource: null
+  coreVersion: '14.364'
+  systemId: projectmoonttrpg
+  systemVersion: 0.0.1
+  createdTime: 1787226336937
+  modifiedTime: 1787226955710
+  lastModifiedBy: yWsvx4DXrmYcZsue
+_id: qJCZpcsugAIjIeO4
+_key: '!items!qJCZpcsugAIjIeO4'

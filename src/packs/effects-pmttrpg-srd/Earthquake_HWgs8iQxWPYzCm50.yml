@@ -1,0 +1,55 @@
+folder: AjubTmmqnDZcHg2N
+name: Earthquake
+type: effect
+img: >-
+  systems/projectmoonttrpg/assets/icons/limbus_assets/Basic%20Effects/Tremor/Tremor%20-%20Clockwinding.webp
+system:
+  name: ''
+  description: '<p><em>Note: This effect is not yet automated.</em></p>'
+  slug: earthquake
+  cost: 6
+  stackMax: 5
+  appliesTo: skill
+  canPositive: true
+  canNegative: false
+  procOn: onBurst
+  procResult: none
+  procResultLocked: false
+  procChoice: none
+  procChoiceLocked: false
+  procStat: any
+  procDice: any
+  procAction: any
+  procCondition: ''
+  positive: >-
+    <p>On Tremor Burst, apply the amount of target's Tremor to all characters
+    (allies and self are optional) within [N] SQRs of the target, next
+    round.</p><p>Each of these targets are inflicted with [N*2] Bind next
+    round.</p><p>Targets may avoid this effect by winning a defensive Clash
+    against your initial Attack Roll.</p>
+  negative: ''
+  macro:
+    uuid: ''
+  customNotes: ''
+  easyEffects: |-
+    [On Tremor Burst]
+    require (burst.amount) >= 4 then
+      inflict 2 Feeble next turn and inflict 2 Disarm next turn;
+effects: []
+sort: 0
+ownership:
+  default: 0
+  yWsvx4DXrmYcZsue: 3
+flags: {}
+_stats:
+  coreVersion: '14.364'
+  systemId: projectmoonttrpg
+  systemVersion: 0.0.1
+  createdTime: 1787232171758
+  modifiedTime: 1787232171758
+  lastModifiedBy: yWsvx4DXrmYcZsue
+  compendiumSource: null
+  duplicateSource: Item.vi7BUjJrR2zP893v
+  exportSource: null
+_id: HWgs8iQxWPYzCm50
+_key: '!items!HWgs8iQxWPYzCm50'

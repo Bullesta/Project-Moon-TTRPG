@@ -1,0 +1,40 @@
+folder: OMSNi4hdekwHrB1H
+name: Maintained Barrier
+type: status
+_id: uVVw8okXZoI5qLPn
+img: >-
+  systems/projectmoonttrpg/assets/icons/limbus_assets/Basic%20Effects/Charge/High-voltage%20Exoskeleton.webp
+system:
+  name: ''
+  description: >-
+    <p>At the End of Round, only lose 1/2 Charge Barrier instead of the
+    totality.</p>
+  slug: ''
+  stacks: 1
+  stackMax: 1
+  priority: 12
+  pending: false
+  arrival: ''
+  shelved: false
+  origin: ''
+  customNotes: ''
+  easyEffects: ''
+effects: []
+sort: 300000
+ownership:
+  default: 0
+  yWsvx4DXrmYcZsue: 3
+flags:
+  projectmoonttrpg:
+    syncDismissedAt: 1787251208142
+_stats:
+  coreVersion: '14.364'
+  systemId: projectmoonttrpg
+  systemVersion: 0.0.1
+  createdTime: 1787251118284
+  modifiedTime: 1787251208324
+  lastModifiedBy: yWsvx4DXrmYcZsue
+  compendiumSource: null
+  duplicateSource: null
+  exportSource: null
+_key: '!items!uVVw8okXZoI5qLPn'

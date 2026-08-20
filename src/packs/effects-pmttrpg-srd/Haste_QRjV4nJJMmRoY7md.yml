@@ -1,0 +1,20 @@
+type: Item
+folder: Bk5tS5sF849QJvJc
+name: Haste
+color: '#9e6400'
+sorting: a
+_id: QRjV4nJJMmRoY7md
+description: ''
+sort: 1200000
+flags: {}
+_stats:
+  compendiumSource: null
+  duplicateSource: null
+  exportSource: null
+  coreVersion: '14.364'
+  systemId: projectmoonttrpg
+  systemVersion: 0.0.1
+  createdTime: 1787243655021
+  modifiedTime: 1787243662533
+  lastModifiedBy: yWsvx4DXrmYcZsue
+_key: '!folders!QRjV4nJJMmRoY7md'

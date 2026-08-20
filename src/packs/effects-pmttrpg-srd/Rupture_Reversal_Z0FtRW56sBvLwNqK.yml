@@ -1,0 +1,51 @@
+folder: dwDk7079sgUAXjmr
+name: Rupture Reversal
+type: effect
+_id: Z0FtRW56sBvLwNqK
+img: >-
+  systems/projectmoonttrpg/assets/icons/limbus_assets/Basic%20Effects/Rupture/Rupture.webp
+system:
+  name: ''
+  description: ''
+  slug: rupture-reversal
+  cost: 4
+  stackMax: 1
+  appliesTo: skill
+  canPositive: true
+  canNegative: false
+  procOn: onBurst
+  procResult: none
+  procResultLocked: false
+  procChoice: none
+  procChoiceLocked: false
+  procStat: any
+  procDice: any
+  procAction: any
+  procCondition: ''
+  positive: >-
+    <p>On Rupture Burst, recover HP equivalent to Rupture burst on the
+    target.</p>
+  negative: ''
+  macro:
+    uuid: ''
+  customNotes: ''
+  easyEffects: |-
+    [On Rupture Burst]
+    regen hp (burst.amount)
+effects: []
+sort: 0
+ownership:
+  default: 0
+  yWsvx4DXrmYcZsue: 3
+flags: {}
+_stats:
+  coreVersion: '14.364'
+  systemId: projectmoonttrpg
+  systemVersion: 0.0.1
+  createdTime: 1787230920024
+  modifiedTime: 1787230920024
+  lastModifiedBy: yWsvx4DXrmYcZsue
+  compendiumSource: null
+  duplicateSource: null
+  exportSource: null
+_key: '!items!Z0FtRW56sBvLwNqK'

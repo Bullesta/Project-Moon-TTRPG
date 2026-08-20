@@ -1,0 +1,20 @@
+type: Item
+folder: Bk5tS5sF849QJvJc
+name: Ruin
+color: '#2e0066'
+sorting: a
+_id: H1Mmnc2yMHYbjA8t
+description: ''
+sort: 700000
+flags: {}
+_stats:
+  compendiumSource: null
+  duplicateSource: null
+  exportSource: null
+  coreVersion: '14.364'
+  systemId: projectmoonttrpg
+  systemVersion: 0.0.1
+  createdTime: 1787229135194
+  modifiedTime: 1787229144897
+  lastModifiedBy: yWsvx4DXrmYcZsue
+_key: '!folders!H1Mmnc2yMHYbjA8t'

@@ -1,0 +1,51 @@
+folder: I4lA4wlovQr7EIRr
+name: Bleed+
+type: effect
+img: >-
+  systems/projectmoonttrpg/assets/icons/limbus_assets/Basic%20Effects/Bleed/Bleed.webp
+system:
+  name: ''
+  description: '<p><em>Note: This effect is not yet automated.</em></p>'
+  slug: ''
+  cost: 1
+  stackMax: 5
+  appliesTo: skill
+  canPositive: true
+  canNegative: false
+  procOn: alwaysActive
+  procResult: none
+  procResultLocked: false
+  procChoice: none
+  procChoiceLocked: false
+  procStat: any
+  procDice: any
+  procAction: any
+  procCondition: If you are inflicting Bleed
+  positive: >-
+    <p>Apply an additional [N] Bleed. This only activates once per target,
+    including self.</p>
+  negative: ''
+  macro:
+    uuid: ''
+  customNotes: ''
+  easyEffects: ''
+effects: []
+sort: 100000
+ownership:
+  default: 0
+  yWsvx4DXrmYcZsue: 3
+flags:
+  projectmoonttrpg:
+    syncDismissedAt: 1780427305210
+_stats:
+  compendiumSource: Item.TluAhd1pBKWaLSme
+  duplicateSource: Item.erYe7op1i9xQzPy7
+  exportSource: null
+  coreVersion: '14.364'
+  systemId: projectmoonttrpg
+  systemVersion: 0.0.1
+  createdTime: 1787225861375
+  modifiedTime: 1787225924880
+  lastModifiedBy: yWsvx4DXrmYcZsue
+_id: jvpaPAe5eUmDfRuJ
+_key: '!items!jvpaPAe5eUmDfRuJ'

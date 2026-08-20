@@ -1,0 +1,50 @@
+folder: b9dl4lonxKcL2W3l
+name: Frostbite+
+type: effect
+img: systems/projectmoonttrpg/assets/icons/Statuses/Frostbite.webp
+system:
+  name: ''
+  description: '<p><em>Note: This effect is not yet automated.</em></p>'
+  slug: ''
+  cost: 1
+  stackMax: 5
+  appliesTo: skill
+  canPositive: true
+  canNegative: false
+  procOn: alwaysActive
+  procResult: none
+  procResultLocked: false
+  procChoice: none
+  procChoiceLocked: false
+  procStat: any
+  procDice: any
+  procAction: any
+  procCondition: If you are applying Frostbite
+  positive: >-
+    <p>Apply an additional [N] Frostbite to the target. This activates once per
+    target, including the user.</p>
+  negative: ''
+  macro:
+    uuid: ''
+  customNotes: ''
+  easyEffects: ''
+effects: []
+sort: 100000
+ownership:
+  default: 0
+  yWsvx4DXrmYcZsue: 3
+flags:
+  projectmoonttrpg:
+    syncDismissedAt: 1780347057182
+_stats:
+  compendiumSource: Item.1ZrlBUwng1X8Fh8f
+  duplicateSource: Item.1ZrlBUwng1X8Fh8f
+  exportSource: null
+  coreVersion: '14.364'
+  systemId: projectmoonttrpg
+  systemVersion: 0.0.1
+  createdTime: 1787225390419
+  modifiedTime: 1787225450168
+  lastModifiedBy: yWsvx4DXrmYcZsue
+_id: N44RUGgAkBC3mNWE
+_key: '!items!N44RUGgAkBC3mNWE'

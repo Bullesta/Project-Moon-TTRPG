@@ -8,36 +8,53 @@ system:
   slug: ''
   stacks: 1
   stackMax: 0
-  priority: 0
+  priority: 7
   pending: false
   arrival: ''
   shelved: false
   origin: ''
   customNotes: ''
-  easyEffects: |-
+  easyEffects: >-
     [On Hit]
-    require ("Slasher Stance") == 1 then proc RollForSlasherPoise;
-    require ("Slasher Stance") == 0 then proc RollForNoStancePoise;
+
+    require ("Poise Pause") == 0 then 
+      proc RollForNoStancePoise;
 
     [On RollForNoStancePoise]
-    on roll 1d10 <= Poise then proc AskForCritical
+
+    roll 1d10 as poiseRoll
+
+    require (poiseRoll) <= (Poise - "Scattering Dance" - (4 * "Slasher Stance"))
+    then proc AskForCritical
+
+    require (poiseRoll) > (Poise - "Scattering Dance" - (4 * "Slasher Stance"))
+    then proc FailedCriticalRoll
+
 
     [On AskForCritical]
+
     create dialog "Proc Critical?":
       procCritical as "Do a Critical Hit",
       gainCritical as "Gain 1 Critical and lose all Poise"
       to self;
 
     [On Dialog Answer procCritical]
+
     proc Critical and lose all Poise on self;
 
+
     [On Dialog Answer gainCritical]
+
     gain 1 Critical and lose (Poise - 1) Poise;
 
+
     [On Gain]
+
     require (changed.before) == 0 then set Critical to 1;
 
+
     [On Lose]
+
     require (changed.after) == 0 then set Critical to 0;
   proc:
     turnStart: false
@@ -61,7 +78,7 @@ _stats:
   systemId: projectmoonttrpg
   systemVersion: 0.0.1
   createdTime: 1779621123777
-  modifiedTime: 1787150003844
+  modifiedTime: 1787228253844
   lastModifiedBy: yWsvx4DXrmYcZsue
 _id: ydPGqz7mrTUDuduT
 sort: 300000

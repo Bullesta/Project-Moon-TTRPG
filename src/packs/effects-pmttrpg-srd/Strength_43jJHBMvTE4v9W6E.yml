@@ -1,0 +1,51 @@
+folder: 6wiMFTgDZGZKBM7u
+name: Strength
+type: effect
+img: systems/projectmoonttrpg/assets/icons/Statuses/Strength.webp
+system:
+  name: ''
+  description: ''
+  slug: strength
+  cost: 6
+  stackMax: 5
+  appliesTo: skill
+  canPositive: true
+  canNegative: true
+  procOn: onClashResult
+  procResult: none
+  procResultLocked: false
+  procChoice: none
+  procChoiceLocked: false
+  procStat: any
+  procDice: any
+  procAction: any
+  procCondition: ''
+  positive: <p>Apply [N] Strength to the character next round.</p>
+  negative: <p>Apply [N] Feeble to the character next round.</p>
+  macro:
+    uuid: ''
+  customNotes: ''
+  easyEffects: |-
+    [On Clash RESULT]
+    positive:
+    gain (N) Strength next round;
+    negative:
+    gain (N) Feeble next round;
+effects: []
+sort: 0
+ownership:
+  default: 0
+  yWsvx4DXrmYcZsue: 3
+flags: {}
+_stats:
+  coreVersion: '14.364'
+  systemId: projectmoonttrpg
+  systemVersion: 0.0.1
+  createdTime: 1787244129542
+  modifiedTime: 1787244129542
+  lastModifiedBy: yWsvx4DXrmYcZsue
+  compendiumSource: null
+  duplicateSource: Item.dsfA61XRLPWJLC1e
+  exportSource: null
+_id: 43jJHBMvTE4v9W6E
+_key: '!items!43jJHBMvTE4v9W6E'

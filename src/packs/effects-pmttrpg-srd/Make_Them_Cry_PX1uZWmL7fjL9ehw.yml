@@ -1,0 +1,52 @@
+folder: 6T7XWg23DP6Ot8Oz
+name: Make Them Cry
+type: effect
+img: >-
+  systems/projectmoonttrpg/assets/icons/limbus_assets/Ally%20Unit/White%20Breath%20-%20Safeguard%20the%20Mind.webp
+system:
+  name: ''
+  description: ''
+  slug: make-them-cry
+  cost: 2
+  stackMax: 5
+  appliesTo: skill
+  canPositive: true
+  canNegative: false
+  procOn: onClashResult
+  procResult: none
+  procResultLocked: false
+  procChoice: none
+  procChoiceLocked: false
+  procStat: any
+  procDice: any
+  procAction: any
+  procCondition: ''
+  positive: >-
+    <p>This skill must be used against your Marked Target.</p><p>Apply [N]
+    Sinking next round and [N] Smoke to the target.</p>
+  negative: ''
+  macro:
+    uuid: ''
+  customNotes: ''
+  easyEffects: |-
+    [Clash RESULT]
+    inflict (N) Sinking next round and 
+      inflict (N) Smoke;
+effects: []
+sort: 0
+ownership:
+  default: 0
+  yWsvx4DXrmYcZsue: 3
+flags: {}
+_stats:
+  coreVersion: '14.364'
+  systemId: projectmoonttrpg
+  systemVersion: 0.0.1
+  createdTime: 1787245896994
+  modifiedTime: 1787245896994
+  lastModifiedBy: yWsvx4DXrmYcZsue
+  compendiumSource: null
+  duplicateSource: Item.Gjy4FzuWpX7ViqJI
+  exportSource: null
+_id: PX1uZWmL7fjL9ehw
+_key: '!items!PX1uZWmL7fjL9ehw'

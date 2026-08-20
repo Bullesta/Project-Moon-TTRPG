@@ -28,7 +28,8 @@ system:
 
     [End of Round]
     gain (1 * "Charge Barrier") "Charge" on self;
-    lose all "Charge Barrier";
+    require ("Maintained Barrier") == 0 then lose all "Charge Barrier";
+    require ("Maintained Barrier") >= 1 then halve "Charge Barrier";
 effects: []
 folder: OMSNi4hdekwHrB1H
 sort: 100000
@@ -41,7 +42,7 @@ _stats:
   systemId: projectmoonttrpg
   systemVersion: 0.0.1
   createdTime: 1785319269473
-  modifiedTime: 1786541793498
+  modifiedTime: 1787251202720
   lastModifiedBy: yWsvx4DXrmYcZsue
   compendiumSource: null
   duplicateSource: null

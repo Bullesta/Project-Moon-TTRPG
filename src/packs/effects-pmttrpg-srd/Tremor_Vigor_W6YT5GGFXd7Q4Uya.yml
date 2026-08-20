@@ -1,0 +1,52 @@
+folder: AjubTmmqnDZcHg2N
+name: Tremor Vigor
+type: effect
+_id: W6YT5GGFXd7Q4Uya
+img: >-
+  systems/projectmoonttrpg/assets/icons/limbus_assets/Basic%20Effects/Tremor/Tremor.webp
+system:
+  name: ''
+  description: ''
+  slug: tremor-vigor
+  cost: 2
+  stackMax: 5
+  appliesTo: skill
+  canPositive: true
+  canNegative: false
+  procOn: alwaysActive
+  procResult: none
+  procResultLocked: false
+  procChoice: none
+  procChoiceLocked: false
+  procStat: any
+  procDice: any
+  procAction: any
+  procCondition: ''
+  positive: >-
+    <p>If the character has [N+3] or more Tremor stacks, increase Dice Power by
+    [N].</p>
+  negative: ''
+  macro:
+    uuid: ''
+  customNotes: ''
+  easyEffects: |-
+    [On Clash Start]
+    require (Tremor) >= (N+3) then
+      power up attack N and power up defense N;
+effects: []
+sort: 0
+ownership:
+  default: 0
+  yWsvx4DXrmYcZsue: 3
+flags: {}
+_stats:
+  coreVersion: '14.364'
+  systemId: projectmoonttrpg
+  systemVersion: 0.0.1
+  createdTime: 1787232171756
+  modifiedTime: 1787232171756
+  lastModifiedBy: yWsvx4DXrmYcZsue
+  compendiumSource: null
+  duplicateSource: null
+  exportSource: null
+_key: '!items!W6YT5GGFXd7Q4Uya'

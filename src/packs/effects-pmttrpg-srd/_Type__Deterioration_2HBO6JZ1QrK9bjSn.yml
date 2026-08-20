@@ -1,0 +1,67 @@
+folder: H1Mmnc2yMHYbjA8t
+name: '[Type] Deterioration'
+type: effect
+img: systems/projectmoonttrpg/assets/icons/Statuses/Devastation.webp
+system:
+  name: ''
+  description: ''
+  slug: ''
+  cost: 4
+  stackMax: 5
+  appliesTo: skill
+  canPositive: true
+  canNegative: false
+  procOn: onDevastating
+  procResult: none
+  procResultLocked: false
+  procChoice: none
+  procChoiceLocked: false
+  procStat: any
+  procDice: any
+  procAction: any
+  procCondition: ''
+  positive: >-
+    <p>Apply [N*2] [Type] Fragile to the target next round.<br>The type is
+    chosen between Blunt, Slash and Pierce on use.</p>
+  negative: ''
+  macro:
+    uuid: ''
+  customNotes: ''
+  easyEffects: |+
+    [On DevastatingHit]
+    positive:
+    create dialog "Devastating Hit: Inflict [Type] Fragile": 
+      slash as "Slash Fragile",
+      pierce as "Pierce Fragile",
+      blunt as "Blunt Fragile"
+      to self;
+
+    [On Dialog Answer slash]
+    inflict (N*2) "Slash Fragile" next turn to target;
+
+    [On Dialog Answer pierce]
+    inflict (N*2) "Pierce Fragile" next turn to target;
+
+    [On Dialog Answer blunt]
+    inflict (N*2) "Blunt Fragile" next turn to target;
+
+effects: []
+sort: 100000
+ownership:
+  default: 0
+  yWsvx4DXrmYcZsue: 3
+flags:
+  projectmoonttrpg:
+    syncDismissedAt: 1780732288366
+_stats:
+  compendiumSource: Item.E4HpJQh7hckViUs6
+  duplicateSource: Item.2G79Qpr6xiv8CcTd
+  exportSource: null
+  coreVersion: '14.364'
+  systemId: projectmoonttrpg
+  systemVersion: 0.0.1
+  createdTime: 1787229135232
+  modifiedTime: 1787229871396
+  lastModifiedBy: yWsvx4DXrmYcZsue
+_id: 2HBO6JZ1QrK9bjSn
+_key: '!items!2HBO6JZ1QrK9bjSn'

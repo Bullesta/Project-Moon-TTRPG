@@ -1,0 +1,49 @@
+folder: tgOfSJhMwrzok7lS
+name: Overcharge - Reflective Barrier
+type: effect
+img: systems/projectmoonttrpg/assets/icons/Statuses/Overcharge.webp
+system:
+  name: ''
+  description: '<p><em>Note: This effect is not yet automated.</em></p>'
+  slug: overcharge-reflective-barrier
+  cost: 4
+  stackMax: 1
+  appliesTo: skill
+  canPositive: true
+  canNegative: false
+  procOn: onClashResult
+  procResult: none
+  procResultLocked: false
+  procChoice: none
+  procChoiceLocked: false
+  procStat: any
+  procDice: any
+  procAction: any
+  procCondition: ''
+  positive: >-
+    <p>Consume 3 Overcharge.</p><p>Negates the target's [Inflict] Effects to the
+    character. Any of the target’s [Inflict] Effects that would have applied to
+    the character as a result of the Clash instead apply to the Target.</p>
+  negative: ''
+  macro:
+    uuid: ''
+  customNotes: ''
+  easyEffects: ''
+effects: []
+sort: 100000
+ownership:
+  default: 0
+  yWsvx4DXrmYcZsue: 3
+flags: {}
+_stats:
+  coreVersion: '14.364'
+  systemId: projectmoonttrpg
+  systemVersion: 0.0.1
+  createdTime: 1787252052444
+  modifiedTime: 1787252052444
+  lastModifiedBy: yWsvx4DXrmYcZsue
+  compendiumSource: null
+  duplicateSource: Item.ruZbaHho2qw4TmWR
+  exportSource: null
+_id: pxpqb987SaJogYp5
+_key: '!items!pxpqb987SaJogYp5'
