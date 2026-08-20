@@ -1,0 +1,55 @@
+folder: I4lA4wlovQr7EIRr
+name: Bleed Vigor
+type: effect
+img: >-
+  systems/projectmoonttrpg/assets/icons/limbus_assets/Basic%20Effects/Bleed/Bleed.webp
+system:
+  name: ''
+  description: ''
+  slug: ''
+  cost: 2
+  stackMax: 5
+  appliesTo: skill
+  canPositive: true
+  canNegative: false
+  procOn: alwaysActive
+  procResult: none
+  procResultLocked: false
+  procChoice: none
+  procChoiceLocked: false
+  procStat: any
+  procDice: any
+  procAction: any
+  procCondition: ''
+  positive: >-
+    <p>If the character has [N+2] or more Bleed stacks, increase the Dice Power
+    by [N]. If you have an effect of the same name on your Augment, increase the
+    amount of Bleed required by 1.</p>
+  negative: ''
+  macro:
+    uuid: ''
+  customNotes: ''
+  easyEffects: |-
+    [On Clash Start]
+    require (Bleed) >= (N+2) then
+      power up attack N and power up defense N;
+effects: []
+sort: 100000
+ownership:
+  default: 0
+  yWsvx4DXrmYcZsue: 3
+flags:
+  projectmoonttrpg:
+    syncDismissedAt: 1780427305210
+_stats:
+  compendiumSource: Item.TluAhd1pBKWaLSme
+  duplicateSource: Item.erYe7op1i9xQzPy7
+  exportSource: null
+  coreVersion: '14.364'
+  systemId: projectmoonttrpg
+  systemVersion: 0.0.1
+  createdTime: 1787225861375
+  modifiedTime: 1787225941305
+  lastModifiedBy: yWsvx4DXrmYcZsue
+_id: gqWQhR4g02edyxrW
+_key: '!items!gqWQhR4g02edyxrW'

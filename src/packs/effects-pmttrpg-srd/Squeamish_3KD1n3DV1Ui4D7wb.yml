@@ -4,8 +4,8 @@ type: effect
 img: systems/projectmoonttrpg/assets/icons/Statuses/Panic.webp
 system:
   name: ''
-  description: ''
-  slug: squeamish
+  description: '<p><em>Note: This effect is not yet automated.</em></p>'
+  slug: ''
   cost: 2
   stackMax: 3
   appliesTo: augment
@@ -14,6 +14,8 @@ system:
   procOn: alwaysActive
   procResult: none
   procResultLocked: false
+  procChoice: none
+  procChoiceLocked: false
   procStat: any
   procDice: any
   procAction: any
@@ -38,7 +40,7 @@ _stats:
   systemId: projectmoonttrpg
   systemVersion: 0.0.1
   createdTime: 1785485134517
-  modifiedTime: 1785485134517
+  modifiedTime: 1787170641649
   lastModifiedBy: yWsvx4DXrmYcZsue
 _id: 3KD1n3DV1Ui4D7wb
 _key: '!items!3KD1n3DV1Ui4D7wb'

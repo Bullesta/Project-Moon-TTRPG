@@ -8,12 +8,24 @@ system:
   slug: ''
   stacks: 1
   stackMax: 0
-  priority: 0
+  priority: 5
+  pending: false
+  arrival: ''
+  shelved: false
+  origin: ''
   customNotes: ''
   easyEffects: |-
     [On Critical]
-    deal 1d10 hp damage per Critical to target;
-    lose all Critical on self;
+    require ("Slasher Stance") >= 1 then 
+      require (proc.IgnoreDamage != 0) then deal 1d10 hp damage per Critical to target and
+      lose all Critical on self and
+      gain 2 Critical on self;
+    require ("Slayer Stance") >= 1 then
+      require (proc.IgnoreDamage != 0) then deal 2d10kh hp damage per Critical to target and
+      lose all Critical on self;
+    require ("Slasher Stance" + "Slayer Stance") == 0 then
+      require (proc.IgnoreDamage != 0) then deal 1d10 hp damage per Critical to target and
+      lose all Critical on self;
 
     [On Gain]
     require (Poise) == 0 then gain 1 Poise;
@@ -39,7 +51,7 @@ _stats:
   systemId: projectmoonttrpg
   systemVersion: 0.0.1
   createdTime: 1779621117903
-  modifiedTime: 1785426629738
+  modifiedTime: 1787228681545
   lastModifiedBy: yWsvx4DXrmYcZsue
 _id: bsi06vGEb9F42Vmt
 sort: 150000

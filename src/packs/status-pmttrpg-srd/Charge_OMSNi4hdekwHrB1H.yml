@@ -5,14 +5,14 @@ color: '#7a00b3'
 sorting: a
 _id: OMSNi4hdekwHrB1H
 description: ''
-sort: 0
+sort: 400000
 flags: {}
 _stats:
   coreVersion: '14.364'
   systemId: projectmoonttrpg
   systemVersion: 0.0.1
   createdTime: 1785426726121
-  modifiedTime: 1785426726121
+  modifiedTime: 1787144465729
   lastModifiedBy: yWsvx4DXrmYcZsue
   compendiumSource: null
   duplicateSource: null

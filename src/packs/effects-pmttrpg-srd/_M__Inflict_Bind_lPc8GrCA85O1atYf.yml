@@ -4,11 +4,18 @@ type: effect
 img: systems/projectmoonttrpg/assets/icons/Statuses/Bind.webp
 system:
   name: ''
-  description: ''
+  description: '<p><em>Note : This effect isn''t currently automated.</em></p>'
+  slug: ''
   cost: 3
-  allowMultiple: true
+  stackMax: 5
+  appliesTo: weapon
+  canPositive: true
+  canNegative: false
   procOn: onClash
   procResult: none
+  procResultLocked: false
+  procChoice: none
+  procChoiceLocked: false
   procStat: any
   procDice: any
   procAction: any
@@ -18,11 +25,10 @@ system:
   macro:
     uuid: ''
   customNotes: ''
-  appliesTo: weapon
-  canPositive: true
-  canNegative: false
-  stackMax: 5
-  procResultLocked: false
+  easyEffects: |-
+    [Clash RESULT]
+    inflict N Bind next round
+  allowMultiple: true
 effects: []
 sort: 0
 ownership:
@@ -33,11 +39,11 @@ _stats:
   compendiumSource: null
   duplicateSource: Item.EoljjQUO4ECn86wS
   exportSource: null
-  coreVersion: '13.351'
+  coreVersion: '14.364'
   systemId: projectmoonttrpg
   systemVersion: 0.0.1
   createdTime: 1779651087474
-  modifiedTime: 1779651087474
+  modifiedTime: 1787149526430
   lastModifiedBy: yWsvx4DXrmYcZsue
 _id: lPc8GrCA85O1atYf
 _key: '!items!lPc8GrCA85O1atYf'

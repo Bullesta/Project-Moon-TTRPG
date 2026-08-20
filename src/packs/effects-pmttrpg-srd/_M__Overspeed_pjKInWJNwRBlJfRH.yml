@@ -1,0 +1,66 @@
+folder: QRjV4nJJMmRoY7md
+name: '[M] Overspeed'
+type: effect
+img: >-
+  systems/projectmoonttrpg/assets/icons/limbus_assets/Basic%20Effects/Unfocused%20Volley.webp
+system:
+  name: ''
+  description: >-
+    <p><em>Note: This effect is not yet automated. <strong>Though, there is a
+    text message telling you how to apply this.</strong></em></p>
+  slug: m-overspeed
+  cost: 4
+  stackMax: 1
+  appliesTo: skill
+  canPositive: true
+  canNegative: false
+  procOn: alwaysActive
+  procResult: none
+  procResultLocked: false
+  procChoice: none
+  procChoiceLocked: false
+  procStat: any
+  procDice: any
+  procAction: any
+  procCondition: ''
+  positive: >-
+    <p>[Attack Replacement] Replaces Attack with an AoE Attack. This attack
+    follows a straight line until obstructed, up to [Haste] SQRs. The user may
+    move along this line without triggering Opportunity Attacks, and may stop
+    their movement at any point.</p>
+  negative: ''
+  macro:
+    uuid: ''
+  customNotes: ''
+  easyEffects: >-
+    [Always Active]
+
+    power down attack 2;
+
+
+    [On Clash Win]
+
+    create message 
+
+    "[Attack Replacement / Overspeed] Press [Shift + T] to target multiple
+    tokens. Apply the damage to all valid targets in a line, up to (Haste) SQRs.
+    Apply status inflictions at half efficiency, rounded down, for any hits
+    after the first."
+effects: []
+sort: 0
+ownership:
+  default: 0
+  yWsvx4DXrmYcZsue: 3
+flags: {}
+_stats:
+  coreVersion: '14.364'
+  systemId: projectmoonttrpg
+  systemVersion: 0.0.1
+  createdTime: 1787243655059
+  modifiedTime: 1787243655059
+  lastModifiedBy: yWsvx4DXrmYcZsue
+  compendiumSource: null
+  duplicateSource: Item.bXil97GSfBb4OHKB
+  exportSource: null
+_id: pjKInWJNwRBlJfRH
+_key: '!items!pjKInWJNwRBlJfRH'

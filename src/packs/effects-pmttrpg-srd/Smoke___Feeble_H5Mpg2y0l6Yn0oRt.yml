@@ -1,0 +1,51 @@
+folder: b26xxIfNBITDTvuw
+name: Smoke - Feeble
+type: effect
+img: >-
+  systems/projectmoonttrpg/assets/icons/limbus_assets/Ally%20Unit/Purple%20Breath%20-%20Hysteria.webp
+system:
+  name: ''
+  description: ''
+  slug: smoke-feeble
+  cost: 4
+  stackMax: 5
+  appliesTo: skill
+  canPositive: true
+  canNegative: false
+  procOn: onClashResult
+  procResult: none
+  procResultLocked: false
+  procChoice: none
+  procChoiceLocked: false
+  procStat: any
+  procDice: any
+  procAction: any
+  procCondition: ''
+  positive: >-
+    <p>Consume [N*3] Smoke on the target to inflict [N] Feeble on the target
+    next round.</p>
+  negative: ''
+  macro:
+    uuid: ''
+  customNotes: ''
+  easyEffects: |-
+    [On Clash RESULT]
+    spend (N*3) Smoke on target to inflict N Feeble next turn;
+effects: []
+sort: 0
+ownership:
+  default: 0
+  yWsvx4DXrmYcZsue: 3
+flags: {}
+_stats:
+  coreVersion: '14.364'
+  systemId: projectmoonttrpg
+  systemVersion: 0.0.1
+  createdTime: 1787235636269
+  modifiedTime: 1787235636269
+  lastModifiedBy: yWsvx4DXrmYcZsue
+  compendiumSource: null
+  duplicateSource: Item.o2BKF7Yd9w0Uz3Ch
+  exportSource: null
+_id: H5Mpg2y0l6Yn0oRt
+_key: '!items!H5Mpg2y0l6Yn0oRt'

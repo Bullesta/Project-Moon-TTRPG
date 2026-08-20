@@ -12,14 +12,18 @@ system:
   stacks: 1
   stackMax: 0
   priority: 0
+  pending: false
+  arrival: ''
+  shelved: false
+  origin: ''
   customNotes: ''
   easyEffects: |-
     [On Clash Start]
-    power up block Endurance
-    power up evade Endurance
+    power up block (Endurance);
+    power up evade (Endurance);
 
     [End of Round]
-    remove Endurance Endurance
+    lose all Endurance;
 effects: []
 folder: jtSvJ9E0Hm5t7NVJ
 sort: 300000
@@ -32,7 +36,7 @@ _stats:
   systemId: projectmoonttrpg
   systemVersion: 0.0.1
   createdTime: 1785318699516
-  modifiedTime: 1785426697420
+  modifiedTime: 1786446250795
   lastModifiedBy: yWsvx4DXrmYcZsue
   compendiumSource: null
   duplicateSource: null

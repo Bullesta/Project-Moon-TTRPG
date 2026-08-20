@@ -1,0 +1,53 @@
+folder: 6T7XWg23DP6Ot8Oz
+name: Grounding Cycle
+type: effect
+img: systems/projectmoonttrpg/assets/icons/Statuses/Charge.webp
+system:
+  name: ''
+  description: >-
+    <p><em>Note: This effect is not yet fully automated. Since "gaining
+    Overcharge" conditionals are not yet here, it does not prevent Charge loss,
+    since Charge doesn't auto-lose Stack. </em></p>
+  slug: grounding-cycle
+  cost: 2
+  stackMax: 5
+  appliesTo: skill
+  canPositive: true
+  canNegative: false
+  procOn: onClashResult
+  procResult: none
+  procResultLocked: false
+  procChoice: none
+  procChoiceLocked: false
+  procStat: any
+  procDice: any
+  procAction: any
+  procCondition: ''
+  positive: >-
+    <p>This skill must be used against your Marked Target.</p><p>Gain [N*3]
+    Charge. Charge does not reduce at the end of this round if applicable.</p>
+  negative: ''
+  macro:
+    uuid: ''
+  customNotes: ''
+  easyEffects: |-
+    [On Clash RESULT]
+    gain (N*3) Charge;
+effects: []
+sort: 0
+ownership:
+  default: 0
+  yWsvx4DXrmYcZsue: 3
+flags: {}
+_stats:
+  coreVersion: '14.364'
+  systemId: projectmoonttrpg
+  systemVersion: 0.0.1
+  createdTime: 1787245896996
+  modifiedTime: 1787245896996
+  lastModifiedBy: yWsvx4DXrmYcZsue
+  compendiumSource: null
+  duplicateSource: Item.yGs1c2NpCUwjfxCn
+  exportSource: null
+_id: kmY9mvh6HDHXLj55
+_key: '!items!kmY9mvh6HDHXLj55'

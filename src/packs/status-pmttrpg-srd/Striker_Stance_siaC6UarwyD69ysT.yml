@@ -14,8 +14,12 @@ system:
     weapon.</p>
   slug: ''
   stacks: 1
-  stackMax: 0
-  priority: 0
+  stackMax: 1
+  priority: 15
+  pending: false
+  arrival: ''
+  shelved: false
+  origin: ''
   customNotes: ''
   easyEffects: ''
 effects: []
@@ -29,7 +33,7 @@ _stats:
   systemId: projectmoonttrpg
   systemVersion: 0.0.1
   createdTime: 1785433404119
-  modifiedTime: 1785433901825
+  modifiedTime: 1787228273272
   lastModifiedBy: yWsvx4DXrmYcZsue
   compendiumSource: null
   duplicateSource: null

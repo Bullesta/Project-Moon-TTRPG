@@ -1,0 +1,38 @@
+folder: 8tfinV0q66z2Egqy
+name: Scattering Dance
+type: status
+_id: yOuO9C9VyOjzkt5v
+img: >-
+  systems/projectmoonttrpg/assets/icons/limbus_assets/Basic%20Effects/Poise/Shallow%20Exhale.webp
+system:
+  name: ''
+  description: >-
+    <p>When target has (Stack) Bleed or more and rolling to Critically Hit,
+    treat your roll as (Stack) lower when checking against your Poise.</p>
+  slug: ''
+  stacks: 1
+  stackMax: 5
+  priority: 10
+  pending: false
+  arrival: ''
+  shelved: false
+  origin: ''
+  customNotes: ''
+  easyEffects: ''
+effects: []
+sort: 0
+ownership:
+  default: 0
+  yWsvx4DXrmYcZsue: 3
+flags: {}
+_stats:
+  coreVersion: '14.364'
+  systemId: projectmoonttrpg
+  systemVersion: 0.0.1
+  createdTime: 1787227280027
+  modifiedTime: 1787228208477
+  lastModifiedBy: yWsvx4DXrmYcZsue
+  compendiumSource: null
+  duplicateSource: null
+  exportSource: null
+_key: '!items!yOuO9C9VyOjzkt5v'

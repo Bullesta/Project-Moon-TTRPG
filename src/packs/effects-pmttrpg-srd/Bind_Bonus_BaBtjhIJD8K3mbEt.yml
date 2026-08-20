@@ -1,0 +1,51 @@
+folder: qZ5uzhep6qammKdU
+name: Bind Bonus
+type: effect
+img: systems/projectmoonttrpg/assets/icons/Statuses/Bind.webp
+system:
+  name: ''
+  description: ''
+  slug: ''
+  cost: 2
+  stackMax: 5
+  appliesTo: skill
+  canPositive: true
+  canNegative: false
+  procOn: alwaysActive
+  procResult: none
+  procResultLocked: false
+  procChoice: none
+  procChoiceLocked: false
+  procStat: any
+  procDice: any
+  procAction: any
+  procCondition: ''
+  positive: >-
+    <p>If the target has [N] or more Bind stacks, increase Dice Power by
+    [N].</p>
+  negative: ''
+  macro:
+    uuid: ''
+  customNotes: ''
+  easyEffects: |-
+    [On Clash Start]
+    require (target.Bind) >= N then
+      power up attack N and power up defense N;
+effects: []
+sort: 0
+ownership:
+  default: 0
+  yWsvx4DXrmYcZsue: 3
+flags: {}
+_stats:
+  compendiumSource: null
+  duplicateSource: Item.Jw1XSAVL3YylCLgI
+  exportSource: null
+  coreVersion: '14.364'
+  systemId: projectmoonttrpg
+  systemVersion: 0.0.1
+  createdTime: 1787170912486
+  modifiedTime: 1787171146864
+  lastModifiedBy: yWsvx4DXrmYcZsue
+_id: BaBtjhIJD8K3mbEt
+_key: '!items!BaBtjhIJD8K3mbEt'

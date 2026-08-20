@@ -1,0 +1,48 @@
+folder: Zac3Xkc5Y82RXJkZ
+name: Charge - Disarm
+type: effect
+img: systems/projectmoonttrpg/assets/icons/Statuses/Disarm.webp
+system:
+  name: ''
+  description: ''
+  slug: charge-disarm
+  cost: 3
+  stackMax: 5
+  appliesTo: skill
+  canPositive: true
+  canNegative: false
+  procOn: onClashResult
+  procResult: none
+  procResultLocked: false
+  procChoice: none
+  procChoiceLocked: false
+  procStat: any
+  procDice: any
+  procAction: any
+  procCondition: ''
+  positive: <p>Consume [N*6] Charge to inflict [N] Disarm to the target next round.</p>
+  negative: ''
+  macro:
+    uuid: ''
+  customNotes: ''
+  easyEffects: |-
+    [On Clash RESULT]
+    spend (N*6) Charge to inflict (N) Disarm next turn;
+effects: []
+sort: 2100000
+ownership:
+  default: 0
+  yWsvx4DXrmYcZsue: 3
+flags: {}
+_stats:
+  coreVersion: '14.364'
+  systemId: projectmoonttrpg
+  systemVersion: 0.0.1
+  createdTime: 1787251585544
+  modifiedTime: 1787251585544
+  lastModifiedBy: yWsvx4DXrmYcZsue
+  compendiumSource: null
+  duplicateSource: Item.9TL9iSeWZTeJmJrY
+  exportSource: null
+_id: PDFPvdnt6GidEUos
+_key: '!items!PDFPvdnt6GidEUos'

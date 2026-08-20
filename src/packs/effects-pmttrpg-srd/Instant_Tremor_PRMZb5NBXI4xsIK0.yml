@@ -1,0 +1,50 @@
+folder: AjubTmmqnDZcHg2N
+name: Instant Tremor
+type: effect
+_id: PRMZb5NBXI4xsIK0
+img: >-
+  systems/projectmoonttrpg/assets/icons/limbus_assets/Basic%20Effects/Factions/T%20Corp/Time%20Acceleration.webp
+system:
+  name: ''
+  description: '<p><em>Note: This effect is not yet automated.</em></p>'
+  slug: instant-tremor
+  cost: 4
+  stackMax: 1
+  appliesTo: skill
+  canPositive: true
+  canNegative: false
+  procOn: alwaysActive
+  procResult: none
+  procResultLocked: false
+  procChoice: none
+  procChoiceLocked: false
+  procStat: any
+  procDice: any
+  procAction: any
+  procCondition: ''
+  positive: >-
+    <p>[Inflict Tremor] from Effects and this Skill is applied to the target and
+    is activated immediately for the round. This occurs before any Tremor
+    Burst.</p>
+  negative: ''
+  macro:
+    uuid: ''
+  customNotes: ''
+  easyEffects: ''
+effects: []
+sort: 0
+ownership:
+  default: 0
+  yWsvx4DXrmYcZsue: 3
+flags: {}
+_stats:
+  coreVersion: '14.364'
+  systemId: projectmoonttrpg
+  systemVersion: 0.0.1
+  createdTime: 1787232171755
+  modifiedTime: 1787232171755
+  lastModifiedBy: yWsvx4DXrmYcZsue
+  compendiumSource: null
+  duplicateSource: Item.PRMZb5NBXI4xsIK0
+  exportSource: null
+_key: '!items!PRMZb5NBXI4xsIK0'

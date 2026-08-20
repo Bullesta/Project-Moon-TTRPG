@@ -1,0 +1,20 @@
+type: Item
+folder: Bk5tS5sF849QJvJc
+name: Rupture
+color: '#00a390'
+sorting: a
+_id: dwDk7079sgUAXjmr
+description: ''
+sort: 800000
+flags: {}
+_stats:
+  compendiumSource: null
+  duplicateSource: null
+  exportSource: null
+  coreVersion: '14.364'
+  systemId: projectmoonttrpg
+  systemVersion: 0.0.1
+  createdTime: 1787230919993
+  modifiedTime: 1787230928741
+  lastModifiedBy: yWsvx4DXrmYcZsue
+_key: '!folders!dwDk7079sgUAXjmr'

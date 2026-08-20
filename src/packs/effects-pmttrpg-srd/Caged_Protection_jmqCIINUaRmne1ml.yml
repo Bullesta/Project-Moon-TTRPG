@@ -5,7 +5,7 @@ img: systems/projectmoonttrpg/assets/icons/Statuses/Protection.webp
 system:
   name: ''
   description: ''
-  slug: caged-protection
+  slug: ''
   cost: 4
   stackMax: 1
   appliesTo: augment
@@ -14,6 +14,8 @@ system:
   procOn: alwaysActive
   procResult: none
   procResultLocked: false
+  procChoice: none
+  procChoiceLocked: false
   procStat: any
   procDice: any
   procAction: any
@@ -25,7 +27,11 @@ system:
   macro:
     uuid: ''
   customNotes: ''
-  easyEffects: ''
+  easyEffects: |-
+    [Start of Round]
+    require (self.sp) > 0 then 
+      gain 1 "Protection" per (3 - (self.sp% //f 25)) and
+      gain 1 "Stagger Protection" per (3 - (self.sp% //f 25));
 effects: []
 sort: 0
 ownership:
@@ -40,7 +46,7 @@ _stats:
   systemId: projectmoonttrpg
   systemVersion: 0.0.1
   createdTime: 1785485124305
-  modifiedTime: 1785485124305
+  modifiedTime: 1787165266680
   lastModifiedBy: yWsvx4DXrmYcZsue
 _id: jmqCIINUaRmne1ml
 _key: '!items!jmqCIINUaRmne1ml'

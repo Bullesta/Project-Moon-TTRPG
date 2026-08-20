@@ -1,0 +1,58 @@
+name: Self-Staggered
+type: status
+_id: L6xUlqKPWfaXVcDz
+img: systems/projectmoonttrpg/assets/icons/Statuses/Staggered.webp
+system:
+  name: ''
+  description: >-
+    <p><strong>Staggered by oneself. Functionally identical to a Stagger, but
+    you may choose not to lose SP from this, and you may apply any self-stagger
+    effects thanks to this.</strong></p><p>When Staggered, the character is
+    unable to act until the end of the Next Round and all their Resistances are
+    set to Fatal.</p><p>At the start of the Round after, recover all ST, and
+    lose Staggered.</p>
+  slug: ''
+  stacks: 1
+  stackMax: 1
+  priority: 90
+  pending: false
+  arrival: ''
+  shelved: false
+  origin: ''
+  customNotes: ''
+  easyEffects: |-
+    [On Applied]
+    proc SelfStagger on self;
+    create dialog "Self-Stagger : Deal SP Damage to Self?":
+      selfSpDamage as "Deal 5 SP Damage to Self",
+      dont as "Don't"
+      to self;
+    heal 1 light to self;
+
+    [On Dialog Answer selfSpDamage]
+    deal 5 sp damage to self;
+
+    [Always Active]
+    set resistances to fatal;
+
+    [On Removed]
+    set st to max;
+    gain 10 tempSt on self;
+effects: []
+folder: null
+sort: 0
+ownership:
+  default: 0
+  yWsvx4DXrmYcZsue: 3
+flags: {}
+_stats:
+  coreVersion: '14.364'
+  systemId: projectmoonttrpg
+  systemVersion: 0.0.1
+  createdTime: 1787166579624
+  modifiedTime: 1787225219188
+  lastModifiedBy: yWsvx4DXrmYcZsue
+  compendiumSource: null
+  duplicateSource: null
+  exportSource: null
+_key: '!items!L6xUlqKPWfaXVcDz'

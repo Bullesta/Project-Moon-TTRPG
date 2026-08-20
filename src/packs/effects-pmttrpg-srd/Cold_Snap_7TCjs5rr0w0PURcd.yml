@@ -1,0 +1,55 @@
+folder: b9dl4lonxKcL2W3l
+name: Cold Snap
+type: effect
+img: systems/projectmoonttrpg/assets/icons/Statuses/Frostbite.webp
+system:
+  name: ''
+  description: ''
+  slug: ''
+  cost: 4
+  stackMax: 1
+  appliesTo: skill
+  canPositive: true
+  canNegative: false
+  procOn: onClashResult
+  procResult: none
+  procResultLocked: false
+  procChoice: none
+  procChoiceLocked: false
+  procStat: any
+  procDice: any
+  procAction: any
+  procCondition: ''
+  positive: >-
+    <p>"Inflict Frostbite" effects on the same attack occur before this effect
+    triggers.</p>
+
+    <p>Any Frostbite on the target is activated immediately, then is fully
+    cleared.</p>
+  negative: ''
+  macro:
+    uuid: ''
+  customNotes: ''
+  easyEffects: |-
+    [On Clash Win With Attack]
+    proc Frostbite on target;
+effects: []
+sort: 100000
+ownership:
+  default: 0
+  yWsvx4DXrmYcZsue: 3
+flags:
+  projectmoonttrpg:
+    syncDismissedAt: 1780347057182
+_stats:
+  compendiumSource: Item.1ZrlBUwng1X8Fh8f
+  duplicateSource: Item.dyCSJl6EqmJttKKN
+  exportSource: null
+  coreVersion: '14.364'
+  systemId: projectmoonttrpg
+  systemVersion: 0.0.1
+  createdTime: 1787225390417
+  modifiedTime: 1787225708960
+  lastModifiedBy: yWsvx4DXrmYcZsue
+_id: 7TCjs5rr0w0PURcd
+_key: '!items!7TCjs5rr0w0PURcd'

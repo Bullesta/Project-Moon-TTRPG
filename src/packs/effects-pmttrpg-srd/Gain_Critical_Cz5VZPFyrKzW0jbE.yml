@@ -1,0 +1,50 @@
+folder: uFoSX9OejNWgkKaM
+name: Gain Critical
+type: effect
+img: systems/projectmoonttrpg/assets/icons/Statuses/Critical.webp
+system:
+  name: ''
+  description: ''
+  slug: ''
+  cost: 4
+  stackMax: 5
+  appliesTo: skill
+  canPositive: true
+  canNegative: false
+  procOn: onClashResult
+  procResult: none
+  procResultLocked: false
+  procChoice: none
+  procChoiceLocked: false
+  procStat: any
+  procDice: any
+  procAction: any
+  procCondition: ''
+  positive: <p>Apply [N] Critical to the character.</p>
+  negative: ''
+  macro:
+    uuid: ''
+  customNotes: ''
+  easyEffects: |-
+    [On Clash RESULT]
+    gain N Critical;
+effects: []
+sort: 100000
+ownership:
+  default: 0
+  yWsvx4DXrmYcZsue: 3
+flags:
+  projectmoonttrpg:
+    syncDismissedAt: 1780427877255
+_stats:
+  compendiumSource: Item.EUMoSNacE4zxC5uh
+  duplicateSource: Item.EUMoSNacE4zxC5uh
+  exportSource: null
+  coreVersion: '14.364'
+  systemId: projectmoonttrpg
+  systemVersion: 0.0.1
+  createdTime: 1787226336937
+  modifiedTime: 1787226425292
+  lastModifiedBy: yWsvx4DXrmYcZsue
+_id: Cz5VZPFyrKzW0jbE
+_key: '!items!Cz5VZPFyrKzW0jbE'

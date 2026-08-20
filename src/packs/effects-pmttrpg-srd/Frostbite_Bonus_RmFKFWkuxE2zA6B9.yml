@@ -5,7 +5,7 @@ img: systems/projectmoonttrpg/assets/icons/Statuses/Frostbite.webp
 system:
   name: ''
   description: ''
-  slug: frostbite-bonus
+  slug: ''
   cost: 2
   stackMax: 1
   appliesTo: augment
@@ -14,6 +14,8 @@ system:
   procOn: alwaysActive
   procResult: none
   procResultLocked: false
+  procChoice: none
+  procChoiceLocked: false
   procStat: any
   procDice: any
   procAction: action
@@ -23,7 +25,9 @@ system:
   macro:
     uuid: ''
   customNotes: ''
-  easyEffects: ''
+  easyEffects: |-
+    [On Clash Start]
+    require (target.status.Frostbite) >= 2 then power up CHOICE 1;
 effects: []
 sort: 0
 ownership:
@@ -38,7 +42,7 @@ _stats:
   systemId: projectmoonttrpg
   systemVersion: 0.0.1
   createdTime: 1785485127257
-  modifiedTime: 1785485127257
+  modifiedTime: 1787151959694
   lastModifiedBy: yWsvx4DXrmYcZsue
 _id: RmFKFWkuxE2zA6B9
 _key: '!items!RmFKFWkuxE2zA6B9'

@@ -1,0 +1,46 @@
+folder: za1n0xKj890DGSls
+name: Give Protection
+type: effect
+_id: Y1GWB9dlchtPKPhh
+img: systems/projectmoonttrpg/assets/icons/Statuses/Protection.webp
+system:
+  name: ''
+  description: '<p><em>Note: This effect is not yet automated.</em></p>'
+  slug: give-protection
+  cost: 2
+  stackMax: 5
+  appliesTo: skill
+  canPositive: true
+  canNegative: false
+  procOn: onClashResult
+  procResult: none
+  procResultLocked: false
+  procChoice: none
+  procChoiceLocked: false
+  procStat: any
+  procDice: any
+  procAction: any
+  procCondition: ''
+  positive: <p>Apply [N*2] Protection to another character next round.</p>
+  negative: ''
+  macro:
+    uuid: ''
+  customNotes: ''
+  easyEffects: ''
+effects: []
+sort: 0
+ownership:
+  default: 0
+  yWsvx4DXrmYcZsue: 3
+flags: {}
+_stats:
+  coreVersion: '14.364'
+  systemId: projectmoonttrpg
+  systemVersion: 0.0.1
+  createdTime: 1787244693392
+  modifiedTime: 1787244693392
+  lastModifiedBy: yWsvx4DXrmYcZsue
+  compendiumSource: null
+  duplicateSource: null
+  exportSource: null
+_key: '!items!Y1GWB9dlchtPKPhh'

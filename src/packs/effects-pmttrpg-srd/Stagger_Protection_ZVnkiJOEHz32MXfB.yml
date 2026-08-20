@@ -1,0 +1,48 @@
+folder: 6wiMFTgDZGZKBM7u
+name: Stagger Protection
+type: effect
+img: systems/projectmoonttrpg/assets/icons/Statuses/Stagger%20Protection.webp
+system:
+  name: ''
+  description: ''
+  slug: stagger-protection
+  cost: 1
+  stackMax: 5
+  appliesTo: skill
+  canPositive: true
+  canNegative: false
+  procOn: onClashResult
+  procResult: none
+  procResultLocked: false
+  procChoice: none
+  procChoiceLocked: false
+  procStat: any
+  procDice: any
+  procAction: any
+  procCondition: ''
+  positive: <p>Apply [N] Stagger Protection to the character next round.</p>
+  negative: ''
+  macro:
+    uuid: ''
+  customNotes: ''
+  easyEffects: |-
+    [On Clash RESULT]
+    gain N "Stagger Protection" next round;
+effects: []
+sort: 0
+ownership:
+  default: 0
+  yWsvx4DXrmYcZsue: 3
+flags: {}
+_stats:
+  coreVersion: '14.364'
+  systemId: projectmoonttrpg
+  systemVersion: 0.0.1
+  createdTime: 1787244129541
+  modifiedTime: 1787244129541
+  lastModifiedBy: yWsvx4DXrmYcZsue
+  compendiumSource: null
+  duplicateSource: Item.Z70vRPJqs3dCGypY
+  exportSource: null
+_id: ZVnkiJOEHz32MXfB
+_key: '!items!ZVnkiJOEHz32MXfB'

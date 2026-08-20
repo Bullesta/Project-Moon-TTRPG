@@ -11,8 +11,12 @@ system:
     status). </p><p><strong>Your Critical dice becomes a D6.</strong></p>
   slug: ''
   stacks: 1
-  stackMax: 0
-  priority: 0
+  stackMax: 1
+  priority: 15
+  pending: false
+  arrival: ''
+  shelved: false
+  origin: ''
   customNotes: ''
   easyEffects: ''
 effects: []
@@ -26,7 +30,7 @@ _stats:
   systemId: projectmoonttrpg
   systemVersion: 0.0.1
   createdTime: 1785433578152
-  modifiedTime: 1785433876820
+  modifiedTime: 1787228263610
   lastModifiedBy: yWsvx4DXrmYcZsue
   compendiumSource: null
   duplicateSource: null

@@ -1,0 +1,52 @@
+folder: Zac3Xkc5Y82RXJkZ
+name: Gain Charge
+type: effect
+_id: 8K2y427WOCCXv5wm
+img: >-
+  systems/projectmoonttrpg/assets/icons/limbus_assets/Basic%20Effects/Charge/Charge.webp
+system:
+  name: ''
+  description: ''
+  slug: gain-charge
+  cost: 1
+  stackMax: 6
+  appliesTo: skill
+  canPositive: true
+  canNegative: true
+  procOn: onUse
+  procResult: none
+  procResultLocked: false
+  procChoice: none
+  procChoiceLocked: false
+  procStat: any
+  procDice: any
+  procAction: any
+  procCondition: ''
+  positive: <p>Apply [N] Charge to the character.</p>
+  negative: <p>Consume [N] Charge to use this skill.</p>
+  macro:
+    uuid: ''
+  customNotes: ''
+  easyEffects: |-
+    [On Use]
+    positive:
+    gain N Charge;
+    negative:
+    lose N Charge;
+effects: []
+sort: 300000
+ownership:
+  default: 0
+  yWsvx4DXrmYcZsue: 3
+flags: {}
+_stats:
+  coreVersion: '14.364'
+  systemId: projectmoonttrpg
+  systemVersion: 0.0.1
+  createdTime: 1787251585536
+  modifiedTime: 1787251585536
+  lastModifiedBy: yWsvx4DXrmYcZsue
+  compendiumSource: null
+  duplicateSource: null
+  exportSource: null
+_key: '!items!8K2y427WOCCXv5wm'

@@ -5,7 +5,7 @@ img: systems/projectmoonttrpg/assets/icons/Statuses/Charge%20Barrier.webp
 system:
   name: ''
   description: ''
-  slug: constant-barrier
+  slug: ''
   cost: 3
   stackMax: 5
   appliesTo: augment
@@ -14,6 +14,8 @@ system:
   procOn: alwaysActive
   procResult: none
   procResultLocked: false
+  procChoice: none
+  procChoiceLocked: false
   procStat: any
   procDice: offensive
   procAction: action
@@ -25,7 +27,13 @@ system:
   macro:
     uuid: ''
   customNotes: ''
-  easyEffects: ''
+  easyEffects: |-
+    [Start of Round]
+    require (Charge) >= (N * 3) then
+      spend (N * 3) Charge to gain N "Charge Barrier";
+
+    require (Charge) < (N * 3) then require (Charge) >= 3 then
+      spend ((Charge // 3) * 3) Charge to gain (Charge // 3) "Charge Barrier";
 effects: []
 sort: 100000
 ownership:
@@ -40,7 +48,7 @@ _stats:
   systemId: projectmoonttrpg
   systemVersion: 0.0.1
   createdTime: 1785485141801
-  modifiedTime: 1785485141801
+  modifiedTime: 1787173279795
   lastModifiedBy: yWsvx4DXrmYcZsue
 _id: IPVT565CgWlz74EG
 _key: '!items!IPVT565CgWlz74EG'

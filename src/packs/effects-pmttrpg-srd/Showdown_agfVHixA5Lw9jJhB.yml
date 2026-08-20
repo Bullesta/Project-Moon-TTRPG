@@ -1,0 +1,54 @@
+folder: uFoSX9OejNWgkKaM
+name: Showdown
+type: effect
+img: >-
+  systems/projectmoonttrpg/assets/icons/limbus_assets/Misc%20Enemy%20Exclusive/Canto%207/Honorable%20Duel%202.webp
+system:
+  name: ''
+  description: ''
+  slug: ''
+  cost: 6
+  stackMax: 1
+  appliesTo: skill
+  canPositive: true
+  canNegative: false
+  procOn: onClashResult
+  procResult: none
+  procResultLocked: false
+  procChoice: none
+  procChoiceLocked: false
+  procStat: any
+  procDice: any
+  procAction: any
+  procCondition: If the target has Poise
+  positive: >-
+    <p>Remove the target's Poise and add it to your own before rolling to
+    Critically Hit.</p>
+  negative: ''
+  macro:
+    uuid: ''
+  customNotes: ''
+  easyEffects: |-
+    [On Clash Win]
+    gain (target.status.Poise) Poise;
+    lose all Poise on target;
+effects: []
+sort: 100000
+ownership:
+  default: 0
+  yWsvx4DXrmYcZsue: 3
+flags:
+  projectmoonttrpg:
+    syncDismissedAt: 1780427877255
+_stats:
+  compendiumSource: Item.EUMoSNacE4zxC5uh
+  duplicateSource: Item.a9tsg0PzRSeRuEzO
+  exportSource: null
+  coreVersion: '14.364'
+  systemId: projectmoonttrpg
+  systemVersion: 0.0.1
+  createdTime: 1787226336938
+  modifiedTime: 1787229106670
+  lastModifiedBy: yWsvx4DXrmYcZsue
+_id: agfVHixA5Lw9jJhB
+_key: '!items!agfVHixA5Lw9jJhB'

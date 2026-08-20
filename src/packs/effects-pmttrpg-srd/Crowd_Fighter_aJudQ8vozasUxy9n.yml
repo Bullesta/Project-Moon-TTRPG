@@ -1,0 +1,66 @@
+folder: cRk3YZ0jqH5Zerq1
+name: Crowd Fighter
+type: effect
+img: >-
+  systems/projectmoonttrpg/assets/icons/limbus_assets/Basic%20Effects/Unfocused%20Volley.webp
+system:
+  name: ''
+  description: >-
+    <p><em>Note: This effect is not yet automated. <strong>Though, there is a
+    text message telling you how to apply this.</strong></em></p>
+  slug: crowd-fighter
+  cost: 6
+  stackMax: 1
+  appliesTo: skill
+  canPositive: true
+  canNegative: false
+  procOn: alwaysActive
+  procResult: none
+  procResultLocked: false
+  procChoice: none
+  procChoiceLocked: false
+  procStat: any
+  procDice: any
+  procAction: any
+  procCondition: ''
+  positive: >-
+    <p>[Attack Replacement] Replaces Attack with 3 Attacks. These attacks may be
+    directed at any target within [Weapon Range+1] SQRs, max 1 per target, with
+    a main target designated as the first attacked. If not enough targets are
+    within range, any remaining attacks are lost.</p>
+  negative: ''
+  macro:
+    uuid: ''
+  customNotes: ''
+  easyEffects: >-
+    [Always Active]
+
+    power down attack 2;
+
+
+    [On Clash Win]
+
+    create message 
+
+    "[Attack Replacement / Crowd Fighter] Press [Shift + T] to target multiple
+    tokens. Apply the damage to three targets within [Weapon Range+1] SQRs of
+    the attacker, max 1 attack per target. Apply status inflictions at half
+    efficiency, rounded down, for any hits after the first."
+effects: []
+sort: 0
+ownership:
+  default: 0
+  yWsvx4DXrmYcZsue: 3
+flags: {}
+_stats:
+  coreVersion: '14.364'
+  systemId: projectmoonttrpg
+  systemVersion: 0.0.1
+  createdTime: 1787249213102
+  modifiedTime: 1787249213102
+  lastModifiedBy: yWsvx4DXrmYcZsue
+  compendiumSource: null
+  duplicateSource: Item.xKghKCCTAoMQwAxK
+  exportSource: null
+_id: aJudQ8vozasUxy9n
+_key: '!items!aJudQ8vozasUxy9n'

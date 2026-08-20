@@ -1,0 +1,66 @@
+folder: cRk3YZ0jqH5Zerq1
+name: Bombardment
+type: effect
+img: >-
+  systems/projectmoonttrpg/assets/icons/limbus_assets/Basic%20Effects/Unfocused%20Volley.webp
+system:
+  name: ''
+  description: >-
+    <p><em>Note: This effect is not yet automated. <strong>Though, there is a
+    text message telling you how to apply this.</strong></em></p>
+  slug: bombardment
+  cost: 6
+  stackMax: 1
+  appliesTo: skill
+  canPositive: true
+  canNegative: false
+  procOn: alwaysActive
+  procResult: none
+  procResultLocked: false
+  procChoice: none
+  procChoiceLocked: false
+  procStat: any
+  procDice: any
+  procAction: any
+  procCondition: ''
+  positive: >-
+    <p>[Attack Replacement] Replaces Attack with an Area of Effect Attack. This
+    attack targets a 3x3 SQR with the center in the weapon’s range, with a main
+    target designated by either the target at the center, or otherwise the first
+    target attacked. This may be centered on the user.</p>
+  negative: ''
+  macro:
+    uuid: ''
+  customNotes: ''
+  easyEffects: >-
+    [Always Active]
+
+    power down attack 2;
+
+
+    [On Clash Win]
+
+    create message 
+
+    "[Attack Replacement / Bombardment] Press [Shift + T] to target multiple
+    tokens. Apply the damage to all targets within a 3x3 zone around the main
+    target. Apply status inflictions at half efficiency, rounded down, for any
+    hits on subtargets."
+effects: []
+sort: 0
+ownership:
+  default: 0
+  yWsvx4DXrmYcZsue: 3
+flags: {}
+_stats:
+  coreVersion: '14.364'
+  systemId: projectmoonttrpg
+  systemVersion: 0.0.1
+  createdTime: 1787249213103
+  modifiedTime: 1787249213103
+  lastModifiedBy: yWsvx4DXrmYcZsue
+  compendiumSource: null
+  duplicateSource: Item.aJudQ8vozasUxy9n
+  exportSource: null
+_id: GG8qH3KXwZV3KXjO
+_key: '!items!GG8qH3KXwZV3KXjO'

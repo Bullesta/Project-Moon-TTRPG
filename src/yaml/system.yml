@@ -1,10 +1,10 @@
 id: projectmoonttrpg
 title: Project Moon TTRPG
 description: The Project Moon TTRPG system for FoundryVTT!
-version: "0.0.1"
+version: "0.1.0"
 compatibility:
-  minimum: "13"
-  verified: "14"
+  minimum: "14"
+  verified: "14.364"
 documentTypes:
   Actor:
     character: {}
@@ -21,12 +21,12 @@ documentTypes:
 authors:
   - name: 'Leetram'
     discord: 'leetram'
+  - name: 'Bullesta'
+    discord: 'bullesta'
   - name: 'Fetlach'
     discord: 'fetlach'
   - name: 'Derpete'
     discord: 'derpete'
-  - name: 'Bullesta'
-    discord: 'bullesta'
   - name: 'B Lightning'
     discord: 'b_lightning'
 esmodules:
@@ -58,21 +58,6 @@ packs:
     path: packs/effects-pmttrpg-srd
     type: Item
     private: false
-  - name: items-pmttrpg-srd
-    label: Items SRD
-    path: packs/items-pmttrpg-srd
-    type: Item
-    private: false
-  - name: npcs-pmttrpg-srd
-    label: NPC Compendium
-    path: packs/npcs-pmttrpg-srd
-    type: Actor
-    private: false
-  - name: macro-pmttrpg-srd
-    label: Macros SRD
-    path: packs/macro-pmttrpg-srd
-    type: Macro
-    private: false
 languages:
   - lang: en
     name: English
@@ -85,7 +70,7 @@ secondaryTokenAttribute: attributes.st
 initiative: 1d6
 socket: true
 url: https://github.com/Leetram519/Project-Moon-TTRPG
-manifest: https://storage.googleapis.com/pmttrpg_zip/0.0.1/system.json
-download: https://storage.googleapis.com/pmttrpg_zip/0.0.1/projectmoonttrpg.zip
+manifest: https://storage.googleapis.com/pmttrpg_zip/0.1.0/system.json
+download: https://storage.googleapis.com/pmttrpg_zip/0.1.0/projectmoonttrpg.zip
 changelog: https://github.com/Leetram519/Project-Moon-TTRPG/blob/main/CHANGELOG.md
 bugs: https://github.com/Leetram519/Project-Moon-TTRPG/issues

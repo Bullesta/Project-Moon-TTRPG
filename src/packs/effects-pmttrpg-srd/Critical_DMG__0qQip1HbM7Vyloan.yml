@@ -1,0 +1,50 @@
+folder: uFoSX9OejNWgkKaM
+name: Critical DMG+
+type: effect
+img: systems/projectmoonttrpg/assets/icons/Statuses/Critical.webp
+system:
+  name: ''
+  description: ''
+  slug: ''
+  cost: 3
+  stackMax: 5
+  appliesTo: skill
+  canPositive: true
+  canNegative: false
+  procOn: onCritical
+  procResult: none
+  procResultLocked: false
+  procChoice: none
+  procChoiceLocked: false
+  procStat: any
+  procDice: any
+  procAction: any
+  procCondition: ''
+  positive: <p>Deal an additional [N*3] Critical Damage.</p>
+  negative: ''
+  macro:
+    uuid: ''
+  customNotes: ''
+  easyEffects: |-
+    [On Critical]
+    deal (3*N) hp damage to target;
+effects: []
+sort: 100000
+ownership:
+  default: 0
+  yWsvx4DXrmYcZsue: 3
+flags:
+  projectmoonttrpg:
+    syncDismissedAt: 1780427877255
+_stats:
+  compendiumSource: Item.EUMoSNacE4zxC5uh
+  duplicateSource: Item.Cz5VZPFyrKzW0jbE
+  exportSource: null
+  coreVersion: '14.364'
+  systemId: projectmoonttrpg
+  systemVersion: 0.0.1
+  createdTime: 1787226336936
+  modifiedTime: 1787227000776
+  lastModifiedBy: yWsvx4DXrmYcZsue
+_id: 0qQip1HbM7Vyloan
+_key: '!items!0qQip1HbM7Vyloan'

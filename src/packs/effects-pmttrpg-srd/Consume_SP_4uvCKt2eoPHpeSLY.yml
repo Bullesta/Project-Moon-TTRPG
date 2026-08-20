@@ -1,0 +1,48 @@
+folder: cRk3YZ0jqH5Zerq1
+name: Consume SP
+type: effect
+img: systems/projectmoonttrpg/assets/icons/Statuses/Panic.webp
+system:
+  name: ''
+  description: ''
+  slug: consume-sp
+  cost: 2
+  stackMax: 5
+  appliesTo: skill
+  canPositive: false
+  canNegative: true
+  procOn: onUse
+  procResult: none
+  procResultLocked: false
+  procChoice: none
+  procChoiceLocked: false
+  procStat: any
+  procDice: any
+  procAction: any
+  procCondition: ''
+  positive: ''
+  negative: <p>Deal [N] SP Damage to the character.</p>
+  macro:
+    uuid: ''
+  customNotes: ''
+  easyEffects: |-
+    [On Clash Start]
+    deal (N) sp damage to self;
+effects: []
+sort: 0
+ownership:
+  default: 0
+  yWsvx4DXrmYcZsue: 3
+flags: {}
+_stats:
+  coreVersion: '14.364'
+  systemId: projectmoonttrpg
+  systemVersion: 0.0.1
+  createdTime: 1787249213103
+  modifiedTime: 1787249213103
+  lastModifiedBy: yWsvx4DXrmYcZsue
+  compendiumSource: null
+  duplicateSource: Item.xKghKCCTAoMQwAxK
+  exportSource: null
+_id: 4uvCKt2eoPHpeSLY
+_key: '!items!4uvCKt2eoPHpeSLY'

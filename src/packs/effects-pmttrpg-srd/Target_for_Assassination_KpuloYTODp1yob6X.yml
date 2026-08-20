@@ -1,11 +1,13 @@
 folder: qhqkh6Rd3YcrmXWj
 name: Target for Assassination
 type: effect
-img: systems/projectmoonttrpg/assets/icons/Statuses/Prescript_s%20Target.webp
+img: systems/projectmoonttrpg/assets/icons/Statuses/Mark_Assassin.webp
 system:
   name: ''
-  description: ''
-  slug: target-for-assassination
+  description: >-
+    <p><strong>Note: This effect is manual. Add the corresponding Mark to the
+    target, and spend an action.</strong></p>
+  slug: ''
   cost: 4
   stackMax: 5
   appliesTo: augment
@@ -14,6 +16,8 @@ system:
   procOn: alwaysActive
   procResult: none
   procResultLocked: false
+  procChoice: none
+  procChoiceLocked: false
   procStat: any
   procDice: any
   procAction: any
@@ -46,7 +50,7 @@ _stats:
   systemId: projectmoonttrpg
   systemVersion: 0.0.1
   createdTime: 1785485132689
-  modifiedTime: 1785485132689
+  modifiedTime: 1787169554278
   lastModifiedBy: yWsvx4DXrmYcZsue
 _id: KpuloYTODp1yob6X
 _key: '!items!KpuloYTODp1yob6X'

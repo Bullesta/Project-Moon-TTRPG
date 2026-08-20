@@ -1,0 +1,49 @@
+folder: dwDk7079sgUAXjmr
+name: Ruptured Omen
+type: effect
+img: systems/projectmoonttrpg/assets/icons/Statuses/Devastation.webp
+system:
+  name: ''
+  description: ''
+  slug: ruptured-omen
+  cost: 4
+  stackMax: 1
+  appliesTo: skill
+  canPositive: true
+  canNegative: false
+  procOn: onBurst
+  procResult: none
+  procResultLocked: false
+  procChoice: none
+  procChoiceLocked: false
+  procStat: any
+  procDice: any
+  procAction: any
+  procCondition: ''
+  positive: <p>On Rupture Burst, Inflict 4 Bleed.</p>
+  negative: ''
+  macro:
+    uuid: ''
+  customNotes: ''
+  easyEffects: |-
+    [On Rupture Burst]
+    require (burst.amount) >= 4 then 
+      inflict 1 Ruin and 3 Devastation;
+effects: []
+sort: 0
+ownership:
+  default: 0
+  yWsvx4DXrmYcZsue: 3
+flags: {}
+_stats:
+  coreVersion: '14.364'
+  systemId: projectmoonttrpg
+  systemVersion: 0.0.1
+  createdTime: 1787230920026
+  modifiedTime: 1787230920026
+  lastModifiedBy: yWsvx4DXrmYcZsue
+  compendiumSource: null
+  duplicateSource: Item.BexaYz2M8xVTO9zb
+  exportSource: null
+_id: WfY0wMnRfeXbqoHD
+_key: '!items!WfY0wMnRfeXbqoHD'

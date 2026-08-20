@@ -1,20 +1,20 @@
 type: Item
-folder: OXKMi4TaRnW7GlGO
-name: Other Weapon Effects
+folder: Bk5tS5sF849QJvJc
+name: Dice Manipulation
 color: null
 sorting: a
-_id: rg22bomYXahhpqEN
+_id: qZ5uzhep6qammKdU
 description: ''
-sort: 0
+sort: 100000
 flags: {}
 _stats:
   compendiumSource: null
   duplicateSource: null
   exportSource: null
-  coreVersion: '13.351'
+  coreVersion: '14.364'
   systemId: projectmoonttrpg
   systemVersion: 0.0.1
-  createdTime: 1779651087321
-  modifiedTime: 1779651087321
+  createdTime: 1787170912464
+  modifiedTime: 1787170912497
   lastModifiedBy: yWsvx4DXrmYcZsue
-_key: '!folders!rg22bomYXahhpqEN'
+_key: '!folders!qZ5uzhep6qammKdU'

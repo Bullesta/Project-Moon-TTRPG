@@ -1,0 +1,50 @@
+folder: Dbdr87yHQ7lJhOXz
+name: Inflict Bind
+type: effect
+img: systems/projectmoonttrpg/assets/icons/Statuses/Bind.webp
+system:
+  name: ''
+  description: ''
+  slug: ''
+  cost: 3
+  stackMax: 5
+  appliesTo: skill
+  canPositive: true
+  canNegative: false
+  procOn: onClashResult
+  procResult: none
+  procResultLocked: false
+  procChoice: none
+  procChoiceLocked: false
+  procStat: any
+  procDice: any
+  procAction: any
+  procCondition: ''
+  positive: <p>Apply [N] Bind to the target next round.</p>
+  negative: ''
+  macro:
+    uuid: ''
+  customNotes: ''
+  easyEffects: |-
+    [On Clash RESULT]
+    inflict N Bind next turn;
+effects: []
+sort: 100000
+ownership:
+  default: 0
+  yWsvx4DXrmYcZsue: 3
+flags:
+  projectmoonttrpg:
+    syncDismissedAt: 1780345610668
+_stats:
+  compendiumSource: Item.Je0fG3h1pB3ZeY5A
+  duplicateSource: Item.DggYYCKBKDT45ZOq
+  exportSource: null
+  coreVersion: '14.364'
+  systemId: projectmoonttrpg
+  systemVersion: 0.0.1
+  createdTime: 1787171613138
+  modifiedTime: 1787171801461
+  lastModifiedBy: yWsvx4DXrmYcZsue
+_id: vyJ2XsqCFXG5mBtH
+_key: '!items!vyJ2XsqCFXG5mBtH'

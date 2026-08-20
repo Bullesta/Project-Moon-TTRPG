@@ -5,10 +5,15 @@ img: systems/projectmoonttrpg/assets/icons/Statuses/Charge.webp
 system:
   name: ''
   description: ''
+  slug: ''
   cost: 4
-  allowMultiple: false
+  stackMax: 1
+  appliesTo: weapon
+  canPositive: true
+  canNegative: false
   procOn: alwaysActive
   procResult: none
+  procResultLocked: false
   procStat: any
   procDice: any
   procAction: any
@@ -21,11 +26,20 @@ system:
   macro:
     uuid: ''
   customNotes: ''
-  appliesTo: weapon
-  canPositive: true
-  canNegative: false
-  stackMax: 1
-  procResultLocked: false
+  easyEffects: |-
+    [On Clash Start]
+    create dialog "Power Engine":
+      powerengine as "Consume 8 Charge: +1 Dice Power"
+      powerengineover as "Consume 1 Overcharge: +2 Dice Power"
+      nopowerengine as "Do not"
+      to self;
+
+    [On Dialog Answer powerengine]
+    spend 8 Charge to power up attack 1;
+
+    [On Dialog Answer powerengineover]
+    spend 1 Overcharge to power up attack 2;
+  allowMultiple: false
 effects: []
 sort: 0
 ownership:
@@ -36,11 +50,11 @@ _stats:
   compendiumSource: null
   duplicateSource: Item.8zErLlYNkUsqabtp
   exportSource: null
-  coreVersion: '13.351'
+  coreVersion: '14.364'
   systemId: projectmoonttrpg
   systemVersion: 0.0.1
   createdTime: 1779651087474
-  modifiedTime: 1779651087474
+  modifiedTime: 1786514362694
   lastModifiedBy: yWsvx4DXrmYcZsue
 _id: IMC2n1zvuJpnsLyZ
 _key: '!items!IMC2n1zvuJpnsLyZ'

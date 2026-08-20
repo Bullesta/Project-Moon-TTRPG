@@ -1,0 +1,52 @@
+folder: uFoSX9OejNWgkKaM
+name: Precision
+type: effect
+img: >-
+  systems/projectmoonttrpg/assets/icons/limbus_assets/Basic%20Effects/Poise/Deep%20Breath.webp
+system:
+  name: ''
+  description: ''
+  slug: ''
+  cost: 4
+  stackMax: 1
+  appliesTo: skill
+  canPositive: true
+  canNegative: false
+  procOn: onUse
+  procResult: none
+  procResultLocked: false
+  procChoice: none
+  procChoiceLocked: false
+  procStat: any
+  procDice: any
+  procAction: any
+  procCondition: ''
+  positive: <p>Roll another D10 to check if the attack is a Critical Hit.</p>
+  negative: ''
+  macro:
+    uuid: ''
+  customNotes: ''
+  easyEffects: |
+    [On FailedCriticalRoll]
+    roll 1d10 as secondPoiseRoll;
+    require (secondPoiseRoll) <= Poise then proc AskForCritical on self;
+effects: []
+sort: 100000
+ownership:
+  default: 0
+  yWsvx4DXrmYcZsue: 3
+flags:
+  projectmoonttrpg:
+    syncDismissedAt: 1780427877255
+_stats:
+  compendiumSource: Item.EUMoSNacE4zxC5uh
+  duplicateSource: Item.hmEBHlVWm0BmxHNi
+  exportSource: null
+  coreVersion: '14.364'
+  systemId: projectmoonttrpg
+  systemVersion: 0.0.1
+  createdTime: 1787226336938
+  modifiedTime: 1787226679912
+  lastModifiedBy: yWsvx4DXrmYcZsue
+_id: 3RHY7SpFi8dJXWSd
+_key: '!items!3RHY7SpFi8dJXWSd'

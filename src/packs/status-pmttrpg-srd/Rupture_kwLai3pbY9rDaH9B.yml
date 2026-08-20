@@ -18,7 +18,11 @@ system:
   slug: ''
   stacks: 1
   stackMax: 0
-  priority: 0
+  priority: 5
+  pending: false
+  arrival: ''
+  shelved: false
+  origin: ''
   customNotes: ''
   easyEffects: |-
     [On Being Hit]
@@ -58,7 +62,7 @@ _stats:
   systemId: projectmoonttrpg
   systemVersion: 0.0.1
   createdTime: 1779621127770
-  modifiedTime: 1785426651998
+  modifiedTime: 1787225180562
   lastModifiedBy: yWsvx4DXrmYcZsue
 _id: kwLai3pbY9rDaH9B
 sort: 125000

@@ -4,8 +4,8 @@ type: effect
 img: systems/projectmoonttrpg/assets/icons/Statuses/Heal%20Efficiency.webp
 system:
   name: ''
-  description: ''
-  slug: regeneration-versatility
+  description: '<p><em>Note: This effect is not yet automated.</em></p>'
+  slug: ''
   cost: 4
   stackMax: 1
   appliesTo: augment
@@ -14,6 +14,8 @@ system:
   procOn: alwaysActive
   procResult: none
   procResultLocked: false
+  procChoice: none
+  procChoiceLocked: false
   procStat: any
   procDice: any
   procAction: any
@@ -40,7 +42,7 @@ _stats:
   systemId: projectmoonttrpg
   systemVersion: 0.0.1
   createdTime: 1785485136628
-  modifiedTime: 1785485136628
+  modifiedTime: 1787167995847
   lastModifiedBy: yWsvx4DXrmYcZsue
 _id: oKKC4VMozVZAJXnA
 _key: '!items!oKKC4VMozVZAJXnA'

@@ -1,0 +1,54 @@
+folder: H1Mmnc2yMHYbjA8t
+name: Primer
+type: effect
+img: systems/projectmoonttrpg/assets/icons/Statuses/Devastation.webp
+system:
+  name: ''
+  description: '<p><em>Note: This effect is not yet automated.</em></p>'
+  slug: ''
+  cost: 4
+  stackMax: 1
+  appliesTo: skill
+  canPositive: true
+  canNegative: false
+  procOn: onClashResult
+  procResult: none
+  procResultLocked: false
+  procChoice: none
+  procChoiceLocked: false
+  procStat: any
+  procDice: any
+  procAction: any
+  procCondition: When failing to land a Devastating Hit
+  positive: >-
+    <p>For the duration of the round if the character or an ally lands a
+    Devastating Hit on the target, apply "On Devastating Hit" effects from this
+    skill and the user's augment on the target.</p>
+
+    <p>This applies even if the skill cannot roll for a Devastating Hit
+    normally.</p>
+  negative: ''
+  macro:
+    uuid: ''
+  customNotes: ''
+  easyEffects: ''
+effects: []
+sort: 100000
+ownership:
+  default: 0
+  yWsvx4DXrmYcZsue: 3
+flags:
+  projectmoonttrpg:
+    syncDismissedAt: 1780732288366
+_stats:
+  compendiumSource: Item.E4HpJQh7hckViUs6
+  duplicateSource: Item.dOxjN5HucOYcc7WT
+  exportSource: null
+  coreVersion: '14.364'
+  systemId: projectmoonttrpg
+  systemVersion: 0.0.1
+  createdTime: 1787229135231
+  modifiedTime: 1787230020335
+  lastModifiedBy: yWsvx4DXrmYcZsue
+_id: QzqrmrEvnnbT1L0g
+_key: '!items!QzqrmrEvnnbT1L0g'

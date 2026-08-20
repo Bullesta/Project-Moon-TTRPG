@@ -1,0 +1,38 @@
+folder: 8tfinV0q66z2Egqy
+name: Poise Pause
+type: status
+_id: 8EbkbXMhgZ4kGI6t
+img: >-
+  systems/projectmoonttrpg/assets/icons/limbus_assets/Basic%20Effects/Poise/Poised%20Showdown.webp
+system:
+  name: ''
+  description: <p>You do not roll for Critical Hits for this round.</p>
+  slug: ''
+  stacks: 1
+  stackMax: 1
+  priority: 15
+  pending: false
+  arrival: ''
+  shelved: false
+  origin: ''
+  customNotes: ''
+  easyEffects: |-
+    [End of Round]
+    lose all "Poise Pause";
+effects: []
+sort: 0
+ownership:
+  default: 0
+  yWsvx4DXrmYcZsue: 3
+flags: {}
+_stats:
+  coreVersion: '14.364'
+  systemId: projectmoonttrpg
+  systemVersion: 0.0.1
+  createdTime: 1787226869987
+  modifiedTime: 1787226933329
+  lastModifiedBy: yWsvx4DXrmYcZsue
+  compendiumSource: null
+  duplicateSource: null
+  exportSource: null
+_key: '!items!8EbkbXMhgZ4kGI6t'

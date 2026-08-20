@@ -5,6 +5,7 @@ img: systems/projectmoonttrpg/assets/icons/Statuses/Paralyze.webp
 system:
   name: ''
   description: ''
+  slug: ''
   cost: 4
   stackMax: 5
   appliesTo: outfit
@@ -22,6 +23,12 @@ system:
   macro:
     uuid: ''
   customNotes: ''
+  easyEffects: |-
+    [Clash RESULT]
+    positive:
+    inflict N Paralysis next turn;
+    negative:
+    gain N Paralysis next turn;
   allowMultiple: true
 effects: []
 sort: 0
@@ -33,11 +40,11 @@ _stats:
   compendiumSource: null
   duplicateSource: Item.F3sKYXOtpDn7ak2y
   exportSource: null
-  coreVersion: '13.351'
+  coreVersion: '14.364'
   systemId: projectmoonttrpg
   systemVersion: 0.0.1
   createdTime: 1780308631139
-  modifiedTime: 1780308631139
+  modifiedTime: 1786529653746
   lastModifiedBy: yWsvx4DXrmYcZsue
 _id: UvN3qsHDO76l7ubO
 _key: '!items!UvN3qsHDO76l7ubO'

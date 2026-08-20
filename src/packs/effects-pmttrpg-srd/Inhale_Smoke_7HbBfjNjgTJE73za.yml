@@ -1,0 +1,57 @@
+folder: b26xxIfNBITDTvuw
+name: Inhale Smoke
+type: effect
+img: >-
+  systems/projectmoonttrpg/assets/icons/limbus_assets/Ally%20Unit/Purple%20Breath%20-%20Hysteria.webp
+system:
+  name: ''
+  description: >-
+    <p><em>Note: All the intricaties of this effect are not automated yet. This
+    only automates the "Transfer all present Smoke" part.</em></p>
+  slug: inhale-smoke
+  cost: 4
+  stackMax: 1
+  appliesTo: skill
+  canPositive: true
+  canNegative: false
+  procOn: onClashResult
+  procResult: none
+  procResultLocked: false
+  procChoice: none
+  procChoiceLocked: false
+  procStat: any
+  procDice: any
+  procAction: any
+  procCondition: ''
+  positive: >-
+    <p>Transfer all already present Smoke stacks from the target to the
+    character. If this skill also contains an effect that consumes Smoke from
+    the target, transferred Smoke may immediately be used for that effect. Any
+    smoke inflicted from this specific effect may go over the cap of
+    10.</p><p>Incompatible with Exhale Smoke.</p>
+  negative: ''
+  macro:
+    uuid: ''
+  customNotes: ''
+  easyEffects: |-
+    [On Clash RESULT]
+    gain (target.status.Smoke) Smoke;
+    lose all Smoke on target;
+effects: []
+sort: 0
+ownership:
+  default: 0
+  yWsvx4DXrmYcZsue: 3
+flags: {}
+_stats:
+  coreVersion: '14.364'
+  systemId: projectmoonttrpg
+  systemVersion: 0.0.1
+  createdTime: 1787235636266
+  modifiedTime: 1787235636266
+  lastModifiedBy: yWsvx4DXrmYcZsue
+  compendiumSource: null
+  duplicateSource: Item.JzvPYB83KS0lFufu
+  exportSource: null
+_id: 7HbBfjNjgTJE73za
+_key: '!items!7HbBfjNjgTJE73za'

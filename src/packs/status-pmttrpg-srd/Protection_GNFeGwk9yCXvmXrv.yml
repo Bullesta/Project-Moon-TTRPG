@@ -12,13 +12,17 @@ system:
   stacks: 1
   stackMax: 0
   priority: 0
+  pending: false
+  arrival: ''
+  shelved: false
+  origin: ''
   customNotes: ''
   easyEffects: |-
     [On Taking HP Damage]
     reduce damage by Protection after resistances
 
     [End of Round]
-    remove Protection Protection on self
+    lose all Protection on self
 effects: []
 folder: JLnWNuTpQkOQhr5i
 sort: 100000
@@ -34,6 +38,6 @@ _stats:
   systemId: projectmoonttrpg
   systemVersion: 0.0.1
   createdTime: 1785256550819
-  modifiedTime: 1785426548561
+  modifiedTime: 1786513332716
   lastModifiedBy: yWsvx4DXrmYcZsue
 _key: '!items!GNFeGwk9yCXvmXrv'

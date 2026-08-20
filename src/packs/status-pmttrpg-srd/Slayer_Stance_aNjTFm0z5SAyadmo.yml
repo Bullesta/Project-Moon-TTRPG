@@ -10,10 +10,14 @@ system:
     Critical damage twice, then take the higher result</strong>.</p>
   slug: ''
   stacks: 1
-  stackMax: 0
-  priority: 0
+  stackMax: 1
+  priority: 15
+  pending: false
+  arrival: ''
+  shelved: false
+  origin: ''
   customNotes: ''
-  easyEffects: ''
+  easyEffects: '# Implemented in Critical'
 effects: []
 sort: 0
 ownership:
@@ -25,7 +29,7 @@ _stats:
   systemId: projectmoonttrpg
   systemVersion: 0.0.1
   createdTime: 1785433535438
-  modifiedTime: 1785433889154
+  modifiedTime: 1787228269420
   lastModifiedBy: yWsvx4DXrmYcZsue
   compendiumSource: null
   duplicateSource: null

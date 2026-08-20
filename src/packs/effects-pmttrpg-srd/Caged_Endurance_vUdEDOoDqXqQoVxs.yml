@@ -5,7 +5,7 @@ img: systems/projectmoonttrpg/assets/icons/Statuses/Endurance.webp
 system:
   name: ''
   description: ''
-  slug: caged-endurance
+  slug: ''
   cost: 6
   stackMax: 1
   appliesTo: augment
@@ -14,6 +14,8 @@ system:
   procOn: alwaysActive
   procResult: none
   procResultLocked: false
+  procChoice: none
+  procChoiceLocked: false
   procStat: any
   procDice: any
   procAction: any
@@ -25,13 +27,17 @@ system:
   macro:
     uuid: ''
   customNotes: ''
-  easyEffects: ''
+  easyEffects: |-
+    [Start of Round]
+    require (self.sp) > 0 then gain 1 "Endurance" per (3 - (self.sp% //f 25));
 effects: []
 sort: 0
 ownership:
   default: 0
   yWsvx4DXrmYcZsue: 3
-flags: {}
+flags:
+  projectmoonttrpg:
+    syncDismissedAt: 1785485124304
 _stats:
   compendiumSource: null
   duplicateSource: Item.MOEP4STZqMKBNFNv
@@ -40,7 +46,7 @@ _stats:
   systemId: projectmoonttrpg
   systemVersion: 0.0.1
   createdTime: 1785485124304
-  modifiedTime: 1785485124304
+  modifiedTime: 1787165227253
   lastModifiedBy: yWsvx4DXrmYcZsue
 _id: vUdEDOoDqXqQoVxs
 _key: '!items!vUdEDOoDqXqQoVxs'

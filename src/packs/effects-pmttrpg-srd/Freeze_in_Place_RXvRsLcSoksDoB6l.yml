@@ -1,0 +1,52 @@
+folder: 6T7XWg23DP6Ot8Oz
+name: Freeze in Place
+type: effect
+img: >-
+  systems/projectmoonttrpg/assets/icons/limbus_assets/Unused%20or%20Removed/Arknights/Frozen.webp
+system:
+  name: ''
+  description: ''
+  slug: freeze-in-place
+  cost: 3
+  stackMax: 5
+  appliesTo: skill
+  canPositive: true
+  canNegative: false
+  procOn: onClashResult
+  procResult: none
+  procResultLocked: false
+  procChoice: none
+  procChoiceLocked: false
+  procStat: any
+  procDice: any
+  procAction: any
+  procCondition: ''
+  positive: >-
+    <p>This skill must be used against your Marked Target.</p><p>Apply [N]
+    Frostbite and [N] Bind to the target next round.</p>
+  negative: ''
+  macro:
+    uuid: ''
+  customNotes: ''
+  easyEffects: |-
+    [Clash RESULT]
+    inflict (N) Bind next round and 
+      inflict (N) Frostbite;
+effects: []
+sort: 0
+ownership:
+  default: 0
+  yWsvx4DXrmYcZsue: 3
+flags: {}
+_stats:
+  coreVersion: '14.364'
+  systemId: projectmoonttrpg
+  systemVersion: 0.0.1
+  createdTime: 1787245896994
+  modifiedTime: 1787245896994
+  lastModifiedBy: yWsvx4DXrmYcZsue
+  compendiumSource: null
+  duplicateSource: Item.PX1uZWmL7fjL9ehw
+  exportSource: null
+_id: RXvRsLcSoksDoB6l
+_key: '!items!RXvRsLcSoksDoB6l'

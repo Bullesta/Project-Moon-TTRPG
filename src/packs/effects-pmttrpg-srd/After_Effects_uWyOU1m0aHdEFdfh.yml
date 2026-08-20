@@ -1,0 +1,47 @@
+folder: uIIZeVmYhEBolURV
+name: After-Effects
+type: effect
+img: >-
+  systems/projectmoonttrpg/assets/icons/limbus_assets/Misc%20Enemy%20Exclusive/Canto%209/Automated%20Myofiber%20Activity.webp
+system:
+  name: ''
+  description: '<p><em>Note: This effect is not yet automated.</em></p>'
+  slug: after-effects
+  cost: 4
+  stackMax: 5
+  appliesTo: skill
+  canPositive: false
+  canNegative: true
+  procOn: alwaysActive
+  procResult: none
+  procResultLocked: false
+  procChoice: none
+  procChoiceLocked: false
+  procStat: any
+  procDice: any
+  procAction: any
+  procCondition: ''
+  positive: ''
+  negative: <p>[On Stat Use] Your next [N] rolls are made with disadvantage.</p>
+  macro:
+    uuid: ''
+  customNotes: ''
+  easyEffects: ''
+effects: []
+sort: 0
+ownership:
+  default: 0
+  yWsvx4DXrmYcZsue: 3
+flags: {}
+_stats:
+  coreVersion: '14.364'
+  systemId: projectmoonttrpg
+  systemVersion: 0.0.1
+  createdTime: 1787252375592
+  modifiedTime: 1787252375592
+  lastModifiedBy: yWsvx4DXrmYcZsue
+  compendiumSource: null
+  duplicateSource: Item.hg7vK3XiDjmvphc3
+  exportSource: null
+_id: uWyOU1m0aHdEFdfh
+_key: '!items!uWyOU1m0aHdEFdfh'

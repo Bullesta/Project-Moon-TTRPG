@@ -5,7 +5,7 @@ img: systems/projectmoonttrpg/assets/icons/Statuses/Fortune.webp
 system:
   name: ''
   description: ''
-  slug: passive-lucidity
+  slug: ''
   cost: 4
   stackMax: 1
   appliesTo: augment
@@ -14,6 +14,8 @@ system:
   procOn: alwaysActive
   procResult: none
   procResultLocked: false
+  procChoice: none
+  procChoiceLocked: false
   procStat: any
   procDice: any
   procAction: any
@@ -25,7 +27,9 @@ system:
   macro:
     uuid: ''
   customNotes: ''
-  easyEffects: ''
+  easyEffects: |-
+    [Start of Round]
+    require (self.sp) > 0 then regen sp 2;
 effects: []
 sort: 0
 ownership:
@@ -40,7 +44,7 @@ _stats:
   systemId: projectmoonttrpg
   systemVersion: 0.0.1
   createdTime: 1785485136624
-  modifiedTime: 1785485136624
+  modifiedTime: 1787168063909
   lastModifiedBy: yWsvx4DXrmYcZsue
 _id: EPpAGyrqHBtmNm2e
 _key: '!items!EPpAGyrqHBtmNm2e'

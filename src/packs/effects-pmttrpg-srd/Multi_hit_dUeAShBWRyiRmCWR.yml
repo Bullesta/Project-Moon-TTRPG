@@ -1,0 +1,63 @@
+folder: cRk3YZ0jqH5Zerq1
+name: Multi-hit
+type: effect
+_id: dUeAShBWRyiRmCWR
+img: >-
+  systems/projectmoonttrpg/assets/icons/limbus_assets/Basic%20Effects/Unfocused%20Volley.webp
+system:
+  name: ''
+  description: >-
+    <p><em>Note: This effect is not yet automated. <strong>Though, there is a
+    text message telling you how to apply this.</strong></em></p>
+  slug: multi-hit
+  cost: 6
+  stackMax: 2
+  appliesTo: skill
+  canPositive: true
+  canNegative: false
+  procOn: alwaysActive
+  procResult: none
+  procResultLocked: false
+  procChoice: none
+  procChoiceLocked: false
+  procStat: any
+  procDice: any
+  procAction: any
+  procCondition: ''
+  positive: >-
+    <p>[Attack Replacement] Replaces Attack with [N+1] consecutive Attacks. This
+    stacks with any effects of the same name, to a max of 2 overall.</p>
+  negative: ''
+  macro:
+    uuid: ''
+  customNotes: ''
+  easyEffects: >-
+    [Always Active]
+
+    power down attack 2;
+
+
+    [On Clash Win]
+
+    create message 
+
+    "[Attack Replacement / Multi-Hit] Press [T] to target a token. Apply Damage
+    twice to the same target. Apply status inflictions at half efficiency,
+    rounded down, for any hit after the first."
+effects: []
+sort: 0
+ownership:
+  default: 0
+  yWsvx4DXrmYcZsue: 3
+flags: {}
+_stats:
+  coreVersion: '14.364'
+  systemId: projectmoonttrpg
+  systemVersion: 0.0.1
+  createdTime: 1787249213102
+  modifiedTime: 1787249213102
+  lastModifiedBy: yWsvx4DXrmYcZsue
+  compendiumSource: null
+  duplicateSource: null
+  exportSource: null
+_key: '!items!dUeAShBWRyiRmCWR'

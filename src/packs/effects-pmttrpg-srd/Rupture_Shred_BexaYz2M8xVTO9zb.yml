@@ -1,0 +1,48 @@
+folder: dwDk7079sgUAXjmr
+name: Rupture Shred
+type: effect
+img: systems/projectmoonttrpg/assets/icons/Statuses/Rupture.webp
+system:
+  name: ''
+  description: ''
+  slug: rupture-shred
+  cost: 4
+  stackMax: 1
+  appliesTo: skill
+  canPositive: true
+  canNegative: false
+  procOn: onBurst
+  procResult: none
+  procResultLocked: false
+  procChoice: none
+  procChoiceLocked: false
+  procStat: any
+  procDice: any
+  procAction: any
+  procCondition: ''
+  positive: <p>On Rupture Burst, Inflict 4 Bleed.</p>
+  negative: ''
+  macro:
+    uuid: ''
+  customNotes: ''
+  easyEffects: |-
+    [On Rupture Burst]
+    inflict (burst.amount //f 2) Rupture;
+effects: []
+sort: 0
+ownership:
+  default: 0
+  yWsvx4DXrmYcZsue: 3
+flags: {}
+_stats:
+  coreVersion: '14.364'
+  systemId: projectmoonttrpg
+  systemVersion: 0.0.1
+  createdTime: 1787230920025
+  modifiedTime: 1787230920025
+  lastModifiedBy: yWsvx4DXrmYcZsue
+  compendiumSource: null
+  duplicateSource: Item.7wutiizsAGqqU2N6
+  exportSource: null
+_id: BexaYz2M8xVTO9zb
+_key: '!items!BexaYz2M8xVTO9zb'

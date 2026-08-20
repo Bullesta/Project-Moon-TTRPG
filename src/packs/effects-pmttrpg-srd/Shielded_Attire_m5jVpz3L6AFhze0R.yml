@@ -5,6 +5,7 @@ img: systems/projectmoonttrpg/assets/icons/Statuses/Charge%20Barrier.webp
 system:
   name: ''
   description: ''
+  slug: ''
   cost: 4
   stackMax: 5
   appliesTo: outfit
@@ -22,6 +23,11 @@ system:
   macro:
     uuid: ''
   customNotes: ''
+  easyEffects: |-
+    # Called from Charge Barrier, gain an additional N tempHp
+    # after Charge Barrier is procced
+    [On ChargeBarrierProc]
+    gain (N * "Charge Barrier") tempHp;
   allowMultiple: true
 effects: []
 sort: 0
@@ -33,11 +39,11 @@ _stats:
   compendiumSource: null
   duplicateSource: Item.D8z3BVjE79O0ElAs
   exportSource: null
-  coreVersion: '13.351'
+  coreVersion: '14.364'
   systemId: projectmoonttrpg
   systemVersion: 0.0.1
   createdTime: 1780308622217
-  modifiedTime: 1780308622217
+  modifiedTime: 1786541843015
   lastModifiedBy: yWsvx4DXrmYcZsue
 _id: m5jVpz3L6AFhze0R
 _key: '!items!m5jVpz3L6AFhze0R'

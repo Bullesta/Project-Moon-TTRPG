@@ -1,0 +1,47 @@
+folder: uIIZeVmYhEBolURV
+name: Side-Effects
+type: effect
+img: >-
+  systems/projectmoonttrpg/assets/icons/limbus_assets/Misc%20Enemy%20Exclusive/Canto%209/Automated%20Myofiber%20Activity.webp
+system:
+  name: ''
+  description: '<p><em>Note: This effect is not yet automated.</em></p>'
+  slug: side-effects
+  cost: 1
+  stackMax: 5
+  appliesTo: skill
+  canPositive: false
+  canNegative: true
+  procOn: alwaysActive
+  procResult: none
+  procResultLocked: false
+  procChoice: none
+  procChoiceLocked: false
+  procStat: any
+  procDice: any
+  procAction: any
+  procCondition: ''
+  positive: ''
+  negative: <p>[On Stat Use] Take [N] Hp Damage.</p>
+  macro:
+    uuid: ''
+  customNotes: ''
+  easyEffects: ''
+effects: []
+sort: 0
+ownership:
+  default: 0
+  yWsvx4DXrmYcZsue: 3
+flags: {}
+_stats:
+  coreVersion: '14.364'
+  systemId: projectmoonttrpg
+  systemVersion: 0.0.1
+  createdTime: 1787252375593
+  modifiedTime: 1787252375593
+  lastModifiedBy: yWsvx4DXrmYcZsue
+  compendiumSource: null
+  duplicateSource: Item.uWyOU1m0aHdEFdfh
+  exportSource: null
+_id: ka4mOTEpoB3a8OD3
+_key: '!items!ka4mOTEpoB3a8OD3'

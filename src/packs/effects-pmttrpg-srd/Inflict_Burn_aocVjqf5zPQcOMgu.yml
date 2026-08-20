@@ -6,6 +6,7 @@ img: systems/projectmoonttrpg/assets/icons/Statuses/Burn.webp
 system:
   name: ''
   description: ''
+  slug: ''
   cost: 2
   stackMax: 5
   appliesTo: outfit
@@ -23,6 +24,12 @@ system:
   macro:
     uuid: ''
   customNotes: ''
+  easyEffects: |-
+    [Clash RESULT]
+    positive:
+    inflict N Burn;
+    negative:
+    gain N Burn;
   allowMultiple: true
 effects: []
 sort: 0
@@ -34,10 +41,10 @@ _stats:
   compendiumSource: null
   duplicateSource: null
   exportSource: null
-  coreVersion: '13.351'
+  coreVersion: '14.364'
   systemId: projectmoonttrpg
   systemVersion: 0.0.1
   createdTime: 1780308631139
-  modifiedTime: 1780308631139
+  modifiedTime: 1786529618444
   lastModifiedBy: yWsvx4DXrmYcZsue
 _key: '!items!aocVjqf5zPQcOMgu'

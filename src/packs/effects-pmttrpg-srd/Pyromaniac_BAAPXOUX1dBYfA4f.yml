@@ -5,7 +5,7 @@ img: systems/projectmoonttrpg/assets/icons/Statuses/Burn.webp
 system:
   name: ''
   description: ''
-  slug: pyromaniac
+  slug: ''
   cost: 1
   stackMax: 5
   appliesTo: augment
@@ -14,6 +14,8 @@ system:
   procOn: onClash
   procResult: none
   procResultLocked: false
+  procChoice: none
+  procChoiceLocked: false
   procStat: any
   procDice: offensive
   procAction: action
@@ -25,7 +27,18 @@ system:
   macro:
     uuid: ''
   customNotes: ''
-  easyEffects: ''
+  easyEffects: |-
+    [On Clash Win With Attack]
+    create dialog "Pyromaniac: Transfer Burn?":
+      transferStT as "Transfer from Self to Target",
+      transferTtS as "Transfer from Target to Self"
+      to self;
+
+    [On Dialog Result transferStT]
+    lose N Burn on self and inflict N Burn;
+
+    [On Dialog Result transferTtS]
+    lose N Burn on target and gain N Burn;
 effects: []
 sort: 100000
 ownership:
@@ -40,7 +53,7 @@ _stats:
   systemId: projectmoonttrpg
   systemVersion: 0.0.1
   createdTime: 1785485141811
-  modifiedTime: 1785485141811
+  modifiedTime: 1787153036039
   lastModifiedBy: yWsvx4DXrmYcZsue
 _id: BAAPXOUX1dBYfA4f
 _key: '!items!BAAPXOUX1dBYfA4f'

@@ -2,10 +2,12 @@ folder: joSME26dU79IglVK
 name: Striker Stance
 type: effect
 _id: QKkR4jBReemYWQet
-img: systems/projectmoonttrpg/assets/icons/Statuses/Mark.webp
+img: systems/projectmoonttrpg/assets/icons/Statuses/Striker%20Stance.webp
 system:
   name: ''
-  description: ''
+  description: >-
+    <p><strong>Note: This effect is manual. Add the corresponding Stance to
+    self, and spend a reaction.</strong></p>
   slug: ''
   cost: 4
   stackMax: 1
@@ -15,6 +17,8 @@ system:
   procOn: alwaysActive
   procResult: none
   procResultLocked: false
+  procChoice: none
+  procChoiceLocked: false
   procStat: any
   procDice: any
   procAction: any
@@ -45,6 +49,6 @@ _stats:
   systemId: projectmoonttrpg
   systemVersion: 0.0.1
   createdTime: 1785485140025
-  modifiedTime: 1785503028522
+  modifiedTime: 1787169690608
   lastModifiedBy: yWsvx4DXrmYcZsue
 _key: '!items!QKkR4jBReemYWQet'

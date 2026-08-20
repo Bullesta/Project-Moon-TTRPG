@@ -5,6 +5,7 @@ img: systems/projectmoonttrpg/assets/icons/Statuses/Poise.webp
 system:
   name: ''
   description: ''
+  slug: ''
   cost: 2
   stackMax: 5
   appliesTo: outfit
@@ -22,6 +23,12 @@ system:
   macro:
     uuid: ''
   customNotes: ''
+  easyEffects: |-
+    [Clash RESULT]
+    positive:
+    gain N Poise;
+    negative:
+    inflict N Poise;
   allowMultiple: true
 effects: []
 sort: 0
@@ -33,11 +40,11 @@ _stats:
   compendiumSource: null
   duplicateSource: Item.OwciCfdBmwNlC0LI
   exportSource: null
-  coreVersion: '13.351'
+  coreVersion: '14.364'
   systemId: projectmoonttrpg
   systemVersion: 0.0.1
   createdTime: 1780308631139
-  modifiedTime: 1780308631139
+  modifiedTime: 1786529738228
   lastModifiedBy: yWsvx4DXrmYcZsue
 _id: CXpSbx19tOjM9N2I
 _key: '!items!CXpSbx19tOjM9N2I'

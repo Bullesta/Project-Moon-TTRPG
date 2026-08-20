@@ -8,13 +8,43 @@ system:
   slug: ''
   stacks: 1
   stackMax: 0
-  priority: 0
+  priority: 7
+  pending: false
+  arrival: ''
+  shelved: false
+  origin: ''
   customNotes: ''
   easyEffects: |-
     [On Being Hit]
-    on roll 1d10 <= Ruin then
-      lose all Ruin on self
-      and proc Devastation;
+    require ("Ruin Pause") == 0 then 
+      proc RollForRuin;
+
+    [On RollForRuin]
+    roll 1d10 as RuinRoll
+    require (RuinRoll) <= Ruin then proc AskForDevastation
+    require (RuinRoll) > Ruin then proc FailedDevastationRoll
+
+    [On AskForDevastation]
+    create dialog "Proc Devastation?":
+      procDevastation as "Do a Devastating Hit",
+      gainDevastation as "Inflict 1 Devastation and lose all Ruin"
+      to attacker;
+
+    [On Dialog Answer procDevastation]
+    proc Devastation and lose all Ruin on self;
+
+    [On Dialog Answer gainDevastation]
+    gain 1 Devastation and lose (Ruin - 1) Ruin;
+
+    [On Gain]
+    require (changed.before) == 0 then set Devastation to 1;
+
+    [On Lose]
+    proc Cursed;
+    require (changed.after) == 0 then set Devastation to 0;
+
+    [On Removed]
+    proc Cursed;
   proc:
     turnStart: false
     endOfRound: false
@@ -37,7 +67,7 @@ _stats:
   systemId: projectmoonttrpg
   systemVersion: 0.0.1
   createdTime: 1779621125369
-  modifiedTime: 1785575297961
+  modifiedTime: 1787229594900
   lastModifiedBy: yWsvx4DXrmYcZsue
 _id: mbzVf2O1T6s7qAgy
 sort: 193750

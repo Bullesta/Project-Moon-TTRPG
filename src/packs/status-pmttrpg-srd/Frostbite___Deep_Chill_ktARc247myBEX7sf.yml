@@ -1,4 +1,4 @@
-folder: fMFB6OnVCAkgdA96
+folder: 8tfinV0q66z2Egqy
 name: Frostbite - Deep Chill
 type: status
 _id: ktARc247myBEX7sf
@@ -14,11 +14,15 @@ system:
   slug: ''
   stacks: 1
   stackMax: 0
-  priority: 0
+  priority: 8
+  pending: false
+  arrival: ''
+  shelved: false
+  origin: ''
   customNotes: ''
   easyEffects: ''
 effects: []
-sort: 0
+sort: 150000
 ownership:
   default: 0
   yWsvx4DXrmYcZsue: 3
@@ -28,7 +32,7 @@ _stats:
   systemId: projectmoonttrpg
   systemVersion: 0.0.1
   createdTime: 1785434703075
-  modifiedTime: 1785434773081
+  modifiedTime: 1787225245176
   lastModifiedBy: yWsvx4DXrmYcZsue
   compendiumSource: null
   duplicateSource: null

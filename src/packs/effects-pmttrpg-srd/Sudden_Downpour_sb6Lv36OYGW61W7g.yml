@@ -5,7 +5,7 @@ img: systems/projectmoonttrpg/assets/icons/Statuses/Sinking.webp
 system:
   name: ''
   description: ''
-  slug: sudden-downpour
+  slug: ''
   cost: 1
   stackMax: 5
   appliesTo: augment
@@ -14,6 +14,8 @@ system:
   procOn: onClash
   procResult: none
   procResultLocked: false
+  procChoice: none
+  procChoiceLocked: false
   procStat: any
   procDice: offensive
   procAction: action
@@ -25,7 +27,10 @@ system:
   macro:
     uuid: ''
   customNotes: ''
-  easyEffects: ''
+  easyEffects: |-
+    [On Clash Win With Attack]
+    require (round) == 1 then
+      inflict N Sinking next turn;
 effects: []
 sort: 100000
 ownership:
@@ -40,7 +45,7 @@ _stats:
   systemId: projectmoonttrpg
   systemVersion: 0.0.1
   createdTime: 1785485141814
-  modifiedTime: 1785485141814
+  modifiedTime: 1787173207900
   lastModifiedBy: yWsvx4DXrmYcZsue
 _id: sb6Lv36OYGW61W7g
 _key: '!items!sb6Lv36OYGW61W7g'

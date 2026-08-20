@@ -8,12 +8,26 @@ system:
   slug: ''
   stacks: 1
   stackMax: 0
-  priority: 0
+  priority: 5
+  pending: false
+  arrival: ''
+  shelved: false
+  origin: ''
   customNotes: ''
   easyEffects: |-
     [On Devastation]
+    proc DevastatingHit on attacker;
     deal 1d8 hp damage per Devastation to self;
     lose all Devastation on self;
+
+    [On Gain]
+    require (Ruin) == 0 then gain 1 Ruin;
+
+    [On Lose]
+    proc Cursed;
+
+    [On Removed]
+    proc Cursed;
   proc:
     turnStart: false
     endOfRound: false
@@ -36,7 +50,7 @@ _stats:
   systemId: projectmoonttrpg
   systemVersion: 0.0.1
   createdTime: 1779621119816
-  modifiedTime: 1785426632714
+  modifiedTime: 1787225152599
   lastModifiedBy: yWsvx4DXrmYcZsue
 _id: hY1hZ4lGV0HaZpma
 sort: 175000

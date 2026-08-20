@@ -1,0 +1,51 @@
+folder: Dbdr87yHQ7lJhOXz
+name: Inflict Fragile
+type: effect
+img: systems/projectmoonttrpg/assets/icons/Statuses/Fragile.webp
+system:
+  name: ''
+  description: ''
+  slug: ''
+  cost: 3
+  stackMax: 5
+  appliesTo: skill
+  canPositive: true
+  canNegative: true
+  procOn: onClashResult
+  procResult: none
+  procResultLocked: false
+  procChoice: none
+  procChoiceLocked: false
+  procStat: any
+  procDice: any
+  procAction: any
+  procCondition: ''
+  positive: <p>Apply [N] Fragile to the target next round.</p>
+  negative: <p>Apply [N] Fragile to the character next round.</p>
+  macro:
+    uuid: ''
+  customNotes: ''
+  easyEffects: |-
+    [On Clash RESULT]
+    positive:
+    inflict N Fragile next turn;
+    negative:
+    gain N Fragile next turn;
+effects: []
+sort: 100000
+ownership:
+  default: 0
+  yWsvx4DXrmYcZsue: 3
+flags: {}
+_stats:
+  compendiumSource: null
+  duplicateSource: Item.5iHFJr1zAmJj07Dd
+  exportSource: null
+  coreVersion: '14.364'
+  systemId: projectmoonttrpg
+  systemVersion: 0.0.1
+  createdTime: 1787171613138
+  modifiedTime: 1787171677366
+  lastModifiedBy: yWsvx4DXrmYcZsue
+_id: Je0fG3h1pB3ZeY5A
+_key: '!items!Je0fG3h1pB3ZeY5A'

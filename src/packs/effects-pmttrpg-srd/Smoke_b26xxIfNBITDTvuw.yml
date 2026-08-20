@@ -1,0 +1,20 @@
+type: Item
+folder: Bk5tS5sF849QJvJc
+name: Smoke
+color: '#262626'
+sorting: a
+_id: b26xxIfNBITDTvuw
+description: ''
+sort: 1100000
+flags: {}
+_stats:
+  compendiumSource: null
+  duplicateSource: null
+  exportSource: null
+  coreVersion: '14.364'
+  systemId: projectmoonttrpg
+  systemVersion: 0.0.1
+  createdTime: 1787235636223
+  modifiedTime: 1787235641949
+  lastModifiedBy: yWsvx4DXrmYcZsue
+_key: '!folders!b26xxIfNBITDTvuw'

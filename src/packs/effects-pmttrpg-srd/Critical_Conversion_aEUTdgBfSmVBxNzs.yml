@@ -1,0 +1,52 @@
+folder: uFoSX9OejNWgkKaM
+name: Critical Conversion
+type: effect
+img: >-
+  systems/projectmoonttrpg/assets/icons/limbus_assets/Basic%20Effects/Poise/Shallow%20Exhale.webp
+system:
+  name: ''
+  description: '<p><em>Note: This effect is not yet automated.</em></p>'
+  slug: ''
+  cost: 2
+  stackMax: 1
+  appliesTo: skill
+  canPositive: true
+  canNegative: false
+  procOn: onUse
+  procResult: none
+  procResultLocked: false
+  procChoice: none
+  procChoiceLocked: false
+  procStat: any
+  procDice: any
+  procAction: any
+  procCondition: ''
+  positive: >-
+    <p>If the character would have 10 Poise as a result of this clash, apply the
+    character's Poise, reduce Poise to 1, and increase Critical on character by
+    1. This applies before rolling to Critically Hit.</p>
+  negative: ''
+  macro:
+    uuid: ''
+  customNotes: ''
+  easyEffects: ''
+effects: []
+sort: 100000
+ownership:
+  default: 0
+  yWsvx4DXrmYcZsue: 3
+flags:
+  projectmoonttrpg:
+    syncDismissedAt: 1780427877255
+_stats:
+  compendiumSource: Item.EUMoSNacE4zxC5uh
+  duplicateSource: Item.3RHY7SpFi8dJXWSd
+  exportSource: null
+  coreVersion: '14.364'
+  systemId: projectmoonttrpg
+  systemVersion: 0.0.1
+  createdTime: 1787226336936
+  modifiedTime: 1787226740472
+  lastModifiedBy: yWsvx4DXrmYcZsue
+_id: aEUTdgBfSmVBxNzs
+_key: '!items!aEUTdgBfSmVBxNzs'

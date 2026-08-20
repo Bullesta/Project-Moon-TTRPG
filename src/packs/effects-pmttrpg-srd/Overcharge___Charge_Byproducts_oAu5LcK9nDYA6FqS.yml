@@ -1,0 +1,50 @@
+folder: tgOfSJhMwrzok7lS
+name: Overcharge - Charge Byproducts
+type: effect
+img: systems/projectmoonttrpg/assets/icons/Statuses/Overcharge.webp
+system:
+  name: ''
+  description: '<p><em>Note: This effect is not yet automated.</em></p>'
+  slug: overcharge-charge-byproducts
+  cost: 2
+  stackMax: 4
+  appliesTo: skill
+  canPositive: true
+  canNegative: false
+  procOn: onClashResult
+  procResult: none
+  procResultLocked: false
+  procChoice: none
+  procChoiceLocked: false
+  procStat: any
+  procDice: any
+  procAction: any
+  procCondition: ''
+  positive: >-
+    <p>Consume [N] Overcharge.</p><p>Place [N*2] [Exposed Fire/Broken
+    Glass/Exhaust Fumes/Chilling Frost] Hazards in SQRs adjacent to the
+    character. These Hazards last until the end of the next Round, and they do
+    not affect the character. (Max 4)</p>
+  negative: ''
+  macro:
+    uuid: ''
+  customNotes: ''
+  easyEffects: ''
+effects: []
+sort: 100000
+ownership:
+  default: 0
+  yWsvx4DXrmYcZsue: 3
+flags: {}
+_stats:
+  coreVersion: '14.364'
+  systemId: projectmoonttrpg
+  systemVersion: 0.0.1
+  createdTime: 1787252052444
+  modifiedTime: 1787252052444
+  lastModifiedBy: yWsvx4DXrmYcZsue
+  compendiumSource: null
+  duplicateSource: Item.ruZbaHho2qw4TmWR
+  exportSource: null
+_id: oAu5LcK9nDYA6FqS
+_key: '!items!oAu5LcK9nDYA6FqS'

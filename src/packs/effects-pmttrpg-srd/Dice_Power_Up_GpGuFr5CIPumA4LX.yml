@@ -1,0 +1,53 @@
+folder: qZ5uzhep6qammKdU
+name: Dice Power Up
+type: effect
+_id: GpGuFr5CIPumA4LX
+img: systems/projectmoonttrpg/assets/icons/Statuses/Strength.webp
+system:
+  name: ''
+  description: ''
+  slug: ''
+  cost: 6
+  stackMax: 5
+  appliesTo: skill
+  canPositive: true
+  canNegative: true
+  procOn: alwaysActive
+  procResult: none
+  procResultLocked: false
+  procChoice: none
+  procChoiceLocked: false
+  procStat: any
+  procDice: any
+  procAction: any
+  procCondition: ''
+  positive: <p>Increase the Dice Power by [N].</p>
+  negative: <p>Decrease the Dice Power by [N].</p>
+  macro:
+    uuid: ''
+  customNotes: ''
+  easyEffects: |-
+    [On Clash Start]
+    positive:
+    power up attack N;
+    power up defense N;
+    negative:
+    power down attack N;
+    power down defense N;
+effects: []
+sort: 0
+ownership:
+  default: 0
+  yWsvx4DXrmYcZsue: 3
+flags: {}
+_stats:
+  compendiumSource: null
+  duplicateSource: null
+  exportSource: null
+  coreVersion: '14.364'
+  systemId: projectmoonttrpg
+  systemVersion: 0.0.1
+  createdTime: 1787170912487
+  modifiedTime: 1787170952133
+  lastModifiedBy: yWsvx4DXrmYcZsue
+_key: '!items!GpGuFr5CIPumA4LX'

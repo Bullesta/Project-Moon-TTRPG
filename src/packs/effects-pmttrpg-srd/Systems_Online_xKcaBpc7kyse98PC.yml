@@ -5,7 +5,7 @@ img: systems/projectmoonttrpg/assets/icons/Statuses/Charge.webp
 system:
   name: ''
   description: ''
-  slug: systems-online
+  slug: ''
   cost: 1
   stackMax: 5
   appliesTo: augment
@@ -14,6 +14,8 @@ system:
   procOn: alwaysActive
   procResult: none
   procResultLocked: false
+  procChoice: none
+  procChoiceLocked: false
   procStat: any
   procDice: offensive
   procAction: action
@@ -23,7 +25,10 @@ system:
   macro:
     uuid: ''
   customNotes: ''
-  easyEffects: ''
+  easyEffects: |-
+    [Start of Round]
+    require (round) == 1 then
+      gain (N*3) Charge;
 effects: []
 sort: 100000
 ownership:
@@ -38,7 +43,7 @@ _stats:
   systemId: projectmoonttrpg
   systemVersion: 0.0.1
   createdTime: 1785485141814
-  modifiedTime: 1785485141814
+  modifiedTime: 1787173258519
   lastModifiedBy: yWsvx4DXrmYcZsue
 _id: xKcaBpc7kyse98PC
 _key: '!items!xKcaBpc7kyse98PC'

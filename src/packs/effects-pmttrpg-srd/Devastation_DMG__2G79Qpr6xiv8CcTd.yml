@@ -1,0 +1,50 @@
+folder: H1Mmnc2yMHYbjA8t
+name: Devastation DMG+
+type: effect
+img: systems/projectmoonttrpg/assets/icons/Statuses/Devastation.webp
+system:
+  name: ''
+  description: ''
+  slug: ''
+  cost: 4
+  stackMax: 5
+  appliesTo: skill
+  canPositive: true
+  canNegative: false
+  procOn: onDevastating
+  procResult: none
+  procResultLocked: false
+  procChoice: none
+  procChoiceLocked: false
+  procStat: any
+  procDice: any
+  procAction: any
+  procCondition: ''
+  positive: <p>Deal an additional [N*3] Devastation Damage.</p>
+  negative: ''
+  macro:
+    uuid: ''
+  customNotes: ''
+  easyEffects: |-
+    [On DevastatingHit]
+    deal (3*N) hp damage to target;
+effects: []
+sort: 100000
+ownership:
+  default: 0
+  yWsvx4DXrmYcZsue: 3
+flags:
+  projectmoonttrpg:
+    syncDismissedAt: 1780732288366
+_stats:
+  compendiumSource: Item.E4HpJQh7hckViUs6
+  duplicateSource: Item.GVUMScTpZz8g6fsD
+  exportSource: null
+  coreVersion: '14.364'
+  systemId: projectmoonttrpg
+  systemVersion: 0.0.1
+  createdTime: 1787229135230
+  modifiedTime: 1787229654012
+  lastModifiedBy: yWsvx4DXrmYcZsue
+_id: 2G79Qpr6xiv8CcTd
+_key: '!items!2G79Qpr6xiv8CcTd'

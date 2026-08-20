@@ -1,0 +1,51 @@
+folder: qZ5uzhep6qammKdU
+name: Bind Vigor
+type: effect
+img: systems/projectmoonttrpg/assets/icons/Statuses/Bind.webp
+system:
+  name: ''
+  description: ''
+  slug: ''
+  cost: 2
+  stackMax: 5
+  appliesTo: skill
+  canPositive: true
+  canNegative: false
+  procOn: alwaysActive
+  procResult: none
+  procResultLocked: false
+  procChoice: none
+  procChoiceLocked: false
+  procStat: any
+  procDice: any
+  procAction: any
+  procCondition: ''
+  positive: >-
+    <p>If the character has [N+1] or more Bind stacks, increase Dice Power by
+    [N].</p>
+  negative: ''
+  macro:
+    uuid: ''
+  customNotes: ''
+  easyEffects: |-
+    [On Clash Start]
+    require (Bind + 1) >= N then
+      power up attack N and power up defense N;
+effects: []
+sort: 0
+ownership:
+  default: 0
+  yWsvx4DXrmYcZsue: 3
+flags: {}
+_stats:
+  compendiumSource: null
+  duplicateSource: Item.nJNoVK7C2Li93CoN
+  exportSource: null
+  coreVersion: '14.364'
+  systemId: projectmoonttrpg
+  systemVersion: 0.0.1
+  createdTime: 1787170912487
+  modifiedTime: 1787171151577
+  lastModifiedBy: yWsvx4DXrmYcZsue
+_id: Jw1XSAVL3YylCLgI
+_key: '!items!Jw1XSAVL3YylCLgI'

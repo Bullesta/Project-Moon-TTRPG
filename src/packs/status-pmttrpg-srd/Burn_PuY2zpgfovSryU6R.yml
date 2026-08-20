@@ -11,15 +11,29 @@ system:
   slug: ''
   stacks: 1
   stackMax: 0
-  priority: 0
+  priority: 5
+  pending: false
+  arrival: ''
+  shelved: false
+  origin: ''
   customNotes: ''
-  easyEffects: |
+  easyEffects: >-
     [End of Round]
-    deal Burn hp damage to self;
-    halve Burn on self;
+
+    proc Burn on self;
+
+
+    [On Burn]
+
+    deal Burn hp damage on self;
+
+    require ("Burn - Renewed Blaze") == 0 then halve Burn on self;
+
+    require ("Burn - Renewed Blaze") >= 1 then lose 1 "Burn - Renewed Blaze" on
+    self;
   proc:
     turnStart: false
-    endOfRound: true
+    endOfRound: false
     actionOrReaction: false
     attackerBurst: false
     onHitWhenActorHas: false
@@ -39,7 +53,7 @@ _stats:
   systemId: projectmoonttrpg
   systemVersion: 0.0.1
   createdTime: 1779621115906
-  modifiedTime: 1785426624786
+  modifiedTime: 1787225134746
   lastModifiedBy: yWsvx4DXrmYcZsue
 _id: PuY2zpgfovSryU6R
 sort: 200000

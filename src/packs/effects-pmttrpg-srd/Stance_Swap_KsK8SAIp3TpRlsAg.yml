@@ -1,0 +1,53 @@
+folder: uFoSX9OejNWgkKaM
+name: Stance Swap
+type: effect
+img: >-
+  systems/projectmoonttrpg/assets/icons/limbus_assets/Misc%20Enemy%20Exclusive/Canto%209/Game%20Target.webp
+system:
+  name: ''
+  description: '<p><em>Note: This effect is not yet automated.</em></p>'
+  slug: ''
+  cost: 4
+  stackMax: 1
+  appliesTo: skill
+  canPositive: true
+  canNegative: false
+  procOn: onClashResult
+  procResult: none
+  procResultLocked: false
+  procChoice: none
+  procChoiceLocked: false
+  procStat: any
+  procDice: any
+  procAction: any
+  procCondition: ''
+  positive: >-
+    <p>Activate/Swap Stance to any Stance available to the character.</p>
+
+    <p>This takes effect immediately for purposes of resolving Critical
+    effects.</p>
+  negative: ''
+  macro:
+    uuid: ''
+  customNotes: ''
+  easyEffects: ''
+effects: []
+sort: 100000
+ownership:
+  default: 0
+  yWsvx4DXrmYcZsue: 3
+flags:
+  projectmoonttrpg:
+    syncDismissedAt: 1780427877255
+_stats:
+  compendiumSource: Item.EUMoSNacE4zxC5uh
+  duplicateSource: Item.Cz5VZPFyrKzW0jbE
+  exportSource: null
+  coreVersion: '14.364'
+  systemId: projectmoonttrpg
+  systemVersion: 0.0.1
+  createdTime: 1787226336938
+  modifiedTime: 1787227059516
+  lastModifiedBy: yWsvx4DXrmYcZsue
+_id: KsK8SAIp3TpRlsAg
+_key: '!items!KsK8SAIp3TpRlsAg'

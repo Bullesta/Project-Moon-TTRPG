@@ -1,0 +1,51 @@
+folder: b26xxIfNBITDTvuw
+name: Smoke Bonus
+type: effect
+img: systems/projectmoonttrpg/assets/icons/Statuses/Smoke.webp
+system:
+  name: ''
+  description: ''
+  slug: smoke-bonus
+  cost: 2
+  stackMax: 5
+  appliesTo: skill
+  canPositive: true
+  canNegative: false
+  procOn: alwaysActive
+  procResult: none
+  procResultLocked: false
+  procChoice: none
+  procChoiceLocked: false
+  procStat: any
+  procDice: any
+  procAction: any
+  procCondition: ''
+  positive: >-
+    <p>If the target has [N+3] or more Smoke stacks, increase Dice Power by
+    [N].</p>
+  negative: ''
+  macro:
+    uuid: ''
+  customNotes: ''
+  easyEffects: |-
+    [On Clash Start]
+    require (target.status.Smoke) >= (N+3) then
+      power up attack N and power up defense N;
+effects: []
+sort: 0
+ownership:
+  default: 0
+  yWsvx4DXrmYcZsue: 3
+flags: {}
+_stats:
+  coreVersion: '14.364'
+  systemId: projectmoonttrpg
+  systemVersion: 0.0.1
+  createdTime: 1787235636266
+  modifiedTime: 1787235636266
+  lastModifiedBy: yWsvx4DXrmYcZsue
+  compendiumSource: null
+  duplicateSource: Item.Mos5pnEqWBTxF8vo
+  exportSource: null
+_id: U6IrrcDPAUp5mS5q
+_key: '!items!U6IrrcDPAUp5mS5q'

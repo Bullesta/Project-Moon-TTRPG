@@ -1,0 +1,51 @@
+folder: 6T7XWg23DP6Ot8Oz
+name: Weaken Your Quarry
+type: effect
+img: systems/projectmoonttrpg/assets/icons/Statuses/Disarm.webp
+system:
+  name: ''
+  description: ''
+  slug: weaken-your-quarry
+  cost: 4
+  stackMax: 5
+  appliesTo: skill
+  canPositive: true
+  canNegative: false
+  procOn: onClashResult
+  procResult: none
+  procResultLocked: false
+  procChoice: none
+  procChoiceLocked: false
+  procStat: any
+  procDice: any
+  procAction: any
+  procCondition: ''
+  positive: >-
+    <p>This skill must be used against your Marked Target.</p><p>Inflict [N]
+    Feeble and Inflict [N] Disarm to the target next round.</p>
+  negative: ''
+  macro:
+    uuid: ''
+  customNotes: ''
+  easyEffects: |-
+    [Clash RESULT]
+    inflict (N) Feeble next round and 
+      inflict (N) Disarm next round;
+effects: []
+sort: 0
+ownership:
+  default: 0
+  yWsvx4DXrmYcZsue: 3
+flags: {}
+_stats:
+  coreVersion: '14.364'
+  systemId: projectmoonttrpg
+  systemVersion: 0.0.1
+  createdTime: 1787245896995
+  modifiedTime: 1787245896995
+  lastModifiedBy: yWsvx4DXrmYcZsue
+  compendiumSource: null
+  duplicateSource: Item.j8JaWcOtU1n4S32r
+  exportSource: null
+_id: Yl3tLRVvYYWzzBe9
+_key: '!items!Yl3tLRVvYYWzzBe9'

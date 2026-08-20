@@ -11,13 +11,17 @@ system:
   stacks: 1
   stackMax: 0
   priority: 0
+  pending: false
+  arrival: ''
+  shelved: false
+  origin: ''
   customNotes: ''
   easyEffects: |-
     [On Taking HP Damage]
     increase damage by Fragile after resistances
 
     [End of Round]
-    remove Fragile Fragile on self
+    lose all Fragile on self
 effects: []
 folder: JLnWNuTpQkOQhr5i
 sort: 200000
@@ -30,7 +34,7 @@ _stats:
   systemId: projectmoonttrpg
   systemVersion: 0.0.1
   createdTime: 1785318195288
-  modifiedTime: 1785426553496
+  modifiedTime: 1786513321153
   lastModifiedBy: yWsvx4DXrmYcZsue
   compendiumSource: null
   duplicateSource: null

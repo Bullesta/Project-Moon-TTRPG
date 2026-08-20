@@ -1,0 +1,48 @@
+folder: Zac3Xkc5Y82RXJkZ
+name: Charge - Gain Smoke
+type: effect
+img: systems/projectmoonttrpg/assets/icons/Statuses/Smoke.webp
+system:
+  name: ''
+  description: ''
+  slug: charge-gain-smoke
+  cost: 1
+  stackMax: 5
+  appliesTo: skill
+  canPositive: true
+  canNegative: false
+  procOn: onClashResult
+  procResult: none
+  procResultLocked: false
+  procChoice: none
+  procChoiceLocked: false
+  procStat: any
+  procDice: any
+  procAction: any
+  procCondition: ''
+  positive: <p>Consume [N*2] Charge to gain [N] Smoke on self.</p>
+  negative: ''
+  macro:
+    uuid: ''
+  customNotes: ''
+  easyEffects: |-
+    [On Clash RESULT]
+    spend (2*N) Charge to gain (N) Smoke;
+effects: []
+sort: 1200000
+ownership:
+  default: 0
+  yWsvx4DXrmYcZsue: 3
+flags: {}
+_stats:
+  coreVersion: '14.364'
+  systemId: projectmoonttrpg
+  systemVersion: 0.0.1
+  createdTime: 1787251585541
+  modifiedTime: 1787251585541
+  lastModifiedBy: yWsvx4DXrmYcZsue
+  compendiumSource: null
+  duplicateSource: Item.YYTisfvk2oAkfIuK
+  exportSource: null
+_id: lLhpnA0gYAFwIA9r
+_key: '!items!lLhpnA0gYAFwIA9r'

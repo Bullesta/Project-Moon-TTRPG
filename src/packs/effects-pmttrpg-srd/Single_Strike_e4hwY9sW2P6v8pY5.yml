@@ -1,0 +1,62 @@
+folder: qZ5uzhep6qammKdU
+name: Single Strike
+type: effect
+img: systems/projectmoonttrpg/assets/icons/Statuses/Prescript_s%20Target.webp
+system:
+  name: ''
+  description: ''
+  slug: ''
+  cost: 6
+  stackMax: 1
+  appliesTo: skill
+  canPositive: true
+  canNegative: false
+  procOn: alwaysActive
+  procResult: none
+  procResultLocked: false
+  procChoice: none
+  procChoiceLocked: false
+  procStat: any
+  procDice: any
+  procAction: any
+  procCondition: ''
+  positive: >-
+    <p>Increase the Dice Power by the amount of your Reactions (Min 2, Max
+    6).</p>
+
+    <p>The character forfeits all of their Reactions for this Turn. This skill
+    can't be used if the character has already used a Reaction this turn (or is
+    using a Reaction to make this attack, such as through dual-wieldien or
+    Counter). Skills containing this effect can only be used with the Attack
+    Action.</p>
+  negative: ''
+  macro:
+    uuid: ''
+  customNotes: ''
+  easyEffects: |-
+    [On Clash Start]
+    require (self.reaction) < 2 then
+      power up attack 2 and power up defense 2;
+    require (self.reaction) >= 2 and (self.reaction) <= 6 then
+      power up attack (self.reaction) and power up defense (self.reaction);
+    require (self.reaction) > 6 then
+      power up attack 6 and power up defense 6;
+    lose (self.reaction) Reaction;
+effects: []
+sort: 0
+ownership:
+  default: 0
+  yWsvx4DXrmYcZsue: 3
+flags: {}
+_stats:
+  compendiumSource: null
+  duplicateSource: Item.Jw1XSAVL3YylCLgI
+  exportSource: null
+  coreVersion: '14.364'
+  systemId: projectmoonttrpg
+  systemVersion: 0.0.1
+  createdTime: 1787170912488
+  modifiedTime: 1787171430643
+  lastModifiedBy: yWsvx4DXrmYcZsue
+_id: e4hwY9sW2P6v8pY5
+_key: '!items!e4hwY9sW2P6v8pY5'

@@ -1,0 +1,52 @@
+folder: Zac3Xkc5Y82RXJkZ
+name: Charge - Dice Power Up
+type: effect
+_id: B2oMDP0t0CT351p8
+img: >-
+  systems/projectmoonttrpg/assets/icons/limbus_assets/Basic%20Effects/Charge/Charge.webp
+system:
+  name: ''
+  description: ''
+  slug: charge-dice-power-up
+  cost: 2
+  stackMax: 5
+  appliesTo: skill
+  canPositive: true
+  canNegative: false
+  procOn: alwaysActive
+  procResult: none
+  procResultLocked: false
+  procChoice: none
+  procChoiceLocked: false
+  procStat: any
+  procDice: any
+  procAction: any
+  procCondition: ''
+  positive: <p>Consume [N*6] Charge to increase the Dice Power by [N].</p>
+  negative: ''
+  macro:
+    uuid: ''
+  customNotes: ''
+  easyEffects: |-
+    [On Clash With Attack]
+    spend (6*N) Charge to power up attack N
+
+    [On Clash With Defense]
+    spend (6*N) Charge to power up defense N
+effects: []
+sort: 100000
+ownership:
+  default: 0
+  yWsvx4DXrmYcZsue: 3
+flags: {}
+_stats:
+  coreVersion: '14.364'
+  systemId: projectmoonttrpg
+  systemVersion: 0.0.1
+  createdTime: 1787251585535
+  modifiedTime: 1787251585535
+  lastModifiedBy: yWsvx4DXrmYcZsue
+  compendiumSource: null
+  duplicateSource: null
+  exportSource: null
+_key: '!items!B2oMDP0t0CT351p8'

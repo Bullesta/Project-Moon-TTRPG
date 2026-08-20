@@ -1,0 +1,57 @@
+folder: I4lA4wlovQr7EIRr
+name: Hemorrhage
+type: effect
+img: systems/projectmoonttrpg/assets/icons/Statuses/Hemorrage.webp
+system:
+  name: ''
+  description: ''
+  slug: ''
+  cost: 4
+  stackMax: 5
+  appliesTo: skill
+  canPositive: true
+  canNegative: false
+  procOn: onClashResult
+  procResult: none
+  procResultLocked: false
+  procChoice: none
+  procChoiceLocked: false
+  procStat: any
+  procDice: any
+  procAction: any
+  procCondition: ''
+  positive: >-
+    <p>Any Bleed on the target is not reduced the next [N] times it activates.
+    This does not apply to Bleed that is activated as a result of this clash,
+    and counts as one instance of activation.</p>
+
+    <p>This also prevents Bleed from being reduced by Reduce Status or other
+    effects that immediately activate Bleed. When immediately activating Bleed,
+    do not halve Bleed and remove 1 stack of this effect.</p>
+  negative: ''
+  macro:
+    uuid: ''
+  customNotes: ''
+  easyEffects: |-
+    [On Clash Win]
+    inflict 1 "Bleed - Hemorrhage";
+effects: []
+sort: 100000
+ownership:
+  default: 0
+  yWsvx4DXrmYcZsue: 3
+flags:
+  projectmoonttrpg:
+    syncDismissedAt: 1780427305210
+_stats:
+  compendiumSource: Item.TluAhd1pBKWaLSme
+  duplicateSource: Item.erYe7op1i9xQzPy7
+  exportSource: null
+  coreVersion: '14.364'
+  systemId: projectmoonttrpg
+  systemVersion: 0.0.1
+  createdTime: 1787225861375
+  modifiedTime: 1787225982955
+  lastModifiedBy: yWsvx4DXrmYcZsue
+_id: UQb6UB19UOL5kMF4
+_key: '!items!UQb6UB19UOL5kMF4'

@@ -1,0 +1,56 @@
+folder: b26xxIfNBITDTvuw
+name: Fumigate
+type: effect
+img: >-
+  systems/projectmoonttrpg/assets/icons/limbus_assets/Ally%20Unit/Purple%20Breath%20-%20Hysteria.webp
+system:
+  name: ''
+  description: >-
+    <p><em>Note: This effect always does Before Resistance HP Damage. Please
+    edit the skill's EE Script accordingly if this is a After Resistance HP
+    Damage scenario.</em></p>
+  slug: fumigate
+  cost: 4
+  stackMax: 1
+  appliesTo: skill
+  canPositive: true
+  canNegative: false
+  procOn: onClashResult
+  procResult: none
+  procResultLocked: false
+  procChoice: none
+  procChoiceLocked: false
+  procStat: any
+  procDice: any
+  procAction: any
+  procCondition: ''
+  positive: >-
+    <p>Consume all of the user's Smoke stacks to deal Before Resistance HP
+    Damage equal to the amount consumed.</p><p>This effect is applied after
+    Puffy Brume. If used with a Block or Evade, this effect deals After
+    Resistance HP Damage instead.</p>
+  negative: ''
+  macro:
+    uuid: ''
+  customNotes: ''
+  easyEffects: |-
+    [On Clash RESULT]
+    spend (Smoke) Smoke to deal (Smoke) hp damage before resistances;
+effects: []
+sort: 0
+ownership:
+  default: 0
+  yWsvx4DXrmYcZsue: 3
+flags: {}
+_stats:
+  coreVersion: '14.364'
+  systemId: projectmoonttrpg
+  systemVersion: 0.0.1
+  createdTime: 1787235636266
+  modifiedTime: 1787235636266
+  lastModifiedBy: yWsvx4DXrmYcZsue
+  compendiumSource: null
+  duplicateSource: Item.U6IrrcDPAUp5mS5q
+  exportSource: null
+_id: Vd97JVDv9HmAVojR
+_key: '!items!Vd97JVDv9HmAVojR'

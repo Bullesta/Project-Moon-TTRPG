@@ -1,0 +1,50 @@
+folder: H1Mmnc2yMHYbjA8t
+name: Ruin Pause
+type: effect
+img: systems/projectmoonttrpg/assets/icons/Statuses/Ruin.webp
+system:
+  name: ''
+  description: ''
+  slug: ''
+  cost: 2
+  stackMax: 1
+  appliesTo: skill
+  canPositive: true
+  canNegative: false
+  procOn: onClashResult
+  procResult: none
+  procResultLocked: false
+  procChoice: none
+  procChoiceLocked: false
+  procStat: any
+  procDice: any
+  procAction: any
+  procCondition: ''
+  positive: <p>The target cannot have their Ruin rolled for the rest of the round.</p>
+  negative: ''
+  macro:
+    uuid: ''
+  customNotes: ''
+  easyEffects: |-
+    [On Clash Win]
+    inflict 1 "Ruin Pause";
+effects: []
+sort: 100000
+ownership:
+  default: 0
+  yWsvx4DXrmYcZsue: 3
+flags:
+  projectmoonttrpg:
+    syncDismissedAt: 1780732288366
+_stats:
+  compendiumSource: Item.E4HpJQh7hckViUs6
+  duplicateSource: Item.oZaVh2SbCgT6ooJ8
+  exportSource: null
+  coreVersion: '14.364'
+  systemId: projectmoonttrpg
+  systemVersion: 0.0.1
+  createdTime: 1787229135231
+  modifiedTime: 1787229618996
+  lastModifiedBy: yWsvx4DXrmYcZsue
+_id: GVUMScTpZz8g6fsD
+_key: '!items!GVUMScTpZz8g6fsD'

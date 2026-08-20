@@ -23,7 +23,12 @@ system:
   macro:
     uuid: ''
   customNotes: ''
-  easyEffects: ''
+  easyEffects: |-
+    [Clash RESULT]
+    positive:
+    gain N Haste next round;
+    negative:
+    gain N Bind next round;
   allowMultiple: true
 effects: []
 sort: 0
@@ -39,7 +44,7 @@ _stats:
   systemId: projectmoonttrpg
   systemVersion: 0.0.1
   createdTime: 1779651087474
-  modifiedTime: 1785514982023
+  modifiedTime: 1786513521330
   lastModifiedBy: yWsvx4DXrmYcZsue
 _id: yxwlH6NbaIz8GJ7h
 _key: '!items!yxwlH6NbaIz8GJ7h'

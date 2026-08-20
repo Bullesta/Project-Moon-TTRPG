@@ -5,10 +5,15 @@ img: systems/projectmoonttrpg/assets/icons/Statuses/Paralyze.webp
 system:
   name: ''
   description: ''
+  slug: ''
   cost: 2
-  allowMultiple: false
+  stackMax: 1
+  appliesTo: weapon
+  canPositive: true
+  canNegative: false
   procOn: onClash
   procResult: none
+  procResultLocked: false
   procStat: any
   procDice: any
   procAction: any
@@ -22,11 +27,20 @@ system:
   macro:
     uuid: ''
   customNotes: ''
-  appliesTo: weapon
-  canPositive: true
-  canNegative: false
-  stackMax: 1
-  procResultLocked: false
+  easyEffects: |-
+    [Clash RESULT]
+    create dialog "Countercurrent":
+      countercurrentPara as "Consume 4 Charge: Inflict 1 Paralysis"
+      countercurrentOver as "Consume 1 Overcharge: Inflict 2 Paralysis"
+      nocountercurrent as "Do not"
+      to self;
+
+    [On Dialog Answer countercurrentPara]
+    spend 4 Charge to inflict 1 Paralysis next turn;
+
+    [On Dialog Answer countercurrentOver]
+    spend 1 Overcharge to inflict 2 Paralysis next turn;
+  allowMultiple: false
 effects: []
 sort: 0
 ownership:
@@ -37,11 +51,11 @@ _stats:
   compendiumSource: null
   duplicateSource: Item.DFo7o5NIDCNMyAwT
   exportSource: null
-  coreVersion: '13.351'
+  coreVersion: '14.364'
   systemId: projectmoonttrpg
   systemVersion: 0.0.1
   createdTime: 1779651087474
-  modifiedTime: 1779651087474
+  modifiedTime: 1786514919110
   lastModifiedBy: yWsvx4DXrmYcZsue
 _id: HghllezdKfN9US29
 _key: '!items!HghllezdKfN9US29'

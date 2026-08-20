@@ -23,7 +23,12 @@ system:
   macro:
     uuid: ''
   customNotes: ''
-  easyEffects: ''
+  easyEffects: |-
+    [Clash RESULT]
+    positive:
+    gain N Poise;
+    negative:
+    inflict N Poise;
   allowMultiple: true
 effects: []
 sort: 0
@@ -39,7 +44,7 @@ _stats:
   systemId: projectmoonttrpg
   systemVersion: 0.0.1
   createdTime: 1779651087474
-  modifiedTime: 1785440648216
+  modifiedTime: 1786513423893
   lastModifiedBy: yWsvx4DXrmYcZsue
 _id: EF8SLWIy9aIaZnrk
 _key: '!items!EF8SLWIy9aIaZnrk'

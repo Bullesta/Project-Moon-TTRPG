@@ -8,7 +8,11 @@ system:
   slug: ''
   stacks: 1
   stackMax: 0
-  priority: 0
+  priority: 10
+  pending: false
+  arrival: ''
+  shelved: false
+  origin: ''
   customNotes: ''
   easyEffects: |-
     [On Clash Start]
@@ -39,7 +43,7 @@ _stats:
   systemId: projectmoonttrpg
   systemVersion: 0.0.1
   createdTime: 1779621122688
-  modifiedTime: 1785575294177
+  modifiedTime: 1787225165423
   lastModifiedBy: yWsvx4DXrmYcZsue
 _id: xzOZxRRZvS7pDgl7
 sort: 500000

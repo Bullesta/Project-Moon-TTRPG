@@ -1,0 +1,48 @@
+folder: cRk3YZ0jqH5Zerq1
+name: Ignore Infliction
+type: effect
+img: systems/projectmoonttrpg/assets/icons/Statuses/Unrelenting%20Aura.webp
+system:
+  name: ''
+  description: '<p><em>Note: This effect is not yet automated.</em></p>'
+  slug: ignore-infliction
+  cost: 6
+  stackMax: 1
+  appliesTo: skill
+  canPositive: true
+  canNegative: false
+  procOn: onClash
+  procResult: none
+  procResultLocked: false
+  procChoice: none
+  procChoiceLocked: false
+  procStat: any
+  procDice: any
+  procAction: any
+  procCondition: ''
+  positive: <p>Negates the target's [Inflict] effects to the character</p>
+  negative: ''
+  macro:
+    uuid: ''
+  customNotes: ''
+  easyEffects: |-
+    [On Clash Start]
+    deal (N) sp damage to self;
+effects: []
+sort: 0
+ownership:
+  default: 0
+  yWsvx4DXrmYcZsue: 3
+flags: {}
+_stats:
+  coreVersion: '14.364'
+  systemId: projectmoonttrpg
+  systemVersion: 0.0.1
+  createdTime: 1787249213103
+  modifiedTime: 1787249213103
+  lastModifiedBy: yWsvx4DXrmYcZsue
+  compendiumSource: null
+  duplicateSource: Item.4uvCKt2eoPHpeSLY
+  exportSource: null
+_id: 9vOF1eczVYNC8fKg
+_key: '!items!9vOF1eczVYNC8fKg'

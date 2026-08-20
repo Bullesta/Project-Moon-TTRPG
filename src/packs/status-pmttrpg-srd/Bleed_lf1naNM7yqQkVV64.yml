@@ -11,17 +11,26 @@ system:
   slug: ''
   stacks: 1
   stackMax: 0
-  priority: 0
+  priority: 5
+  pending: false
+  arrival: ''
+  shelved: false
+  origin: ''
   customNotes: ''
   easyEffects: >-
     [On Action]
 
-    deal Bleed hp damage on self
+    proc Bleed on self;
 
-    require hasStatus "Bleed - Hemorrhage" self == 0 then halve Bleed on self;
 
-    require hasStatus "Bleed - Hemorrhage" self == 1 then lose 1 "Bleed -
-    Hemorrhage" on self
+    [On Bleed]
+
+    deal Bleed hp damage on self;
+
+    require ("Bleed - Hemorrhage") == 0 then halve Bleed on self;
+
+    require ("Bleed - Hemorrhage") >= 1 then lose 1 "Bleed - Hemorrhage" on
+    self;
   proc:
     turnStart: false
     endOfRound: false
@@ -45,7 +54,7 @@ _stats:
   systemId: projectmoonttrpg
   systemVersion: 0.0.1
   createdTime: 1779621114674
-  modifiedTime: 1785435131741
+  modifiedTime: 1787225140929
   lastModifiedBy: yWsvx4DXrmYcZsue
 _id: lf1naNM7yqQkVV64
 sort: 100000

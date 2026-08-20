@@ -6,6 +6,7 @@ img: systems/projectmoonttrpg/assets/icons/Statuses/Charge.webp
 system:
   name: ''
   description: ''
+  slug: ''
   cost: 1
   stackMax: 6
   appliesTo: outfit
@@ -25,6 +26,9 @@ system:
   macro:
     uuid: ''
   customNotes: ''
+  easyEffects: |-
+    [On Use]
+    gain N Charge;
   allowMultiple: true
 effects: []
 sort: 0
@@ -36,10 +40,10 @@ _stats:
   compendiumSource: null
   duplicateSource: null
   exportSource: null
-  coreVersion: '13.351'
+  coreVersion: '14.364'
   systemId: projectmoonttrpg
   systemVersion: 0.0.1
   createdTime: 1780308622217
-  modifiedTime: 1780308622217
+  modifiedTime: 1786541549377
   lastModifiedBy: yWsvx4DXrmYcZsue
 _key: '!items!D8z3BVjE79O0ElAs'

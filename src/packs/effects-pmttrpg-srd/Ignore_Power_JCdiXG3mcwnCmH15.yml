@@ -1,0 +1,54 @@
+folder: qZ5uzhep6qammKdU
+name: Ignore Power
+type: effect
+img: systems/projectmoonttrpg/assets/icons/Statuses/Frenzy.webp
+system:
+  name: ''
+  description: '<p><em>Note: This effect is not yet automated.</em></p>'
+  slug: ''
+  cost: 6
+  stackMax: 1
+  appliesTo: skill
+  canPositive: true
+  canNegative: false
+  procOn: alwaysActive
+  procResult: none
+  procResultLocked: false
+  procChoice: none
+  procChoiceLocked: false
+  procStat: any
+  procDice: any
+  procAction: any
+  procCondition: ''
+  positive: >-
+    <p>Nullify any power modification effects that are a result of status
+    effects or Augment effects on both the character and the target.</p>
+
+    <p>Nullify any power modification effects that are a result of the target's
+    skill.</p>
+
+    <p>This does not nullify any power modification effect attached to the
+    character's skill, positive or negative.</p>
+  negative: ''
+  macro:
+    uuid: ''
+  customNotes: ''
+  easyEffects: ''
+effects: []
+sort: 0
+ownership:
+  default: 0
+  yWsvx4DXrmYcZsue: 3
+flags: {}
+_stats:
+  compendiumSource: null
+  duplicateSource: Item.4LZ4gGZu7JXpigq4
+  exportSource: null
+  coreVersion: '14.364'
+  systemId: projectmoonttrpg
+  systemVersion: 0.0.1
+  createdTime: 1787170912488
+  modifiedTime: 1787171574275
+  lastModifiedBy: yWsvx4DXrmYcZsue
+_id: JCdiXG3mcwnCmH15
+_key: '!items!JCdiXG3mcwnCmH15'

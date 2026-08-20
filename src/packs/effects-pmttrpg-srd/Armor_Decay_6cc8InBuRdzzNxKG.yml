@@ -1,0 +1,52 @@
+folder: H1Mmnc2yMHYbjA8t
+name: Armor Decay
+type: effect
+img: systems/projectmoonttrpg/assets/icons/Statuses/Devastation.webp
+system:
+  name: ''
+  description: ''
+  slug: ''
+  cost: 6
+  stackMax: 5
+  appliesTo: skill
+  canPositive: true
+  canNegative: false
+  procOn: onDevastating
+  procResult: none
+  procResultLocked: false
+  procChoice: none
+  procChoiceLocked: false
+  procStat: any
+  procDice: any
+  procAction: any
+  procCondition: ''
+  positive: <p>Apply [N] Disarm, Fragile and Stagger Fragile to the target.</p>
+  negative: ''
+  macro:
+    uuid: ''
+  customNotes: ''
+  easyEffects: |-
+    [On DevastatingHit]
+    inflict N Disarm;
+    inflict N Fragile;
+    inflict N "Stagger Fragile";
+effects: []
+sort: 100000
+ownership:
+  default: 0
+  yWsvx4DXrmYcZsue: 3
+flags:
+  projectmoonttrpg:
+    syncDismissedAt: 1780732288366
+_stats:
+  compendiumSource: Item.E4HpJQh7hckViUs6
+  duplicateSource: Item.2G79Qpr6xiv8CcTd
+  exportSource: null
+  coreVersion: '14.364'
+  systemId: projectmoonttrpg
+  systemVersion: 0.0.1
+  createdTime: 1787229135229
+  modifiedTime: 1787229806959
+  lastModifiedBy: yWsvx4DXrmYcZsue
+_id: 6cc8InBuRdzzNxKG
+_key: '!items!6cc8InBuRdzzNxKG'

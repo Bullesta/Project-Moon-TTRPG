@@ -1,0 +1,48 @@
+folder: b26xxIfNBITDTvuw
+name: Smoke - Ruin
+type: effect
+img: systems/projectmoonttrpg/assets/icons/Statuses/Ruin.webp
+system:
+  name: ''
+  description: ''
+  slug: smoke-ruin
+  cost: 2
+  stackMax: 5
+  appliesTo: skill
+  canPositive: true
+  canNegative: false
+  procOn: onClashResult
+  procResult: none
+  procResultLocked: false
+  procChoice: none
+  procChoiceLocked: false
+  procStat: any
+  procDice: any
+  procAction: any
+  procCondition: ''
+  positive: <p>Consume [N] Smoke on the target to inflict [N*2] Poise on the target.</p>
+  negative: ''
+  macro:
+    uuid: ''
+  customNotes: ''
+  easyEffects: |-
+    [On Clash RESULT]
+    spend N Smoke on target to inflict (N*2) Ruin;
+effects: []
+sort: 0
+ownership:
+  default: 0
+  yWsvx4DXrmYcZsue: 3
+flags: {}
+_stats:
+  coreVersion: '14.364'
+  systemId: projectmoonttrpg
+  systemVersion: 0.0.1
+  createdTime: 1787235636268
+  modifiedTime: 1787235636268
+  lastModifiedBy: yWsvx4DXrmYcZsue
+  compendiumSource: null
+  duplicateSource: Item.M8Rl15bEAiIKZVJy
+  exportSource: null
+_id: haJusoJYsaRb63CJ
+_key: '!items!haJusoJYsaRb63CJ'

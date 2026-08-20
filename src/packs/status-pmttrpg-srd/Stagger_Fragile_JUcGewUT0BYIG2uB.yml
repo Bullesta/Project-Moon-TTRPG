@@ -12,13 +12,17 @@ system:
   stacks: 1
   stackMax: 0
   priority: 0
+  pending: false
+  arrival: ''
+  shelved: false
+  origin: ''
   customNotes: ''
   easyEffects: |-
     [On Taking ST Damage]
     increase damage by "Stagger Fragile" after resistances
 
     [End of Round]
-    remove "Stagger Fragile" "Stagger Fragile"
+    lose all "Stagger Fragile"
 effects: []
 folder: JLnWNuTpQkOQhr5i
 sort: 112500
@@ -31,7 +35,7 @@ _stats:
   systemId: projectmoonttrpg
   systemVersion: 0.0.1
   createdTime: 1785318307215
-  modifiedTime: 1785426563975
+  modifiedTime: 1786513348577
   lastModifiedBy: yWsvx4DXrmYcZsue
   compendiumSource: null
   duplicateSource: null

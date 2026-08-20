@@ -1,0 +1,51 @@
+folder: 6wiMFTgDZGZKBM7u
+name: Haste
+type: effect
+img: systems/projectmoonttrpg/assets/icons/Statuses/Haste.webp
+system:
+  name: ''
+  description: ''
+  slug: haste
+  cost: 3
+  stackMax: 5
+  appliesTo: skill
+  canPositive: true
+  canNegative: true
+  procOn: onClashResult
+  procResult: none
+  procResultLocked: false
+  procChoice: none
+  procChoiceLocked: false
+  procStat: any
+  procDice: any
+  procAction: any
+  procCondition: ''
+  positive: <p>Apply [N] Haste to the character next round.</p>
+  negative: <p>Apply [N] Bind to the character next round.</p>
+  macro:
+    uuid: ''
+  customNotes: ''
+  easyEffects: |-
+    [On Clash RESULT]
+    positive:
+    gain (N) Haste next round;
+    negative:
+    gain (N) Bind next round;
+effects: []
+sort: 0
+ownership:
+  default: 0
+  yWsvx4DXrmYcZsue: 3
+flags: {}
+_stats:
+  coreVersion: '14.364'
+  systemId: projectmoonttrpg
+  systemVersion: 0.0.1
+  createdTime: 1787244129543
+  modifiedTime: 1787244129543
+  lastModifiedBy: yWsvx4DXrmYcZsue
+  compendiumSource: null
+  duplicateSource: Item.Bf3mO9t57m8sEmA4
+  exportSource: null
+_id: R3D1B1BwNl4BSehC
+_key: '!items!R3D1B1BwNl4BSehC'

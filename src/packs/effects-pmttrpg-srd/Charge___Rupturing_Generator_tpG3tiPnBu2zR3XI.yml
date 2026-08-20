@@ -1,0 +1,48 @@
+folder: Zac3Xkc5Y82RXJkZ
+name: Charge - Rupturing Generator
+type: effect
+img: systems/projectmoonttrpg/assets/icons/Statuses/Rupture.webp
+system:
+  name: ''
+  description: ''
+  slug: charge-rupturing-generator
+  cost: 6
+  stackMax: 1
+  appliesTo: skill
+  canPositive: true
+  canNegative: false
+  procOn: onBurst
+  procResult: none
+  procResultLocked: false
+  procChoice: none
+  procChoiceLocked: false
+  procStat: any
+  procDice: any
+  procAction: any
+  procCondition: ''
+  positive: <p>On Rupture Burst, gain Charge equal to Rupture on Target.</p>
+  negative: ''
+  macro:
+    uuid: ''
+  customNotes: ''
+  easyEffects: |-
+    [On Rupture Burst]
+    gain (burst.amount) Charge;
+effects: []
+sort: 1400000
+ownership:
+  default: 0
+  yWsvx4DXrmYcZsue: 3
+flags: {}
+_stats:
+  coreVersion: '14.364'
+  systemId: projectmoonttrpg
+  systemVersion: 0.0.1
+  createdTime: 1787251585551
+  modifiedTime: 1787251585551
+  lastModifiedBy: yWsvx4DXrmYcZsue
+  compendiumSource: null
+  duplicateSource: Item.A7BQuuGpBTHXTpob
+  exportSource: null
+_id: tpG3tiPnBu2zR3XI
+_key: '!items!tpG3tiPnBu2zR3XI'

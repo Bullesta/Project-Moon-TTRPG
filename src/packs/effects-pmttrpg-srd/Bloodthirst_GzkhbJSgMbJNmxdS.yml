@@ -5,7 +5,7 @@ img: systems/projectmoonttrpg/assets/icons/Statuses/Strength.webp
 system:
   name: ''
   description: ''
-  slug: bloodthirst
+  slug: ''
   cost: 2
   stackMax: 3
   appliesTo: augment
@@ -14,6 +14,8 @@ system:
   procOn: alwaysActive
   procResult: none
   procResultLocked: false
+  procChoice: none
+  procChoiceLocked: false
   procStat: any
   procDice: any
   procAction: action
@@ -28,7 +30,10 @@ system:
   macro:
     uuid: ''
   customNotes: ''
-  easyEffects: ''
+  easyEffects: |-
+    [Start of Round]
+    require (round) == 1 then
+      power up attack N and power up defense N;
 effects: []
 sort: 0
 ownership:
@@ -43,7 +48,7 @@ _stats:
   systemId: projectmoonttrpg
   systemVersion: 0.0.1
   createdTime: 1785485127255
-  modifiedTime: 1785485127255
+  modifiedTime: 1787172865847
   lastModifiedBy: yWsvx4DXrmYcZsue
 _id: GzkhbJSgMbJNmxdS
 _key: '!items!GzkhbJSgMbJNmxdS'

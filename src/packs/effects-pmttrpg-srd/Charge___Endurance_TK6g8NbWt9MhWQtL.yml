@@ -1,0 +1,50 @@
+folder: Zac3Xkc5Y82RXJkZ
+name: Charge - Endurance
+type: effect
+img: systems/projectmoonttrpg/assets/icons/Statuses/Endurance.webp
+system:
+  name: ''
+  description: '<p><em>Note: This effect only gives Endurance to self.</em></p>'
+  slug: charge-endurance
+  cost: 3
+  stackMax: 5
+  appliesTo: skill
+  canPositive: true
+  canNegative: false
+  procOn: onClashResult
+  procResult: none
+  procResultLocked: false
+  procChoice: none
+  procChoiceLocked: false
+  procStat: any
+  procDice: any
+  procAction: any
+  procCondition: ''
+  positive: >-
+    <p>Consume [N*6] Charge to gain [N] Endurance on self or an ally next
+    round.</p>
+  negative: ''
+  macro:
+    uuid: ''
+  customNotes: ''
+  easyEffects: |-
+    [On Clash RESULT]
+    spend (N*6) Charge to gain (N) Endurance next turn;
+effects: []
+sort: 2400000
+ownership:
+  default: 0
+  yWsvx4DXrmYcZsue: 3
+flags: {}
+_stats:
+  coreVersion: '14.364'
+  systemId: projectmoonttrpg
+  systemVersion: 0.0.1
+  createdTime: 1787251585545
+  modifiedTime: 1787251585545
+  lastModifiedBy: yWsvx4DXrmYcZsue
+  compendiumSource: null
+  duplicateSource: Item.FnG2FCLct7gpQemo
+  exportSource: null
+_id: TK6g8NbWt9MhWQtL
+_key: '!items!TK6g8NbWt9MhWQtL'

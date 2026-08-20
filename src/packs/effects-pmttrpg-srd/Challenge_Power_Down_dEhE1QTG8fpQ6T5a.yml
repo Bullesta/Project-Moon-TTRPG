@@ -1,0 +1,49 @@
+folder: uIIZeVmYhEBolURV
+name: Challenge Power Down
+type: effect
+img: >-
+  systems/projectmoonttrpg/assets/icons/limbus_assets/Basic%20Effects/Shin%20(%E5%BF%83).webp
+system:
+  name: ''
+  description: '<p><em>Note: This effect is not yet automated.</em></p>'
+  slug: challenge-power-down
+  cost: 3
+  stackMax: 5
+  appliesTo: skill
+  canPositive: true
+  canNegative: false
+  procOn: alwaysActive
+  procResult: none
+  procResultLocked: false
+  procChoice: none
+  procChoiceLocked: false
+  procStat: any
+  procDice: any
+  procAction: any
+  procCondition: ''
+  positive: >-
+    <p>[On Stat Use] When making an Opposed Challenge Roll, the target rolls
+    with -[N].</p>
+  negative: ''
+  macro:
+    uuid: ''
+  customNotes: ''
+  easyEffects: ''
+effects: []
+sort: 0
+ownership:
+  default: 0
+  yWsvx4DXrmYcZsue: 3
+flags: {}
+_stats:
+  coreVersion: '14.364'
+  systemId: projectmoonttrpg
+  systemVersion: 0.0.1
+  createdTime: 1787252375591
+  modifiedTime: 1787252375591
+  lastModifiedBy: yWsvx4DXrmYcZsue
+  compendiumSource: null
+  duplicateSource: Item.eFPIlP9Pb9Hh6wtC
+  exportSource: null
+_id: dEhE1QTG8fpQ6T5a
+_key: '!items!dEhE1QTG8fpQ6T5a'

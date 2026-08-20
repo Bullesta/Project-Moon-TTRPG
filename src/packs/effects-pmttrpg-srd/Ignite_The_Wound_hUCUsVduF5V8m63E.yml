@@ -1,0 +1,51 @@
+folder: 6T7XWg23DP6Ot8Oz
+name: Ignite The Wound
+type: effect
+img: >-
+  systems/projectmoonttrpg/assets/icons/limbus_assets/Basic%20Effects/Burn/Overheated%20Gas%20Harpoon.webp
+system:
+  name: ''
+  description: ''
+  slug: ignite-the-wound
+  cost: 2
+  stackMax: 5
+  appliesTo: skill
+  canPositive: true
+  canNegative: false
+  procOn: onClashResult
+  procResult: none
+  procResultLocked: false
+  procChoice: none
+  procChoiceLocked: false
+  procStat: any
+  procDice: any
+  procAction: any
+  procCondition: ''
+  positive: >-
+    <p>This skill must be used against your Marked Target.</p><p>Apply [N] Burn
+    and [N] Bleed to the target.</p>
+  negative: ''
+  macro:
+    uuid: ''
+  customNotes: ''
+  easyEffects: |-
+    [Clash RESULT]
+    inflict N Burn and inflict N Bleed;
+effects: []
+sort: 0
+ownership:
+  default: 0
+  yWsvx4DXrmYcZsue: 3
+flags: {}
+_stats:
+  coreVersion: '14.364'
+  systemId: projectmoonttrpg
+  systemVersion: 0.0.1
+  createdTime: 1787245896993
+  modifiedTime: 1787245896993
+  lastModifiedBy: yWsvx4DXrmYcZsue
+  compendiumSource: null
+  duplicateSource: Item.DCxCngF0vkyNE676
+  exportSource: null
+_id: hUCUsVduF5V8m63E
+_key: '!items!hUCUsVduF5V8m63E'

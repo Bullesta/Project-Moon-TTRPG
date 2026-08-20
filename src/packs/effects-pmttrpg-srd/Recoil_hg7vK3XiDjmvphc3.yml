@@ -1,0 +1,47 @@
+folder: uIIZeVmYhEBolURV
+name: Recoil
+type: effect
+img: >-
+  systems/projectmoonttrpg/assets/icons/limbus_assets/Misc%20Enemy%20Exclusive/Canto%209/Automated%20Myofiber%20Activity.webp
+system:
+  name: ''
+  description: '<p><em>Note: This effect is not yet automated.</em></p>'
+  slug: recoil
+  cost: 2
+  stackMax: 5
+  appliesTo: skill
+  canPositive: false
+  canNegative: true
+  procOn: alwaysActive
+  procResult: none
+  procResultLocked: false
+  procChoice: none
+  procChoiceLocked: false
+  procStat: any
+  procDice: any
+  procAction: any
+  procCondition: ''
+  positive: ''
+  negative: <p>[On Stat Use] Your next roll has a modifier of -[N]</p>
+  macro:
+    uuid: ''
+  customNotes: ''
+  easyEffects: ''
+effects: []
+sort: 0
+ownership:
+  default: 0
+  yWsvx4DXrmYcZsue: 3
+flags: {}
+_stats:
+  coreVersion: '14.364'
+  systemId: projectmoonttrpg
+  systemVersion: 0.0.1
+  createdTime: 1787252375592
+  modifiedTime: 1787252375592
+  lastModifiedBy: yWsvx4DXrmYcZsue
+  compendiumSource: null
+  duplicateSource: Item.nQzaEZeIg7bkFI5s
+  exportSource: null
+_id: hg7vK3XiDjmvphc3
+_key: '!items!hg7vK3XiDjmvphc3'

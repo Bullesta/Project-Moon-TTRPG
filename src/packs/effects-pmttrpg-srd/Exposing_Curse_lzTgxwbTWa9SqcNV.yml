@@ -4,8 +4,8 @@ type: effect
 img: systems/projectmoonttrpg/assets/icons/Statuses/Devastation.webp
 system:
   name: ''
-  description: ''
-  slug: exposing-curse
+  description: '<p><em>Note: This effect is not yet fully automated.</em></p>'
+  slug: ''
   cost: 4
   stackMax: 1
   appliesTo: augment
@@ -14,6 +14,8 @@ system:
   procOn: onDevastating
   procResult: none
   procResultLocked: false
+  procChoice: none
+  procChoiceLocked: false
   procStat: any
   procDice: any
   procAction: action
@@ -25,7 +27,9 @@ system:
   macro:
     uuid: ''
   customNotes: ''
-  easyEffects: ''
+  easyEffects: |-
+    [On DevastatingHit]
+    inflict 1 "Fragile" next turn and inflict 1 "Stagger Fragile" next turn;
 effects: []
 sort: 100000
 ownership:
@@ -40,7 +44,7 @@ _stats:
   systemId: projectmoonttrpg
   systemVersion: 0.0.1
   createdTime: 1785485141803
-  modifiedTime: 1785485141803
+  modifiedTime: 1787164636663
   lastModifiedBy: yWsvx4DXrmYcZsue
 _id: lzTgxwbTWa9SqcNV
 _key: '!items!lzTgxwbTWa9SqcNV'

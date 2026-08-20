@@ -1,10 +1,12 @@
 folder: joSME26dU79IglVK
 name: Slasher Stance
 type: effect
-img: systems/projectmoonttrpg/assets/icons/Statuses/Mark.webp
+img: systems/projectmoonttrpg/assets/icons/Statuses/Slasher%20Stance.webp
 system:
   name: ''
-  description: ''
+  description: >-
+    <p><strong>Note: This effect is manual. Add the corresponding Stance to
+    self, and spend a reaction.</strong></p>
   slug: ''
   cost: 4
   stackMax: 1
@@ -14,6 +16,8 @@ system:
   procOn: alwaysActive
   procResult: none
   procResultLocked: false
+  procChoice: none
+  procChoiceLocked: false
   procStat: any
   procDice: any
   procAction: any
@@ -42,7 +46,7 @@ _stats:
   systemId: projectmoonttrpg
   systemVersion: 0.0.1
   createdTime: 1785485140024
-  modifiedTime: 1785503007908
+  modifiedTime: 1787169662010
   lastModifiedBy: yWsvx4DXrmYcZsue
 _id: KL95QRzu9mRX58yn
 _key: '!items!KL95QRzu9mRX58yn'

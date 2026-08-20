@@ -5,7 +5,7 @@ img: systems/projectmoonttrpg/assets/icons/Statuses/Bleed.webp
 system:
   name: ''
   description: ''
-  slug: hemomaniac
+  slug: ''
   cost: 1
   stackMax: 5
   appliesTo: augment
@@ -14,6 +14,8 @@ system:
   procOn: onClash
   procResult: none
   procResultLocked: false
+  procChoice: none
+  procChoiceLocked: false
   procStat: any
   procDice: offensive
   procAction: action
@@ -25,7 +27,18 @@ system:
   macro:
     uuid: ''
   customNotes: ''
-  easyEffects: ''
+  easyEffects: |-
+    [On Clash Win With Attack]
+    create dialog "Hemomaniac: Transfer Bleed?":
+      transferStT as "Transfer from Self to Target",
+      transferTtS as "Transfer from Target to Self"
+      to self;
+
+    [On Dialog Result transferStT]
+    lose N Bleed on self and inflict N Bleed;
+
+    [On Dialog Result transferTtS]
+    lose N Bleed on target and gain N Bleed;
 effects: []
 sort: 100000
 ownership:
@@ -40,7 +53,7 @@ _stats:
   systemId: projectmoonttrpg
   systemVersion: 0.0.1
   createdTime: 1785485141804
-  modifiedTime: 1785485141804
+  modifiedTime: 1787153086169
   lastModifiedBy: yWsvx4DXrmYcZsue
 _id: RQxuonMFpV2E32Ik
 _key: '!items!RQxuonMFpV2E32Ik'

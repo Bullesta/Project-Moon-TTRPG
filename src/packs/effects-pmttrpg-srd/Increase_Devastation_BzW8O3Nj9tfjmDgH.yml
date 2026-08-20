@@ -1,0 +1,53 @@
+folder: H1Mmnc2yMHYbjA8t
+name: Increase Devastation
+type: effect
+img: systems/projectmoonttrpg/assets/icons/Statuses/Devastation.webp
+system:
+  name: ''
+  description: ''
+  slug: ''
+  cost: 4
+  stackMax: 5
+  appliesTo: skill
+  canPositive: true
+  canNegative: true
+  procOn: onClashResult
+  procResult: none
+  procResultLocked: false
+  procChoice: none
+  procChoiceLocked: false
+  procStat: any
+  procDice: any
+  procAction: any
+  procCondition: ''
+  positive: <p>Apply [N] Devastation to the target.</p>
+  negative: <p>Apply [N] Devastation to the character.</p>
+  macro:
+    uuid: ''
+  customNotes: ''
+  easyEffects: |-
+    [On Clash RESULT]
+    positive:
+    inflict N Devastation;
+    negative:
+    gain N Devastation;
+effects: []
+sort: 100000
+ownership:
+  default: 0
+  yWsvx4DXrmYcZsue: 3
+flags:
+  projectmoonttrpg:
+    syncDismissedAt: 1780732288366
+_stats:
+  compendiumSource: Item.E4HpJQh7hckViUs6
+  duplicateSource: Item.E4HpJQh7hckViUs6
+  exportSource: null
+  coreVersion: '14.364'
+  systemId: projectmoonttrpg
+  systemVersion: 0.0.1
+  createdTime: 1787229135230
+  modifiedTime: 1787229185930
+  lastModifiedBy: yWsvx4DXrmYcZsue
+_id: BzW8O3Nj9tfjmDgH
+_key: '!items!BzW8O3Nj9tfjmDgH'

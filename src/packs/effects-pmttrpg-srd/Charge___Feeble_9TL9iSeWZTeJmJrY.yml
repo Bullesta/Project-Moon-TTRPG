@@ -1,0 +1,48 @@
+folder: Zac3Xkc5Y82RXJkZ
+name: Charge - Feeble
+type: effect
+img: systems/projectmoonttrpg/assets/icons/Statuses/Feeble.webp
+system:
+  name: ''
+  description: ''
+  slug: charge-feeble
+  cost: 3
+  stackMax: 5
+  appliesTo: skill
+  canPositive: true
+  canNegative: false
+  procOn: onClashResult
+  procResult: none
+  procResultLocked: false
+  procChoice: none
+  procChoiceLocked: false
+  procStat: any
+  procDice: any
+  procAction: any
+  procCondition: ''
+  positive: <p>Consume [N*6] Charge to inflict [N] Feeble to the target next round.</p>
+  negative: ''
+  macro:
+    uuid: ''
+  customNotes: ''
+  easyEffects: |-
+    [On Clash RESULT]
+    spend (N*6) Charge to inflict (N) Feeble next turn;
+effects: []
+sort: 2000000
+ownership:
+  default: 0
+  yWsvx4DXrmYcZsue: 3
+flags: {}
+_stats:
+  coreVersion: '14.364'
+  systemId: projectmoonttrpg
+  systemVersion: 0.0.1
+  createdTime: 1787251585544
+  modifiedTime: 1787251585544
+  lastModifiedBy: yWsvx4DXrmYcZsue
+  compendiumSource: null
+  duplicateSource: Item.6P7DEoJ6NYMSGFtZ
+  exportSource: null
+_id: 9TL9iSeWZTeJmJrY
+_key: '!items!9TL9iSeWZTeJmJrY'

@@ -1,0 +1,50 @@
+folder: Dbdr87yHQ7lJhOXz
+name: Instant Bind
+type: effect
+img: systems/projectmoonttrpg/assets/icons/Statuses/Bind.webp
+system:
+  name: ''
+  description: '<p><em>Note: This effect is not yet automated.</em></p>'
+  slug: ''
+  cost: 4
+  stackMax: 1
+  appliesTo: skill
+  canPositive: true
+  canNegative: false
+  procOn: alwaysActive
+  procResult: none
+  procResultLocked: false
+  procChoice: none
+  procChoiceLocked: false
+  procStat: any
+  procDice: any
+  procAction: any
+  procCondition: ''
+  positive: >-
+    <p>Bind from Effects and this Skill are applied to the target and are
+    activated immediately. This occurs before any Bind skill effect is used.</p>
+  negative: ''
+  macro:
+    uuid: ''
+  customNotes: ''
+  easyEffects: ''
+effects: []
+sort: 100000
+ownership:
+  default: 0
+  yWsvx4DXrmYcZsue: 3
+flags:
+  projectmoonttrpg:
+    syncDismissedAt: 1780345610668
+_stats:
+  compendiumSource: Item.Je0fG3h1pB3ZeY5A
+  duplicateSource: Item.b0KOhpNj72rgULpw
+  exportSource: null
+  coreVersion: '14.364'
+  systemId: projectmoonttrpg
+  systemVersion: 0.0.1
+  createdTime: 1787171613139
+  modifiedTime: 1787171784049
+  lastModifiedBy: yWsvx4DXrmYcZsue
+_id: DggYYCKBKDT45ZOq
+_key: '!items!DggYYCKBKDT45ZOq'

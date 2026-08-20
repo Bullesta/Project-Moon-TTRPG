@@ -1,0 +1,50 @@
+folder: tgOfSJhMwrzok7lS
+name: Overcharge - Charge Release
+type: effect
+img: systems/projectmoonttrpg/assets/icons/Statuses/Overcharge.webp
+system:
+  name: ''
+  description: '<p><em>Note: This effect is not yet automated.</em></p>'
+  slug: overcharge-charge-release
+  cost: 3
+  stackMax: 3
+  appliesTo: skill
+  canPositive: true
+  canNegative: false
+  procOn: alwaysActive
+  procResult: none
+  procResultLocked: false
+  procChoice: none
+  procChoiceLocked: false
+  procStat: any
+  procDice: any
+  procAction: any
+  procCondition: ''
+  positive: >-
+    <p>Consume 2 Overcharge.</p><p>Deal [N]d8 Force Damage to the Target. You
+    can then choose to push the Target back a number of SQRs equal to double the
+    Force Damage dice rolled. This Forced Movement does not deal Force Damage.
+    (Max 3)</p>
+  negative: ''
+  macro:
+    uuid: ''
+  customNotes: ''
+  easyEffects: ''
+effects: []
+sort: 100000
+ownership:
+  default: 0
+  yWsvx4DXrmYcZsue: 3
+flags: {}
+_stats:
+  coreVersion: '14.364'
+  systemId: projectmoonttrpg
+  systemVersion: 0.0.1
+  createdTime: 1787252052443
+  modifiedTime: 1787252052443
+  lastModifiedBy: yWsvx4DXrmYcZsue
+  compendiumSource: null
+  duplicateSource: Item.ruZbaHho2qw4TmWR
+  exportSource: null
+_id: rznPwiLXJZLwHTRK
+_key: '!items!rznPwiLXJZLwHTRK'

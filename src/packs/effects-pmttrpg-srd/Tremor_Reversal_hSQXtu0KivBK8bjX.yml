@@ -1,0 +1,51 @@
+folder: AjubTmmqnDZcHg2N
+name: Tremor Reversal
+type: effect
+img: >-
+  systems/projectmoonttrpg/assets/icons/limbus_assets/Basic%20Effects/Tremor/Amplitude%20Conversion.webp
+system:
+  name: ''
+  description: ''
+  slug: tremor-reversal
+  cost: 4
+  stackMax: 1
+  appliesTo: skill
+  canPositive: true
+  canNegative: false
+  procOn: onBurst
+  procResult: none
+  procResultLocked: false
+  procChoice: none
+  procChoiceLocked: false
+  procStat: any
+  procDice: any
+  procAction: any
+  procCondition: ''
+  positive: >-
+    <p>On Tremor Burst, recover ST equivalent to the Tremor burst on the
+    target.</p>
+  negative: ''
+  macro:
+    uuid: ''
+  customNotes: ''
+  easyEffects: |-
+    [On Tremor Burst]
+    regen st (burst.amount)
+effects: []
+sort: 0
+ownership:
+  default: 0
+  yWsvx4DXrmYcZsue: 3
+flags: {}
+_stats:
+  coreVersion: '14.364'
+  systemId: projectmoonttrpg
+  systemVersion: 0.0.1
+  createdTime: 1787232171756
+  modifiedTime: 1787232171756
+  lastModifiedBy: yWsvx4DXrmYcZsue
+  compendiumSource: null
+  duplicateSource: Item.MpkXDbVfYV8WLNeE
+  exportSource: null
+_id: hSQXtu0KivBK8bjX
+_key: '!items!hSQXtu0KivBK8bjX'

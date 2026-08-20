@@ -6,7 +6,7 @@ img: systems/projectmoonttrpg/assets/icons/Statuses/Burn.webp
 system:
   name: ''
   description: ''
-  slug: burn-resistance
+  slug: ''
   cost: 1
   stackMax: 5
   appliesTo: augment
@@ -15,6 +15,8 @@ system:
   procOn: alwaysActive
   procResult: none
   procResultLocked: false
+  procChoice: none
+  procChoiceLocked: false
   procStat: any
   procDice: any
   procAction: any
@@ -24,7 +26,12 @@ system:
   macro:
     uuid: ''
   customNotes: ''
-  easyEffects: ''
+  easyEffects: |-
+    [On Taking Burn Damage]
+    positive:
+    reduce damage by N;
+    negative:
+    increase damage by N;
 effects: []
 sort: 0
 ownership:
@@ -39,6 +46,6 @@ _stats:
   systemId: projectmoonttrpg
   systemVersion: 0.0.1
   createdTime: 1785485138331
-  modifiedTime: 1785485138331
+  modifiedTime: 1787165959311
   lastModifiedBy: yWsvx4DXrmYcZsue
 _key: '!items!5fSjrItrk2FvGAgk'

@@ -1,0 +1,53 @@
+folder: b26xxIfNBITDTvuw
+name: '[M/D] Smoke Overflow'
+type: effect
+img: systems/projectmoonttrpg/assets/icons/Statuses/Smoke.webp
+system:
+  name: ''
+  description: ''
+  slug: m-d-smoke-overflow
+  cost: 2
+  stackMax: 5
+  appliesTo: skill
+  canPositive: true
+  canNegative: false
+  procOn: alwaysActive
+  procResult: none
+  procResultLocked: false
+  procChoice: none
+  procChoiceLocked: false
+  procStat: any
+  procDice: any
+  procAction: any
+  procCondition: ''
+  positive: >-
+    <p>If the character has [N*2] or more Smoke stacks, increase Dice Power by
+    [N]. If you have an effect of the same name of your Augment, increase the
+    amount of Smoke required by [2*X] (where X is the amount of this effect on
+    Augment).</p>
+  negative: ''
+  macro:
+    uuid: ''
+  customNotes: ''
+  easyEffects: |-
+    [On Clash Start]
+    require (Smoke) >= (N*2) then
+      power up attack N and power up defense N;
+effects: []
+sort: 0
+ownership:
+  default: 0
+  yWsvx4DXrmYcZsue: 3
+flags: {}
+_stats:
+  coreVersion: '14.364'
+  systemId: projectmoonttrpg
+  systemVersion: 0.0.1
+  createdTime: 1787235636265
+  modifiedTime: 1787235636265
+  lastModifiedBy: yWsvx4DXrmYcZsue
+  compendiumSource: null
+  duplicateSource: Item.ek88S9hxUUz1uHfB
+  exportSource: null
+_id: Mos5pnEqWBTxF8vo
+_key: '!items!Mos5pnEqWBTxF8vo'

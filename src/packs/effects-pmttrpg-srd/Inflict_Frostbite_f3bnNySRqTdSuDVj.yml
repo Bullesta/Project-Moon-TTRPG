@@ -5,6 +5,7 @@ img: systems/projectmoonttrpg/assets/icons/Statuses/Frostbite.webp
 system:
   name: ''
   description: ''
+  slug: ''
   cost: 3
   stackMax: 5
   appliesTo: outfit
@@ -22,6 +23,12 @@ system:
   macro:
     uuid: ''
   customNotes: ''
+  easyEffects: |-
+    [Clash RESULT]
+    positive:
+    inflict N Frostbite;
+    negative:
+    gain N Frostbite;
   allowMultiple: true
 effects: []
 sort: 0
@@ -33,11 +40,11 @@ _stats:
   compendiumSource: null
   duplicateSource: Item.aocVjqf5zPQcOMgu
   exportSource: null
-  coreVersion: '13.351'
+  coreVersion: '14.364'
   systemId: projectmoonttrpg
   systemVersion: 0.0.1
   createdTime: 1780308631139
-  modifiedTime: 1780308631139
+  modifiedTime: 1786529640352
   lastModifiedBy: yWsvx4DXrmYcZsue
 _id: f3bnNySRqTdSuDVj
 _key: '!items!f3bnNySRqTdSuDVj'

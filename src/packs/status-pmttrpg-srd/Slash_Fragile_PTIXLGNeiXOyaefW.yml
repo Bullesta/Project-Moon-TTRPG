@@ -13,13 +13,17 @@ system:
   stacks: 1
   stackMax: 0
   priority: 0
+  pending: false
+  arrival: ''
+  shelved: false
+  origin: ''
   customNotes: ''
   easyEffects: |-
     [On Taking Slash Damage]
     increase damage by "Slash Fragile"
 
     [End of Round]
-    remove "Slash Fragile" "Slash Fragile"
+    lose all "Slash Fragile"
 effects: []
 folder: JLnWNuTpQkOQhr5i
 sort: 100782
@@ -32,7 +36,7 @@ _stats:
   systemId: projectmoonttrpg
   systemVersion: 0.0.1
   createdTime: 1785318454663
-  modifiedTime: 1785426581700
+  modifiedTime: 1786513337853
   lastModifiedBy: yWsvx4DXrmYcZsue
   compendiumSource: null
   duplicateSource: null

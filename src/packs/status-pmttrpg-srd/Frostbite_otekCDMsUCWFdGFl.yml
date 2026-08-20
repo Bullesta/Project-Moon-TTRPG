@@ -11,12 +11,26 @@ system:
   slug: ''
   stacks: 1
   stackMax: 0
-  priority: 0
+  priority: 5
+  pending: false
+  arrival: ''
+  shelved: false
+  origin: ''
   customNotes: ''
-  easyEffects: |-
+  easyEffects: >-
     [End of Round]
-    deal Frostbite hp damage to self;
-    halve Frostbite on self;
+
+    proc Frostbite on self;
+
+
+    [On Frostbite]
+
+    deal Frostbite st damage on self;
+
+    require ("Frostbite - Deep Chill") == 0 then halve Frostbite on self;
+
+    require ("Frostbite - Deep Chill") >= 1 then lose 1 "Frostbite - Deep Chill"
+    on self;
   proc:
     turnStart: false
     endOfRound: false
@@ -39,7 +53,7 @@ _stats:
   systemId: projectmoonttrpg
   systemVersion: 0.0.1
   createdTime: 1779621121159
-  modifiedTime: 1785426634811
+  modifiedTime: 1787225159144
   lastModifiedBy: yWsvx4DXrmYcZsue
 _id: otekCDMsUCWFdGFl
 sort: 187500

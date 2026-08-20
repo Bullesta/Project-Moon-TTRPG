@@ -5,10 +5,15 @@ img: systems/projectmoonttrpg/assets/icons/Statuses/Charge Barrier.webp
 system:
   name: ''
   description: ''
+  slug: ''
   cost: 2
-  allowMultiple: false
+  stackMax: 1
+  appliesTo: weapon
+  canPositive: true
+  canNegative: false
   procOn: onClash
   procResult: none
+  procResultLocked: false
   procStat: any
   procDice: any
   procAction: any
@@ -21,11 +26,20 @@ system:
   macro:
     uuid: ''
   customNotes: ''
-  appliesTo: weapon
-  canPositive: true
-  canNegative: false
-  stackMax: 1
-  procResultLocked: false
+  easyEffects: |-
+    [Clash RESULT]
+    create dialog "Barrier Ionization":
+      barrier as "Consume 3 Charge: +1 Charge Barrier"
+      barrierover as "Consume 1 Overcharge: +3 Charge Barrier"
+      nobarrier as "Do not"
+      to self;
+
+    [On Dialog Answer barrier]
+    spend 3 Charge to gain 1 "Charge Barrier" next round;
+
+    [On Dialog Answer barrierover]
+    spend 1 Overcharge to gain 3 "Charge Barrier" next round;
+  allowMultiple: false
 effects: []
 sort: 0
 ownership:
@@ -36,11 +50,11 @@ _stats:
   compendiumSource: null
   duplicateSource: Item.IMC2n1zvuJpnsLyZ
   exportSource: null
-  coreVersion: '13.351'
+  coreVersion: '14.364'
   systemId: projectmoonttrpg
   systemVersion: 0.0.1
   createdTime: 1779651087474
-  modifiedTime: 1779651087474
+  modifiedTime: 1786541951408
   lastModifiedBy: yWsvx4DXrmYcZsue
 _id: go2rj82x6cPuCNy3
 _key: '!items!go2rj82x6cPuCNy3'

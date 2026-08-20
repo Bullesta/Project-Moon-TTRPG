@@ -4,8 +4,10 @@ type: effect
 img: systems/projectmoonttrpg/assets/icons/Statuses/Unlock.webp
 system:
   name: ''
-  description: ''
-  slug: multifaceted
+  description: >-
+    <p><strong>Note: This effect is not automated or supported in the current
+    version. Emotions are WIP.</strong></p>
+  slug: ''
   cost: 4
   stackMax: 1
   appliesTo: augment
@@ -14,6 +16,8 @@ system:
   procOn: alwaysActive
   procResult: none
   procResultLocked: false
+  procChoice: none
+  procChoiceLocked: false
   procStat: any
   procDice: any
   procAction: any
@@ -40,7 +44,7 @@ _stats:
   systemId: projectmoonttrpg
   systemVersion: 0.0.1
   createdTime: 1785485130073
-  modifiedTime: 1785485130073
+  modifiedTime: 1787169728189
   lastModifiedBy: yWsvx4DXrmYcZsue
 _id: HEYDAVMKUDVgfXmn
 _key: '!items!HEYDAVMKUDVgfXmn'

@@ -1,0 +1,61 @@
+folder: jV6V7T4DGnxC2G2X
+name: Sinking Deluge
+type: effect
+img: >-
+  systems/projectmoonttrpg/assets/icons/limbus_assets/Basic%20Effects/Sinking/Sinking%20Deluge.webp
+system:
+  name: ''
+  description: ''
+  slug: sinking-deluge
+  cost: 6
+  stackMax: 1
+  appliesTo: skill
+  canPositive: true
+  canNegative: false
+  procOn: onBurst
+  procResult: none
+  procResultLocked: false
+  procChoice: none
+  procChoiceLocked: false
+  procStat: any
+  procDice: any
+  procAction: any
+  procCondition: ''
+  positive: >-
+    <p>On Sinking Burst, deal HP Damage equal to 2x of the burst Sinking stacks.
+    If the target is Staggered or Panicking, deal HP Damage equal to 3x
+    instead.</p>
+  negative: ''
+  macro:
+    uuid: ''
+  customNotes: ''
+  easyEffects: |-
+    [On Sinking Burst]
+    create dialog "Sinking Deluge: Is target panicking or staggered?":
+      tripleDamage as "Yes, target is panicking or staggered."
+      doubleDamage as "No, target is neither panicking nor staggered."
+      to self;
+
+    [On Dialog Answer doubleDamage]
+    deal (burst.amount * 2) hp damage to target;
+
+    [On Dialog Answer tripleDamage]
+    deal (burst.amount * 3) hp damage to target;
+effects: []
+sort: 100000
+ownership:
+  default: 0
+  yWsvx4DXrmYcZsue: 3
+flags: {}
+_stats:
+  coreVersion: '14.364'
+  systemId: projectmoonttrpg
+  systemVersion: 0.0.1
+  createdTime: 1787233598767
+  modifiedTime: 1787233598767
+  lastModifiedBy: yWsvx4DXrmYcZsue
+  compendiumSource: null
+  duplicateSource: Item.sMWDQrmYu6K4YAXG
+  exportSource: null
+_id: fv31sRl8vdmmKZuU
+_key: '!items!fv31sRl8vdmmKZuU'

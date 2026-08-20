@@ -12,13 +12,17 @@ system:
   stacks: 1
   stackMax: 0
   priority: 0
+  pending: false
+  arrival: ''
+  shelved: false
+  origin: ''
   customNotes: ''
   easyEffects: |-
     [On Clash Start]
     power up attack Strength
 
     [End of Round]
-    remove Strength Strength
+    lose all Strength
 effects: []
 folder: jtSvJ9E0Hm5t7NVJ
 sort: 125000
@@ -31,7 +35,7 @@ _stats:
   systemId: projectmoonttrpg
   systemVersion: 0.0.1
   createdTime: 1785318501462
-  modifiedTime: 1785426704204
+  modifiedTime: 1786446209179
   lastModifiedBy: yWsvx4DXrmYcZsue
   compendiumSource: null
   duplicateSource: null

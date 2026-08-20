@@ -1,0 +1,52 @@
+folder: jV6V7T4DGnxC2G2X
+name: Sinking+
+type: effect
+img: >-
+  systems/projectmoonttrpg/assets/icons/limbus_assets/Basic%20Effects/Sinking/Sinking.webp
+system:
+  name: ''
+  description: '<p><em>Note: This effect is not yet automated.</em></p>'
+  slug: sinking
+  cost: 1
+  stackMax: 3
+  appliesTo: skill
+  canPositive: true
+  canNegative: false
+  procOn: onClashResult
+  procResult: none
+  procResultLocked: false
+  procChoice: none
+  procChoiceLocked: false
+  procStat: any
+  procDice: any
+  procAction: any
+  procCondition: ''
+  positive: <p>When inflicting Sinking, apply an additional [N] Sinking.</p>
+  negative: ''
+  macro:
+    uuid: ''
+  customNotes: ''
+  easyEffects: |-
+    [Clash RESULT]
+    positive:
+    inflict N Sinking next turn;
+    negative:
+    gain N Sinking next turn;
+effects: []
+sort: 100000
+ownership:
+  default: 0
+  yWsvx4DXrmYcZsue: 3
+flags: {}
+_stats:
+  coreVersion: '14.364'
+  systemId: projectmoonttrpg
+  systemVersion: 0.0.1
+  createdTime: 1787233598766
+  modifiedTime: 1787233598766
+  lastModifiedBy: yWsvx4DXrmYcZsue
+  compendiumSource: null
+  duplicateSource: Item.8IsI9UrvhkzYgnjn
+  exportSource: null
+_id: B828Zj4ZAYfUbiOd
+_key: '!items!B828Zj4ZAYfUbiOd'

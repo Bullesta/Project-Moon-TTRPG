@@ -5,7 +5,7 @@ img: systems/projectmoonttrpg/assets/icons/Statuses/Smoke.webp
 system:
   name: ''
   description: ''
-  slug: rapid-fumes
+  slug: ''
   cost: 1
   stackMax: 5
   appliesTo: augment
@@ -14,6 +14,8 @@ system:
   procOn: onClash
   procResult: none
   procResultLocked: false
+  procChoice: none
+  procChoiceLocked: false
   procStat: any
   procDice: offensive
   procAction: action
@@ -25,7 +27,10 @@ system:
   macro:
     uuid: ''
   customNotes: ''
-  easyEffects: ''
+  easyEffects: |-
+    [On Clash Win With Attack]
+    require (round) == 1 then
+      inflict N Smoke;
 effects: []
 sort: 100000
 ownership:
@@ -40,7 +45,7 @@ _stats:
   systemId: projectmoonttrpg
   systemVersion: 0.0.1
   createdTime: 1785485141812
-  modifiedTime: 1785485141812
+  modifiedTime: 1787173183885
   lastModifiedBy: yWsvx4DXrmYcZsue
 _id: DjY25OGDzpLLPrsc
 _key: '!items!DjY25OGDzpLLPrsc'

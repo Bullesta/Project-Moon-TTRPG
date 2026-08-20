@@ -1,0 +1,48 @@
+folder: QRjV4nJJMmRoY7md
+name: Instant Haste
+type: effect
+img: systems/projectmoonttrpg/assets/icons/Statuses/Haste.webp
+system:
+  name: ''
+  description: '<p><em>Note: This effect is not yet automated.</em></p>'
+  slug: instant-haste
+  cost: 4
+  stackMax: 1
+  appliesTo: skill
+  canPositive: true
+  canNegative: false
+  procOn: alwaysActive
+  procResult: none
+  procResultLocked: false
+  procChoice: none
+  procChoiceLocked: false
+  procStat: any
+  procDice: any
+  procAction: any
+  procCondition: ''
+  positive: >-
+    <p>[Haste] from Effects and this Skill are applied to the character and are
+    activated immediately. This occurs before any Haste effect is used.</p>
+  negative: ''
+  macro:
+    uuid: ''
+  customNotes: ''
+  easyEffects: ''
+effects: []
+sort: 0
+ownership:
+  default: 0
+  yWsvx4DXrmYcZsue: 3
+flags: {}
+_stats:
+  coreVersion: '14.364'
+  systemId: projectmoonttrpg
+  systemVersion: 0.0.1
+  createdTime: 1787243655060
+  modifiedTime: 1787243655060
+  lastModifiedBy: yWsvx4DXrmYcZsue
+  compendiumSource: null
+  duplicateSource: Item.bXil97GSfBb4OHKB
+  exportSource: null
+_id: fThqOd9Y0G9kArkh
+_key: '!items!fThqOd9Y0G9kArkh'

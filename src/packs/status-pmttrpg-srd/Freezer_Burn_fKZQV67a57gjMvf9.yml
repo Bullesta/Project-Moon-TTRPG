@@ -1,0 +1,39 @@
+folder: 8tfinV0q66z2Egqy
+name: Freezer Burn
+type: status
+_id: fKZQV67a57gjMvf9
+img: >-
+  systems/projectmoonttrpg/assets/icons/limbus_assets/Basic%20Effects/Burn/Shattered%20World.webp
+system:
+  name: ''
+  description: ''
+  slug: ''
+  stacks: 1
+  stackMax: 1
+  priority: 2
+  pending: false
+  arrival: ''
+  shelved: false
+  origin: ''
+  customNotes: ''
+  easyEffects: |-
+    [On Frostbite]
+    gain (Frostbite) Burn;
+    lose all "Freezer Burn";
+effects: []
+sort: 0
+ownership:
+  default: 0
+  yWsvx4DXrmYcZsue: 3
+flags: {}
+_stats:
+  coreVersion: '14.364'
+  systemId: projectmoonttrpg
+  systemVersion: 0.0.1
+  createdTime: 1787225506443
+  modifiedTime: 1787225566710
+  lastModifiedBy: yWsvx4DXrmYcZsue
+  compendiumSource: null
+  duplicateSource: null
+  exportSource: null
+_key: '!items!fKZQV67a57gjMvf9'
