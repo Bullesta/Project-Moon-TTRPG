@@ -29,8 +29,8 @@ system:
   easyEffects: |-
     [Clash RESULT]
     create dialog "Barrier Ionization":
-      barrier as "Consume 3 Charge: +1 Charge Barrier"
-      barrierover as "Consume 1 Overcharge: +3 Charge Barrier"
+      barrier as "Consume 3 Charge: +1 Charge Barrier",
+      barrierover as "Consume 1 Overcharge: +3 Charge Barrier",
       nobarrier as "Do not"
       to self;
 

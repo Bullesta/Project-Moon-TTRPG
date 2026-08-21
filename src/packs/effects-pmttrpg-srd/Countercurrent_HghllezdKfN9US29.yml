@@ -30,8 +30,8 @@ system:
   easyEffects: |-
     [Clash RESULT]
     create dialog "Countercurrent":
-      countercurrentPara as "Consume 4 Charge: Inflict 1 Paralysis"
-      countercurrentOver as "Consume 1 Overcharge: Inflict 2 Paralysis"
+      countercurrentPara as "Consume 4 Charge: Inflict 1 Paralysis",
+      countercurrentOver as "Consume 1 Overcharge: Inflict 2 Paralysis",
       nocountercurrent as "Do not"
       to self;
 
