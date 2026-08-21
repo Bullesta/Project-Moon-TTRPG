@@ -45,6 +45,11 @@
     box-sizing: border-box;
 }
 
+/* additional styling when player's turn is active */
+.ct .character.current-turn {
+    box-shadow: inset 30px 0px 20px -20px var(--ct-gold);
+}
+
 /* ── Main row ── */
 .ct .main-part {
     display: flex;
