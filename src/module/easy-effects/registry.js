@@ -341,10 +341,11 @@ const TRIGGER_HOOKS = [
       if (attacker) out.push(...uniqueStatusItems(attacker.items));
       return out;
     },
-    buildContext: ({ attacker, defender, clash }) => ({
+    buildContext: ({ attacker, defender, clash, attackerSkill }) => ({
       self:   attacker,
       target: defender,
       attacker: attacker ?? null,
+      attackerSkill: attackerSkill ?? clash?.attackerSkill ?? null,
       ally:   null,
       clash:  clash ?? createClashContext(),
     }),
@@ -355,7 +356,7 @@ const TRIGGER_HOOKS = [
     hook: "pmttrpg.attackConnected",
     triggerName: "On Being Hit",
     getItems: ({ defender }) => defender ? uniqueStatusItems(defender.items) : [],
-    buildContext: ({ attacker, defender, clash }) => {
+    buildContext: ({ attacker, defender, clash, attackerSkill }) => {
       if (!defender) return null;
       return {
         self: defender,
@@ -798,6 +799,49 @@ export async function emitClashResolved(payload = {}) {
 
 const BURST_NEST_MAX_DEPTH = 8;
 
+function usedSkillsFromContext({
+  sourceItem = null,
+  attackerSkill = null,
+  defenderSkill = null,
+  clash = null,
+} = {}) {
+  return [sourceItem, attackerSkill, defenderSkill, clash?.attackerSkill, clash?.defenderSkill]
+    .filter((item) => item?.type === "skill");
+}
+
+function collectUsedSkills(owner, usedSkills) {
+  if (!owner) return [];
+  const out = [];
+  const seen = new Set();
+  for (const item of usedSkills ?? []) {
+    if (item?.type !== "skill" || !item.id || seen.has(item.id)) continue;
+    const onOwner = item.actor?.id === owner.id || owner.items?.get?.(item.id);
+    if (!onOwner) continue;
+    seen.add(item.id);
+    out.push(item);
+  }
+  return out;
+}
+
+function collectBurstListenerItems(attacker, burstee, skipItemId, usedSkills = []) {
+  const out = [];
+  const seen = new Set();
+  for (const owner of [attacker, burstee]) {
+    if (!owner?.items) continue;
+    for (const item of [
+      ...getEquippedItems(owner).filter((i) => i.type !== "skill"),
+      ...collectUsedSkills(owner, usedSkills),
+      ...uniqueStatusItems(owner.items),
+    ]) {
+      if (!item?.id || item.id === skipItemId) continue;
+      if (seen.has(item.id)) continue;
+      seen.add(item.id);
+      out.push({ item, owner });
+    }
+  }
+  return out;
+}
+
 // ── [On Burst] ────────────────────────────────────────────────────────────────
 // Fires when a Rupture/Tremor/other burst triggers.
 // Burst state lives on context.burst (status / amount / before / after).
@@ -819,6 +863,8 @@ export async function emitStatusBurst({
   attacker = null,
   clash = null,
   sourceItem = null,
+  attackerSkill = null,
+  defenderSkill = null,
   depth = 0,
 } = {}) {
   const name = String(statusName ?? "").trim();
@@ -851,6 +897,8 @@ export async function emitStatusBurst({
     self: actor,
     target: actor,
     attacker: attacker ?? null,
+    attackerSkill: attackerSkill ?? clash?.attackerSkill ?? null,
+    defenderSkill: defenderSkill ?? clash?.defenderSkill ?? null,
     ally: null,
     clash: clash ?? null,
     item: statusItem,
@@ -869,7 +917,7 @@ export async function emitStatusBurst({
 
   burst.after = Number(actor.getStatusStacks?.(name) ?? 0) || 0;
 
-  const listeners = collectBurstListenerItems(attacker, actor, statusItem.id);
+  const listeners = collectBurstListenerItems( attacker, actor, statusItem.id, usedSkillsFromContext({ sourceItem, attackerSkill, defenderSkill, clash }));
   for (const { item, owner } of listeners) {
     const globalCtx = {
       self: owner,
@@ -948,6 +996,8 @@ export async function emitProc({
   target = null,
   clash = null,
   sourceItem = null,
+  attackerSkill = null,
+  defenderSkill = null,
   binds = {},
   depth = 0,
 } = {}) {
@@ -990,7 +1040,7 @@ export async function emitProc({
   }
 
   const skipItemId = statusItem?.id ?? null;
-  const listeners = collectBurstListenerItems(proccer, focusActor, skipItemId);
+  const listeners = collectBurstListenerItems( proccer, focusActor, skipItemId, usedSkillsFromContext({ sourceItem, attackerSkill, defenderSkill, clash }) );
   for (const { item, owner } of listeners) {
     const globalCtx = {
       self: owner,

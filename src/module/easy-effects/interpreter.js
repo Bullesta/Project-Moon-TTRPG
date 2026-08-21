@@ -924,6 +924,8 @@ const ACTION_HANDLERS = {
         attacker: context.attacker ?? context.target ?? null,
         clash: context.clash ?? null,
         sourceItem: context.item ?? null,
+        attackerSkill: context.attackerSkill ?? context.clash?.attackerSkill ?? null,
+        defenderSkill: context.defenderSkill ?? context.clash?.defenderSkill ?? null,
         depth: Number(context._burstDepth) || 0,
       });
     }
@@ -958,6 +960,8 @@ const ACTION_HANDLERS = {
         target: context.target ?? null,
         clash: context.clash ?? null,
         sourceItem: context.item ?? null,
+        attackerSkill: context.attackerSkill ?? context.clash?.attackerSkill ?? null,
+        defenderSkill: context.defenderSkill ?? context.clash?.defenderSkill ?? null,
         binds,
         depth: Number(context._procDepth) || 0,
       });
