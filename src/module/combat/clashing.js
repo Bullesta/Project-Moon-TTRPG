@@ -446,8 +446,8 @@ async function _executeClash(state, retaliatorActor, choice) {
   if (isRecycled && result === CLASH_RESULTS.ATTACK_WIN) {
     await clearRecycledEvade(retaliatorActor);
   } else if (result === CLASH_RESULTS.DEFENSE_WIN && _isEvadeLike(choice)) {
-    if (isRecycled) await bumpRecycledEvade(retaliatorActor);
-    else await grantRecycledEvade(retaliatorActor);
+    if (isRecycled) await bumpRecycledEvade(retaliatorActor, choice.item);
+    else await grantRecycledEvade(retaliatorActor, choice.item);
   }
 
   if (result === CLASH_RESULTS.ATTACK_WIN) {
