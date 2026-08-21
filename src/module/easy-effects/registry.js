@@ -111,6 +111,22 @@ function collectSideClashItems(actor, usedItem, appliedTool, declaredSkill) {
   return out;
 }
 
+function clashUsedStatBlocks({
+  attackerItem,
+  defenderItem,
+  appliedTool,
+  defenderAppliedTool,
+  attackerSkill,
+  defenderSkill,
+  side = "all",
+} = {}) {
+  const attackerSide = usedStatBlockItems(attackerItem, appliedTool, attackerSkill);
+  const defenderSide = usedStatBlockItems(defenderItem, defenderAppliedTool, defenderSkill);
+  if (side === "attacker") return attackerSide;
+  if (side === "defender") return defenderSide;
+  return [...attackerSide, ...defenderSide];
+}
+
 function clashStartedItems({
   attacker = null,
   defender = null,
@@ -345,6 +361,7 @@ const TRIGGER_HOOKS = [
         self: defender,
         target: attacker ?? null,
         attacker: attacker ?? null,
+        attackerSkill: attackerSkill ?? clash?.attackerSkill ?? null,
         ally: null,
         clash: clash ?? createClashContext(),
       };
@@ -1031,27 +1048,6 @@ function findStatusItem(actor, statusName) {
   return uniqueStatusItems(actor.items).find(
     (i) => String(i.name ?? "").trim().toLowerCase() === want
   ) ?? null;
-}
-
-/**
- * @param {Actor|null|undefined} attacker
- * @param {Actor} burstee
- * @param {string} skipItemId
- * @returns {{ item: Item, owner: Actor }[]}
- */
-function collectBurstListenerItems(attacker, burstee, skipItemId) {
-  const out = [];
-  const seen = new Set();
-  for (const owner of [attacker, burstee]) {
-    if (!owner?.items) continue;
-    for (const item of [...getEquippedItems(owner), ...uniqueStatusItems(owner.items)]) {
-      if (!item?.id || item.id === skipItemId) continue;
-      if (seen.has(item.id)) continue;
-      seen.add(item.id);
-      out.push({ item, owner });
-    }
-  }
-  return out;
 }
 
 // ── [Always Active] integration ───────────────────────────────────────────────

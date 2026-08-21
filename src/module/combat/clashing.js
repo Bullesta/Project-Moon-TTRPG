@@ -260,6 +260,8 @@ async function _executeClash(state, retaliatorActor, choice) {
   // Rebuild clash context so EasyEffects On Clash can add bonuses before the roll.
   const clashCtx = createClashContext();
   clashCtx.isRecycledEvade = isRecycled;
+  clashCtx.attackerSkill = attackerSkill;
+  clashCtx.defenderSkill = defenderSkill;
   const defenderItem = choice.item ?? null;
   const clashPayloadBase = {
     attacker:     attackerActor,
