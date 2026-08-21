@@ -42,3 +42,11 @@ export const RANK_UP_LEVELS = [3, 6, 9, 12, 15];
 export const XP_PER_LEVEL = 8;
 
 export const TACTICAL_SQUARES_BASE = 6;
+
+export function squareTurnCap(squares) {
+  if (!squares) return 0;
+  const max = Math.max(0, Number(squares.max) || 0);
+  const value = Math.max(0, Number(squares.value) || 0);
+  const maxBase = Math.max(0, Number(squares.maxBase) || TACTICAL_SQUARES_BASE);
+  return max + Math.max(0, value - Math.max(max, maxBase));
+}

@@ -19,6 +19,9 @@ system:
   easyEffects: |-
     [Always Active]
     gain (Haste) movement;
+
+    [End of Round]
+    lose all Haste;
 effects: []
 folder: jtSvJ9E0Hm5t7NVJ
 sort: 150000

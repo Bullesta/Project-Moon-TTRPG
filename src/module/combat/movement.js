@@ -161,7 +161,22 @@ async function emitMovedIfNeeded(tokenDoc, movement, operation, user) {
   }
 }
 
+function registerCombatDocument() {
+  const Base = CONFIG.Combat.documentClass;
+
+  class CombatPMTTRPG extends Base {
+    /** @override */
+    async _clearMovementHistoryOnStartTurn(combatant, _context) {
+      if (!combatant) return;
+      return combatant.clearMovementHistory();
+    }
+  }
+
+  CONFIG.Combat.documentClass = CombatPMTTRPG;
+}
+
 export function registerCombatMovement() {
+  registerCombatDocument();
   registerTokenRuler();
 
   Hooks.on("moveToken", (tokenDoc, movement, operation, user) => {

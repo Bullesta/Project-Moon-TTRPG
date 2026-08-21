@@ -1,5 +1,5 @@
 import { PMTTRPGUtility } from '../utility.js';
-import { getActionEconomyFromRank, getRankFromLevel, TACTICAL_SQUARES_BASE } from './progression.js';
+import { getActionEconomyFromRank, getRankFromLevel, TACTICAL_SQUARES_BASE, squareTurnCap } from './progression.js';
 import { actorHistorySquareCost, actorSquaresExhausted } from '../combat/movement.js';
 const { renderTemplate } = foundry.applications.handlebars;
 import { applyAlwaysActiveModifiers, runOnTakingDamage } from '../easy-effects/registry.js';
@@ -21,6 +21,11 @@ import {
 
 const STATUS_STACK_HOOK_MAX_DEPTH = 8;
 const _statusStackHookDepth = new WeakMap();
+
+function sourceSystemNumber(actorData, path) {
+  const n = Number(foundry.utils.getProperty(actorData._source ?? {}, `system.${path}`));
+  return Number.isFinite(n) ? n : 0;
+}
 
 function statusMutationOptions(options = {}, delta = 0) {
   const silent = !!options.silent;
@@ -142,7 +147,7 @@ export class ActorPMTTRPG extends Actor {
     const hpMaxBase = 64 + (fort * 8) + (rank * 32);
     if (!data.attributes.hp) data.attributes.hp = {};
     data.attributes.hp.maxBase = hpMaxBase;
-    data.attributes.hp.maxMisc = Number(data.attributes.hp.maxMisc) || 0;
+    data.attributes.hp.maxMisc = sourceSystemNumber(actorData, "attributes.hp.maxMisc");
     data.attributes.hp.max = hpMaxBase + data.attributes.hp.maxMisc;
     if (data.attributes.hp.value === undefined || data.attributes.hp.value === null) {
       data.attributes.hp.value = data.attributes.hp.max;
@@ -154,7 +159,7 @@ export class ActorPMTTRPG extends Actor {
     const stMaxBase = 20 + (cha * 4) + (rank * 4);
     data.attributes.st = data.attributes.st || {};
     data.attributes.st.maxBase = stMaxBase;
-    data.attributes.st.maxMisc = Number(data.attributes.st.maxMisc) || 0;
+    data.attributes.st.maxMisc = sourceSystemNumber(actorData, "attributes.st.maxMisc");
     data.attributes.st.max = stMaxBase + data.attributes.st.maxMisc;
     if (data.attributes.st.value === undefined || data.attributes.st.value === null) {
       data.attributes.st.value = data.attributes.st.max;
@@ -177,7 +182,7 @@ export class ActorPMTTRPG extends Actor {
 
     data.attributes.sp = data.attributes.sp || {};
     data.attributes.sp.maxBase = spMaxBase;
-    data.attributes.sp.maxMisc = Number(data.attributes.sp.maxMisc) || 0;
+    data.attributes.sp.maxMisc = sourceSystemNumber(actorData, "attributes.sp.maxMisc");
     data.attributes.sp.max = spMaxBase + data.attributes.sp.maxMisc;
     if (data.attributes.sp.value === undefined || data.attributes.sp.value === null) {
       data.attributes.sp.value = data.attributes.sp.max;
@@ -189,7 +194,7 @@ export class ActorPMTTRPG extends Actor {
     const lightMaxBase = 3 + rank;
     data.attributes.light = data.attributes.light || {};
     data.attributes.light.maxBase = lightMaxBase;
-    data.attributes.light.maxMisc = Number(data.attributes.light.maxMisc) || 0;
+    data.attributes.light.maxMisc = sourceSystemNumber(actorData, "attributes.light.maxMisc");
     data.attributes.light.max = lightMaxBase + data.attributes.light.maxMisc;
     if (data.attributes.light.value === undefined || data.attributes.light.value === null) {
       data.attributes.light.value = data.attributes.light.max;
@@ -207,7 +212,7 @@ export class ActorPMTTRPG extends Actor {
       data.attributes[key] = pool;
       pool.min = 0;
       pool.maxBase = maxBase;
-      pool.maxMisc = Number(pool.maxMisc) || 0;
+      pool.maxMisc = sourceSystemNumber(actorData, `attributes.${key}.maxMisc`);
       pool.max = pool.maxBase + pool.maxMisc;
       if (pool.value === undefined || pool.value === null) {
         pool.value = pool.max;
@@ -220,7 +225,7 @@ export class ActorPMTTRPG extends Actor {
     data.attributes.squares = squares;
     squares.min = 0;
     squares.maxBase = TACTICAL_SQUARES_BASE;
-    squares.maxMisc = Number(squares.maxMisc) || 0;
+    squares.maxMisc = sourceSystemNumber(actorData, "attributes.squares.maxMisc");
     squares.max = Math.max(0, squares.maxBase + squares.maxMisc);
     if (squares.value === undefined || squares.value === null) {
       squares.value = squares.max;
@@ -333,7 +338,7 @@ export class ActorPMTTRPG extends Actor {
       squaresPool.exhausted = actorSquaresExhausted(this);
       squaresPool.remaining = squaresPool.exhausted
         ? 0
-        : Math.max(0, squaresPool.value - usedSquares);
+        : Math.max(0, squareTurnCap(squaresPool) - usedSquares);
     }
 
     applyInventorySlotUsage(data.attributes, actorData.items);
