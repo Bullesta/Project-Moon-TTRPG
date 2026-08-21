@@ -82,11 +82,8 @@ export class PMTTRPGActorNpcSheet extends PMTTRPGCharacterSheet {
   async _prepareContext(options) {
     const context = await super._prepareContext(options);
 
-    // NPC loadout is always active so we don't need equip filtering.
     context.loadoutWeapons = (context.allWeapons ?? []).slice();
     context.loadoutOutfits = (context.outfits ?? []).slice();
-    context.equippedWeapons = context.loadoutWeapons;
-    context.equippedOutfits = context.loadoutOutfits;
 
     const brief = context.system?.details?.gmBrief ?? {};
     context.gmBrief = {
@@ -106,9 +103,8 @@ export class PMTTRPGActorNpcSheet extends PMTTRPGCharacterSheet {
   async _prepareCharacterItems(sheetData) {
     await super._prepareCharacterItems(sheetData);
 
-    // Skills resolve against the first loadout weapon/outfit (no equip flag).
-    const weapon = this.actor.items.find(i => i.type === "weapon");
-    const outfit = this.actor.items.find(i => i.type === "outfit");
+    const weapon = this.actor.items.find(i => i.type === "weapon" && i.system?.equipped);
+    const outfit = this.actor.items.find(i => i.type === "outfit" && i.system?.equipped);
     for (const s of sheetData.skills ?? []) {
       s.equippedWeaponDamageType = weapon?.system?.damageType || null;
       s.equippedWeaponOffensiveDiceComputed = weapon?.system?.offensiveDiceComputed || null;
@@ -132,8 +128,7 @@ export class PMTTRPGActorNpcSheet extends PMTTRPGCharacterSheet {
     delete data.name;
 
     const system = { ...data };
-    //  NPC weapons/outfits/skills/augments are always active so we mark loadout items equipped for shared roll/effect code paths.
-    if (["weapon", "outfit", "skill", "augment"].includes(type)) {
+    if (["weapon", "outfit"].includes(type)) {
       system.equipped = true;
     }
 

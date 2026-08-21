@@ -260,6 +260,8 @@ async function _executeClash(state, retaliatorActor, choice) {
   // Rebuild clash context so EasyEffects On Clash can add bonuses before the roll.
   const clashCtx = createClashContext();
   clashCtx.isRecycledEvade = isRecycled;
+  clashCtx.attackerSkill = attackerSkill;
+  clashCtx.defenderSkill = defenderSkill;
   const defenderItem = choice.item ?? null;
   const clashPayloadBase = {
     attacker:     attackerActor,
@@ -327,6 +329,11 @@ async function _executeClash(state, retaliatorActor, choice) {
   }
 
   let { result, margin } = resolveClash(attackTotal, defenseResult.total);
+
+  if (choice.type === RETALIATION_TYPES.ONESIDED) {
+    result = CLASH_RESULTS.ATTACK_WIN;
+    margin = Math.max(0, attackTotal);
+  }
 
   while (result === CLASH_RESULTS.TIE && choice.type !== RETALIATION_TYPES.ONESIDED) {
     const [attackReroll, defenseReroll] = await Promise.all([
@@ -446,8 +453,8 @@ async function _executeClash(state, retaliatorActor, choice) {
   if (isRecycled && result === CLASH_RESULTS.ATTACK_WIN) {
     await clearRecycledEvade(retaliatorActor);
   } else if (result === CLASH_RESULTS.DEFENSE_WIN && _isEvadeLike(choice)) {
-    if (isRecycled) await bumpRecycledEvade(retaliatorActor);
-    else await grantRecycledEvade(retaliatorActor);
+    if (isRecycled) await bumpRecycledEvade(retaliatorActor, choice.item);
+    else await grantRecycledEvade(retaliatorActor, choice.item);
   }
 
   if (result === CLASH_RESULTS.ATTACK_WIN) {

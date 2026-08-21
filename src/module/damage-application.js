@@ -87,16 +87,13 @@ export function damageTypeLabel(damageType) {
 
 export function getActorWeaponDamageType(actor) {
   if (!actor) return null;
-  const weapon = actor.type === "npc"
-    ? actor.items.find((item) => item.type === "weapon")
-    : actor.items.find((item) => item.type === "weapon" && item.system?.equipped);
+  const weapon = actor.items.find((item) => item.type === "weapon" && item.system?.equipped);
   const damageType = weapon?.system?.damageType;
   return DAMAGE_TYPES.includes(damageType) ? damageType : null;
 }
 
 export function getEquippedOutfit(actor) {
   if (!actor) return null;
-  if (actor.type === "npc") return actor.items.find((i) => i.type === "outfit") ?? null;
   return actor.items.find((i) => i.type === "outfit" && i.system?.equipped) ?? null;
 }
 

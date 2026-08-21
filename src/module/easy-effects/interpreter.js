@@ -456,10 +456,53 @@ function resolvePath(segments, context) {
     if (shorthand !== null) return shorthand;
   }
 
-  if (sub[0] === "stat"  && sub[1]) return actor.system.abilities?.[sub[1]]?.value ?? 0;
-  if (sub[0] === "attr"  && sub[1]) return actor.system.attributes?.[sub[1]]?.value ?? 0;
+  if (sub[0] === "stat" && sub[1]) {
+    if (sub.length === 2) return actor.system.abilities?.[sub[1]]?.value ?? 0;
+    const walkedStat = walkObjectPath(actor.system?.abilities?.[sub[1]], sub.slice(2));
+    if (walkedStat !== undefined) return coerceActorPathValue(walkedStat);
+  }
+
+  if (sub[0] === "attr" && sub[1]) {
+    const bag = actor.system?.attributes?.[sub[1]];
+    if (sub.length === 2) return Number(bag?.value) || 0;
+    const walkedAttr = walkObjectPath(bag, sub.slice(2));
+    if (walkedAttr !== undefined) return coerceActorPathValue(walkedAttr);
+  }
+
+  const walked = walkActorPath(actor, sub);
+  if (walked !== undefined) return coerceActorPathValue(walked);
 
   console.warn(`[EasyEffects] Unknown path: '${segments.join(".")}'`);
+  return 0;
+}
+
+function walkObjectPath(root, segments) {
+  if (root == null || !segments?.length) return undefined;
+  let cur = root;
+  for (const seg of segments) {
+    if (cur == null || typeof cur !== "object") return undefined;
+    cur = cur[seg];
+  }
+  if (typeof cur === "function") return undefined;
+  return cur;
+}
+
+function walkActorPath(actor, segments) {
+  const fromActor = walkObjectPath(actor, segments);
+  if (fromActor !== undefined) return fromActor;
+  const fromSystem = walkObjectPath(actor.system, segments);
+  if (fromSystem !== undefined) return fromSystem;
+  return walkObjectPath(actor.system?.attributes, segments);
+}
+
+function coerceActorPathValue(value) {
+  if (value == null) return 0;
+  if (typeof value === "function") return 0;
+  if (typeof value === "number" || typeof value === "boolean") return Number(value);
+  if (typeof value === "string") return value;
+  if (typeof value === "object" && value.value !== undefined && typeof value.value !== "object") {
+    return coerceActorPathValue(value.value);
+  }
   return 0;
 }
 
@@ -924,6 +967,8 @@ const ACTION_HANDLERS = {
         attacker: context.attacker ?? context.target ?? null,
         clash: context.clash ?? null,
         sourceItem: context.item ?? null,
+        attackerSkill: context.attackerSkill ?? context.clash?.attackerSkill ?? null,
+        defenderSkill: context.defenderSkill ?? context.clash?.defenderSkill ?? null,
         depth: Number(context._burstDepth) || 0,
       });
     }
@@ -958,6 +1003,8 @@ const ACTION_HANDLERS = {
         target: context.target ?? null,
         clash: context.clash ?? null,
         sourceItem: context.item ?? null,
+        attackerSkill: context.attackerSkill ?? context.clash?.attackerSkill ?? null,
+        defenderSkill: context.defenderSkill ?? context.clash?.defenderSkill ?? null,
         binds,
         depth: Number(context._procDepth) || 0,
       });
@@ -1353,7 +1400,9 @@ export function executeAlwaysActive(ast, prepareContext) {
         if (stmt.condition && !evaluateConditionSync(stmt.condition, context)) continue;
 
         for (const action of stmt.actions) {
-          const amount = Math.max(0, Math.round(resolveAmountSync(action.amount, context)));
+          let rawAmount = resolveAmountSync(action.amount, context);
+          if (action.per) rawAmount *= resolveAmountSync(action.per, context);
+          const amount = Math.max(0, Math.round(rawAmount));
 
           switch (action.verb) {
             case "power up": {
