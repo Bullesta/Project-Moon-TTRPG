@@ -31,7 +31,7 @@ system:
     positive:
     regen hp (N*2);
     negative:
-    deal (N*2) hp damage after resistances;
+    deal (N*2) hp damage after resistances to self;
 effects: []
 sort: 0
 ownership:

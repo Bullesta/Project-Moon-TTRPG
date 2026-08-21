@@ -32,7 +32,7 @@ system:
 
     [On Clash RESULT With CHOICE]
     negative:
-    deal N st damage after resistances;
+    deal N st damage after resistances to self;
 effects: []
 sort: 0
 ownership:
