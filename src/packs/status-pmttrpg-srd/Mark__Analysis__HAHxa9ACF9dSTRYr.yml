@@ -8,7 +8,7 @@ system:
   description: >-
     <p>You learn 1 HP Resistance or 1 ST Resistance of your target that they are
     weak to. If you Clash Win against  the Marked target for Weak or Fatal they
-    gain 2 [Type] Fragility of that type next turn.</p><p>If the target has no
+    gain 2 [Type] Fragility of that type next round.</p><p>If the target has no
     Weak or Fatal resistances, the target chooses from their next weakest
     resistances, and the 2 Fragility will apply instead for that type on
     appropriate hits.</p>

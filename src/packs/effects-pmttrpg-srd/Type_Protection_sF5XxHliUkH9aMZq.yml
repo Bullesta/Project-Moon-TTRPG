@@ -37,13 +37,13 @@ system:
       to self;
 
     [On Dialog Answer slash]
-    gain N "Slash Protection" next turn;
+    gain N "Slash Protection" next round;
 
     [On Dialog Answer pierce]
-    gain N "Pierce Protection" next turn;
+    gain N "Pierce Protection" next round;
 
     [On Dialog Answer blunt]
-    gain N "Blunt Protection" next turn;
+    gain N "Blunt Protection" next round;
 
 effects: []
 sort: 0

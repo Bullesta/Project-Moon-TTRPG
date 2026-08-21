@@ -29,7 +29,7 @@ system:
   customNotes: ''
   easyEffects: |-
     [On Clash RESULT]
-    spend (N*6) Charge to gain (N) Strength next turn;
+    spend (N*6) Charge to gain (N) Strength next round;
 effects: []
 sort: 2200000
 ownership:

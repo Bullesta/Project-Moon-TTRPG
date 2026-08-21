@@ -27,7 +27,7 @@ system:
   customNotes: ''
   easyEffects: |-
     [On Clash RESULT]
-    spend (N) Charge to inflict (N) Rupture next turn;
+    spend (N) Charge to inflict (N) Rupture next round;
 effects: []
 sort: 1300000
 ownership:

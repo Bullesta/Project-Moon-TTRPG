@@ -27,7 +27,7 @@ system:
   customNotes: ''
   easyEffects: |-
     [On Clash RESULT]
-    spend (N*3) Charge to inflict (N) Sinking next turn;
+    spend (N*3) Charge to inflict (N) Sinking next round;
 effects: []
 sort: 1500000
 ownership:

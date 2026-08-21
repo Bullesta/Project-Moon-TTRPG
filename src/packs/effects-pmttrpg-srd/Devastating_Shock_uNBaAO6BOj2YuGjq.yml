@@ -27,7 +27,7 @@ system:
   customNotes: ''
   easyEffects: |-
     [On DevastatingHit]
-    inflict (N*2) Bind next turn;
+    inflict (N*2) Bind next round;
 effects: []
 sort: 100000
 ownership:

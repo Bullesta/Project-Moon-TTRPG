@@ -30,7 +30,7 @@ system:
   customNotes: ''
   easyEffects: |-
     [On Sinking Burst]
-    inflict (burst.amount //f 2) Paralysis next turn;
+    inflict (burst.amount //f 2) Paralysis next round;
 effects: []
 sort: 100000
 ownership:

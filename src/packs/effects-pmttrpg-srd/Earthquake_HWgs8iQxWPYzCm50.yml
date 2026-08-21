@@ -34,7 +34,7 @@ system:
   easyEffects: |-
     [On Tremor Burst]
     require (burst.amount) >= 4 then
-      inflict 2 Feeble next turn and inflict 2 Disarm next turn;
+      inflict 2 Feeble next round and inflict 2 Disarm next round;
 effects: []
 sort: 0
 ownership:

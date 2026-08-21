@@ -27,7 +27,7 @@ system:
   customNotes: ''
   easyEffects: |-
     [On Clash RESULT]
-    spend (N*2) Charge to inflict (N) Tremor next turn;
+    spend (N*2) Charge to inflict (N) Tremor next round;
 effects: []
 sort: 1400000
 ownership:

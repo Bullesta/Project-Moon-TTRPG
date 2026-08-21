@@ -30,7 +30,7 @@ system:
   customNotes: ''
   easyEffects: |-
     [On Clash RESULT]
-    spend (N*3) Smoke on target to inflict N Feeble next turn;
+    spend (N*3) Smoke on target to inflict N Feeble next round;
 effects: []
 sort: 0
 ownership:

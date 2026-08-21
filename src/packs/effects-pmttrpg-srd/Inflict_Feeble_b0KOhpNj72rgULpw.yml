@@ -27,7 +27,7 @@ system:
   customNotes: ''
   easyEffects: |-
     [On Clash RESULT]
-    inflict N Feeble next turn;
+    inflict N Feeble next round;
 effects: []
 sort: 100000
 ownership:

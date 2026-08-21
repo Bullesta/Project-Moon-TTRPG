@@ -29,7 +29,7 @@ system:
   customNotes: ''
   easyEffects: |-
     [On Clash RESULT]
-    spend (N*2) Charge to gain (N) "Charge Barrier" next turn;
+    spend (N*2) Charge to gain (N) "Charge Barrier" next round;
 effects: []
 sort: 1500000
 ownership:

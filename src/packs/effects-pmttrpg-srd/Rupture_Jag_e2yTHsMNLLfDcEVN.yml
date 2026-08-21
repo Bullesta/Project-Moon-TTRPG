@@ -27,7 +27,7 @@ system:
   customNotes: ''
   easyEffects: |-
     [On Rupture Burst]
-    inflict (burst.amount //f 3) Fragile next turn;
+    inflict (burst.amount //f 3) Fragile next round;
 effects: []
 sort: 0
 ownership:

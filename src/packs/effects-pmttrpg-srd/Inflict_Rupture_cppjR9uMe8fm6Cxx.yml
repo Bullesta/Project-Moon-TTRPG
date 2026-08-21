@@ -27,7 +27,7 @@ system:
   customNotes: ''
   easyEffects: |-
     [On Clash RESULT with CHOICE]
-    inflict N Rupture next turn
+    inflict N Rupture next round
 effects: []
 sort: 100000
 ownership:

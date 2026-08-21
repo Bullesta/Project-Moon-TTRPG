@@ -27,7 +27,7 @@ system:
   customNotes: ''
   easyEffects: |-
     [On Critical]
-    gain (2*N) Haste next turn;
+    gain (2*N) Haste next round;
 effects: []
 sort: 100000
 ownership:

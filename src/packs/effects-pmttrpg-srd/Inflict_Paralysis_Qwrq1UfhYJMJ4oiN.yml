@@ -26,9 +26,9 @@ system:
   easyEffects: |-
     [Clash RESULT]
     positive:
-    inflict N Paralysis next turn;
+    inflict N Paralysis next round;
     negative:
-    gain N Paralysis next turn;
+    gain N Paralysis next round;
   allowMultiple: true
 effects: []
 sort: 0

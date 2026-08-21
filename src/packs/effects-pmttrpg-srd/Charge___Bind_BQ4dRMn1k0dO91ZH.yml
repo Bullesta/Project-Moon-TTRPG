@@ -27,7 +27,7 @@ system:
   customNotes: ''
   easyEffects: |-
     [On Clash RESULT]
-    spend (N*3) Charge to inflict (N) Bind next turn;
+    spend (N*3) Charge to inflict (N) Bind next round;
 effects: []
 sort: 1900000
 ownership:

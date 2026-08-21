@@ -29,9 +29,9 @@ system:
   easyEffects: |-
     [Clash RESULT]
     positive:
-    inflict N Rupture next turn;
+    inflict N Rupture next round;
     negative:
-    gain N Rupture next turn;
+    gain N Rupture next round;
 effects: []
 sort: 100000
 ownership:

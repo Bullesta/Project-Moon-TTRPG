@@ -27,7 +27,7 @@ system:
   customNotes: ''
   easyEffects: |-
     [On Clash RESULT]
-    spend (N*6) Charge to inflict (N) Disarm next turn;
+    spend (N*6) Charge to inflict (N) Disarm next round;
 effects: []
 sort: 2100000
 ownership:

@@ -32,12 +32,12 @@ system:
   customNotes: ''
   easyEffects: |-
     [On Clash Win With Attack]
-    gain (target.status.Sinking) Sinking next turn;
+    gain (target.status.Sinking) Sinking next round;
     require (target.status.Sinking * 2) >= N then
-      gain N Strength next turn and gain N Endurance next turn;
+      gain N Strength next round and gain N Endurance next round;
     require (target.status.Sinking * 2) < N then
-      gain (target.status.Sinking / 2) Strength next turn and
-      gain (target.status.Sinking / 2) Endurance next turn;
+      gain (target.status.Sinking / 2) Strength next round and
+      gain (target.status.Sinking / 2) Endurance next round;
     lose all Sinking on target;
 effects: []
 sort: 100000

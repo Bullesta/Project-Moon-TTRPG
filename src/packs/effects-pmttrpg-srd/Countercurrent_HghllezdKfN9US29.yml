@@ -36,10 +36,10 @@ system:
       to self;
 
     [On Dialog Answer countercurrentPara]
-    spend 4 Charge to inflict 1 Paralysis next turn;
+    spend 4 Charge to inflict 1 Paralysis next round;
 
     [On Dialog Answer countercurrentOver]
-    spend 1 Overcharge to inflict 2 Paralysis next turn;
+    spend 1 Overcharge to inflict 2 Paralysis next round;
   allowMultiple: false
 effects: []
 sort: 0

@@ -26,9 +26,9 @@ system:
   easyEffects: |-
     [Clash RESULT]
     positive:
-    inflict N Fragile next turn;
+    inflict N Fragile next round;
     negative:
-    gain N Fragile next turn;
+    gain N Fragile next round;
   allowMultiple: true
 effects: []
 sort: 0
