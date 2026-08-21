@@ -1647,7 +1647,7 @@ class Parser {
         throw new ParseError(`'${verbTok.value}' is not allowed on resource '${resourceHit.id}'`, verbTok);
       this.advance();
 
-      let target = this._parseOptionalOnOrToTarget() ?? "self";
+      const tail = this._parseStatusOrResourceTail({ allowTiming: false });
 
       const verb = verbTok.value === "lose" ? "remove" : "add";
       return {
@@ -1656,8 +1656,8 @@ class Parser {
         noun: "resource",
         argument: resourceHit.id,
         amount,
-        per: null,
-        target,
+        per: tail.per,
+        target: tail.target ?? "self",
       };
     }
 
@@ -1665,10 +1665,7 @@ class Parser {
 
     // inflict defaults to "target"; gain/lose default to "self"
     const defaultTarget = verbTok.value === "inflict" ? "target" : "self";
-    let timing = this._parseOptionalTiming();
-    let target = this._parseOptionalOnOrToTarget() ?? null;
-    if (!timing) timing = this._parseOptionalTiming();
-    if (!target) target = defaultTarget;
+    const tail = this._parseStatusOrResourceTail();
 
     // Resolve verb → add/remove, baking in the default target
     const verb = verbTok.value === "lose" ? "remove" : "add";
@@ -1679,10 +1676,34 @@ class Parser {
       noun: "status",
       argument: statusName,
       amount,
-      per: null,
-      target,
-      timing,
+      per: tail.per,
+      target: tail.target ?? defaultTarget,
+      timing: tail.timing,
     };
+  }
+
+  _parseStatusOrResourceTail({ allowTiming = true } = {}) {
+    let per = null;
+    let timing = null;
+    let target = null;
+
+    for (;;) {
+      if (!per) {
+        const nextPer = this._parseOptionalPerAmount();
+        if (nextPer) { per = nextPer; continue; }
+      }
+      if (allowTiming && !timing) {
+        const nextTiming = this._parseOptionalTiming();
+        if (nextTiming) { timing = nextTiming; continue; }
+      }
+      if (!target) {
+        const nextTarget = this._parseOptionalOnOrToTarget();
+        if (nextTarget) { target = nextTarget; continue; }
+      }
+      break;
+    }
+
+    return { per, timing, target };
   }
 
   /** Timing may appear before or after the target. */

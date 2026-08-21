@@ -1358,6 +1358,9 @@ export function executeAlwaysActive(ast, prepareContext) {
 
         for (const action of stmt.actions) {
           const amount = Math.max(0, Math.round(resolveAmountSync(action.amount, context)));
+          let rawAmount = resolveAmountSync(action.amount, context);
+          if (action.per) rawAmount *= resolveAmountSync(action.per, context);
+          const amount = Math.max(0, Math.round(rawAmount));
 
           switch (action.verb) {
             case "power up": {
