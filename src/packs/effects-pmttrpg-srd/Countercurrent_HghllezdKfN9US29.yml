@@ -30,16 +30,16 @@ system:
   easyEffects: |-
     [Clash RESULT]
     create dialog "Countercurrent":
-      countercurrentPara as "Consume 4 Charge: Inflict 1 Paralysis"
-      countercurrentOver as "Consume 1 Overcharge: Inflict 2 Paralysis"
+      countercurrentPara as "Consume 4 Charge: Inflict 1 Paralysis",
+      countercurrentOver as "Consume 1 Overcharge: Inflict 2 Paralysis",
       nocountercurrent as "Do not"
       to self;
 
     [On Dialog Answer countercurrentPara]
-    spend 4 Charge to inflict 1 Paralysis next turn;
+    spend 4 Charge to inflict 1 Paralysis next round;
 
     [On Dialog Answer countercurrentOver]
-    spend 1 Overcharge to inflict 2 Paralysis next turn;
+    spend 1 Overcharge to inflict 2 Paralysis next round;
   allowMultiple: false
 effects: []
 sort: 0

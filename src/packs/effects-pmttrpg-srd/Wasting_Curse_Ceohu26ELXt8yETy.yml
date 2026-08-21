@@ -29,7 +29,7 @@ system:
   customNotes: ''
   easyEffects: |-
     [On DevastatingHit]
-    inflict 1 "Feeble" next turn;
+    inflict 1 "Feeble" next round;
 effects: []
 sort: 100000
 ownership:

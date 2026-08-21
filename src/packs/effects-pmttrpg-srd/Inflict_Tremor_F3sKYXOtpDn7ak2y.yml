@@ -26,9 +26,9 @@ system:
   easyEffects: |-
     [Clash RESULT]
     positive:
-    inflict N Tremor next turn;
+    inflict N Tremor next round;
     negative:
-    gain N Tremor next turn;
+    gain N Tremor next round;
   allowMultiple: true
 effects: []
 sort: 0

@@ -26,9 +26,9 @@ system:
   easyEffects: |-
     [Clash RESULT]
     positive:
-    inflict N Sinking next turn;
+    inflict N Sinking next round;
     negative:
-    gain N Sinking next turn;
+    gain N Sinking next round;
   allowMultiple: true
 effects: []
 sort: 0

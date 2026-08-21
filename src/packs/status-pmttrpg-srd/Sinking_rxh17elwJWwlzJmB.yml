@@ -25,7 +25,10 @@ system:
     burst Sinking on self
 
     [On Burst]
-    deal (burst.amount) sp damage to self
+    require (self.sp.max) == 0 then
+      deal (burst.amount) hp damage to self
+    require (self.sp.max) != 0 then
+      deal (burst.amount) sp damage to self
     lose all Sinking on self
 
     [End of Round]

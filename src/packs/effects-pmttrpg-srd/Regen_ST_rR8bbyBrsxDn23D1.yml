@@ -30,7 +30,7 @@ system:
     positive:
     regen st (N);
     negative:
-    deal (N) st damage after resistances;
+    deal (N) st damage after resistances to self;
 effects: []
 sort: 0
 ownership:

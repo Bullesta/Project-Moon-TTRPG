@@ -1,3 +1,5 @@
+import { squareTurnCap } from "../actor/progression.js";
+
 const OVER_COLOR = 0xE23D28;
 
 function isCurrentTurn(token) {
@@ -17,26 +19,24 @@ function isCurrentTurn(token) {
 
 function accruedCost(waypoint) {
   const spaces = Number(waypoint?.measurement?.spaces);
-  if (Number.isFinite(spaces) && spaces >= 0) return spaces;
+  if (Number.isFinite(spaces) && spaces >= 0) return Math.max(0, Math.round(spaces));
   const distance = Number(waypoint?.measurement?.distance);
   const cell = Number(canvas?.grid?.distance) || 1;
-  if (Number.isFinite(distance) && distance >= 0 && cell > 0) return distance / cell;
+  if (Number.isFinite(distance) && distance >= 0 && cell > 0) {
+    return Math.max(0, Math.round(distance / cell));
+  }
   const measured = Number(waypoint?.measurement?.cost);
-  if (Number.isFinite(measured) && measured >= 0) return measured;
+  if (Number.isFinite(measured) && measured >= 0) return Math.max(0, Math.round(measured));
   const cost = Number(waypoint?.cost);
-  if (Number.isFinite(cost) && cost >= 0) return cost;
+  if (Number.isFinite(cost) && cost >= 0) return Math.max(0, Math.round(cost));
   return 0;
 }
 
 function squareBudget(actor) {
   const squares = actor?.system?.attributes?.squares;
-  if (squares?.exhausted) {
-    const used = Number(squares.used);
-    return Math.max(0, Number.isFinite(used) ? used : 0);
-  }
-  const source = Number(actor?._source?.system?.attributes?.squares?.value);
-  if (Number.isFinite(source)) return Math.max(0, source);
-  return Math.max(0, Number(squares?.value) || 0);
+  if (!squares) return 0;
+  if (squares.exhausted) return Math.max(0, Number(squares.used) || 0);
+  return squareTurnCap(squares);
 }
 
 export function registerTokenRuler() {

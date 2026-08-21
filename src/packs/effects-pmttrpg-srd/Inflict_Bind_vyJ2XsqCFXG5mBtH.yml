@@ -27,7 +27,7 @@ system:
   customNotes: ''
   easyEffects: |-
     [On Clash RESULT]
-    inflict N Bind next turn;
+    inflict N Bind next round;
 effects: []
 sort: 100000
 ownership:

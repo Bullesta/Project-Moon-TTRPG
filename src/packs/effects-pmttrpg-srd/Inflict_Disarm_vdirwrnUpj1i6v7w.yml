@@ -27,7 +27,7 @@ system:
   customNotes: ''
   easyEffects: |-
     [On Clash RESULT]
-    inflict N Disarm next turn;
+    inflict N Disarm next round;
 effects: []
 sort: 100000
 ownership:

@@ -27,7 +27,7 @@ system:
   customNotes: ''
   easyEffects: |-
     [On Clash RESULT]
-    spend (N*6) Charge to inflict (N) Feeble next turn;
+    spend (N*6) Charge to inflict (N) Feeble next round;
 effects: []
 sort: 2000000
 ownership:

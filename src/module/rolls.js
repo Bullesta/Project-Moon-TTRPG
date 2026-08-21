@@ -49,7 +49,7 @@ export class PMTTRPGRolls {
 
     return items
       .map(item => {
-        const isEquipped = actor.type === "npc" || !!item.system?.equipped;
+        const isEquipped = !!item.system?.equipped;
         const formula = isAttack
           ? (item.system?.offensiveDiceComputed || '1d10')
           : (skillType === 'block'

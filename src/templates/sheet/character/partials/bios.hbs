@@ -3,7 +3,14 @@
     <div class="bio-field bio-field--badge">
       <span class="bio-field__label">{{localize "PMTTRPG.Bios-Badge"}}</span>
       <div class="badge-wrap">
-        <img class="badge" src="{{system.details.badge}}" data-action="editBadgeImage" data-edit="system.details.badge" title="{{system.details.badge}}"/>
+        <img class="badge" 
+          src="{{system.details.badge}}" 
+          onerror="
+            this.src='systems/projectmoonttrpg/assets/icons/limbus_assets/Refraction Railway/Line 5/MRR5BaseN.webp'
+          " 
+          data-action="editBadgeImage" 
+          data-edit="system.details.badge" 
+          title="{{system.details.badge}}"/>
       </div>
     </div>
     <label class="bio-field bio-field--color">

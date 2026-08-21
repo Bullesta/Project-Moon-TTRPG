@@ -29,7 +29,7 @@ system:
   customNotes: ''
   easyEffects: |-
     [On DevastatingHit]
-    inflict 1 "Fragile" next turn and inflict 1 "Stagger Fragile" next turn;
+    inflict 1 "Fragile" next round and inflict 1 "Stagger Fragile" next round;
 effects: []
 sort: 100000
 ownership:

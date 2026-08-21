@@ -109,6 +109,8 @@ export const NOUNS = {
     path: "system.attributes.squares.value",
     readPath: "system.attributes.squares.remaining",
     alwaysActive: false,
+    alwaysActivePath: "system.attributes.squares.maxMisc",
+    alwaysActiveModKey: "squaresMaxMisc",
     ops: ["gain", "lose", "set"],
     pathShorthand: true,
     aliases: ["square", "squares", "sqr", "sqrs"],
@@ -219,7 +221,7 @@ export function isResourceNoun(name) {
 
 export function isAlwaysActiveResource(name) {
   const hit = lookupNoun(name);
-  return !!hit && hit.def.kind === "resource" && !!hit.def.alwaysActive;
+  return !!hit && hit.def.kind === "resource" && !!(hit.def.alwaysActive || hit.def.alwaysActivePath);
 }
 
 export function isRuntimeResource(name) {
@@ -365,8 +367,9 @@ export function emptyAlwaysActiveMods() {
     resistanceOverrideSources: {},
   };
   for (const def of Object.values(NOUNS)) {
-    if (def.kind !== "resource" || !def.alwaysActive) continue;
-    const key = def.modKey ?? null;
+    if (def.kind !== "resource") continue;
+    if (!def.alwaysActive && !def.alwaysActivePath) continue;
+    const key = def.alwaysActiveModKey ?? def.modKey ?? null;
     if (key && mods[key] === undefined) mods[key] = 0;
   }
   return mods;
@@ -375,8 +378,8 @@ export function emptyAlwaysActiveMods() {
 export function applyResourceMod(mods, nounId, signedAmount) {
   const hit = lookupNoun(nounId);
   if (!hit || hit.def.kind !== "resource") return false;
-  if (!hit.def.alwaysActive) return false;
-  const key = hit.def.modKey ?? hit.id;
+  if (!hit.def.alwaysActive && !hit.def.alwaysActivePath) return false;
+  const key = hit.def.alwaysActiveModKey ?? hit.def.modKey ?? hit.id;
   mods[key] = (mods[key] ?? 0) + signedAmount;
   return true;
 }
@@ -393,10 +396,12 @@ export function applyResourceOverride(mods, nounId, value) {
 
 export function applyResourceModsToSystem(systemData, eeMods) {
   for (const [id, def] of Object.entries(NOUNS)) {
-    if (def.kind !== "resource" || !def.alwaysActive || !def.path) continue;
-    const amount = eeMods[def.modKey ?? id] ?? 0;
+    if (def.kind !== "resource") continue;
+    const path = def.alwaysActivePath || (def.alwaysActive ? def.path : null);
+    if (!path) continue;
+    const amount = eeMods[def.alwaysActiveModKey ?? def.modKey ?? id] ?? 0;
     if (!amount) continue;
-    const rel = def.path.replace(/^system\./, "");
+    const rel = path.replace(/^system\./, "");
     const parts = rel.split(".");
     let cur = systemData;
     for (let i = 0; i < parts.length - 1; i++) {

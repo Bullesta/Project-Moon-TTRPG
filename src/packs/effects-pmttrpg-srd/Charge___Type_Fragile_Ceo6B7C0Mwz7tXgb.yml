@@ -39,13 +39,13 @@ system:
     lose (N*4) Charge;
 
     [On Dialog Answer slash]
-    inflict N "Slash Fragile" next turn to target;
+    inflict N "Slash Fragile" next round to target;
 
     [On Dialog Answer pierce]
-    inflict N "Pierce Fragile" next turn to target;
+    inflict N "Pierce Fragile" next round to target;
 
     [On Dialog Answer blunt]
-    inflict N "Blunt Fragile" next turn to target;
+    inflict N "Blunt Fragile" next round to target;
 
 effects: []
 sort: 2700000

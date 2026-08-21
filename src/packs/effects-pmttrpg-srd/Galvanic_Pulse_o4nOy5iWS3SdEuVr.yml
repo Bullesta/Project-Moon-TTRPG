@@ -30,25 +30,25 @@ system:
     [Clash RESULT]
 
     create dialog "Galvanic Pulse":
-      galvanicfeeble as "Consume 10 Charge: Inflict 1 Feeble"
-      galvanicdisarm as "Consume 10 Charge: Inflict 1 Disarm"
-      galvanicover as "Consume 1 Overcharge: Inflict 1 Feeble & Disarm"
+      galvanicfeeble as "Consume 10 Charge: Inflict 1 Feeble",
+      galvanicdisarm as "Consume 10 Charge: Inflict 1 Disarm",
+      galvanicover as "Consume 1 Overcharge: Inflict 1 Feeble & Disarm",
       nogalvanic as "Do not"
       to self;
 
     [On Dialog Answer galvanicfeeble]
 
-    spend 10 Charge to inflict 1 Feeble next turn;
+    spend 10 Charge to inflict 1 Feeble next round;
 
 
     [On Dialog Answer galvanicdisarm]
 
-    spend 10 Charge to inflict 1 Disarm next turn;
+    spend 10 Charge to inflict 1 Disarm next round;
 
 
     [On Dialog Answer galvanicover]
 
-    spend 1 Overcharge to inflict 1 Feeble next turn and inflict 1 Disarm next
+    spend 1 Overcharge to inflict 1 Feeble next round and inflict 1 Disarm next
     turn;
   allowMultiple: false
 effects: []

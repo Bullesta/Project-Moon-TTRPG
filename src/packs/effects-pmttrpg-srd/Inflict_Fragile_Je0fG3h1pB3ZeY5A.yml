@@ -28,9 +28,9 @@ system:
   easyEffects: |-
     [On Clash RESULT]
     positive:
-    inflict N Fragile next turn;
+    inflict N Fragile next round;
     negative:
-    gain N Fragile next turn;
+    gain N Fragile next round;
 effects: []
 sort: 100000
 ownership:

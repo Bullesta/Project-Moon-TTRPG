@@ -1,7 +1,11 @@
 const FLAG_SCOPE = "projectmoonttrpg";
 const FLAG_KEY = "recycledEvade";
 const DEFAULT_PENALTY = 2;
-const PENALTY_STEP = 2;
+
+/** if the outfit has the swift property, the penalty is 1 instead of 2 */
+function recycledEvadeStep(outfit) {
+  return outfit?.system?.outfitProperty === "swift" ? 1 : DEFAULT_PENALTY;
+}
 
 /**
  * @param {Actor|null|undefined} actor
@@ -15,21 +19,21 @@ export function getRecycledEvade(actor) {
   return { active: true, penalty };
 }
 
-/** @param {Actor} actor */
-export async function grantRecycledEvade(actor) {
+/** @param {Actor} actor @param {Item|null} [outfit] */
+export async function grantRecycledEvade(actor, outfit = null) {
   if (!actor) return;
   if (getRecycledEvade(actor)) return;
-  await actor.setFlag(FLAG_SCOPE, FLAG_KEY, { active: true, penalty: DEFAULT_PENALTY });
+  await actor.setFlag(FLAG_SCOPE, FLAG_KEY, { active: true, penalty: recycledEvadeStep(outfit) });
 }
 
-/** @param {Actor} actor */
-export async function bumpRecycledEvade(actor) {
+/** @param {Actor} actor @param {Item|null} [outfit] */
+export async function bumpRecycledEvade(actor, outfit = null) {
   if (!actor) return;
   const current = getRecycledEvade(actor);
   if (!current) return;
   await actor.setFlag(FLAG_SCOPE, FLAG_KEY, {
     active: true,
-    penalty: current.penalty + PENALTY_STEP,
+    penalty: current.penalty + recycledEvadeStep(outfit),
   });
 }
 

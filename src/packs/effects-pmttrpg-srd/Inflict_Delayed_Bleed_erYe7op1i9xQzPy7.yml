@@ -33,9 +33,9 @@ system:
   easyEffects: |-
     [On Clash RESULT]
     positive:
-    inflict N Bleed next turn;
+    inflict N Bleed next round;
     negative:
-    gain N Bleed next turn;
+    gain N Bleed next round;
 effects: []
 sort: 100000
 ownership:

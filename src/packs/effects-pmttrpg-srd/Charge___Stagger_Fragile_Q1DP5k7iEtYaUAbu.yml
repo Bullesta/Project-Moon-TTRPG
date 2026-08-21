@@ -29,7 +29,7 @@ system:
   customNotes: ''
   easyEffects: |-
     [On Clash RESULT]
-    spend (N*4) Charge to inflict (N) "Stagger Fragile" next turn;
+    spend (N*4) Charge to inflict (N) "Stagger Fragile" next round;
 effects: []
 sort: 2600000
 ownership:

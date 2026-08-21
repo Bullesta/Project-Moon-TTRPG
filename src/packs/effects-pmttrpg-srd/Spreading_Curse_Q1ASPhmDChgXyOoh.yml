@@ -29,7 +29,7 @@ system:
   customNotes: ''
   easyEffects: |-
     [On DevastatingHit]
-    inflict 3 "Ruin" next turn;
+    inflict 3 "Ruin" next round;
 effects: []
 sort: 100000
 ownership:

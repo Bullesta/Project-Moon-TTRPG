@@ -27,7 +27,7 @@ system:
   customNotes: ''
   easyEffects: |-
     [On Clash RESULT with CHOICE]
-    inflict N Sinking next turn
+    inflict N Sinking next round
 effects: []
 sort: 100000
 ownership:

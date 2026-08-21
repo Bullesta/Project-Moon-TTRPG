@@ -37,13 +37,13 @@ system:
       to self;
 
     [On Dialog Answer slash]
-    inflict (N*2) "Slash Fragile" next turn to target;
+    inflict (N*2) "Slash Fragile" next round to target;
 
     [On Dialog Answer pierce]
-    inflict (N*2) "Pierce Fragile" next turn to target;
+    inflict (N*2) "Pierce Fragile" next round to target;
 
     [On Dialog Answer blunt]
-    inflict (N*2) "Blunt Fragile" next turn to target;
+    inflict (N*2) "Blunt Fragile" next round to target;
 
 effects: []
 sort: 100000

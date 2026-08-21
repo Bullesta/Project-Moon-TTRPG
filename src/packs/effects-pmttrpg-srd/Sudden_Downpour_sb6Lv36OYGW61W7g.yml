@@ -30,7 +30,7 @@ system:
   easyEffects: |-
     [On Clash Win With Attack]
     require (round) == 1 then
-      inflict N Sinking next turn;
+      inflict N Sinking next round;
 effects: []
 sort: 100000
 ownership:

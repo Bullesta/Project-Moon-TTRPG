@@ -29,7 +29,7 @@ system:
   customNotes: ''
   easyEffects: |-
     [On DevastatingHit]
-    inflict 2 "Bind" next turn;
+    inflict 2 "Bind" next round;
 effects: []
 sort: 100000
 ownership:

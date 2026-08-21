@@ -30,7 +30,7 @@ system:
   customNotes: ''
   easyEffects: |-
     [On Clash RESULT]
-    spend (N*3) Smoke on target to gain N Strength next turn;
+    spend (N*3) Smoke on target to gain N Strength next round;
 effects: []
 sort: 0
 ownership:

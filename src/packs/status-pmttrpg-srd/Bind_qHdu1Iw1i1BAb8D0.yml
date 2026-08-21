@@ -19,6 +19,9 @@ system:
   easyEffects: |-
     [Always Active]
     lose (Bind) movement;
+
+    [End of Round]
+    lose all Bind;
 effects: []
 folder: jtSvJ9E0Hm5t7NVJ
 sort: 200000

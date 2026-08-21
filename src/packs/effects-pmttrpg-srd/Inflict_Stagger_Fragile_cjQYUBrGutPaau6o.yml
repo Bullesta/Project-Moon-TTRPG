@@ -28,9 +28,9 @@ system:
   easyEffects: |-
     [On Clash RESULT]
     positive:
-    inflict N "Stagger Fragile" next turn;
+    inflict N "Stagger Fragile" next round;
     negative:
-    gain N "Stagger Fragile" next turn;
+    gain N "Stagger Fragile" next round;
 effects: []
 sort: 100000
 ownership:

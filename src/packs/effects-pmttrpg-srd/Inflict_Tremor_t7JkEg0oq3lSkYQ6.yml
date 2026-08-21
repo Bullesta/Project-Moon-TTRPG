@@ -27,7 +27,7 @@ system:
   customNotes: ''
   easyEffects: |-
     [On Clash RESULT with CHOICE]
-    inflict N Tremor next turn
+    inflict N Tremor next round
 effects: []
 sort: 100000
 ownership:

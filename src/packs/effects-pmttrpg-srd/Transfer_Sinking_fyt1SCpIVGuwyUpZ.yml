@@ -30,7 +30,7 @@ system:
   customNotes: ''
   easyEffects: |-
     [On Clash Win]
-    inflict (self.status.Sinking) Sinking next turn;
+    inflict (self.status.Sinking) Sinking next round;
     lose all Sinking on self;
 effects: []
 sort: 100000

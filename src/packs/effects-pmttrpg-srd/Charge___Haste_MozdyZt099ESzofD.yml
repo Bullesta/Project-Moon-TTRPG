@@ -27,7 +27,7 @@ system:
   customNotes: ''
   easyEffects: |-
     [On Clash RESULT]
-    spend (N*3) Charge to gain (N) Haste next turn;
+    spend (N*3) Charge to gain (N) Haste next round;
 effects: []
 sort: 2300000
 ownership:

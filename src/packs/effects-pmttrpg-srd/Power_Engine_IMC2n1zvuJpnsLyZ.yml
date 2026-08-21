@@ -29,8 +29,8 @@ system:
   easyEffects: |-
     [On Clash Start]
     create dialog "Power Engine":
-      powerengine as "Consume 8 Charge: +1 Dice Power"
-      powerengineover as "Consume 1 Overcharge: +2 Dice Power"
+      powerengine as "Consume 8 Charge: +1 Dice Power",
+      powerengineover as "Consume 1 Overcharge: +2 Dice Power",
       nopowerengine as "Do not"
       to self;
 
