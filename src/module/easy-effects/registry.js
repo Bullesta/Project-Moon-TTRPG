@@ -177,6 +177,10 @@ function buildClashStartedActorContext(payload, self) {
   };
 }
 
+function isOneSidedRetaliation(payload) {
+  return String(payload?.retaliationType ?? "").toLowerCase() === "onesided";
+}
+
 function clashWinItems({
   winner,
   attacker,
@@ -204,7 +208,9 @@ function clashLoseItems({
   defenderAppliedTool,
   attackerSkill,
   defenderSkill,
+  retaliationType,
 } = {}) {
+  if (isOneSidedRetaliation({ retaliationType })) return [];
   const attackerWon = winner === attacker;
   return attackerWon
     ? collectSideClashItems(defender, defenderItem, defenderAppliedTool, defenderSkill)
@@ -225,6 +231,7 @@ function buildClashWinContext(payload = {}) {
 }
 
 function buildClashLoseContext(payload = {}) {
+  if (isOneSidedRetaliation(payload)) return null;
   const { winner, loser, attacker, defender, attackerRoll, defenderRoll, clash } = payload;
   return {
     self: loser,

@@ -328,6 +328,11 @@ async function _executeClash(state, retaliatorActor, choice) {
 
   let { result, margin } = resolveClash(attackTotal, defenseResult.total);
 
+  if (choice.type === RETALIATION_TYPES.ONESIDED) {
+    result = CLASH_RESULTS.ATTACK_WIN;
+    margin = Math.max(0, attackTotal);
+  }
+
   while (result === CLASH_RESULTS.TIE && choice.type !== RETALIATION_TYPES.ONESIDED) {
     const [attackReroll, defenseReroll] = await Promise.all([
       rollAttack(attackerActor, attackerItem, clashCtx.bonuses.attacker),
