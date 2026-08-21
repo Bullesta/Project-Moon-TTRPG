@@ -73,30 +73,39 @@ function getAST(item) {
 
 Hooks.on("updateItem", (item) => _astCache.delete(item.id));
 
-function isPassiveClashItem(item, npcLoadout) {
+function isPassiveClashItem(item) {
   if (!item) return false;
   if (item.type === "augment") return true;
-  if (item.type === "outfit") return npcLoadout || item.system?.equipped === true;
+  if (item.type === "outfit") return item.system?.equipped === true;
   return false;
+}
+
+function itemIsLoadoutActive(item, actor) {
+  if (!item) return false;
+  if (item.type === "augment") return true;
+  if (item.type === "tool") return !!item.system?.equipped && isToolPresent(item);
+  if (item.type === "skill") return actor?.type === "npc" || item.system?.equipped === true;
+  if (item.type === "weapon" || item.type === "outfit") return item.system?.equipped === true;
+  return false;
+}
+
+function addUniqueItem(out, seen, item) {
+  if (!item) return;
+  const key = item.id || item.uuid;
+  if (!key || seen.has(key)) return;
+  seen.add(key);
+  out.push(item);
 }
 
 function collectSideClashItems(actor, usedItem, appliedTool, declaredSkill) {
   const out = [];
   const seen = new Set();
-  const add = (item) => {
-    if (!item) return;
-    const key = item.id || item.uuid;
-    if (!key || seen.has(key)) return;
-    seen.add(key);
-    out.push(item);
-  };
-  add(usedItem);
-  add(appliedTool);
-  add(declaredSkill);
+  addUniqueItem(out, seen, usedItem);
+  addUniqueItem(out, seen, appliedTool);
+  addUniqueItem(out, seen, declaredSkill);
   if (actor?.items) {
-    const npcLoadout = actor.type === "npc";
     for (const item of actor.items) {
-      if (isPassiveClashItem(item, npcLoadout)) add(item);
+      if (isPassiveClashItem(item)) addUniqueItem(out, seen, item);
     }
   }
   return out;
@@ -1070,15 +1079,12 @@ export function applyAlwaysActiveModifiers(actor) {
     );
   }
 
-  const npcLoadout = actor.type === "npc";
   for (const item of actor.items) {
     const isStatus = item.type === "status";
     if (!isStatus && !["weapon", "outfit", "augment", "skill", "tool"].includes(item.type)) continue;
     if (isStatus) {
       if (isPendingStatus(item)) continue;
-    } else if (item.type === "tool") {
-      if (!item.system?.equipped || !isToolPresent(item)) continue;
-    } else if (item.type !== "augment" && !npcLoadout && !item.system?.equipped) {
+    } else if (!itemIsLoadoutActive(item, actor)) {
       continue;
     }
 
@@ -1179,11 +1185,8 @@ export async function runOnTakingDamage(actor, damage, options = {}) {
  * Returns all equipped weapons, outfits, skills, tools, and augments on an actor.
  */
 function getEquippedItems(actor) {
-  const npcLoadout = actor.type === "npc";
   return actor.items.filter(i => {
     if (!["weapon", "outfit", "skill", "augment", "tool"].includes(i.type)) return false;
-    if (i.type === "tool") return !!i.system?.equipped && isToolPresent(i);
-    if (i.type === "augment") return true;
-    return npcLoadout || i.system?.equipped === true;
+    return itemIsLoadoutActive(i, actor);
   });
 }

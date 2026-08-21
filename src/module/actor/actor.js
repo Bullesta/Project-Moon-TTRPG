@@ -228,15 +228,14 @@ export class ActorPMTTRPG extends Actor {
       squares.value = Math.max(0, Number(squares.value) || 0);
     }
 
-    // Equipped outfit bonuses. NPCs always use their loadout outfits.
+    // Equipped outfit bonuses.
     let outfitBlockBonus = 0;
     let outfitEvadeBonus = 0;
     let outfitLightBonus = 0;
     let outfitEpBonus = 0;
-    const isNpc = actorData.type === 'npc';
     for (let item of actorData.items || []) {
       if (item.type != 'outfit') continue;
-      if (!isNpc && !item.system?.equipped) continue;
+      if (!item.system?.equipped) continue;
       outfitBlockBonus += Number(item.system?.blockDicePower ?? 0);
       outfitEvadeBonus += Number(item.system?.evadeDicePower ?? 0);
       outfitLightBonus += Number(item.system?.bonusLight ?? 0);
