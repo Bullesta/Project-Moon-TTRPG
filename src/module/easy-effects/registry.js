@@ -111,6 +111,15 @@ function collectSideClashItems(actor, usedItem, appliedTool, declaredSkill) {
   return out;
 }
 
+function usedStatBlockItems(usedItem, appliedTool, declaredSkill) {
+  const out = [];
+  const seen = new Set();
+  addUniqueItem(out, seen, usedItem);
+  addUniqueItem(out, seen, appliedTool);
+  addUniqueItem(out, seen, declaredSkill);
+  return out;
+}
+
 function clashUsedStatBlocks({
   attackerItem,
   defenderItem,
@@ -410,6 +419,13 @@ const TRIGGER_HOOKS = [
       ally:   null,
       clash:  null,
     }),
+  },
+  {
+    hook: "pmttrpg.clashStarted",
+    triggerName: "On Use",
+    getItems: clashUsedStatBlocks,
+    buildContext: buildClashStartedContext,
+    getActorContexts: () => [],
   },
 
   // ── [On Action] ─────────────────────────────────────────────────────────────
