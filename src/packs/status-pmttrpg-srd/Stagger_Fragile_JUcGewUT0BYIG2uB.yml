@@ -18,7 +18,7 @@ system:
   origin: ''
   customNotes: ''
   easyEffects: |-
-    [On Taking ST Damage]
+    [On Taking ST Attack Damage]
     increase damage by "Stagger Fragile" after resistances
 
     [End of Round]

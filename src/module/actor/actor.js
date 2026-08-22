@@ -601,6 +601,7 @@ export class ActorPMTTRPG extends Actor {
    * @param {"full"|"half"|"double"|"heal"} [options.op="full"]
    * @param {"hp"|"st"|"sp"|Array<"hp"|"st"|"sp">} [options.pool="hp"]
    * @param {string} [options.sourceLabel]
+   * @param {boolean} [options.fromAttack]
    * @param {string} [options.formula]
    * @returns {Promise<object|null>}
    */
@@ -612,6 +613,7 @@ export class ActorPMTTRPG extends Actor {
     const damageType = DAMAGE_TYPES.includes(rawDamageType.toLowerCase()) ? rawDamageType.toLowerCase() : null;
     const eeDamageType = damageType || rawDamageType;
     const source = typeof options.source === "string" && options.source.trim() ? options.source.trim() : null;
+    const fromAttack = options.fromAttack === true;
     const explicitSourceLabel = typeof options.sourceLabel === "string" && options.sourceLabel.trim()
       ? options.sourceLabel.trim()
       : null;
@@ -657,6 +659,7 @@ export class ActorPMTTRPG extends Actor {
         pool: pools.length === 1 ? (pools[0] ?? "hp") : pools.slice(),
         source: source ?? "",
         damageType: eeDamageType,
+        fromAttack,
         afterDeltaByPool: {},
       };
       await runOnTakingDamage(this, damageCtx, { attacker: options.attacker ?? null });

@@ -1073,10 +1073,18 @@ class Parser {
     } else if (this.check("IDENT", "damage") || (this.check("KEYWORD") && this.peek().value === "damage")) {
       this.advance();
       this.consume("KEYWORD", "from");
-      const statusName = this.parseStatusName();
-      lhs = { type: "ACCESSOR", expr: { type: "Path", segments: ["damage", "source"] } };
-      operator = "==";
-      rhs = { type: "IDENT", value: statusName };
+      const next = this.peek();
+      if (next?.type === "IDENT" && /^attacks?$/i.test(next.value)) {
+        this.advance();
+        lhs = { type: "ACCESSOR", expr: { type: "Path", segments: ["damage", "attack"] } };
+        operator = "==";
+        rhs = { type: "NUMBER", value: 1 };
+      } else {
+        const statusName = this.parseStatusName();
+        lhs = { type: "ACCESSOR", expr: { type: "Path", segments: ["damage", "source"] } };
+        operator = "==";
+        rhs = { type: "IDENT", value: statusName };
+      }
     } else if (this.check("NUMBER")) {
       const amount = this.consume("NUMBER").value;
       const tok = this.peek();

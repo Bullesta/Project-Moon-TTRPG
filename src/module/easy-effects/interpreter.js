@@ -11,7 +11,7 @@ import {
   resolvePathShorthand,
 } from "./nouns.js";
 import { expandSimpleDiceByMultiplier } from "./dice-formula.js";
-import { matchesBurstFilter, matchesClashStanceFilter, matchesDamageFilter, matchesDepletedFilter } from "./damage-filter.js";
+import { filterPoolValue, matchesBurstFilter, matchesClashStanceFilter, matchesDamageFilter, matchesDepletedFilter } from "./damage-filter.js";
 import { mergeResistanceOverrideMaps } from "./resistances.js";
 import { promptChoiceDialog } from "./choice-dialog.js";
 import { runAsOwnerOrGM } from "./gm-route.js";
@@ -352,6 +352,7 @@ function resolvePath(segments, context) {
     const key = segments[1];
     if (key === "amount") return Number(dmg.amount) || 0;
     if (key === "source" || key === "damageType") return dmg[key] ?? "";
+    if (key === "attack") return dmg.fromAttack === true ? 1 : 0;
     if (key === "pool") {
       const raw = dmg.pool;
       if (Array.isArray(raw)) return raw[0] ?? "";

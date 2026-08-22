@@ -26,7 +26,7 @@ system:
     uuid: ''
   customNotes: ''
   easyEffects: |-
-    [On Taking Damage]
+    [On Taking Attack Damage]
     create dialog "Charged Hull":
       chargedhull as "Consume 1 Overcharge: Reduce HP/ST damage by 3 each.",
       nochargedhull as "Do not"

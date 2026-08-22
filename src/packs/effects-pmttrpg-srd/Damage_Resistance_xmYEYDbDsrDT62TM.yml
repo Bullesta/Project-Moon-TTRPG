@@ -24,13 +24,13 @@ system:
     uuid: ''
   customNotes: ''
   easyEffects: |-
-    [On Taking HP Damage]
+    [On Taking HP Attack Damage]
     positive:
     reduce damage by N;
     negative:
     increase damage by N;
 
-    [On Taking ST Damage]
+    [On Taking ST Attack Damage]
     positive:
     reduce damage by N;
     negative:

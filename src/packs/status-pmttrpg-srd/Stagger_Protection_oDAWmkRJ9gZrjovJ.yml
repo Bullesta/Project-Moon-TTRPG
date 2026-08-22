@@ -18,7 +18,7 @@ system:
   origin: ''
   customNotes: ''
   easyEffects: |-
-    [On Taking ST Damage]
+    [On Taking ST Attack Damage]
     reduce damage by "Stagger Protection" after resistances
                         
     [End of Round]

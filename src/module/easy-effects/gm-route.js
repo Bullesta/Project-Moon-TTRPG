@@ -102,6 +102,7 @@ function sanitizeDamageOptions(options = {}) {
   if (options.op != null) out.op = options.op;
   if (options.pool != null) out.pool = options.pool;
   if (typeof options.source === "string") out.source = options.source;
+  if (options.fromAttack === true) out.fromAttack = true;
   if (typeof options.damageType === "string") out.damageType = options.damageType;
   if (typeof options.sourceLabel === "string") out.sourceLabel = options.sourceLabel;
   if (typeof options.formula === "string" && options.formula.trim()) {

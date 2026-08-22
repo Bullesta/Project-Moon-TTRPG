@@ -18,7 +18,7 @@ system:
   origin: ''
   customNotes: ''
   easyEffects: |-
-    [On Taking HP Damage]
+    [On Taking HP Attack Damage]
     reduce damage by Protection after resistances
 
     [End of Round]

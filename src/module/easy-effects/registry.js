@@ -1266,7 +1266,7 @@ function mergeAlwaysActiveMods(merged, mods, sourceName) {
 /**
  * Mutates `damage.amount` and `damage.afterDeltaByPool`.
  * @param {Actor} actor
- * @param {{ amount: number, pool: string|string[], source: string, damageType: string, afterDeltaByPool?: Record<string, number> }} damage
+ * @param {{ amount: number, pool: string|string[], source: string, damageType: string, fromAttack?: boolean, afterDeltaByPool?: Record<string, number> }} damage
  * @param {{ attacker?: Actor|null }} [options]
  */
 export async function runOnTakingDamage(actor, damage, options = {}) {
