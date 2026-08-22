@@ -132,6 +132,9 @@ function collectSideClashItems(actor, usedItem, appliedTool, declaredSkill) {
     for (const item of actor.items) {
       if (isPassiveClashItem(item)) addUniqueItem(out, seen, item);
     }
+    for (const item of uniqueStatusItems(actor.items)) {
+      addUniqueItem(out, seen, item);
+    }
   }
   return out.filter((item) => item.type !== "weapon" || sameDocument(item, used));
 }
