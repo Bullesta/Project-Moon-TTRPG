@@ -371,6 +371,12 @@ async function evaluateWithRollMode(formula, rollData, breakdown, mode) {
   return result;
 }
 
+function rollDataForActor(actor) {
+  const data = actor?.getRollData?.() ?? {};
+  if (actor?.id) return { ...data, actorId: actor.id };
+  return data;
+}
+
 /**
  * @param {ActorPMTTRPG} actor
  * @param {Item} weaponItem
@@ -383,7 +389,7 @@ async function evaluateWithRollMode(formula, rollData, breakdown, mode) {
 export async function rollAttack(actor, weaponItem, bonuses = {}, options = {}) {
   const built = buildOffensiveDiceParts(actor, weaponItem, bonuses);
   const mode = resolveClashRollMode(bonuses, options);
-  return evaluateWithRollMode(built.formula, actor.getRollData(), built.breakdown, mode);
+  return evaluateWithRollMode(built.formula, rollDataForActor(actor), built.breakdown, mode);
 }
 
 /**
@@ -395,7 +401,7 @@ export async function rollAttack(actor, weaponItem, bonuses = {}, options = {}) 
 export async function rollEvade(actor, bonuses = {}, options = {}) {
   const built = buildDefenseDiceParts(actor, "evade", bonuses);
   const mode = resolveClashRollMode(bonuses, options);
-  return evaluateWithRollMode(built.formula, actor.getRollData(), built.breakdown, mode);
+  return evaluateWithRollMode(built.formula, rollDataForActor(actor), built.breakdown, mode);
 }
 
 /**
@@ -407,7 +413,7 @@ export async function rollEvade(actor, bonuses = {}, options = {}) {
 export async function rollBlock(actor, bonuses = {}, options = {}) {
   const built = buildDefenseDiceParts(actor, "block", bonuses);
   const mode = resolveClashRollMode(bonuses, options);
-  return evaluateWithRollMode(built.formula, actor.getRollData(), built.breakdown, mode);
+  return evaluateWithRollMode(built.formula, rollDataForActor(actor), built.breakdown, mode);
 }
 
 /**

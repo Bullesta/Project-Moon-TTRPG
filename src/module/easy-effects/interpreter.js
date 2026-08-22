@@ -160,12 +160,15 @@ export async function evaluateDiceFormula(formula, context = null) {
   const roll = new Roll(raw);
   await roll.roll();
 
-  if (globalThis.game?.dice3d?.showForRoll) {
+  const dice3d = globalThis.game?.modules?.get("dice-so-nice")?.active
+    ? globalThis.game.dice3d
+    : null;
+  if (typeof dice3d?.showForRoll === "function") {
     try {
       const speaker = (typeof ChatMessage !== "undefined" && context?.self)
         ? ChatMessage.getSpeaker?.({ actor: context.self })
         : undefined;
-      await game.dice3d.showForRoll(
+      await dice3d.showForRoll(
         roll,
         game.user,
         true,
@@ -1231,6 +1234,7 @@ export async function execute(ast, trigger, context) {
 
         let inheritedTarget = "self";
         for (const action of stmt.actions) {
+
           const effectiveTarget = action.target ?? inheritedTarget;
           if (action.target) inheritedTarget = action.target;
 

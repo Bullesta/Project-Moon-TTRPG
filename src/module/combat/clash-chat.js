@@ -99,11 +99,13 @@ export async function postResultCard(state, defenseRoll = null, messageId = null
     st: defaultPools.includes("st"),
     sp: defaultPools.includes("sp"),
   };
+
+  const applyTarget = getClashApplyTarget(state);
  
   const content = await renderTemplate(TEMPLATES.clashResultCard, {
     state, defenseRollHtml, attackerWon, defenderWon, blockWin, blockWinSt, blockWinExempt,
-    evadeWin, counterWin, counterHit, counterOutOfRange, poolSelect,
-    isGM: game.user.isGM, i18n: _resultCardI18n(state),
+    evadeWin, counterWin, counterHit, counterOutOfRange, poolSelect, applyTarget,
+    isGM: game.user.isGM, i18n: _resultCardI18n(state, applyTarget),
   });
  
   const chatData = {
@@ -114,8 +116,16 @@ export async function postResultCard(state, defenseRoll = null, messageId = null
   // Let DSN finish rolling before the result appears.
   if (game.dice3d) {
     const shows = [];
-    if (attackRoll) shows.push(game.dice3d.showForRoll(attackRoll, game.user, true, null, false));
-    if (defenseRoll) shows.push(game.dice3d.showForRoll(defenseRoll, game.user, true, null, false));
+    if (attackRoll) {
+      shows.push(_showClashDice(attackRoll, state.attackerActorId, state.attackerTokenId));
+    }
+    if (defenseRoll) {
+      shows.push(_showClashDice(
+        defenseRoll,
+        state.retaliatorActorId ?? state.targetActorId,
+        state.retaliatorTokenId ?? state.targetTokenId,
+      ));
+    }
     if (shows.length) await Promise.all(shows);
   }
  
@@ -189,8 +199,6 @@ export function registerClashChatListeners() {
 }
 
 async function _clashButtonHandler(event) {
-  console.log(event);
-
   const button = event.target.closest("[data-action^='clash-']");
   if (!button) return;
   event.preventDefault();
@@ -224,6 +232,111 @@ export function getClashStateFromMessage(messageId) {
   return raw ? deserialiseClashState(raw) : null;
 }
 
+export function getClashApplyTarget(state) {
+  if (!state) return null;
+
+  const attackerWon = state.result === "attackWin";
+  const defenderWon = state.result === "defenseWin";
+  const type = state.retaliationType;
+  const blockWinSt = defenderWon && type === "block" && !state.blockWinStExempt;
+  const evadeWin = defenderWon && (type === "evade" || type === "recycledEvade");
+  const counterHit = defenderWon && type === "counter" && state.counterInRange === true;
+
+  let side = null;
+  let kind = "damage";
+  if (evadeWin) {
+    side = "defender";
+    kind = "heal";
+  } else if (counterHit || blockWinSt) {
+    side = "attacker";
+  } else if (attackerWon) {
+    side = "defender";
+  } else {
+    return null;
+  }
+
+  if (side === "attacker") {
+    if (!state.attackerActorId && !state.attackerTokenId) return null;
+    return {
+      side,
+      kind,
+      actorId: state.attackerActorId ?? null,
+      tokenId: state.attackerTokenId ?? null,
+      name: state.attackerName ?? "",
+      img: state.attackerImg ?? "",
+    };
+  }
+
+  const actorId = state.retaliatorActorId ?? state.targetActorId ?? null;
+  const tokenId = state.retaliatorTokenId ?? state.targetTokenId ?? null;
+  if (!actorId && !tokenId) return null;
+  return {
+    side,
+    kind,
+    actorId,
+    tokenId,
+    name: state.retaliatorName ?? state.targetName ?? "",
+    img: state.retaliatorImg ?? state.targetImg ?? "",
+  };
+}
+
+export function resolveClashCombatant(actorId, tokenId) {
+  if (tokenId) {
+    const fromCanvas = canvas.tokens?.get(tokenId)?.actor;
+    if (fromCanvas) return fromCanvas;
+    for (const scene of game.scenes ?? []) {
+      const tokenDoc = scene.tokens?.get(tokenId);
+      if (tokenDoc?.actor) return tokenDoc.actor;
+    }
+  }
+  return actorId ? (game.actors.get(actorId) ?? null) : null;
+}
+
+function _tokenDocument(tokenId) {
+  if (!tokenId) return null;
+  const onCanvas = canvas.tokens?.get(tokenId)?.document;
+  if (onCanvas) return onCanvas;
+  for (const scene of game.scenes ?? []) {
+    const tokenDoc = scene.tokens?.get(tokenId);
+    if (tokenDoc) return tokenDoc;
+  }
+  return null;
+}
+
+function _dsnUserForCombatant(actorId, tokenId) {
+  const actor = resolveClashCombatant(actorId, tokenId);
+  const tokenDoc = _tokenDocument(tokenId);
+  const permDoc = tokenDoc ?? actor;
+  if (!permDoc) return game.user;
+
+  const OWNER = CONST.DOCUMENT_OWNERSHIP_LEVELS.OWNER;
+  const owners = game.users.filter((u) => permDoc.testUserPermission(u, OWNER));
+  const assigned = actor ? game.users.find((u) => u.character?.id === actor.id) : null;
+  if (assigned && !assigned.isGM) return assigned;
+
+  const players = owners.filter((u) => !u.isGM);
+  const activePlayer = players.find((u) => u.active);
+  if (activePlayer) return activePlayer;
+  if (players.length) return players[0];
+
+  const activeGm = owners.find((u) => u.isGM && u.active);
+  if (activeGm) return activeGm;
+  return owners.find((u) => u.isGM) ?? game.user;
+}
+
+function _dsnSpeakerForCombatant(actorId, tokenId) {
+  const actor = resolveClashCombatant(actorId, tokenId);
+  const token = tokenId ? canvas.tokens?.get(tokenId) : null;
+  if (!actor && !token) return null;
+  return ChatMessage.getSpeaker({ actor, token });
+}
+
+function _showClashDice(roll, actorId, tokenId) {
+  const user = _dsnUserForCombatant(actorId, tokenId);
+  const speaker = _dsnSpeakerForCombatant(actorId, tokenId);
+  return game.dice3d.showForRoll(roll, user, true, null, false, null, speaker ?? undefined);
+}
+
 async function _rerenderRollHtml(message) {
   const rollJson = message.rolls?.[0];
   if (!rollJson) return "";
@@ -253,9 +366,10 @@ function _attackCardI18n(state) {
   };
 }
 
-function _resultCardI18n(state) {
+function _resultCardI18n(state, applyTarget = null) {
   const dtype = state.damageType || "none";
   const dtypeKey = `PMTTRPG.DamageType${dtype.charAt(0).toUpperCase()}${dtype.slice(1)}`;
+  const name = applyTarget?.name || "";
   return {
     attackWin:    game.i18n.localize("PMTTRPG.Clash.AttackWin"),
     defenseWin:   game.i18n.localize("PMTTRPG.Clash.DefenseWin"),
@@ -272,5 +386,23 @@ function _resultCardI18n(state) {
     applyRegen:   game.i18n.localize("PMTTRPG.Clash.ApplyRegen"),
     damageApplied:game.i18n.localize("PMTTRPG.Clash.DamageApplied"),
     damageType:   game.i18n.localize(dtypeKey),
+    applyTargetLabel: applyTarget
+      ? game.i18n.format(
+          applyTarget.kind === "heal" ? "PMTTRPG.Clash.Heal" : "PMTTRPG.Clash.ApplyTo",
+          { name },
+        )
+      : "",
+    winner: game.i18n.localize("PMTTRPG.Clash.Winner"),
+    loser: game.i18n.localize("PMTTRPG.Clash.Loser"),
+    applyTargetTitle: applyTarget
+      ? game.i18n.format(
+          applyTarget.kind === "heal" ? "PMTTRPG.Clash.ApplyHealTo" : "PMTTRPG.Clash.ApplyFullTo",
+          { name },
+        )
+      : "",
+    applyFullTitle: game.i18n.localize("PMTTRPG.DamageTaken.ApplyFull"),
+    applyHalfTitle: game.i18n.localize("PMTTRPG.DamageTaken.ApplyHalf"),
+    applyDoubleTitle: game.i18n.localize("PMTTRPG.DamageTaken.ApplyDouble"),
+    applyHealTitle: game.i18n.localize("PMTTRPG.DamageTaken.ApplyHeal"),
   };
 }

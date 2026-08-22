@@ -5,7 +5,12 @@ import {
   getActorWeaponDamageType,
 } from "./damage-application.js";
 
-import { getClashStateFromMessage, enhanceClashRollBreakdown } from "./combat/clash-chat.js"
+import {
+  getClashStateFromMessage,
+  getClashApplyTarget,
+  resolveClashCombatant,
+  enhanceClashRollBreakdown,
+} from "./combat/clash-chat.js";
 
 export const displayChatActionButtons = function(message, html, data) {
   const chatCard = html.querySelector?.(".PMTTRPG.chat-card") ?? null;
@@ -203,12 +208,35 @@ function _resolveDamageType(message, root) {
   return getActorWeaponDamageType(speakerActor);
 }
 
-async function _clashActionDamage(message, action, button) {
-  const actors = canvas.tokens.controlled.map(t => t.document.actor).filter(Boolean);
-  if (!actors.length) return;
+function _controlledTokenActors() {
+  return canvas.tokens?.controlled?.map((t) => t.document.actor).filter(Boolean) ?? [];
+}
 
+async function _clashActionDamage(message, action, button) {
   const state = message?.id ? getClashStateFromMessage(message.id) : null;
-  const root = button?.closest?.(".chat-damage-buttons");
+  const applyTarget = getClashApplyTarget(state);
+  const namedApply = button?.classList?.contains("clash-apply-target");
+
+  let actors;
+  if (namedApply) {
+    const actor = applyTarget
+      ? resolveClashCombatant(applyTarget.actorId, applyTarget.tokenId)
+      : null;
+    if (!actor) {
+      ui.notifications.warn(game.i18n.localize("PMTTRPG.Clash.NoApplyTarget"));
+      return;
+    }
+    actors = [actor];
+  } else {
+    actors = _controlledTokenActors();
+    if (!actors.length) {
+      ui.notifications.warn(game.i18n.localize("PMTTRPG.DamageTaken.NoSelectedTokens"));
+      return;
+    }
+  }
+
+  const root = button?.closest?.(".chat-damage-buttons")
+    ?? button?.closest?.(".clash-result-card")?.querySelector?.(".chat-damage-buttons");
   const pools = _readSelectedPools(root);
   const damageType = _resolveDamageType(message, root);
   const rollTotal = _resolveClashDamageAmount(state, pools, message);
@@ -232,6 +260,7 @@ async function _clashActionDamage(message, action, button) {
       op,
       damageType,
       attacker,
+      fromAttack: op !== "heal",
     });
   }
 }
@@ -286,6 +315,7 @@ async function _chatActionDamage(message, action, button) {
       damageType,
       attacker: op === "heal" ? null : attacker,
       sourceLabel: message.speaker?.alias ?? attacker?.name ?? null,
+      fromAttack: op !== "heal",
     });
   }
 }
