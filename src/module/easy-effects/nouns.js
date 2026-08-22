@@ -94,6 +94,8 @@ export const NOUNS = {
     kind: "resource",
     path: "system.attributes.actions.value",
     alwaysActive: false,
+    alwaysActivePath: "system.attributes.actions.maxMisc",
+    alwaysActiveModKey: "actionsMaxMisc",
     ops: ["gain", "lose", "set"],
     pathShorthand: true,
     aliases: ["actions"],
@@ -102,6 +104,8 @@ export const NOUNS = {
     kind: "resource",
     path: "system.attributes.reactions.value",
     alwaysActive: false,
+    alwaysActivePath: "system.attributes.reactions.maxMisc",
+    alwaysActiveModKey: "reactionsMaxMisc",
     ops: ["gain", "lose", "set"],
     pathShorthand: true,
     aliases: ["reactions"],
@@ -331,7 +335,6 @@ export async function recoverPoolLocal(actor, name, amount) {
 
   const current = read(def.regenPath);
   const max = read(def.regenMaxPath);
-  const next = Math.min(Math.max(current + amount, 0), max);
   const pool = resolveApplyPool(name);
   const next = clampPoolValue(pool ?? name, current + amount, max);
   if (next !== current) await actor.update({ [def.regenPath]: next });
