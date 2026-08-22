@@ -34,11 +34,17 @@ system:
       transferTtS as "Transfer from Target to Self"
       to self;
 
-    [On Dialog Result transferStT]
-    lose N Burn on self and inflict N Burn;
+    [On Dialog Answer transferStT]
+    require (self.status.Burn) > 0 and (self.status.Burn) < N then
+      inflict (self.status.Burn) Burn on target and lose all Burn on self;
+    require (self.status.Burn) >= N then
+      inflict N Burn on target and lose N Burn on self;
 
-    [On Dialog Result transferTtS]
-    lose N Burn on target and gain N Burn;
+    [On Dialog Answer transferTtS]
+    require (target.status.Burn) > 0 and (target.status.Burn) < N then
+      gain (target.status.Burn) Burn on self and lose all Burn on target;
+    require (target.status.Burn) >= N then
+      gain N Burn on self and lose N Burn on target;
 effects: []
 sort: 100000
 ownership:

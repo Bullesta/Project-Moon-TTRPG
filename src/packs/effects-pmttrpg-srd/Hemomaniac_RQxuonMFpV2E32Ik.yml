@@ -34,11 +34,17 @@ system:
       transferTtS as "Transfer from Target to Self"
       to self;
 
-    [On Dialog Result transferStT]
-    lose N Bleed on self and inflict N Bleed;
+    [On Dialog Answer transferStT]
+    require (self.status.Bleed) > 0 and (self.status.Bleed) < N then
+      inflict (self.status.Bleed) Bleed on target and lose all Bleed on self;
+    require (self.status.Bleed) >= N then
+      inflict N Bleed on target and lose N Bleed on self;
 
-    [On Dialog Result transferTtS]
-    lose N Bleed on target and gain N Bleed;
+    [On Dialog Answer transferTtS]
+    require (target.status.Bleed) > 0 and (target.status.Bleed) < N then
+      gain (target.status.Bleed) Bleed on self and lose all Bleed on target;
+    require (target.status.Bleed) >= N then
+      gain N Bleed on self and lose N Bleed on target;
 effects: []
 sort: 100000
 ownership:
