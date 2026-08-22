@@ -188,7 +188,7 @@ function showStatusScrollingText(actor, statusName, added, amount = 1) {
   const sign = added ? "+" : "-";
   const content = n === 1 ? `${sign}${statusName}` : `${sign}${n} ${statusName}`;
   for (const token of tokens) {
-    if (!token?.center) continue;
+    if (!token?.center || token.isVisible === false) continue;
     canvas.interface.createScrollingText(token.center, content, {
       anchor: added ? CONST.TEXT_ANCHOR_POINTS.TOP : CONST.TEXT_ANCHOR_POINTS.BOTTOM,
       direction: added ? CONST.TEXT_ANCHOR_POINTS.TOP : CONST.TEXT_ANCHOR_POINTS.BOTTOM,

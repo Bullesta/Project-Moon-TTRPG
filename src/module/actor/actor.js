@@ -888,7 +888,8 @@ export class ActorPMTTRPG extends Actor {
         else if (delta > 0) color = 0x00cc00;
       }
 
-      for ( let token of tokens ) {
+      for (const token of tokens) {
+        if (!token?.center || token.isVisible === false) continue;
         const pct = delta !== 0 ? Math.clamp(Math.abs(delta) / max, 0, 1) : 0.25;
         let content = delta !== 0 ? delta.signedString() + " " + suffix : suffix;
         let textOptions = {
@@ -936,13 +937,6 @@ export class ActorPMTTRPG extends Actor {
     if (!options.diff || !context || updateData.system === undefined) return; // Nothing to do.
 
     this._runDepletedEasyEffects(updateData, context, options, userId);
-
-    // Exit early if not owner.
-    let displayText = this.isOwner;
-    if (this.permission.default > 1) displayText = true;
-    if (this.permission[game.userId] !== undefined && this.permission[game.userId] > 1) displayText = true;
-
-    if (!displayText) return;
 
     const poolAnchors = {
       hp: CONST.TEXT_ANCHOR_POINTS.TOP,
