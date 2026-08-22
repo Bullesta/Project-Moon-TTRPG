@@ -26,9 +26,11 @@ system:
   easyEffects: |-
     [On Clash Start]
     positive:
-    power down attack N on target
+    power down attack N on target;
+    power down defense N on target;
     negative:
-    power up attack N on target
+    power up attack N on target;
+    power up defense N on target;
   allowMultiple: true
 effects: []
 sort: 0

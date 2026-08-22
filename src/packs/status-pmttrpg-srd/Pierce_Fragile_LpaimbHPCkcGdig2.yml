@@ -19,7 +19,7 @@ system:
   origin: ''
   customNotes: ''
   easyEffects: |-
-    [On Taking Pierce Damage]
+    [On Taking Pierce Attack Damage]
     increase damage by "Pierce Fragile"
 
     [End of Round]

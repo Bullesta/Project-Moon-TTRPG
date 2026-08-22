@@ -34,11 +34,17 @@ system:
       transferTtS as "Transfer from Target to Self"
       to self;
 
-    [On Dialog Result transferStT]
-    lose N Frostbite on self and inflict N Frostbite;
+    [On Dialog Answer transferStT]
+    require (self.status.Frostbite) > 0 and (self.status.Frostbite) < N then
+      inflict (self.status.Frostbite) Frostbite on target and lose all Frostbite on self;
+    require (self.status.Frostbite) >= N then
+      inflict N Frostbite on target and lose N Frostbite on self;
 
-    [On Dialog Result transferTtS]
-    lose N Frostbite on target and gain N Frostbite;
+    [On Dialog Answer transferTtS]
+    require (target.status.Frostbite) > 0 and (target.status.Frostbite) < N then
+      gain (target.status.Frostbite) Frostbite on self and lose all Frostbite on target;
+    require (target.status.Frostbite) >= N then
+      gain N Frostbite on self and lose N Frostbite on target;
 effects: []
 sort: 100000
 ownership:

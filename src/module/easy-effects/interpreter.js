@@ -11,11 +11,12 @@ import {
   resolvePathShorthand,
 } from "./nouns.js";
 import { expandSimpleDiceByMultiplier } from "./dice-formula.js";
-import { matchesBurstFilter, matchesClashStanceFilter, matchesDamageFilter, matchesDepletedFilter } from "./damage-filter.js";
+import { filterPoolValue, matchesBurstFilter, matchesClashStanceFilter, matchesDamageFilter, matchesDepletedFilter } from "./damage-filter.js";
 import { mergeResistanceOverrideMaps } from "./resistances.js";
 import { promptChoiceDialog } from "./choice-dialog.js";
 import { runAsOwnerOrGM } from "./gm-route.js";
 import { parseAccessorExpression } from "./parser.js";
+import { clampPoolValue } from "../pool-clamp.js";
 
 // Me and the boi's hate infinite recursion
 const DIALOG_NEST_MAX_DEPTH = 8;
@@ -159,12 +160,15 @@ export async function evaluateDiceFormula(formula, context = null) {
   const roll = new Roll(raw);
   await roll.roll();
 
-  if (globalThis.game?.dice3d?.showForRoll) {
+  const dice3d = globalThis.game?.modules?.get("dice-so-nice")?.active
+    ? globalThis.game.dice3d
+    : null;
+  if (typeof dice3d?.showForRoll === "function") {
     try {
       const speaker = (typeof ChatMessage !== "undefined" && context?.self)
         ? ChatMessage.getSpeaker?.({ actor: context.self })
         : undefined;
-      await game.dice3d.showForRoll(
+      await dice3d.showForRoll(
         roll,
         game.user,
         true,
@@ -351,6 +355,7 @@ function resolvePath(segments, context) {
     const key = segments[1];
     if (key === "amount") return Number(dmg.amount) || 0;
     if (key === "source" || key === "damageType") return dmg[key] ?? "";
+    if (key === "attack") return dmg.fromAttack === true ? 1 : 0;
     if (key === "pool") {
       const raw = dmg.pool;
       if (Array.isArray(raw)) return raw[0] ?? "";
@@ -821,7 +826,7 @@ const ACTION_HANDLERS = {
         const current = Number(poolData.value) || 0;
         const targetVal = action.amount?.type === "POOL_MAX"
           ? max
-          : Math.clamp(Math.round(Number(amount) || 0), 0, max);
+          : clampPoolValue(pool, Math.round(Number(amount)), max);
         const delta = targetVal - current;
         if (delta === 0) continue;
         const sourceLabel = resolveEffectSourceLabel(context);
@@ -1158,8 +1163,9 @@ function applyAfterResistanceDelta(damage, delta, damageFilter = null) {
   let pools = (Array.isArray(raw) ? raw : [raw ?? "hp"])
     .map((p) => String(p ?? "").toLowerCase())
     .filter(Boolean);
-  if (damageFilter?.kind === "pool") {
-    const want = String(damageFilter.value).toLowerCase();
+  const wantPool = filterPoolValue(damageFilter);
+  if (wantPool) {
+    const want = String(wantPool).toLowerCase();
     pools = pools.filter((p) => p === want);
   }
   if (!pools.length) return;
@@ -1228,6 +1234,7 @@ export async function execute(ast, trigger, context) {
 
         let inheritedTarget = "self";
         for (const action of stmt.actions) {
+
           const effectiveTarget = action.target ?? inheritedTarget;
           if (action.target) inheritedTarget = action.target;
 

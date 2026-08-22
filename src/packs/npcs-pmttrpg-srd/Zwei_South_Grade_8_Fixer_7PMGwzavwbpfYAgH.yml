@@ -287,7 +287,8 @@ items:
         # >>> synced effects
         # Enemy Power Down
         [On Clash Start]
-        power down attack 1 on target
+        power down attack 1 on target;
+        power down defense 1 on target;
         # <<< synced effects
     _id: tI7S038AGGHJbfNv
     img: systems/projectmoonttrpg/assets/icons/associations/80px-Zwei_Logo.webp

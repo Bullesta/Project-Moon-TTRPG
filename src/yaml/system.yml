@@ -58,6 +58,11 @@ packs:
     path: packs/effects-pmttrpg-srd
     type: Item
     private: false
+  - name: macros-pmttrpg-srd
+    label: Macros
+    path: packs/macros-pmttrpg-srd
+    type: Macro
+    private: false
 languages:
   - lang: en
     name: English

@@ -34,11 +34,17 @@ system:
       transferTtS as "Transfer from Target to Self"
       to self;
 
-    [On Dialog Result transferStT]
-    lose N Ruin on self and inflict N Ruin;
+    [On Dialog Answer transferStT]
+    require (self.status.Ruin) > 0 and (self.status.Ruin) < N then
+      inflict (self.status.Ruin) Ruin on target and lose all Ruin on self;
+    require (self.status.Ruin) >= N then
+      inflict N Ruin on target and lose N Ruin on self;
 
-    [On Dialog Result transferTtS]
-    lose N Ruin on target and gain N Ruin;
+    [On Dialog Answer transferTtS]
+    require (target.status.Ruin) > 0 and (target.status.Ruin) < N then
+      gain (target.status.Ruin) Ruin on self and lose all Ruin on target;
+    require (target.status.Ruin) >= N then
+      gain N Ruin on self and lose N Ruin on target;
 effects: []
 sort: 100000
 ownership:

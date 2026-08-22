@@ -3,6 +3,7 @@ import { PMTTRPGRolls } from "../rolls.js";
 import { PMTTRPGTargetingAPI } from "../targeting.js";
 import { buildEffectSummaryGroups } from "../effects/effect-summary.js";
 import { groupStatuses } from "../status/group-statuses.js";
+import { isPendingStatus } from "../status/pending.js";
 import { EasyEffectsEditor } from "../apps/easy-effects-editor.js";
 import { emitActorAction } from "../easy-effects/registry.js";
 import { buildEffectiveResistanceDisplay, DAMAGE_TYPES } from "../damage-application.js";
@@ -386,10 +387,14 @@ export class PMTTRPGCharacterSheet extends HandlebarsApplicationMixin(ActorSheet
         icon = panicType.img;
       } else {
         icon = def.visualIconOverride.iconDefinition[0].icon;
-
-        for(const threshold of def.visualIconOverride.iconDefinition) {
-          if(threshold.activateIntervalPercent[0] <= percentage && percentage < threshold.activateIntervalPercent[1]) 
-            icon = threshold.icon;
+        const defs = def.visualIconOverride.iconDefinition;
+        if (percentage < 0) {
+          icon = defs[defs.length - 1]?.icon ?? icon;
+        } else {
+          for (const threshold of defs) {
+            if (threshold.activateIntervalPercent[0] <= percentage && percentage < threshold.activateIntervalPercent[1])
+              icon = threshold.icon;
+          }
         } 
       }
     }
@@ -829,7 +834,11 @@ export class PMTTRPGCharacterSheet extends HandlebarsApplicationMixin(ActorSheet
       }
 
       for (const el of root.querySelectorAll("input.item-count--stacks")) {
-        el.addEventListener("change", (event) => this._onStatusStacksInput(event, el), { signal });
+        el.addEventListener("change", async (event) => {
+          event.preventDefault();
+          event.stopImmediatePropagation();
+          await this._onStatusStacksInput(event, el);
+        }, { signal, capture: true });
         el.addEventListener("keydown", (event) => {
           if (event.key === "Enter") {
             event.preventDefault();
@@ -1078,14 +1087,36 @@ export class PMTTRPGCharacterSheet extends HandlebarsApplicationMixin(ActorSheet
     }
   }
 
+  _statusRowInfo(li) {
+    const item = this.actor.items.get(li?.dataset?.itemId);
+    return {
+      statusName: li?.dataset?.statusName || item?.name,
+      pending: li?.dataset?.pending === "true" || isPendingStatus(item),
+      arrival: li?.dataset?.arrival || item?.system?.arrival || "round",
+    };
+  }
+
   async _onStatusControl(event, target) {
     event.preventDefault();
     event.stopPropagation();
     const li = target.closest(".item");
     const action = target.dataset.control;
-    const statusName = li?.dataset?.statusName
-      || this.actor.items.get(li?.dataset?.itemId)?.name;
+    const { statusName, pending, arrival } = this._statusRowInfo(li);
     if (!statusName || !this.actor?.setStatusStacks) return;
+
+    if (pending) {
+      if (action === "increase") {
+        const current = this.actor.getPendingStatusStacks(statusName, arrival);
+        await this.actor.setPendingStatusStacks(statusName, current + 1, { arrival });
+      }
+      else if (action === "decrease") {
+        await this.actor.removePendingStatusStacks(statusName, 1, { arrival });
+      }
+      else if (action === "remove") {
+        await this.actor.setPendingStatusStacks(statusName, 0, { arrival });
+      }
+      return;
+    }
 
     if (action === "increase") {
       await this.actor.addStatusStacks(statusName, 1, null, { originUuid: this.actor.uuid });
@@ -1102,13 +1133,18 @@ export class PMTTRPGCharacterSheet extends HandlebarsApplicationMixin(ActorSheet
     event.preventDefault?.();
     event.stopPropagation?.();
     const li = target.closest(".item");
-    const statusName = li?.dataset?.statusName
-      || this.actor.items.get(li?.dataset?.itemId)?.name;
+    const { statusName, pending, arrival } = this._statusRowInfo(li);
     if (!statusName || !this.actor?.setStatusStacks) return;
 
     const raw = Number(target.value);
     const next = Number.isFinite(raw) ? Math.max(0, Math.trunc(raw)) : 0;
+    if (pending) {
+      await this.actor.setPendingStatusStacks(statusName, next, { arrival });
+      if (target.isConnected) target.value = this.actor.getPendingStatusStacks(statusName, arrival);
+      return;
+    }
     await this.actor.setStatusStacks(statusName, next);
+    if (target.isConnected) target.value = this.actor.getStatusStacks(statusName);
   }
 
   _prepareStatusItems(items = []) {

@@ -15,7 +15,7 @@ system:
   priority: 0
   customNotes: ''
   easyEffects: |-
-    [On Taking Slash Damage]
+    [On Taking Slash Attack Damage]
     reduce damage by "Slash Protection"
 
     [End of Round]

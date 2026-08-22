@@ -14,7 +14,7 @@ system:
   priority: 0
   customNotes: ''
   easyEffects: |-
-    [On Taking Blunt Damage]
+    [On Taking Blunt Attack Damage]
     reduce damage by "Blunt Protection"
 
     [End of Round]

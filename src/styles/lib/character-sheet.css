@@ -2115,6 +2115,44 @@
   border-color: rgba(215, 182, 106, 0.75);
 }
 
+@keyframes pmttrpg-pending-breathe {
+  0%, 100% { opacity: 0.38; }
+  50% { opacity: 0.88; }
+}
+
+.pm-sheet .items-list > .item.item--status-pending {
+  border-color: rgba(150, 150, 150, 0.42);
+  background: rgba(22, 22, 22, 0.4);
+}
+
+.pm-sheet .item--status-pending .item-title-row strong,
+.pm-sheet .item--status-pending .item-name {
+  color: rgba(210, 210, 210, 0.9);
+}
+
+.pm-sheet .item--status-pending .item-name .item-status-pending-label {
+  margin-left: 0.4rem;
+  color: rgba(176, 176, 176, 0.92);
+  font-size: 0.78em;
+  font-weight: 600;
+  font-style: italic;
+  letter-spacing: 0.02em;
+}
+
+.pm-sheet .item--status-pending .item-count--stacks {
+  border-color: rgba(180, 180, 180, 0.4);
+  color: rgba(220, 220, 220, 0.92);
+}
+
+.pm-sheet .item--status-pending .item-count--stacks:focus {
+  border-color: rgba(200, 200, 200, 0.7);
+}
+
+.pm-sheet .item--status-pending .item-icon {
+  filter: grayscale(0.75) brightness(0.92);
+  animation: pmttrpg-pending-breathe 2.2s ease-in-out infinite;
+}
+
 .pm-sheet .tab-empty-item {
   list-style: none;
   margin: 0;

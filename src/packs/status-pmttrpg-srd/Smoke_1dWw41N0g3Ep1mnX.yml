@@ -19,7 +19,7 @@ system:
   origin: ''
   customNotes: ''
   easyEffects: |-
-    [On Taking HP Damage]
+    [On Taking HP Attack Damage]
     increase damage by (Smoke //f 2) after resistances
 
     [End of Round]

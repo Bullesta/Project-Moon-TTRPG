@@ -17,7 +17,7 @@ system:
   origin: ''
   customNotes: ''
   easyEffects: |-
-    [On Taking HP Damage]
+    [On Taking HP Attack Damage]
     increase damage by Fragile after resistances
 
     [End of Round]

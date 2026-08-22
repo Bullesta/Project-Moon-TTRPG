@@ -1,5 +1,45 @@
 import { isApplyPoolNoun, resolveApplyPool } from "./nouns.js";
 
+function splitTakingDamageTokens(mid) {
+  const tokens = [];
+  const re = /"([^"]+)"|'([^']+)'|(\S+)/g;
+  let m;
+  while ((m = re.exec(mid))) {
+    if (m[1] != null) tokens.push({ value: m[1], quoted: true });
+    else if (m[2] != null) tokens.push({ value: m[2], quoted: true });
+    else tokens.push({ value: m[3], quoted: false });
+  }
+  return tokens;
+}
+
+export function isAttackDamage(damage) {
+  return damage?.fromAttack === true;
+}
+
+export function filterPoolValue(filter) {
+  if (!filter) return null;
+  if (filter.kind === "pool") return filter.value ?? null;
+  if (filter.kind === "compound") return filter.pool ?? null;
+  return null;
+}
+
+function matchesPoolFilter(want, damage) {
+  if (!want) return true;
+  const key = String(want).toLowerCase();
+  const raw = damage.pool;
+  const list = Array.isArray(raw) ? raw : [raw];
+  return list.some((p) => String(p ?? "").toLowerCase() === key);
+}
+
+function matchesSourceOrTypeFilter(want, damage) {
+  if (!want) return true;
+  const source = String(damage.source ?? "");
+  const dtype = String(damage.damageType ?? "");
+  if (source && source === want) return true;
+  if (dtype && dtype.toLowerCase() === want.toLowerCase()) return true;
+  return false;
+}
+
 export function normalizeTakingDamageTrigger(raw) {
   const text = String(raw ?? "").trim();
   const m = text.match(/^On Taking(?:\s+(.*?))?\s+Damage$/i);
@@ -10,20 +50,46 @@ export function normalizeTakingDamageTrigger(raw) {
     return { trigger: "On Taking Damage", damageFilter: null };
   }
 
-  const quoted = mid.match(/^"([^"]+)"$/) || mid.match(/^'([^']+)'$/);
-  if (quoted) mid = quoted[1].trim();
+  const tokens = splitTakingDamageTokens(mid);
+  let pool = null;
+  let attack = false;
+  let sourceOrType = null;
 
-  const poolKey = mid.toLowerCase();
-  if (isApplyPoolNoun(poolKey)) {
+  for (const tok of tokens) {
+    if (!tok.quoted && /^attacks?$/i.test(tok.value)) {
+      attack = true;
+      continue;
+    }
+    const poolKey = tok.value.toLowerCase();
+    if (!tok.quoted && isApplyPoolNoun(poolKey) && !pool) {
+      pool = resolveApplyPool(poolKey);
+      continue;
+    }
+    sourceOrType = sourceOrType ? `${sourceOrType} ${tok.value}` : tok.value;
+  }
+
+  if (!pool && !attack && !sourceOrType) {
+    return { trigger: "On Taking Damage", damageFilter: null };
+  }
+  if (pool && !attack && !sourceOrType) {
     return {
       trigger: "On Taking Damage",
-      damageFilter: { kind: "pool", value: resolveApplyPool(poolKey) },
+      damageFilter: { kind: "pool", value: pool },
+    };
+  }
+  if (attack && !pool && !sourceOrType) {
+    return { trigger: "On Taking Damage", damageFilter: { kind: "attack" } };
+  }
+  if (!pool && !attack && sourceOrType) {
+    return {
+      trigger: "On Taking Damage",
+      damageFilter: { kind: "sourceOrType", value: sourceOrType },
     };
   }
 
   return {
     trigger: "On Taking Damage",
-    damageFilter: { kind: "sourceOrType", value: mid },
+    damageFilter: { kind: "compound", pool, attack, sourceOrType },
   };
 }
 
@@ -31,19 +97,13 @@ export function normalizeTakingDamageTrigger(raw) {
 export function matchesDamageFilter(filter, damage) {
   if (!filter) return true;
   if (!damage) return false;
-  if (filter.kind === "pool") {
-    const want = String(filter.value).toLowerCase();
-    const raw = damage.pool;
-    const list = Array.isArray(raw) ? raw : [raw];
-    return list.some((p) => String(p ?? "").toLowerCase() === want);
-  }
-  if (filter.kind === "sourceOrType") {
-    const want = String(filter.value);
-    const source = String(damage.source ?? "");
-    const dtype = String(damage.damageType ?? "");
-    if (source && source === want) return true;
-    if (dtype && dtype.toLowerCase() === want.toLowerCase()) return true;
-    return false;
+  if (filter.kind === "pool") return matchesPoolFilter(filter.value, damage);
+  if (filter.kind === "attack") return isAttackDamage(damage);
+  if (filter.kind === "sourceOrType") return matchesSourceOrTypeFilter(filter.value, damage);
+  if (filter.kind === "compound") {
+    if (filter.attack && !isAttackDamage(damage)) return false;
+    if (!matchesPoolFilter(filter.pool, damage)) return false;
+    return matchesSourceOrTypeFilter(filter.sourceOrType, damage);
   }
   return true;
 }

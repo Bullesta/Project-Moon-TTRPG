@@ -34,11 +34,17 @@ system:
       transferTtS as "Transfer from Target to Self"
       to self;
 
-    [On Dialog Result transferStT]
-    lose N Poise on self and inflict N Poise;
+    [On Dialog Answer transferStT]
+    require (self.status.Poise) > 0 and (self.status.Poise) < N then
+      inflict (self.status.Poise) Poise on target and lose all Poise on self;
+    require (self.status.Poise) >= N then
+      inflict N Poise on target and lose N Poise on self;
 
-    [On Dialog Result transferTtS]
-    lose N Poise on target and gain N Poise;
+    [On Dialog Answer transferTtS]
+    require (target.status.Poise) > 0 and (target.status.Poise) < N then
+      gain (target.status.Poise) Poise on self and lose all Poise on target;
+    require (target.status.Poise) >= N then
+      gain N Poise on self and lose N Poise on target;
 effects: []
 sort: 100000
 ownership:

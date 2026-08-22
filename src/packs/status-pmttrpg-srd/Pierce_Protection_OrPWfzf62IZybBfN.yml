@@ -14,7 +14,7 @@ system:
   priority: 0
   customNotes: ''
   easyEffects: |-
-    [On Taking Pierce Damage]
+    [On Taking Pierce Attack Damage]
     reduce damage by "Pierce Protection"
 
     [End of Round]

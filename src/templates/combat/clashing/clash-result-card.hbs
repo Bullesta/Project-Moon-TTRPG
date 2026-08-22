@@ -5,7 +5,7 @@
 
   {{!-- VS Header --}}
   <div class="clash-result-card__vs">
-    <div class="clash-result-card__side clash-result-card__side--attacker">
+    <div class="clash-result-card__side clash-result-card__side--attacker{{#if (eq applyTarget.side "attacker")}} clash-result-card__side--apply-target{{#if (eq applyTarget.kind "heal")}} clash-result-card__side--apply-heal{{/if}}{{/if}}">
       <img class="clash-card__avatar" src="{{state.attackerImg}}" alt="{{state.attackerName}}">
       <span class="clash-result-card__name">{{state.attackerName}}</span>
       <span class="clash-result-card__item">{{state.attackerItemName}}</span>
@@ -16,13 +16,18 @@
         aria-label="{{localize "PMTTRPG.Clash.Breakdown.Title"}}">
         {{state.attackRollTotal}}
       </span>
+      {{#if attackerWon}}
+      <span class="clash-result-card__role clash-result-card__role--winner">{{i18n.winner}}</span>
+      {{else if defenderWon}}
+      <span class="clash-result-card__role clash-result-card__role--loser">{{i18n.loser}}</span>
+      {{/if}}
     </div>
 
     <div class="clash-result-card__divider">
       <span class="clash-result-card__vs-label">VS</span>
     </div>
 
-    <div class="clash-result-card__side clash-result-card__side--defender">
+    <div class="clash-result-card__side clash-result-card__side--defender{{#if (eq applyTarget.side "defender")}} clash-result-card__side--apply-target{{#if (eq applyTarget.kind "heal")}} clash-result-card__side--apply-heal{{/if}}{{/if}}">
       <img class="clash-card__avatar" src="{{state.retaliatorImg}}" alt="{{state.retaliatorName}}">
       <span class="clash-result-card__name">{{state.retaliatorName}}</span>
       <span class="clash-result-card__item">{{state.retaliatorItemName}}</span>
@@ -33,6 +38,11 @@
         aria-label="{{localize "PMTTRPG.Clash.Breakdown.Title"}}">
         {{state.defenseRollTotal}}
       </span>
+      {{#if defenderWon}}
+      <span class="clash-result-card__role clash-result-card__role--winner">{{i18n.winner}}</span>
+      {{else if attackerWon}}
+      <span class="clash-result-card__role clash-result-card__role--loser">{{i18n.loser}}</span>
+      {{/if}}
     </div>
   </div>
 
@@ -145,11 +155,18 @@
       <button type="button" class="button pool{{#if poolSelect.st}} active{{/if}}" data-action="set-pool" data-pool="st">{{localize "PMTTRPG.TrackerST"}}</button>
       <button type="button" class="button pool{{#if poolSelect.sp}} active{{/if}}" data-action="set-pool" data-pool="sp">{{localize "PMTTRPG.TrackerSP"}}</button>
     </div>
+    {{#if applyTarget}}
+    <button type="button" class="clash-apply-target{{#if (eq applyTarget.kind "heal")}} clash-apply-target--heal{{/if}}" data-action="{{#if (eq applyTarget.kind "heal")}}clash-heal{{else}}clash-damage{{/if}}" title="{{i18n.applyTargetTitle}}">
+      <img class="clash-apply-target__avatar" src="{{applyTarget.img}}" alt="">
+      <span class="clash-apply-target__label">{{i18n.applyTargetLabel}}</span>
+      <i class="fa-solid {{#if (eq applyTarget.kind "heal")}}fa-user-plus{{else}}fa-user-minus{{/if}}"></i>
+    </button>
+    {{/if}}
     <div class="chat-damage-apply">
-      <button type="button" class="button damage full-damage" data-action="clash-damage" title="{{localize "PMTTRPG.DamageTaken.ApplyFull"}}"><i class="fas fa-user-minus"></i></button>
-      <button type="button" class="button damage half-damage" data-action="clash-half-damage" title="{{localize "PMTTRPG.DamageTaken.ApplyHalf"}}"><i class="fas fa-user-minus"></i> 1/2</button>
-      <button type="button" class="button damage double-damage" data-action="clash-double-damage" title="{{localize "PMTTRPG.DamageTaken.ApplyDouble"}}"><i class="fas fa-user-minus"></i> 2X</button>
-      <button type="button" class="button heal heal-damage" data-action="clash-heal" title="{{localize "PMTTRPG.DamageTaken.ApplyHeal"}}"><i class="fas fa-user-plus"></i></button>
+      <button type="button" class="button damage full-damage" data-action="clash-damage" title="{{i18n.applyFullTitle}}"><i class="fas fa-user-minus"></i></button>
+      <button type="button" class="button damage half-damage" data-action="clash-half-damage" title="{{i18n.applyHalfTitle}}"><i class="fas fa-user-minus"></i> 1/2</button>
+      <button type="button" class="button damage double-damage" data-action="clash-double-damage" title="{{i18n.applyDoubleTitle}}"><i class="fas fa-user-minus"></i> 2X</button>
+      <button type="button" class="button heal heal-damage" data-action="clash-heal" title="{{i18n.applyHealTitle}}"><i class="fas fa-user-plus"></i></button>
     </div>
   </div>
 </div>

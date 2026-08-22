@@ -1,0 +1,89 @@
+name: Full Heal
+type: script
+img: systems/projectmoonttrpg/assets/icons/sheet/hp_healthy.webp
+scope: global
+command: |-
+  const POOLS = ["hp", "st", "sp", "light"];
+  const ECONOMY = ["actions", "reactions", "movement", "squares"];
+  const tokens = canvas.tokens?.controlled ?? [];
+  if (!tokens.length) {
+    ui.notifications.warn("Select one or more tokens to reset pools.");
+    return;
+  }
+
+  const seen = new Set();
+  const reset = [];
+  const skipped = [];
+
+  for (const token of tokens) {
+    const actor = token.actor;
+    if (!actor) {
+      skipped.push(token.name);
+      continue;
+    }
+    if (!actor.isOwner) {
+      skipped.push(actor.name);
+      continue;
+    }
+
+    if (!seen.has(actor.uuid)) {
+      seen.add(actor.uuid);
+      const attrs = actor.system?.attributes ?? {};
+      const updates = {};
+
+      for (const pool of POOLS) {
+        const data = attrs[pool];
+        if (!data) continue;
+        const max = Number(data.max);
+        if (!Number.isFinite(max)) continue;
+        if ((Number(data.value) || 0) !== max) {
+          updates[`system.attributes.${pool}.value`] = max;
+        }
+      }
+
+      for (const pool of ["hp", "st", "sp"]) {
+        const temp = Number(attrs[pool]?.temp) || 0;
+        if (temp !== 0) updates[`system.attributes.${pool}.temp`] = 0;
+      }
+
+      for (const key of ECONOMY) {
+        const pool = attrs[key];
+        if (!pool) continue;
+        const max = Number(pool.max) || 0;
+        if ((Number(pool.value) || 0) !== max) {
+          updates[`system.attributes.${key}.value`] = max;
+        }
+      }
+
+      if (actor.getFlag("projectmoonttrpg", "squaresExhausted")) {
+        updates["flags.projectmoonttrpg.squaresExhausted"] = false;
+      }
+
+      if (Object.keys(updates).length) await actor.update(updates);
+      reset.push(actor.name);
+    }
+
+    const tokenDoc = token.document;
+    if (typeof tokenDoc?.clearMovementHistory === "function") {
+      await tokenDoc.clearMovementHistory();
+    }
+  }
+
+  if (reset.length) ui.notifications.info(`Reset Pools: ${reset.join(", ")}`);
+  if (skipped.length) ui.notifications.warn(`Could not reset pools: ${skipped.join(", ")}`);
+ownership:
+  default: 0
+flags: {}
+_stats:
+  compendiumSource: null
+  duplicateSource: null
+  exportSource: null
+  coreVersion: '14.366'
+  systemId: projectmoonttrpg
+  systemVersion: 0.1.0
+  createdTime: 1787350131365
+  modifiedTime: 1787352000000
+  lastModifiedBy: null
+_id: sCl1PHKEuAHsYO64
+sort: 100000
+_key: '!macros!sCl1PHKEuAHsYO64'

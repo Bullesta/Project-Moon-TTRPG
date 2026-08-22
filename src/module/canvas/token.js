@@ -97,7 +97,7 @@ export function registerTokenStatusBadges() {
 
       const enabled = game.settings.get("projectmoonttrpg", "showTokenStatusBadges");
       const actor = this.actor;
-      if (!enabled || !actor?.testUserPermission(game.user, "OBSERVER")) {
+      if (!enabled || !actor) {
         this.statusBadges.visible = false;
         return;
       }

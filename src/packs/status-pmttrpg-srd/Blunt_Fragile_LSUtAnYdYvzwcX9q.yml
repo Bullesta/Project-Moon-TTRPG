@@ -19,7 +19,7 @@ system:
   origin: ''
   customNotes: ''
   easyEffects: |-
-    [On Taking Blunt Damage]
+    [On Taking Blunt Attack Damage]
     increase damage by "Blunt Fragile"
 
     [End of Round]

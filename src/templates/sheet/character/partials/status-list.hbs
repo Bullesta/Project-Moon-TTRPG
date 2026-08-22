@@ -1,12 +1,15 @@
 {{#if statuses.length}}
 <ol class="items-list">
   {{#each statuses as |status|}}
-  <li class="item item--status collapsed" data-item-id="{{status.representative._id}}" data-status-key="{{status.key}}" data-status-name="{{status.name}}">
+  <li class="item item--status collapsed{{#if status.pending}} item--status-pending{{/if}}" data-item-id="{{status.representative._id}}" data-status-key="{{status.key}}" data-status-name="{{status.name}}" data-pending="{{#if status.pending}}true{{else}}false{{/if}}"{{#if status.pending}} data-arrival="{{status.arrival}}"{{/if}}>
     <div class="item-title-row">
       <div class="item-title-row__lead">
         {{> "systems/projectmoonttrpg/templates/sheet/character/partials/item-thumb.hbs" img=status.img name=status.name}}
         <strong class="item-name">
           {{status.name}}
+          {{#if status.pending}}
+          <span class="item-status-pending-label">{{#if (eq status.arrival "turn")}}{{localize "PMTTRPG.StatusTrayPendingTurn"}}{{else}}{{localize "PMTTRPG.StatusTrayPendingRound"}}{{/if}}</span>
+          {{/if}}
           {{#if status.showCount}}
           <input class="item-count item-count--stacks" type="number" value="{{status.count}}" min="0" step="1" {{#if status.stackMax}}max="{{status.stackMax}}"{{/if}} aria-label="{{localize "PMTTRPG.StatusStacks"}}" {{#if @root.locked}}readonly{{/if}}/>
           {{/if}}

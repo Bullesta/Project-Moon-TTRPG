@@ -421,7 +421,7 @@ items:
       easyEffects: |-
         # >>> synced effects
         # Damage Resistance
-        [On Taking Damage]
+        [On Taking Attack Damage]
         reduce damage by 3;
         # <<< synced effects
     _id: yt7RUlHlqntLIsiv

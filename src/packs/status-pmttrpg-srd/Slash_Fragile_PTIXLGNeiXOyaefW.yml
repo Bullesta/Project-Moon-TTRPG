@@ -19,7 +19,7 @@ system:
   origin: ''
   customNotes: ''
   easyEffects: |-
-    [On Taking Slash Damage]
+    [On Taking Slash Attack Damage]
     increase damage by "Slash Fragile"
 
     [End of Round]
