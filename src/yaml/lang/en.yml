@@ -492,7 +492,7 @@ PMTTRPG.Settings.sanityFormula.hint: "Select your sanity formula for this world.
 PMTTRPG.StatusDropNoPermission: "You do not have permission to apply statuses to that actor."
 PMTTRPG.StatusTrayNoDescription: "No description."
 PMTTRPG.StatusTrayPendingRound: "Next round"
-PMTTRPG.StatusTrayPendingTurn: "next round"
+PMTTRPG.StatusTrayPendingTurn: "Next turn"
 PMTTRPG.StatusTrayControls: "LMB/RMB ±1 · Ctrl+LMB/RMB ±5 · Alt+RMB clear"
 PMTTRPG.StatusSheetHint: "Icon, description, procs, and EasyEffects behavior for this status."
 PMTTRPG.StatusProcActivities: "Proc Activities"

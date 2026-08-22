@@ -7,6 +7,7 @@ import {
 } from "../easy-effects/sync-from-effects.js";
 import { bindEasyEffectsHighlighter } from "../easy-effects/highlight.js";
 import { sluggify } from "../slug.js";
+import { isPendingStatus } from "../status/pending.js";
 
 const { ItemSheetV2 } = foundry.applications.sheets;
 const { HandlebarsApplicationMixin } = foundry.applications.api;
@@ -300,9 +301,14 @@ export class PMTTRPGItemSheet extends HandlebarsApplicationMixin(ItemSheetV2) {
         : null;
     context.slugPlaceholder = this.document.slug || "";
 
-    // On an actor the Current Stacks is the actor total accumulative stacks.
+    // On an actor, Current Stacks is the matching live or pending total.
     if (itemData.type === "status" && this.document.parent?.getStatusStacks) {
-      context.system.stacks = this.document.parent.getStatusStacks(this.document.name);
+      context.system.stacks = isPendingStatus(this.document)
+        ? this.document.parent.getPendingStatusStacks(
+          this.document.name,
+          this.document.system?.arrival,
+        )
+        : this.document.parent.getStatusStacks(this.document.name);
     }
 
     return context;
@@ -428,13 +434,19 @@ export class PMTTRPGItemSheet extends HandlebarsApplicationMixin(ItemSheetV2) {
       const hasStacks = Object.prototype.hasOwnProperty.call(submitData.system ?? {}, "stacks");
       const stacks = hasStacks ? submitData.system.stacks : undefined;
       if (hasStacks) delete submitData.system.stacks;
+      const pending = isPendingStatus(this.document);
+      const arrival = this.document.system?.arrival;
 
       const flat = foundry.utils.flattenObject(submitData);
       if (Object.keys(flat).length) {
         await super._processSubmitData(event, form, submitData, options);
       }
       if (hasStacks) {
-        await this.document.parent.setStatusStacks(this.document.name, stacks);
+        if (pending && this.document.parent.setPendingStatusStacks) {
+          await this.document.parent.setPendingStatusStacks(this.document.name, stacks, { arrival });
+        } else {
+          await this.document.parent.setStatusStacks(this.document.name, stacks);
+        }
       }
       return;
     }

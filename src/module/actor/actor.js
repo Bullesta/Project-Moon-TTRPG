@@ -1400,6 +1400,98 @@ export class ActorPMTTRPG extends Actor {
     return docs;
   }
 
+  /**
+   * @param {string} statusName
+   * @param {number} [amount=1]
+   * @param {{ arrival?: "round"|"turn", silent?: boolean }} [options]
+   * @returns {Promise<string[]>}
+   */
+  async removePendingStatusStacks(statusName, amount = 1, options = {}) {
+    const remove = Math.max(0, Math.trunc(Number(amount) || 0));
+    if (remove <= 0) return [];
+
+    const arrival = normalizeArrival(options.arrival ?? "round");
+    const pending = this._pendingStatusItems(statusName, arrival);
+    if (!pending.length) return [];
+
+    const current = this.getPendingStatusStacks(statusName, arrival);
+    const next = Math.max(0, current - remove);
+    if (next === current) return [];
+    const item = pending[0];
+    const lost = current - next;
+    const extras = pending.slice(1).map(i => i.id);
+
+    if (extras.length) {
+      await this.deleteEmbeddedDocuments("Item", extras, statusMutationOptions({ silent: true }, 0));
+    }
+    if (next <= 0) {
+      return this.deleteEmbeddedDocuments("Item", [item.id], statusMutationOptions(options, -lost));
+    }
+    await item.update({ "system.stacks": next }, statusMutationOptions(options, -lost));
+    return extras;
+  }
+
+  /**
+   * @param {string} statusName
+   * @param {number} target
+   * @param {{ arrival?: "round"|"turn", silent?: boolean }} [options]
+   * @returns {Promise<Item[]>}
+   */
+  async setPendingStatusStacks(statusName, target, options = {}) {
+    const arrival = normalizeArrival(options.arrival ?? "round");
+    let desired = Math.max(0, Math.trunc(Number(target) || 0));
+    const statusRef = String(statusName ?? "").trim();
+    let canonicalName = ActorPMTTRPG.normalizeStatusRefName(statusRef);
+    let pending = this._pendingStatusItems(canonicalName, arrival);
+
+    let stackMax = pending[0]
+      ? ActorPMTTRPG._statusStackMax(pending[0])
+      : 0;
+    if (!pending.length && desired > 0) {
+      const itemData = await ActorPMTTRPG._resolveStatusTemplate(statusRef);
+      if (itemData) {
+        stackMax = ActorPMTTRPG._statusStackMax(itemData);
+        canonicalName = itemData.name || canonicalName;
+        pending = this._pendingStatusItems(canonicalName, arrival);
+      }
+    }
+
+    const activeStacks = this.getStatusStacks(canonicalName);
+    if (stackMax > 0 && desired > 0) {
+      desired = Math.min(desired, Math.max(0, stackMax - activeStacks));
+    }
+
+    if (desired <= 0) {
+      if (!pending.length) return [];
+      const current = this.getPendingStatusStacks(canonicalName, arrival);
+      return this.removePendingStatusStacks(canonicalName, Math.max(current, 1), { ...options, arrival });
+    }
+
+    if (!pending.length) {
+      return this.addPendingStatusStacks(statusRef, desired, { ...options, arrival });
+    }
+
+    const current = this.getPendingStatusStacks(canonicalName, arrival);
+    const kept = pending[0];
+    if (!kept || !this.items.has(kept.id)) return [];
+    const extras = pending.slice(1).map(i => i.id).filter(id => id && this.items.has(id));
+    if (current === desired && extras.length === 0) {
+      if (Number(kept.system?.stacks ?? 0) !== desired) {
+        await kept.update({ "system.stacks": desired }, statusMutationOptions(options, 0));
+      }
+      return [kept];
+    }
+
+    await kept.update(
+      { "system.stacks": desired },
+      statusMutationOptions(options, desired - current),
+    );
+    if (extras.length) {
+      await this.deleteEmbeddedDocuments("Item", extras, statusMutationOptions(options, 0));
+    }
+    return [kept];
+  }
+
   // Reuse the item so Pause does not fire On Lose.
   async pauseStatusToPending(statusName, options = {}) {
     const arrival = normalizeArrival(options.arrival ?? "round");
