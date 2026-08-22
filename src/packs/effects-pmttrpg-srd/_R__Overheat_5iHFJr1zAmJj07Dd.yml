@@ -22,7 +22,8 @@ system:
   procCondition: ''
   positive: >-
     <p>Increase the Dice Power by 2. The weapon that used the skill containing
-    this effect becomes unusable until the end of the character's next round.</p>
+    this effect becomes unusable until the end of the character's next
+    round.</p>
   negative: ''
   macro:
     uuid: ''

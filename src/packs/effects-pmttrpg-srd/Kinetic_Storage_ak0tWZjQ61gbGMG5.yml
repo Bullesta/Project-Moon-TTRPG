@@ -19,8 +19,8 @@ system:
   procAction: any
   procCondition: If you have leftover movement this turn
   positive: >-
-    <p>Store the amount and add it to your base movement next round (Max 6 SQRs).
-    This does not stack across turns.</p>
+    <p>Store the amount and add it to your base movement next round (Max 6
+    SQRs). This does not stack across turns.</p>
   negative: ''
   macro:
     uuid: ''

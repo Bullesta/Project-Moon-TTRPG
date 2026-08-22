@@ -11,7 +11,7 @@ system:
   appliesTo: augment
   canPositive: true
   canNegative: false
-  procOn: alwaysActive
+  procOn: onClash
   procResult: none
   procResultLocked: false
   procChoice: none
@@ -44,9 +44,9 @@ _stats:
   exportSource: null
   coreVersion: '14.364'
   systemId: projectmoonttrpg
-  systemVersion: 0.0.1
+  systemVersion: 0.1.0
   createdTime: 1785485127254
-  modifiedTime: 1787152197627
+  modifiedTime: 1787388434306
   lastModifiedBy: yWsvx4DXrmYcZsue
 _id: aSQJrC7vRelCZbZ8
 _key: '!items!aSQJrC7vRelCZbZ8'

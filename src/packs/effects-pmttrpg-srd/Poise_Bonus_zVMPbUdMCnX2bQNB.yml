@@ -11,7 +11,7 @@ system:
   appliesTo: augment
   canPositive: true
   canNegative: false
-  procOn: alwaysActive
+  procOn: onClash
   procResult: none
   procResultLocked: false
   procChoice: none
@@ -27,7 +27,7 @@ system:
   customNotes: ''
   easyEffects: |-
     [On Clash Start]
-    require Poise >= 4 then power up CHOICE 1;
+    require (Poise) >= 4 then power up CHOICE 1;
 effects: []
 sort: 0
 ownership:
@@ -40,9 +40,9 @@ _stats:
   exportSource: null
   coreVersion: '14.364'
   systemId: projectmoonttrpg
-  systemVersion: 0.0.1
+  systemVersion: 0.1.0
   createdTime: 1785485127259
-  modifiedTime: 1787152060558
+  modifiedTime: 1787388621767
   lastModifiedBy: yWsvx4DXrmYcZsue
 _id: zVMPbUdMCnX2bQNB
 _key: '!items!zVMPbUdMCnX2bQNB'
