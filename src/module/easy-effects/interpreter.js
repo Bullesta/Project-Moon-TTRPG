@@ -16,6 +16,7 @@ import { mergeResistanceOverrideMaps } from "./resistances.js";
 import { promptChoiceDialog } from "./choice-dialog.js";
 import { runAsOwnerOrGM } from "./gm-route.js";
 import { parseAccessorExpression } from "./parser.js";
+import { clampPoolValue } from "../pool-clamp.js";
 
 // Me and the boi's hate infinite recursion
 const DIALOG_NEST_MAX_DEPTH = 8;
@@ -821,7 +822,7 @@ const ACTION_HANDLERS = {
         const current = Number(poolData.value) || 0;
         const targetVal = action.amount?.type === "POOL_MAX"
           ? max
-          : Math.clamp(Math.round(Number(amount) || 0), 0, max);
+          : clampPoolValue(pool, Math.round(Number(amount)), max);
         const delta = targetVal - current;
         if (delta === 0) continue;
         const sourceLabel = resolveEffectSourceLabel(context);
@@ -1158,8 +1159,9 @@ function applyAfterResistanceDelta(damage, delta, damageFilter = null) {
   let pools = (Array.isArray(raw) ? raw : [raw ?? "hp"])
     .map((p) => String(p ?? "").toLowerCase())
     .filter(Boolean);
-  if (damageFilter?.kind === "pool") {
-    const want = String(damageFilter.value).toLowerCase();
+  const wantPool = filterPoolValue(damageFilter);
+  if (wantPool) {
+    const want = String(wantPool).toLowerCase();
     pools = pools.filter((p) => p === want);
   }
   if (!pools.length) return;

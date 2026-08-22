@@ -1,3 +1,5 @@
+import { clampPoolValue } from "../pool-clamp.js";
+
 export const NOUNS = {
   // Resources
   toolSlots: {
@@ -330,6 +332,8 @@ export async function recoverPoolLocal(actor, name, amount) {
   const current = read(def.regenPath);
   const max = read(def.regenMaxPath);
   const next = Math.min(Math.max(current + amount, 0), max);
+  const pool = resolveApplyPool(name);
+  const next = clampPoolValue(pool ?? name, current + amount, max);
   if (next !== current) await actor.update({ [def.regenPath]: next });
   return true;
 }
@@ -433,7 +437,7 @@ export function applyResourceOverridesToSystem(systemData, eeMods) {
     attr.eeMaxOverrideBy = formatOverrideSourceNames(sources[key]);
     // Clamping here persists after the override is removed.
     const cur = Number(attr.value) || 0;
-    attr.value = Math.max(0, Math.min(cur, value));
+    attr.value = clampPoolValue(def.overrideAttr, cur, value);
   }
 }
 

@@ -386,10 +386,14 @@ export class PMTTRPGCharacterSheet extends HandlebarsApplicationMixin(ActorSheet
         icon = panicType.img;
       } else {
         icon = def.visualIconOverride.iconDefinition[0].icon;
-
-        for(const threshold of def.visualIconOverride.iconDefinition) {
-          if(threshold.activateIntervalPercent[0] <= percentage && percentage < threshold.activateIntervalPercent[1]) 
-            icon = threshold.icon;
+        const defs = def.visualIconOverride.iconDefinition;
+        if (percentage < 0) {
+          icon = defs[defs.length - 1]?.icon ?? icon;
+        } else {
+          for (const threshold of defs) {
+            if (threshold.activateIntervalPercent[0] <= percentage && percentage < threshold.activateIntervalPercent[1])
+              icon = threshold.icon;
+          }
         } 
       }
     }

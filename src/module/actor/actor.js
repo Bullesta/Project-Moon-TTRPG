@@ -7,6 +7,7 @@ import { runDepletedEasyEffects } from '../easy-effects/actor-scripts.js';
 import { applyResourceModsToSystem, applyResourceOverridesToSystem } from '../easy-effects/nouns.js';
 import { applyInventorySlotUsage } from '../inventory/slots.js';
 import { isPendingStatus, normalizeArrival } from '../status/pending.js';
+import { clampPoolValue, crossesDepletion } from '../pool-clamp.js';
 import {
   APPLY_POOLS,
   DAMAGE_TYPES,
@@ -187,7 +188,7 @@ export class ActorPMTTRPG extends Actor {
     if (data.attributes.sp.value === undefined || data.attributes.sp.value === null) {
       data.attributes.sp.value = data.attributes.sp.max;
     } else {
-      data.attributes.sp.value = Math.clamp(Number(data.attributes.sp.value) || 0, 0, data.attributes.sp.max);
+      data.attributes.sp.value = clampPoolValue("sp", data.attributes.sp.value, data.attributes.sp.max);
     }
 
     // Light: 3 + Rank. Clamp after equipment bonuses.
@@ -300,7 +301,7 @@ export class ActorPMTTRPG extends Actor {
         pool.eeMaxOverridden = false;
         pool.eeMaxOverrideBy = "";
         pool.max = (Number(pool.maxBase) || 0) + (Number(pool.maxMisc) || 0);
-        pool.value = Math.clamp(Number(pool.value) || 0, 0, pool.max);
+        pool.value = clampPoolValue(key, pool.value, pool.max);
       }
       if (data.attributes.light) {
         data.attributes.light.eeMaxOverridden = false;
@@ -754,7 +755,7 @@ export class ActorPMTTRPG extends Actor {
 
       if (op === "heal") {
         const uncapped = current + newAmount;
-        const next = Math.clamp(uncapped, 0, max);
+        const next = clampPoolValue(pool, uncapped, max);
         if (next === current) {
           breakdown.push({ key: "final", amount: 0, pool, heal: true });
           continue;
@@ -802,7 +803,7 @@ export class ActorPMTTRPG extends Actor {
       }
 
       const uncapped = current - remaining;
-      const next = Math.clamp(uncapped, 0, max);
+      const next = clampPoolValue(pool, uncapped, max);
       if (next === current) {
         breakdown.push({ key: "final", amount: 0, pool, heal: false });
         continue;
@@ -851,7 +852,7 @@ export class ActorPMTTRPG extends Actor {
         const poolKey = String(update.path).match(/attributes\.(\w+)\.value/)?.[1];
         const max = poolKey ? Number(this.system?.attributes?.[poolKey]?.max) || null : null;
         let restored = currentValue + update.value;
-        if (max !== null) restored = Math.clamp(restored, 0, max);
+        if (max !== null) restored = clampPoolValue(poolKey, restored, max);
         actorUpdates[update.path] = restored;
       }
     }
@@ -969,7 +970,7 @@ export class ActorPMTTRPG extends Actor {
   }
 
   /**
-   * Runs [On Depleted] for positive-to-zero pool updates.
+   * Runs [On Depleted] when a pool first hits 0 or below.
    * @param {object} updateData
    * @param {object} preUpdate
    * @param {object} options
@@ -979,16 +980,20 @@ export class ActorPMTTRPG extends Actor {
     if (userId !== game.userId) return;
     if (options?.PMTTRPG?.damageUndo) return;
 
+    const jobs = [];
     for (const pool of APPLY_POOLS) {
       const after = updateData.system?.attributes?.[pool]?.value;
-      if (after === undefined || Number(after) !== 0) continue;
-
-      const before = Number(preUpdate.system?.attributes?.[pool]?.value);
-      if (!Number.isFinite(before) || before <= 0) continue;
-
+      if (after === undefined) continue;
+      const before = preUpdate.system?.attributes?.[pool]?.value;
+      if (!crossesDepletion(before, after)) continue;
       const max = Number(preUpdate.system?.attributes?.[pool]?.max) || 0;
-      runDepletedEasyEffects(this, { pool, before, max });
+      jobs.push({ pool, before, max });
     }
+    if (!jobs.length) return;
+    const actor = this;
+    setTimeout(() => {
+      for (const job of jobs) void runDepletedEasyEffects(actor, job);
+    }, 0);
   }
 
   /**
