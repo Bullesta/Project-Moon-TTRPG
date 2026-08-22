@@ -73,8 +73,30 @@ function getAST(item) {
 
 Hooks.on("updateItem", (item) => _astCache.delete(item.id));
 
+function documentId(doc) {
+  return doc?.id ?? doc?._id ?? null;
+}
+
+function sameDocument(a, b) {
+  if (!a || !b) return false;
+  if (a === b) return true;
+  const id = documentId(a);
+  return !!id && id === documentId(b);
+}
+
+function resolveOwnedItem(actor, item) {
+  if (!item) return null;
+  const id = documentId(item);
+  if (id && actor?.items?.get) {
+    const owned = actor.items.get(id);
+    if (owned) return owned;
+  }
+  return item;
+}
+
 function isPassiveClashItem(item) {
   if (!item) return false;
+  if (item.type === "weapon" || item.type === "skill") return false;
   if (item.type === "augment") return true;
   if (item.type === "outfit") return item.system?.equipped === true;
   return false;
@@ -98,17 +120,20 @@ function addUniqueItem(out, seen, item) {
 }
 
 function collectSideClashItems(actor, usedItem, appliedTool, declaredSkill) {
+  const used = resolveOwnedItem(actor, usedItem);
+  const tool = resolveOwnedItem(actor, appliedTool);
+  const skill = resolveOwnedItem(actor, declaredSkill);
   const out = [];
   const seen = new Set();
-  addUniqueItem(out, seen, usedItem);
-  addUniqueItem(out, seen, appliedTool);
-  addUniqueItem(out, seen, declaredSkill);
+  addUniqueItem(out, seen, used);
+  addUniqueItem(out, seen, tool);
+  addUniqueItem(out, seen, skill);
   if (actor?.items) {
     for (const item of actor.items) {
       if (isPassiveClashItem(item)) addUniqueItem(out, seen, item);
     }
   }
-  return out;
+  return out.filter((item) => item.type !== "weapon" || sameDocument(item, used));
 }
 
 function usedStatBlockItems(usedItem, appliedTool, declaredSkill) {
@@ -117,7 +142,12 @@ function usedStatBlockItems(usedItem, appliedTool, declaredSkill) {
   addUniqueItem(out, seen, usedItem);
   addUniqueItem(out, seen, appliedTool);
   addUniqueItem(out, seen, declaredSkill);
-  return out;
+  return out.filter((item) => item.type !== "weapon" || sameDocument(item, usedItem));
+}
+
+function isDesignatedClashWeapon(item, payload = {}) {
+  if (item?.type !== "weapon") return true;
+  return sameDocument(item, payload.attackerItem) || sameDocument(item, payload.defenderItem);
 }
 
 function clashUsedStatBlocks({
@@ -163,8 +193,16 @@ function buildClashStartedContext(payload, item) {
 
   let self = item?.actor ?? null;
   if (!self && item) {
-    if (item === payload?.attackerItem || item === payload?.appliedTool || item === payload?.attackerSkill) self = attacker;
-    else if (item === payload?.defenderItem || item === payload?.defenderAppliedTool || item === payload?.defenderSkill) self = defender;
+    if (
+      sameDocument(item, payload?.attackerItem)
+      || sameDocument(item, payload?.appliedTool)
+      || sameDocument(item, payload?.attackerSkill)
+    ) self = attacker;
+    else if (
+      sameDocument(item, payload?.defenderItem)
+      || sameDocument(item, payload?.defenderAppliedTool)
+      || sameDocument(item, payload?.defenderSkill)
+    ) self = defender;
   }
   if (!self) self = attacker;
 
@@ -206,6 +244,10 @@ function isOneSidedRetaliation(payload) {
   return String(payload?.retaliationType ?? "").toLowerCase() === "onesided";
 }
 
+function attackerWonClash({ winner, attacker } = {}) {
+  return sameDocument(winner, attacker);
+}
+
 function clashWinItems({
   winner,
   attacker,
@@ -217,8 +259,7 @@ function clashWinItems({
   attackerSkill,
   defenderSkill,
 } = {}) {
-  const attackerWon = winner === attacker;
-  return attackerWon
+  return attackerWonClash({ winner, attacker })
     ? collectSideClashItems(attacker, attackerItem, appliedTool, attackerSkill)
     : collectSideClashItems(defender, defenderItem, defenderAppliedTool, defenderSkill);
 }
@@ -236,8 +277,7 @@ function clashLoseItems({
   retaliationType,
 } = {}) {
   if (isOneSidedRetaliation({ retaliationType })) return [];
-  const attackerWon = winner === attacker;
-  return attackerWon
+  return attackerWonClash({ winner, attacker })
     ? collectSideClashItems(defender, defenderItem, defenderAppliedTool, defenderSkill)
     : collectSideClashItems(attacker, attackerItem, appliedTool, attackerSkill);
 }
@@ -628,6 +668,10 @@ export function registerEasyEffectsHooks() {
       const payload = hookArgs[0] ?? {};
       const items = def.getItems(payload);
       for (const item of items) {
+        if (
+          (def.hook === "pmttrpg.clashStarted" || def.hook === "pmttrpg.clashResolved")
+          && !isDesignatedClashWeapon(item, payload)
+        ) continue;
         const context = def.buildContext(payload, item);
         if (!context) continue;
         await runItemEasyEffects(item, def.triggerName, context);
@@ -762,6 +806,7 @@ export async function emitClashStarted(payload = {}) {
     const eeDefs = TRIGGER_HOOKS.filter((d) => d.hook === "pmttrpg.clashStarted");
     for (const def of eeDefs) {
       for (const item of def.getItems(full)) {
+        if (!isDesignatedClashWeapon(item, full)) continue;
         const context = def.buildContext(full, item);
         if (!context) continue;
         try {
@@ -794,6 +839,7 @@ export async function emitClashResolved(payload = {}) {
     const eeDefs = TRIGGER_HOOKS.filter((d) => d.hook === "pmttrpg.clashResolved");
     for (const def of eeDefs) {
       for (const item of def.getItems(payload)) {
+        if (!isDesignatedClashWeapon(item, payload)) continue;
         const context = def.buildContext(payload, item);
         if (!context) continue;
         try {
