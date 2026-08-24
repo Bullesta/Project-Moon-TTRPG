@@ -3,7 +3,6 @@ name: Bug report
 about: Create a report to help us fix something that doesn't work as intended
 title: "[BUG] CHANGEME!!"
 labels: bug
-assignees: Leetram519
 
 ---
 
