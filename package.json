@@ -14,7 +14,9 @@
     "patch": "gulp patch",
     "minor": "gulp minor",
     "major": "gulp major",
-    "symlinks:create": "node ./tools/create-symlink.mjs"
+    "symlinks:create": "node ./tools/create-symlink.mjs",
+    "docs:generate": "node tools/generate-docs.js",
+    "docs:serve": "mkdocs serve"
   },
   "browserslist": [
     "last 3 versions"
@@ -25,6 +27,7 @@
   "dependencies": {
     "del": "^6.1.1",
     "fs": "^0.0.1-security",
+    "glob": "^13.0.6",
     "gulp": "^4.0.2",
     "gulp-autoprefixer": "^8.0.0",
     "gulp-clean": "^0.4.0",
@@ -35,7 +38,9 @@
     "gulp-webp": "^4.0.1",
     "gulp-yaml": "^2.0.4",
     "js-yaml": "^4.1.0",
+    "jsdoc-to-markdown": "^9.1.3",
     "merge-stream": "^2.0.0",
+    "mkdocs": "^0.0.1",
     "nedb": "^1.8.0",
     "path": "^0.12.7",
     "sass": "^1.52.1",

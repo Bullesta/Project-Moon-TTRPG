@@ -1,0 +1,46 @@
+site_name: PMTTRPG FoundryVTT Documentation
+site_description: System documentation
+docs_dir: docs
+theme:
+  name: material
+  palette:
+    scheme: slate
+    primary: deep purple
+  features:
+    - navigation.tabs
+    - navigation.sections
+    - navigation.expand
+    - search.suggest
+
+nav:
+  - Home: index.md
+  - EasyEffects:
+    - User Guide: EasyEffects/01_userguide.md
+    - Dev Guide: EasyEffects/02_devguide.md
+    - Internals: EasyEffects/03_internals.md
+    - Cheat Sheet: EasyEffects/04_cheatsheet.md
+  - API Reference:
+    - Actor: api/actor.md
+    - Apps: api/apps.md
+    - Canvas: api/canvas.md
+    - Combat: api/combat.md
+    - EasyEffects: api/easy-effects.md
+    - Effects: api/effects.md
+    - Inventory: api/inventory.md
+    - Item: api/item.md
+    - Status: api/status.md
+    - Chat: api/chat.md
+    - Config: api/config.md
+    - Damage Application: api/damage-application.md
+    - Handlebars: api/handlebars.md
+    - Pool Clamp: api/pool-clamp.md
+    - Entry Point: api/projectmoonttrpg.md
+    - Rolls: api/rolls.md
+    - Slug: api/slug.md
+    - Macro API: api/status-macro-api.md
+    - Targeting: api/targeting.md
+    - Templates: api/templates.md
+    - Utilities: api/utilities.md
+
+plugins:
+  - search
