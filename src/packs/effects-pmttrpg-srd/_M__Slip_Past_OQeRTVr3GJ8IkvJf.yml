@@ -29,9 +29,7 @@ system:
   macro:
     uuid: ''
   customNotes: ''
-  easyEffects: |-
-    [On Clash Start]
-    deal (N) sp damage to self;
+  easyEffects: ''
 effects: []
 sort: 0
 ownership:

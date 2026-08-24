@@ -31,7 +31,7 @@ system:
   customNotes: ''
   easyEffects: ''
 effects: []
-sort: 1200000
+sort: 1500000
 ownership:
   default: 0
   yWsvx4DXrmYcZsue: 3
@@ -41,7 +41,7 @@ _stats:
   systemId: projectmoonttrpg
   systemVersion: 0.0.1
   createdTime: 1787251585550
-  modifiedTime: 1787251585550
+  modifiedTime: 1787561958506
   lastModifiedBy: yWsvx4DXrmYcZsue
   compendiumSource: null
   duplicateSource: Item.tgfqt6J3HXSUC0eJ

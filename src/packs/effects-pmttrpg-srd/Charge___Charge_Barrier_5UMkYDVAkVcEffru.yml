@@ -31,7 +31,7 @@ system:
     [On Clash RESULT]
     spend (N*2) Charge to gain (N) "Charge Barrier" next round;
 effects: []
-sort: 1500000
+sort: 2400000
 ownership:
   default: 0
   yWsvx4DXrmYcZsue: 3
@@ -41,7 +41,7 @@ _stats:
   systemId: projectmoonttrpg
   systemVersion: 0.0.1
   createdTime: 1787251585549
-  modifiedTime: 1787251585549
+  modifiedTime: 1787561958507
   lastModifiedBy: yWsvx4DXrmYcZsue
   compendiumSource: null
   duplicateSource: Item.2uEV6tuZPI0SX5t3

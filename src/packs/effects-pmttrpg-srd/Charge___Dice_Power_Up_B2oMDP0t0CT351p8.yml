@@ -34,7 +34,7 @@ system:
     [On Clash With Defense]
     spend (6*N) Charge to power up defense N
 effects: []
-sort: 100000
+sort: 400000
 ownership:
   default: 0
   yWsvx4DXrmYcZsue: 3
@@ -44,7 +44,7 @@ _stats:
   systemId: projectmoonttrpg
   systemVersion: 0.0.1
   createdTime: 1787251585535
-  modifiedTime: 1787251585535
+  modifiedTime: 1787561958503
   lastModifiedBy: yWsvx4DXrmYcZsue
   compendiumSource: null
   duplicateSource: null

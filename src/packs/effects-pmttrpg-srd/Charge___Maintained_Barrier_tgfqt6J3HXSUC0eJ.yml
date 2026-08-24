@@ -31,7 +31,7 @@ system:
     [On Clash RESULT]
     gain 1 "Maintained Barrier";
 effects: []
-sort: 1200000
+sort: 1700000
 ownership:
   default: 0
   yWsvx4DXrmYcZsue: 3
@@ -41,7 +41,7 @@ _stats:
   systemId: projectmoonttrpg
   systemVersion: 0.0.1
   createdTime: 1787251585549
-  modifiedTime: 1787251585549
+  modifiedTime: 1787561958506
   lastModifiedBy: yWsvx4DXrmYcZsue
   compendiumSource: null
   duplicateSource: Item.lLhpnA0gYAFwIA9r

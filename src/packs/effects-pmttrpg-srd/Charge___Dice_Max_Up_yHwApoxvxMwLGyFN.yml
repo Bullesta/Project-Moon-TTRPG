@@ -33,7 +33,7 @@ system:
     [On Clash With Defense]
     spend (3*N) Charge to dice max up defense N
 effects: []
-sort: 400000
+sort: 700000
 ownership:
   default: 0
   yWsvx4DXrmYcZsue: 3
@@ -43,7 +43,7 @@ _stats:
   systemId: projectmoonttrpg
   systemVersion: 0.0.1
   createdTime: 1787251585536
-  modifiedTime: 1787251585536
+  modifiedTime: 1787561958504
   lastModifiedBy: yWsvx4DXrmYcZsue
   compendiumSource: null
   duplicateSource: Item.B2oMDP0t0CT351p8

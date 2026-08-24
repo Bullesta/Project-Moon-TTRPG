@@ -29,7 +29,7 @@ system:
     [On Clash RESULT]
     spend (N*6) Charge to inflict (N) Disarm next round;
 effects: []
-sort: 2100000
+sort: 3000000
 ownership:
   default: 0
   yWsvx4DXrmYcZsue: 3
@@ -39,7 +39,7 @@ _stats:
   systemId: projectmoonttrpg
   systemVersion: 0.0.1
   createdTime: 1787251585544
-  modifiedTime: 1787251585544
+  modifiedTime: 1787561958507
   lastModifiedBy: yWsvx4DXrmYcZsue
   compendiumSource: null
   duplicateSource: Item.9TL9iSeWZTeJmJrY

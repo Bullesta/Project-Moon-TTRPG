@@ -2,18 +2,25 @@ name: Full Heal
 type: script
 img: systems/projectmoonttrpg/assets/icons/sheet/hp_healthy.webp
 scope: global
-command: |-
+command: >-
   const POOLS = ["hp", "st", "sp", "light"];
+
   const ECONOMY = ["actions", "reactions", "movement", "squares"];
+
   const tokens = canvas.tokens?.controlled ?? [];
+
   if (!tokens.length) {
     ui.notifications.warn("Select one or more tokens to reset pools.");
     return;
   }
 
+
   const seen = new Set();
+
   const reset = [];
+
   const skipped = [];
+
 
   for (const token of tokens) {
     const actor = token.actor;
@@ -69,8 +76,11 @@ command: |-
     }
   }
 
+
   if (reset.length) ui.notifications.info(`Reset Pools: ${reset.join(", ")}`);
-  if (skipped.length) ui.notifications.warn(`Could not reset pools: ${skipped.join(", ")}`);
+
+  if (skipped.length) ui.notifications.warn(`Could not reset pools:
+  ${skipped.join(", ")}`);
 ownership:
   default: 0
 flags: {}
