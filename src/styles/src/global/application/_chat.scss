@@ -143,10 +143,15 @@
       gap: 5px;
     }
 
-    .chat-damage-pools,
-    .chat-damage-types {
+    .chat-damage-pools {
       display: grid;
       grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 5px;
+    }
+
+    .chat-damage-types {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
       gap: 5px;
     }
 

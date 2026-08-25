@@ -260,10 +260,11 @@ Item:
     weaponType: melee
     damageType: none
     damageTypeFixed: false
-    formProperty: null
-    handProperty: null
+    formProperty: small
+    handProperty: off1h
     offensiveDice: 1d10+0
     rank: 1
+    bonusEP: 0
     effects: []
     equipped: false
     customNotes: ''
@@ -298,9 +299,12 @@ Item:
     templates:
       - base
     ammoType: standard
-    damageType: null
+    damageType: slash
     quantity: 1
     inventoryPool: tool
+    price: 0
+    effects: []
+    easyEffects: ''
   tool:
     templates:
       - base
@@ -308,7 +312,7 @@ Item:
     form: consumable
     handProperty: handless
     toolKind: market
-    applyTo: null
+    applyTo: ''
     challengeStat: for
     quantity: 1
     usesMax: 3
@@ -325,7 +329,7 @@ Item:
       capacity: 0
       used: 0
       free: 0
-    damageType: null
+    damageType: ''
     customNotes: ''
     effects: []
     easyEffects: ''
@@ -380,5 +384,15 @@ Item:
     arrival: ''
     shelved: false
     origin: ''
+    proc:
+      turnStart: false
+      startOfRound: false
+      endOfRound: false
+      actionOrReaction: false
+      attackerBurst: false
+      onHitWhenActorHas: false
+      onHitWhenTargetHas: false
+      alwaysActive: false
+      skillEffect: false
     customNotes: ''
     easyEffects: ''

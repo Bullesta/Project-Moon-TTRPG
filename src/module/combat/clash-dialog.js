@@ -4,11 +4,12 @@
  *   showRetaliationDialog(actor, state, { isIntercept })
  *     Shown when a player clicks Retaliate or Intercept.
  *     Lets them pick: Evade / Recycled Evade / Block / Counter (+ weapon)
- *     Optional matching Skill on Block / Evade / Counter / Recycled Evade.
+ *     Optional matching Skill or Applied Tool (mutex) on Block / Evade /
+ *     Counter / Recycled Evade.
  *     Returns a RetaliationChoice or null if cancelled.
  *
- *   showInterceptConfirmDialog()
- *     Two-click confirmation shown when a non-target clicks Intercept.
+ *   showInterceptConfirmDialog(actorName)
+ *     Two-click confirmation shown when Intercept is used as the selected token.
  *     Returns true (confirmed) or false.
  *
  * @typedef {object} RetaliationChoice
@@ -16,6 +17,8 @@
  * @property {Item|null} item   — chosen weapon for counter; outfit for evade/block
  * @property {Item|null} [skillItem]
  * @property {boolean} [consumeSkillLight]
+ * @property {Item|null} [appliedTool]
+ * @property {boolean} [consumeAppliedTool]
  * @property {boolean} [recycled]
  * @property {Item|null} [ammo]
  * @property {boolean} [consumeAmmo]
@@ -23,6 +26,11 @@
  */
 
 import { PMTTRPGUtility } from "../utility.js";
+import {
+  getAppliedToolOptions,
+  isAppliedToolEligible,
+} from "../item/applied-tool.js";
+import { getToolUsesRemaining, toolConsumesByDefault } from "../item/tool-use.js";
 import { RETALIATION_TYPES } from "./clash-state.js";
 import { getRecycledEvade } from "./recycled-evade.js";
 
@@ -35,12 +43,13 @@ const TEMPLATE_AMMO = "systems/projectmoonttrpg/templates/dialog/weapon-ammo-dia
 
 /**
  * Shows a two-click "Are you sure you want to intercept?" confirmation.
+ * @param {string} [actorName]
  * @returns {Promise<boolean>}
  */
-export async function showInterceptConfirmDialog() {
+export async function showInterceptConfirmDialog(actorName = "") {
   const result = await foundry.applications.api.DialogV2.confirm({
     window: { title: game.i18n.localize("PMTTRPG.Clash.InterceptTitle") },
-    content: `<p>${game.i18n.localize("PMTTRPG.Clash.InterceptConfirm")}</p>`,
+    content: `<p>${game.i18n.format("PMTTRPG.Clash.InterceptConfirm", { name: actorName })}</p>`,
     classes: _dialogClasses(),
     rejectClose: false,
     yes: { label: game.i18n.localize("PMTTRPG.Clash.InterceptConfirmYes"), icon: "fa-solid fa-person-running" },
@@ -74,6 +83,8 @@ export async function showRetaliationDialog(actor, state, { isIntercept = false 
     .map(i => ({ id: i.id, name: i.name, img: i.img, skillType: String(i.system?.skillType ?? "attack").toLowerCase() }))
     .sort((a, b) => a.name.localeCompare(b.name));
 
+  const appliedTools = _appliedToolEntries(actor);
+
   const recycled = getRecycledEvade(actor);
 
   const templateData = {
@@ -83,6 +94,7 @@ export async function showRetaliationDialog(actor, state, { isIntercept = false 
     equippedWeapons,
     equippedOutfits,
     skills,
+    appliedTools,
     recycledEvade: recycled,
     options: _buildRetaliationOptions(equippedWeapons, equippedOutfits, recycled),
     i18n: {
@@ -100,6 +112,9 @@ export async function showRetaliationDialog(actor, state, { isIntercept = false 
       skillOptional: game.i18n.localize("PMTTRPG.Clash.OptionalSkill"),
       skillNone:  game.i18n.localize("PMTTRPG.Clash.NoSkill"),
       consumeLight: game.i18n.localize("PMTTRPG.Dialog.consumeLight"),
+      toolOptional: game.i18n.localize("PMTTRPG.Clash.OptionalAppliedTool"),
+      toolNone:   game.i18n.localize("PMTTRPG.Dialog.noAppliedTool"),
+      consumeTool: game.i18n.localize("PMTTRPG.Dialog.consumeToolUse"),
       confirm:    game.i18n.localize("PMTTRPG.Clash.Confirm"),
       cancel:     game.i18n.localize("PMTTRPG.Dialog.cancel"),
     },
@@ -195,6 +210,31 @@ function _skillTypeForRetaliation(type) {
 }
 
 /**
+ * Weapon Applied Tools declare on Attack/Counter.
+ * Outfit Applied Tools declare on Block/Evade.
+ */
+function _applyToForRetaliation(type) {
+  if (type === RETALIATION_TYPES.COUNTER) return "weapon";
+  if (
+    type === RETALIATION_TYPES.BLOCK
+    || type === RETALIATION_TYPES.EVADE
+    || type === RETALIATION_TYPES.RECYCLED_EVADE
+  ) return "outfit";
+  return null;
+}
+
+function _appliedToolEntries(actor) {
+  const map = (applyTo) => getAppliedToolOptions(actor, applyTo).map(item => ({
+    id: item.id,
+    name: item.name,
+    remaining: getToolUsesRemaining(item),
+    applyTo,
+    consumes: toolConsumesByDefault(item),
+  }));
+  return [...map("weapon"), ...map("outfit")];
+}
+
+/**
  * Reads and validates the submitted retaliation form.
  * Returns a RetaliationChoice or null.
  */
@@ -206,6 +246,8 @@ function _readRetaliationForm(dialog, actor) {
   const itemId = form.querySelector("[name='retaliationItemId']")?.value?.trim() ?? null;
   const skillId = form.querySelector("[name='declaredSkillId']")?.value?.trim() ?? "";
   const consumeSkillLight = form.querySelector("[name='consumeSkillLight']")?.checked !== false;
+  const toolId = form.querySelector("[name='appliedToolId']")?.value?.trim() ?? "";
+  const consumeAppliedTool = form.querySelector("[name='consumeAppliedTool']")?.checked !== false;
 
   if (!type) return null;
 
@@ -228,11 +270,20 @@ function _readRetaliationForm(dialog, actor) {
     }
   }
 
+  const applyTo = _applyToForRetaliation(type);
+  let appliedTool = null;
+  if (!skillItem && applyTo && toolId) {
+    const picked = actor.items.get(toolId) ?? null;
+    if (isAppliedToolEligible(picked, applyTo)) appliedTool = picked;
+  }
+
   return {
     type,
     item,
     skillItem,
     consumeSkillLight: !!skillItem && consumeSkillLight,
+    appliedTool,
+    consumeAppliedTool: !!appliedTool && consumeAppliedTool,
     recycled: type === RETALIATION_TYPES.RECYCLED_EVADE,
   };
 }
@@ -336,9 +387,60 @@ function _bindRetaliationDialogListeners(dialog) {
 
   const radios    = el.querySelectorAll("[name='retaliationType']");
   const itemPicker = el.querySelector(".clash-item-picker");
+  const itemKind = el.querySelector(".clash-item-picker__kind");
   const skillPicker = el.querySelector(".clash-skill-picker");
   const skillSelect = el.querySelector("[name='declaredSkillId']");
   const consumeWrap = el.querySelector(".clash-skill-consume");
+  const toolPicker = el.querySelector(".clash-tool-picker");
+  const toolSelect = el.querySelector("[name='appliedToolId']");
+  const toolConsumeWrap = el.querySelector(".clash-tool-consume");
+
+  const fillNoneOption = (select, label) => {
+    if (!select) return;
+    select.innerHTML = "";
+    const none = document.createElement("option");
+    none.value = "";
+    none.textContent = label;
+    select.appendChild(none);
+  };
+
+  const refreshToolConsume = () => {
+    const consumes = toolSelect?.selectedOptions?.[0]?.dataset?.consumes === "1";
+    if (toolConsumeWrap) toolConsumeWrap.style.display = consumes ? "" : "none";
+  };
+
+  const refreshConsume = () => {
+    const hasSkill = !!skillSelect?.value;
+    if (consumeWrap) consumeWrap.style.display = hasSkill ? "" : "none";
+  };
+
+  const refreshTools = () => {
+    const selected = el.querySelector("[name='retaliationType']:checked")?.value;
+    const applyTo = _applyToForRetaliation(selected);
+    const hasSkill = !!skillSelect?.value;
+    const noneLabel = toolPicker?.dataset?.noneLabel
+      ?? game.i18n.localize("PMTTRPG.Dialog.noAppliedTool");
+
+    fillNoneOption(toolSelect, noneLabel);
+    if (applyTo && !hasSkill && toolSelect) {
+      const toolOpts = el.querySelectorAll(`.clash-tool-option[data-apply-to="${applyTo}"]`);
+      for (const item of toolOpts) {
+        const opt = document.createElement("option");
+        opt.value = item.dataset.itemId;
+        const remaining = item.dataset.remaining;
+        opt.textContent = remaining != null && remaining !== ""
+          ? `${item.dataset.itemName} (${remaining})`
+          : item.dataset.itemName;
+        opt.dataset.consumes = item.dataset.consumes ?? "0";
+        toolSelect.appendChild(opt);
+      }
+    }
+
+    const hasTools = applyTo && !hasSkill
+      && el.querySelector(`.clash-tool-option[data-apply-to="${applyTo}"]`);
+    if (toolPicker) toolPicker.style.display = hasTools ? "" : "none";
+    refreshToolConsume();
+  };
 
   const refreshPicker = () => {
     const selected = el.querySelector("[name='retaliationType']:checked")?.value;
@@ -349,6 +451,13 @@ function _bindRetaliationDialogListeners(dialog) {
       RETALIATION_TYPES.COUNTER,
     ].includes(selected);
     if (itemPicker) itemPicker.style.display = needsItem ? "" : "none";
+
+    const applyTo = _applyToForRetaliation(selected);
+    if (itemKind) {
+      itemKind.textContent = applyTo === "outfit"
+        ? (itemKind.dataset.outfit || itemKind.textContent)
+        : (itemKind.dataset.weapon || itemKind.textContent);
+    }
 
     const itemSelect = el.querySelector("[name='retaliationItemId']");
     if (itemSelect && needsItem) {
@@ -363,38 +472,33 @@ function _bindRetaliationDialogListeners(dialog) {
     }
 
     const wantType = _skillTypeForRetaliation(selected);
-    if (skillSelect) {
-      skillSelect.innerHTML = "";
-      const none = document.createElement("option");
-      none.value = "";
-      none.textContent = el.querySelector(".clash-skill-picker")?.dataset?.noneLabel
-        ?? game.i18n.localize("PMTTRPG.Clash.NoSkill");
-      skillSelect.appendChild(none);
-      if (wantType) {
-        const skillOpts = el.querySelectorAll(`.clash-skill-option[data-skill-type="${wantType}"]`);
-        for (const item of skillOpts) {
-          const opt = document.createElement("option");
-          opt.value = item.dataset.itemId;
-          opt.textContent = item.dataset.itemName;
-          skillSelect.appendChild(opt);
-        }
+    const skillNoneLabel = skillPicker?.dataset?.noneLabel
+      ?? game.i18n.localize("PMTTRPG.Clash.NoSkill");
+    fillNoneOption(skillSelect, skillNoneLabel);
+    if (wantType && skillSelect) {
+      const skillOpts = el.querySelectorAll(`.clash-skill-option[data-skill-type="${wantType}"]`);
+      for (const item of skillOpts) {
+        const opt = document.createElement("option");
+        opt.value = item.dataset.itemId;
+        opt.textContent = item.dataset.itemName;
+        skillSelect.appendChild(opt);
       }
     }
 
     const hasSkills = wantType && el.querySelector(`.clash-skill-option[data-skill-type="${wantType}"]`);
     if (skillPicker) skillPicker.style.display = hasSkills ? "" : "none";
     refreshConsume();
-  };
-
-  const refreshConsume = () => {
-    const hasSkill = !!skillSelect?.value;
-    if (consumeWrap) consumeWrap.style.display = hasSkill ? "" : "none";
+    refreshTools();
   };
 
   for (const radio of radios) {
     radio.addEventListener("change", refreshPicker);
   }
-  skillSelect?.addEventListener("change", refreshConsume);
+  skillSelect?.addEventListener("change", () => {
+    refreshConsume();
+    refreshTools();
+  });
+  toolSelect?.addEventListener("change", refreshToolConsume);
 
   refreshPicker();
 }

@@ -29,7 +29,7 @@ system:
     uuid: ''
   customNotes: ''
   easyEffects: |-
-    [On Clash Win]
+    [On Clash Win Before Results]
     gain (target.status.Poise) Poise;
     lose all Poise on target;
 effects: []

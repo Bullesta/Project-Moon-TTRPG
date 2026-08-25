@@ -4,7 +4,7 @@ type: effect
 img: systems/projectmoonttrpg/assets/icons/Statuses/Devastation.webp
 system:
   name: ''
-  description: '<p><em>Note: This effect is not yet automated.</em></p>'
+  description: ''
   slug: ''
   cost: 4
   stackMax: 1
@@ -27,7 +27,9 @@ system:
   macro:
     uuid: ''
   customNotes: ''
-  easyEffects: ''
+  easyEffects: |-
+    [Always Active]
+    instant Ruin, Devastation
 effects: []
 sort: 100000
 ownership:

@@ -4,8 +4,8 @@ type: effect
 img: systems/projectmoonttrpg/assets/icons/Statuses/Bind.webp
 system:
   name: ''
-  description: '<p><em>Note: This effect is not yet automated.</em></p>'
-  slug: ''
+  description: '[Bind] from Effects and this Skill are applied to the target and are activated immediately. This occurs before any Bind skill effect is used.'
+  slug: instant-bind
   cost: 4
   stackMax: 1
   appliesTo: skill
@@ -27,7 +27,9 @@ system:
   macro:
     uuid: ''
   customNotes: ''
-  easyEffects: ''
+  easyEffects: |-
+    [Always Active]
+    instant Bind
 effects: []
 sort: 100000
 ownership:

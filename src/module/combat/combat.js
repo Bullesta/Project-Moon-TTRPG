@@ -12,6 +12,16 @@ export class CombatSidebarPMTTRPG {
   #expandedIds = new Set();
 
   startup() {
+    game.settings.register("projectmoonttrpg", "showCombatTrackerToPlayers", {
+      name: "PMTTRPG.Settings.showCombatTrackerToPlayers.name",
+      hint: "PMTTRPG.Settings.showCombatTrackerToPlayers.hint",
+      scope: "world",
+      config: true,
+      restricted: true,
+      type: Boolean,
+      default: false,
+      onChange: () => ui.combat?.render(),
+    });
 
     // Add support for damage rolls via event delegation.
     Hooks.on('ready', () => {
@@ -269,6 +279,8 @@ export class CombatSidebarPMTTRPG {
       }
 
       const actorData = combatant.actor;
+      const canEdit = combatant.isOwner || game.user.isGM;
+      const showFull = canEdit || game.settings.get("projectmoonttrpg", "showCombatTrackerToPlayers") === true;
 
       const mainStats = [
         {
@@ -277,7 +289,7 @@ export class CombatSidebarPMTTRPG {
           amount: actorData.system.hp.value,
           path: "system.attributes.hp.value",
           percent: (actorData.system.hp.value / actorData.system.hp.max) * 100,
-          editable: combatant.isOwner || game.user.isGM
+          editable: canEdit
         },
         {
           name: "Stagger",
@@ -285,7 +297,7 @@ export class CombatSidebarPMTTRPG {
           amount: actorData.system.st.value,
           path: "system.attributes.st.value",
           percent: (actorData.system.st.value / actorData.system.st.max) * 100,
-          editable: combatant.isOwner || game.user.isGM
+          editable: canEdit
         },
         {
           name: "Sanity",
@@ -293,7 +305,7 @@ export class CombatSidebarPMTTRPG {
           amount: actorData.system.sp.value,
           path: "system.attributes.sp.value",
           percent: (actorData.system.sp.value / actorData.system.sp.max) * 100,
-          editable: combatant.isOwner || game.user.isGM
+          editable: canEdit
         }
       ];
       const detailedStats = [
@@ -304,7 +316,7 @@ export class CombatSidebarPMTTRPG {
           path: "system.attributes.actions.value",
           max: actorData.system.attributes.actions.max,
           percent: (actorData.system.attributes.actions.value / actorData.system.attributes.actions.max) * 100,
-          editable: combatant.isOwner || game.user.isGM
+          editable: canEdit
         },
         {
           name: "Reactions",
@@ -313,7 +325,7 @@ export class CombatSidebarPMTTRPG {
           path: "system.attributes.reactions.value",
           max: actorData.system.attributes.reactions.max,
           percent: (actorData.system.attributes.reactions.value / actorData.system.attributes.reactions.max) * 100,
-          editable: combatant.isOwner || game.user.isGM
+          editable: canEdit
         },
         {
           name: "Movement",
@@ -323,7 +335,7 @@ export class CombatSidebarPMTTRPG {
           percent: actorData.system.attributes.squares.max
             ? (actorData.system.attributes.squares.remaining / actorData.system.attributes.squares.max) * 100
             : 0,
-          editable: combatant.isOwner || game.user.isGM
+          editable: canEdit
         },
         {
           name: "Light",
@@ -332,7 +344,7 @@ export class CombatSidebarPMTTRPG {
           amount: actorData.system.light.value,
           max: actorData.system.light.max,
           percent: (actorData.system.light.value / actorData.system.light.max) * 100,
-          editable: combatant.isOwner || game.user.isGM
+          editable: canEdit
         }
       ];
       let isCurrentTurn = false;
@@ -348,7 +360,7 @@ export class CombatSidebarPMTTRPG {
         detailedStats,
         isCurrentTurn,
         isExpanded: this.#expandedIds.has(combatant._id),
-        editable: combatant.isOwner || game.user.isGM
+        showFull,
       })
     }
 

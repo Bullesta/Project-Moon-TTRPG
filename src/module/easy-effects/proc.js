@@ -1,12 +1,16 @@
 const RESERVED_PROC_NAMES = new Set([
   "hit",
   "being hit",
+  "hit before results",
+  "being hit before results",
   "clash",
   "clash start",
   "clash win",
   "clash lose",
   "damage calc",
   "instant",
+  "clash win before results",
+  "before clash results",
   "burst",
   "use",
   "action",
@@ -26,7 +30,7 @@ const RESERVED_PROC_NAMES = new Set([
 ]);
 
 export const RESERVED_PROC_BIND_NAMES = new Set([
-  "self", "target", "ally", "attacker", "originator",
+  "self", "target", "ally", "attacker", "originator", "burster", "burstee",
   "enemies", "allies", "all",
   "damage", "incoming", "item", "clash", "changed", "burst",   "depleted", "roll",
   "proc", "N", "moved", "round", "combat",

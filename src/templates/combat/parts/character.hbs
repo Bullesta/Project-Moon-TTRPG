@@ -9,7 +9,7 @@
                 <img src="{{actorData.img}}" alt="{{actorData.name}}">
             </div>
 
-            {{#if editable}}
+            {{#if showFull}}
             <button
                 type="button"
                 class="char-toggle-details"
@@ -35,7 +35,7 @@
             </div>
 
             <div class="main-stats">
-                {{#if editable}}
+                {{#if showFull}}
                 {{> "systems/projectmoonttrpg/templates/combat/parts/initiative-tracker.hbs"
                     initiative=combatantData.initiative }}
                 {{else}}
@@ -43,7 +43,7 @@
                     initiative="?" }}
                 {{/if}}
 
-                {{#if editable}}
+                {{#if showFull}}
                 {{#each mainStats}}
                     {{> "systems/projectmoonttrpg/templates/combat/parts/main-stat-tracker.hbs" stat=this actorData=../actorData}}
                 {{/each}}
@@ -52,7 +52,7 @@
         </div>
     </div>
 
-    {{#if editable}}
+    {{#if showFull}}
     <div class="details" aria-hidden="{{#unless isExpanded}}true{{/unless}}">
         {{#each detailedStats}}
             {{> "systems/projectmoonttrpg/templates/combat/parts/detail-stat-tracker.hbs" stat=this actorData=../actorData}}

@@ -9,6 +9,9 @@
             data-stat-path="{{stat.path}}"
             data-actor-id="{{actorData._id}}"
             data-dtype="Number"
+        {{else}}
+            readonly
+            tabindex="-1"
         {{/if}}
     ></input>
     <span class="detail-stat-value">

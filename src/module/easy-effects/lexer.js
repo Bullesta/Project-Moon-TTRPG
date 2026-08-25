@@ -1,8 +1,8 @@
-const KEYWORDS = new Set([
+export const KEYWORDS = new Set([
   // core syntax
   "if", "do", "on", "per", "and", "to", "from",
   // targets (single)
-  "self", "target", "ally", "attacker", "originator",
+  "self", "target", "ally", "attacker", "originator", "burster", "burstee",
   // targets (multi)
   "enemies", "allies", "all",
   // flag keywords
@@ -17,6 +17,7 @@ const KEYWORDS = new Set([
   "message",
   "burst",
   "proc",
+  "targeting",
   "with",
   "as",
   "roll", "the",
@@ -27,7 +28,19 @@ const KEYWORDS = new Set([
   "power", "dice", "regen", "up", "down", "max",
   "advantage", "disadvantage",
   "before", "after",
+  "let",
 ]);
+
+function readVariable(source, index) {
+  if (source[index] !== "$") return null;
+  if (!/[A-Za-z_]/.test(source[index + 1])) {
+    throw new LexError("Expected variable name after '$'", index);
+  }
+  let i = index + 1;
+  let name = "";
+  while (i < source.length && /[A-Za-z0-9_]/.test(source[i])) name += source[i++];
+  return { type: "VARIABLE", value: name, length: i - index };
+}
 
 function readFloorOperator(source, index) {
   if (source[index] !== "/" || source[index + 1] !== "/") return null;
@@ -165,7 +178,7 @@ export function tokenize(source) {
       tokens.push({ type: "MATHOP", value: source[i] }); i++; continue;
     }
 
-    // OPERATOR >= <= == != > <
+    // OPERATOR >= <= == != > <  (check == before standalone =)
     if (/[><!]/.test(source[i]) || (source[i] === "=" && source[i + 1] === "=")) {
       const two = source.slice(i, i + 2);
       if ([">=", "<=", "==", "!="].includes(two)) {
@@ -173,6 +186,19 @@ export function tokenize(source) {
       } else {
         tokens.push({ type: "OPERATOR", value: source[i] }); i++;
       }
+      continue;
+    }
+
+    if (source[i] === "=") {
+      tokens.push({ type: "ASSIGN", value: "=" });
+      i++;
+      continue;
+    }
+
+    const variable = readVariable(source, i);
+    if (variable) {
+      tokens.push({ type: "VARIABLE", value: variable.value });
+      i += variable.length;
       continue;
     }
 
@@ -229,6 +255,13 @@ export function tokenizeExpression(source) {
     }
     if ("+-*/%".includes(source[i])) {
       tokens.push({ type: "MATHOP", value: source[i] }); i++; continue;
+    }
+
+    const variable = readVariable(source, i);
+    if (variable) {
+      tokens.push({ type: "VARIABLE", value: variable.value });
+      i += variable.length;
+      continue;
     }
 
     if (/[0-9]/.test(source[i])) {

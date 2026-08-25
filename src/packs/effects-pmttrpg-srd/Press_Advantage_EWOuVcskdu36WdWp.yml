@@ -37,13 +37,13 @@ system:
       to self;
 
     [On Dialog Answer slash]
-    inflict (target.Bind //f 2) "Slash Fragile" next round to target;
+    inflict (target.status.Bind //f 2) "Slash Fragile" next round to target;
 
     [On Dialog Answer pierce]
-    inflict (target.Bind //f 2) "Pierce Fragile" next round to target;
+    inflict (target.status.Bind //f 2) "Pierce Fragile" next round to target;
 
     [On Dialog Answer blunt]
-    inflict (target.Bind //f 2) "Blunt Fragile" next round to target;
+    inflict (target.status.Bind //f 2) "Blunt Fragile" next round to target;
 effects: []
 sort: 100000
 ownership:
