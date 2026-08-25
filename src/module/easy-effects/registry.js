@@ -7,6 +7,14 @@ import { isPendingStatus }                          from "../status/pending.js";
 import { getActorAST, runActorEasyEffects }         from "./actor-scripts.js";
 import { resolveActorClashStance }                  from "./damage-filter.js";
 import { normalizeResistanceLevel, RESISTANCE_MULTIPLIERS } from "./resistances.js";
+import {
+  actorIdentityKey,
+  itemBelongsToActor,
+  itemIdentityKey,
+  rememberBurstListenerItem,
+  sameActor,
+  uniqueBurstOwners,
+} from "./burst-roles.js";
 
 // ── Clash context factory ─────────────────────────────────────────────────────
 
@@ -80,6 +88,9 @@ function documentId(doc) {
 function sameDocument(a, b) {
   if (!a || !b) return false;
   if (a === b) return true;
+  const au = String(a.uuid ?? "").trim();
+  const bu = String(b.uuid ?? "").trim();
+  if (au && bu) return au === bu;
   const id = documentId(a);
   return !!id && id === documentId(b);
 }
@@ -119,15 +130,17 @@ function addUniqueItem(out, seen, item) {
   out.push(item);
 }
 
-function collectSideClashItems(actor, usedItem, appliedTool, declaredSkill) {
+function collectSideClashItems(actor, usedItem, appliedTool, declaredSkill, ammo) {
   const used = resolveOwnedItem(actor, usedItem);
   const tool = resolveOwnedItem(actor, appliedTool);
   const skill = resolveOwnedItem(actor, declaredSkill);
+  const usedAmmo = resolveOwnedItem(actor, ammo);
   const out = [];
   const seen = new Set();
   addUniqueItem(out, seen, used);
   addUniqueItem(out, seen, tool);
   addUniqueItem(out, seen, skill);
+  addUniqueItem(out, seen, usedAmmo);
   if (actor?.items) {
     for (const item of actor.items) {
       if (isPassiveClashItem(item)) addUniqueItem(out, seen, item);
@@ -139,12 +152,13 @@ function collectSideClashItems(actor, usedItem, appliedTool, declaredSkill) {
   return out.filter((item) => item.type !== "weapon" || sameDocument(item, used));
 }
 
-function usedStatBlockItems(usedItem, appliedTool, declaredSkill) {
+function usedStatBlockItems(usedItem, appliedTool, declaredSkill, ammo) {
   const out = [];
   const seen = new Set();
   addUniqueItem(out, seen, usedItem);
   addUniqueItem(out, seen, appliedTool);
   addUniqueItem(out, seen, declaredSkill);
+  addUniqueItem(out, seen, ammo);
   return out.filter((item) => item.type !== "weapon" || sameDocument(item, usedItem));
 }
 
@@ -160,10 +174,12 @@ function clashUsedStatBlocks({
   defenderAppliedTool,
   attackerSkill,
   defenderSkill,
+  attackerAmmo,
+  defenderAmmo,
   side = "all",
 } = {}) {
-  const attackerSide = usedStatBlockItems(attackerItem, appliedTool, attackerSkill);
-  const defenderSide = usedStatBlockItems(defenderItem, defenderAppliedTool, defenderSkill);
+  const attackerSide = usedStatBlockItems(attackerItem, appliedTool, attackerSkill, attackerAmmo);
+  const defenderSide = usedStatBlockItems(defenderItem, defenderAppliedTool, defenderSkill, defenderAmmo);
   if (side === "attacker") return attackerSide;
   if (side === "defender") return defenderSide;
   return [...attackerSide, ...defenderSide];
@@ -178,10 +194,12 @@ function clashStartedItems({
   defenderAppliedTool,
   attackerSkill,
   defenderSkill,
+  attackerAmmo,
+  defenderAmmo,
   side = "all",
 } = {}) {
-  const attackerSide = collectSideClashItems(attacker, attackerItem, appliedTool, attackerSkill);
-  const defenderSide = collectSideClashItems(defender, defenderItem, defenderAppliedTool, defenderSkill);
+  const attackerSide = collectSideClashItems(attacker, attackerItem, appliedTool, attackerSkill, attackerAmmo);
+  const defenderSide = collectSideClashItems(defender, defenderItem, defenderAppliedTool, defenderSkill, defenderAmmo);
   if (side === "attacker") return attackerSide;
   if (side === "defender") return defenderSide;
   return [...attackerSide, ...defenderSide];
@@ -200,16 +218,18 @@ function buildClashStartedContext(payload, item) {
       sameDocument(item, payload?.attackerItem)
       || sameDocument(item, payload?.appliedTool)
       || sameDocument(item, payload?.attackerSkill)
+      || sameDocument(item, payload?.attackerAmmo)
     ) self = attacker;
     else if (
       sameDocument(item, payload?.defenderItem)
       || sameDocument(item, payload?.defenderAppliedTool)
       || sameDocument(item, payload?.defenderSkill)
+      || sameDocument(item, payload?.defenderAmmo)
     ) self = defender;
   }
   if (!self) self = attacker;
 
-  const target = self && defender && self.id === defender?.id ? attacker : defender;
+  const target = sameActor(self, defender) ? attacker : defender;
 
   return {
     self,
@@ -231,7 +251,7 @@ function clashStartedActors({ attacker = null, defender = null, side = "all" } =
 
 function buildClashStartedActorContext(payload, self) {
   const { attacker = null, defender = null, clash = null } = payload ?? {};
-  const target = self && defender && self.id === defender.id ? attacker : defender;
+  const target = sameActor(self, defender) ? attacker : defender;
   return {
     self,
     target,
@@ -261,10 +281,45 @@ function clashWinItems({
   defenderAppliedTool,
   attackerSkill,
   defenderSkill,
+  attackerAmmo,
+  defenderAmmo,
 } = {}) {
   return attackerWonClash({ winner, attacker })
-    ? collectSideClashItems(attacker, attackerItem, appliedTool, attackerSkill)
-    : collectSideClashItems(defender, defenderItem, defenderAppliedTool, defenderSkill);
+    ? collectSideClashItems(attacker, attackerItem, appliedTool, attackerSkill, attackerAmmo)
+    : collectSideClashItems(defender, defenderItem, defenderAppliedTool, defenderSkill, defenderAmmo);
+}
+
+function onHitItems({ item, appliedTool, attacker, attackerSkill, ammo }) {
+  const out = [item, appliedTool, attackerSkill, ammo].filter(Boolean);
+  if (attacker) out.push(...uniqueStatusItems(attacker.items));
+  return out;
+}
+
+function onHitContext({ attacker, defender, clash, attackerSkill }) {
+  return {
+    self: attacker,
+    target: defender,
+    attacker: attacker ?? null,
+    attackerSkill: attackerSkill ?? clash?.attackerSkill ?? null,
+    ally: null,
+    clash: clash ?? createClashContext(),
+  };
+}
+
+function onBeingHitItems({ defender }) {
+  return defender ? uniqueStatusItems(defender.items) : [];
+}
+
+function onBeingHitContext({ attacker, defender, clash, attackerSkill }) {
+  if (!defender) return null;
+  return {
+    self: defender,
+    target: attacker ?? null,
+    attacker: attacker ?? null,
+    attackerSkill: attackerSkill ?? clash?.attackerSkill ?? null,
+    ally: null,
+    clash: clash ?? createClashContext(),
+  };
 }
 
 function clashLoseItems({
@@ -277,12 +332,14 @@ function clashLoseItems({
   defenderAppliedTool,
   attackerSkill,
   defenderSkill,
+  attackerAmmo,
+  defenderAmmo,
   retaliationType,
 } = {}) {
   if (isOneSidedRetaliation({ retaliationType })) return [];
   return attackerWonClash({ winner, attacker })
-    ? collectSideClashItems(defender, defenderItem, defenderAppliedTool, defenderSkill)
-    : collectSideClashItems(attacker, attackerItem, appliedTool, attackerSkill);
+    ? collectSideClashItems(defender, defenderItem, defenderAppliedTool, defenderSkill, defenderAmmo)
+    : collectSideClashItems(attacker, attackerItem, appliedTool, attackerSkill, attackerAmmo);
 }
 
 function buildClashWinContext(payload = {}) {
@@ -383,42 +440,52 @@ const TRIGGER_HOOKS = [
     buildContext: buildClashLoseContext,
   },
 
-  // ── [On Hit] ────────────────────────────────────────────────────────────────
-  // Fires when an attack connects (one-sided or after Clash Win).
+  // ── [On Hit] / [On Hit Before Results] ──────────────────────────────────────
   {
     hook: "pmttrpg.attackConnected",
     triggerName: "On Hit",
-    getItems: ({ item, appliedTool, attacker, attackerSkill }) => {
-      const out = [item, appliedTool, attackerSkill].filter(Boolean);
-      if (attacker) out.push(...uniqueStatusItems(attacker.items));
-      return out;
-    },
-    buildContext: ({ attacker, defender, clash, attackerSkill }) => ({
-      self:   attacker,
-      target: defender,
-      attacker: attacker ?? null,
-      attackerSkill: attackerSkill ?? clash?.attackerSkill ?? null,
-      ally:   null,
-      clash:  clash ?? createClashContext(),
-    }),
+    getItems: onHitItems,
+    buildContext: onHitContext,
+  },
+  {
+    hook: "pmttrpg.hitBeforeResults",
+    triggerName: "On Hit Before Results",
+    getItems: onHitItems,
+    buildContext: onHitContext,
   },
 
-  // ── [On Being Hit] ──────────────────────────────────────────────────────────
+  // ── [On Being Hit] / [On Being Hit Before Results] ──────────────────────────
   {
     hook: "pmttrpg.attackConnected",
     triggerName: "On Being Hit",
-    getItems: ({ defender }) => defender ? uniqueStatusItems(defender.items) : [],
-    buildContext: ({ attacker, defender, clash, attackerSkill }) => {
-      if (!defender) return null;
-      return {
-        self: defender,
-        target: attacker ?? null,
-        attacker: attacker ?? null,
-        attackerSkill: attackerSkill ?? clash?.attackerSkill ?? null,
-        ally: null,
-        clash: clash ?? createClashContext(),
-      };
-    },
+    getItems: onBeingHitItems,
+    buildContext: onBeingHitContext,
+  },
+  {
+    hook: "pmttrpg.hitBeforeResults",
+    triggerName: "On Being Hit Before Results",
+    getItems: onBeingHitItems,
+    buildContext: onBeingHitContext,
+  },
+
+  // ── [On Clash Win Before Results] ───────────────────────────────────────────
+  {
+    hook: "pmttrpg.clashBeforeResults",
+    triggerName: "On Clash Win Before Results",
+    getItems: clashWinItems,
+    buildContext: buildClashWinContext,
+  },
+  {
+    hook: "pmttrpg.clashBeforeResults",
+    triggerName: "Clash Win Before Results",
+    getItems: clashWinItems,
+    buildContext: buildClashWinContext,
+  },
+  {
+    hook: "pmttrpg.clashBeforeResults",
+    triggerName: "Before Clash Results",
+    getItems: clashWinItems,
+    buildContext: buildClashWinContext,
   },
 
   // ── [On Damage Calc] ────────────────────────────────────────────────────────
@@ -427,25 +494,11 @@ const TRIGGER_HOOKS = [
   {
     hook: "pmttrpg.damageCalc",
     triggerName: "On Damage Calc",
-    getItems: ({ attackerItem, appliedTool, attackerSkill }) =>
-      [attackerItem, appliedTool, attackerSkill].filter(Boolean),
+    getItems: ({ attackerItem, appliedTool, attackerSkill, attackerAmmo }) =>
+      [attackerItem, appliedTool, attackerSkill, attackerAmmo].filter(Boolean),
     buildContext: ({ attacker, defender, clash }) => ({
       self:   attacker,
       target: defender,
-      ally:   null,
-      clash:  clash ?? createClashContext(),
-    }),
-  },
-
-  // ── [On Instant] ────────────────────────────────────────────────────────────
-  // Fires for [Instant] effects — after clash resolution, before Crit/Devastation.
-  {
-    hook: "pmttrpg.instantEffect",
-    triggerName: "On Instant",
-    getItems: ({ item }) => item ? [item] : [],
-    buildContext: ({ actor, clash }) => ({
-      self:   actor,
-      target: null,
       ally:   null,
       clash:  clash ?? createClashContext(),
     }),
@@ -628,6 +681,8 @@ const TRIGGER_HOOKS = [
 let _emittingAttackConnected = false;
 let _emittingClashStarted = false;
 let _emittingClashResolved = false;
+let _emittingClashBeforeResults = false;
+let _emittingHitBeforeResults = false;
 let _emittingActorAction = false;
 let _emittingTokenMoved = false;
 
@@ -665,6 +720,8 @@ export function registerEasyEffectsHooks() {
       if (def.hook === "pmttrpg.attackConnected" && _emittingAttackConnected) return;
       if (def.hook === "pmttrpg.clashStarted" && _emittingClashStarted) return;
       if (def.hook === "pmttrpg.clashResolved" && _emittingClashResolved) return;
+      if (def.hook === "pmttrpg.clashBeforeResults" && _emittingClashBeforeResults) return;
+      if (def.hook === "pmttrpg.hitBeforeResults" && _emittingHitBeforeResults) return;
       if (def.hook === "pmttrpg.actorAction" && _emittingActorAction) return;
       if (def.hook === "pmttrpg.tokenMoved" && _emittingTokenMoved) return;
 
@@ -672,7 +729,9 @@ export function registerEasyEffectsHooks() {
       const items = def.getItems(payload);
       for (const item of items) {
         if (
-          (def.hook === "pmttrpg.clashStarted" || def.hook === "pmttrpg.clashResolved")
+          (def.hook === "pmttrpg.clashStarted"
+            || def.hook === "pmttrpg.clashResolved"
+            || def.hook === "pmttrpg.clashBeforeResults")
           && !isDesignatedClashWeapon(item, payload)
         ) continue;
         const context = def.buildContext(payload, item);
@@ -836,7 +895,8 @@ export async function emitClashStarted(payload = {}) {
  * @param {object} payload
  * @returns {Promise<void>}
  */
-export async function emitClashResolved(payload = {}) {
+export async function emitClashResolved(payload = {}, { fireHook = true } = {}) {
+  const clash = payload.clash;
   _emittingClashResolved = true;
   try {
     const eeDefs = TRIGGER_HOOKS.filter((d) => d.hook === "pmttrpg.clashResolved");
@@ -845,6 +905,12 @@ export async function emitClashResolved(payload = {}) {
         if (!isDesignatedClashWeapon(item, payload)) continue;
         const context = def.buildContext(payload, item);
         if (!context) continue;
+        const instantNames = instantNamesForUsedItem(item, payload);
+        if (clash) {
+          clash.statusApplyFilter = instantNames.size
+            ? instantStatusFilter(instantNames, "except")
+            : null;
+        }
         try {
           await runItemEasyEffects(item, def.triggerName, context);
         } catch (err) {
@@ -852,14 +918,146 @@ export async function emitClashResolved(payload = {}) {
             `[EasyEffects] ${def.triggerName} failed on '${item?.name}':`,
             err
           );
+        } finally {
+          if (clash) clash.statusApplyFilter = null;
         }
       }
       await runActorScriptsForDef(def, payload);
     }
-    Hooks.callAll("pmttrpg.clashResolved", payload);
+    if (fireHook) Hooks.callAll("pmttrpg.clashResolved", payload);
   } finally {
     _emittingClashResolved = false;
+    if (clash) clash.statusApplyFilter = null;
   }
+}
+
+function sideUsedClashKit(payload = {}, side) {
+  if (side === "attacker") {
+    return usedStatBlockItems(payload.attackerItem, payload.appliedTool, payload.attackerSkill, payload.attackerAmmo);
+  }
+  if (side === "defender") {
+    return usedStatBlockItems(payload.defenderItem, payload.defenderAppliedTool, payload.defenderSkill, payload.defenderAmmo);
+  }
+  return [];
+}
+
+function usedKitSideOfItem(item, payload = {}) {
+  if (!item) return null;
+  if (sideUsedClashKit(payload, "attacker").some((it) => sameDocument(it, item))) return "attacker";
+  if (sideUsedClashKit(payload, "defender").some((it) => sameDocument(it, item))) return "defender";
+  return null;
+}
+
+function instantNamesForUsedItem(item, payload = {}) {
+  const side = usedKitSideOfItem(item, payload);
+  if (!side) return new Set();
+  return collectInstantStatusNames(sideUsedClashKit(payload, side));
+}
+
+function collectInstantStatusNames(items) {
+  const names = new Set();
+  for (const item of items ?? []) {
+    const ast = getAST(item);
+    if (!ast) continue;
+    for (const block of ast.blocks) {
+      if (block.trigger !== "Always Active") continue;
+      for (const stmt of block.statements ?? []) {
+        if (stmt.polarity === "negative") continue;
+        for (const action of stmt.actions ?? []) {
+          if (action.verb !== "instant") continue;
+          const raw = action.argument;
+          const list = Array.isArray(raw) ? raw : [raw];
+          for (const name of list) {
+            const key = String(name ?? "").trim().toLowerCase();
+            if (key) names.add(key);
+          }
+        }
+      }
+    }
+  }
+  return names;
+}
+
+const INSTANT_STATUS_VERBS = ["add", "set"];
+
+function instantStatusFilter(names, mode) {
+  return {
+    mode,
+    names,
+    verbs: INSTANT_STATUS_VERBS,
+    forceLive: mode === "only",
+  };
+}
+
+/** Clash Win/Lose gain/inflict/set of Instant-tagged statuses on the used kit only. */
+async function applyInstantClashStatuses(payload) {
+  const clash = payload?.clash;
+  if (!clash) return;
+  const eeDefs = TRIGGER_HOOKS.filter((d) => d.hook === "pmttrpg.clashResolved");
+  for (const def of eeDefs) {
+    for (const item of def.getItems(payload)) {
+      if (!isDesignatedClashWeapon(item, payload)) continue;
+      const names = instantNamesForUsedItem(item, payload);
+      if (!names.size) continue;
+      const context = def.buildContext(payload, item);
+      if (!context) continue;
+      clash.statusApplyFilter = instantStatusFilter(names, "only");
+      try {
+        await runItemEasyEffects(item, def.triggerName, context);
+      } catch (err) {
+        console.error(`[EasyEffects] instant ${def.triggerName} failed on '${item?.name}':`, err);
+      } finally {
+        clash.statusApplyFilter = null;
+      }
+    }
+  }
+}
+
+async function emitNamedHook(hookName, payload, { fireHook = true } = {}) {
+  if (hookName === "pmttrpg.clashBeforeResults") _emittingClashBeforeResults = true;
+  if (hookName === "pmttrpg.hitBeforeResults") _emittingHitBeforeResults = true;
+  try {
+    const eeDefs = TRIGGER_HOOKS.filter((d) => d.hook === hookName);
+    for (const def of eeDefs) {
+      const items = def.getItems(payload) ?? [];
+      for (const item of items) {
+        if (
+          hookName === "pmttrpg.clashBeforeResults"
+          && !isDesignatedClashWeapon(item, payload)
+        ) continue;
+        const context = def.buildContext(payload, item);
+        if (!context) continue;
+        try {
+          await runItemEasyEffects(item, def.triggerName, context);
+        } catch (err) {
+          console.error(`[EasyEffects] ${def.triggerName} failed on '${item?.name}':`, err);
+        }
+      }
+      await runActorScriptsForDef(def, payload);
+    }
+    if (fireHook) Hooks.callAll(hookName, payload);
+  } finally {
+    if (hookName === "pmttrpg.clashBeforeResults") _emittingClashBeforeResults = false;
+    if (hookName === "pmttrpg.hitBeforeResults") _emittingHitBeforeResults = false;
+  }
+}
+
+/**
+ * Always Active `instant <Status>` on the used weapon/tool/skill/ammo copies that
+ * side's matching Clash Result gain/inflict/set live first, then
+ * [On Clash Win Before Results], then Specified status, then one Clash Win/Lose pass
+ * that skips those applies on the Instant kit only.
+ */
+export async function emitClashOutcome(resolvedPayload, hitPayload = null) {
+  await applyInstantClashStatuses(resolvedPayload);
+
+  await emitNamedHook("pmttrpg.clashBeforeResults", resolvedPayload);
+
+  if (hitPayload) {
+    await emitNamedHook("pmttrpg.hitBeforeResults", hitPayload);
+  }
+
+  await emitClashResolved(resolvedPayload);
 }
 
 const BURST_NEST_MAX_DEPTH = 8;
@@ -879,28 +1077,28 @@ function collectUsedSkills(owner, usedSkills) {
   const out = [];
   const seen = new Set();
   for (const item of usedSkills ?? []) {
-    if (item?.type !== "skill" || !item.id || seen.has(item.id)) continue;
-    const onOwner = item.actor?.id === owner.id || owner.items?.get?.(item.id);
-    if (!onOwner) continue;
-    seen.add(item.id);
+    if (item?.type !== "skill") continue;
+    const key = itemIdentityKey(item);
+    if (!key || seen.has(key)) continue;
+    if (!itemBelongsToActor(item, owner)) continue;
+    seen.add(key);
     out.push(item);
   }
   return out;
 }
 
-function collectBurstListenerItems(attacker, burstee, skipItemId, usedSkills = []) {
+function collectBurstListenerItems(burster, burstee, skipItem, usedSkills = []) {
   const out = [];
   const seen = new Set();
-  for (const owner of [attacker, burstee]) {
+  const skipItemKey = itemIdentityKey(skipItem);
+  for (const owner of uniqueBurstOwners(burster, burstee)) {
     if (!owner?.items) continue;
     for (const item of [
       ...getEquippedItems(owner).filter((i) => i.type !== "skill"),
       ...collectUsedSkills(owner, usedSkills),
       ...uniqueStatusItems(owner.items),
     ]) {
-      if (!item?.id || item.id === skipItemId) continue;
-      if (seen.has(item.id)) continue;
-      seen.add(item.id);
+      if (!rememberBurstListenerItem(seen, item, skipItemKey)) continue;
       out.push({ item, owner });
     }
   }
@@ -915,16 +1113,18 @@ function collectBurstListenerItems(attacker, burstee, skipItemId, usedSkills = [
  * @param {{
  *   statusName: string,
  *   actor: Actor,
+ *   burster?: Actor|null,
  *   attacker?: Actor|null,
  *   clash?: object|null,
  *   sourceItem?: Item|null,
  *   depth?: number,
  * }} opts
- * @returns {Promise<boolean>} true if a burst ran
+ * @returns {Promise<boolean>}
  */
 export async function emitStatusBurst({
   statusName,
   actor,
+  burster = null,
   attacker = null,
   clash = null,
   sourceItem = null,
@@ -933,7 +1133,8 @@ export async function emitStatusBurst({
   depth = 0,
 } = {}) {
   const name = String(statusName ?? "").trim();
-  if (!actor || !name) return false;
+  const burstee = actor;
+  if (!burstee || !name) return false;
 
   if (depth >= BURST_NEST_MAX_DEPTH) {
     console.warn(
@@ -942,13 +1143,13 @@ export async function emitStatusBurst({
     return false;
   }
 
-  const statusItem = findStatusItem(actor, name);
+  const statusItem = findStatusItem(burstee, name);
   if (!statusItem) {
-    console.warn(`[EasyEffects] burst '${name}': no status item on ${actor.name}`);
+    console.warn(`[EasyEffects] burst '${name}': no status item on ${burstee.name}`);
     return false;
   }
 
-  const stacksBefore = Number(actor.getStatusStacks?.(name) ?? statusItem.system?.stacks ?? 0) || 0;
+  const stacksBefore = Number(burstee.getStatusStacks?.(name) ?? statusItem.system?.stacks ?? 0) || 0;
   if (stacksBefore <= 0) return false;
 
   const burst = {
@@ -958,12 +1159,17 @@ export async function emitStatusBurst({
     after: null,
   };
 
+  const resolvedAttackerSkill = attackerSkill ?? clash?.attackerSkill ?? null;
+  const resolvedDefenderSkill = defenderSkill ?? clash?.defenderSkill ?? null;
+
   const localCtx = {
-    self: actor,
-    target: actor,
+    self: burstee,
+    target: burstee,
     attacker: attacker ?? null,
-    attackerSkill: attackerSkill ?? clash?.attackerSkill ?? null,
-    defenderSkill: defenderSkill ?? clash?.defenderSkill ?? null,
+    burster: burster ?? null,
+    burstee,
+    attackerSkill: resolvedAttackerSkill,
+    defenderSkill: resolvedDefenderSkill,
     ally: null,
     clash: clash ?? null,
     item: statusItem,
@@ -978,16 +1184,30 @@ export async function emitStatusBurst({
     console.error(`[EasyEffects] Local burst failed on '${statusItem.name}':`, err);
   }
 
-  await runActorEasyEffects(actor, "On Burst", { ...localCtx, item: null });
+  await runActorEasyEffects(burstee, "On Burst", {
+    ...localCtx,
+    item: null,
+    _actorBurstLocal: true,
+  });
 
-  burst.after = Number(actor.getStatusStacks?.(name) ?? 0) || 0;
+  burst.after = Number(burstee.getStatusStacks?.(name) ?? 0) || 0;
 
-  const listeners = collectBurstListenerItems( attacker, actor, statusItem.id, usedSkillsFromContext({ sourceItem, attackerSkill, defenderSkill, clash }));
+  const usedSkills = usedSkillsFromContext({
+    sourceItem,
+    attackerSkill: resolvedAttackerSkill,
+    defenderSkill: resolvedDefenderSkill,
+    clash,
+  });
+  const listeners = collectBurstListenerItems(burster, burstee, statusItem, usedSkills);
   for (const { item, owner } of listeners) {
     const globalCtx = {
       self: owner,
-      target: actor,
+      target: burstee,
       attacker: attacker ?? null,
+      burster: burster ?? null,
+      burstee,
+      attackerSkill: resolvedAttackerSkill,
+      defenderSkill: resolvedDefenderSkill,
       ally: null,
       clash: clash ?? null,
       item,
@@ -1002,15 +1222,15 @@ export async function emitStatusBurst({
     }
   }
 
-  const globalOwners = [attacker, actor].filter(Boolean);
-  const seenOwners = new Set();
-  for (const owner of globalOwners) {
-    if (seenOwners.has(owner.id)) continue;
-    seenOwners.add(owner.id);
+  for (const owner of uniqueBurstOwners(burster, burstee)) {
     await runActorEasyEffects(owner, "On Burst", {
       self: owner,
-      target: actor,
+      target: burstee,
       attacker: attacker ?? null,
+      burster: burster ?? null,
+      burstee,
+      attackerSkill: resolvedAttackerSkill,
+      defenderSkill: resolvedDefenderSkill,
       ally: null,
       clash: clash ?? null,
       item: null,
@@ -1021,9 +1241,11 @@ export async function emitStatusBurst({
   }
 
   Hooks.callAll("pmttrpg.burstTriggered", {
-    actor,
-    target: actor,
+    actor: burstee,
+    target: burstee,
     attacker: attacker ?? null,
+    burster: burster ?? null,
+    burstee,
     statusName: burst.status,
     burst,
     item: statusItem,
@@ -1045,7 +1267,7 @@ const PROC_NEST_MAX_DEPTH = 8;
  *   focusActor: Actor,
  *   proccer?: Actor|null,
  *   attacker?: Actor|null,
- *   target?: Actor|null,
+ *   target?: Actor|null,  // listener `target` role
  *   clash?: object|null,
  *   sourceItem?: Item|null,
  *   binds?: Record<string, unknown>,
@@ -1104,8 +1326,7 @@ export async function emitProc({
     await runActorEasyEffects(focusActor, triggerName, { ...localCtx, item: null });
   }
 
-  const skipItemId = statusItem?.id ?? null;
-  const listeners = collectBurstListenerItems( proccer, focusActor, skipItemId, usedSkillsFromContext({ sourceItem, attackerSkill, defenderSkill, clash }) );
+  const listeners = collectBurstListenerItems( proccer, focusActor, statusItem, usedSkillsFromContext({ sourceItem, attackerSkill, defenderSkill, clash }) );
   for (const { item, owner } of listeners) {
     const globalCtx = {
       self: owner,
@@ -1127,9 +1348,10 @@ export async function emitProc({
   const globalOwners = [proccer, focusActor].filter(Boolean);
   const seenOwners = new Set();
   for (const owner of globalOwners) {
-    if (seenOwners.has(owner.id)) continue;
-    seenOwners.add(owner.id);
-    if (statusItem && owner.id === focusActor.id) continue;
+    const ownerKey = actorIdentityKey(owner);
+    if (!ownerKey || seenOwners.has(ownerKey)) continue;
+    seenOwners.add(ownerKey);
+    if (statusItem && sameActor(owner, focusActor)) continue;
     await runActorEasyEffects(owner, triggerName, {
       self: owner,
       target: clashTarget,
@@ -1261,12 +1483,57 @@ function mergeAlwaysActiveMods(merged, mods, sourceName) {
   }
 }
 
+// ── [On Depleted] runner ──────────────────────────────────────────────────────
+// World/Actor EasyEffects first, then unique active Statuses.
+const _depletingPools = new Set();
+
+/**
+ * @param {Actor} actor
+ * @param {{ pool: string, before: number, max: number }} depleted
+ */
+export async function runDepletedEasyEffects(actor, depleted) {
+  if (!actor || !depleted?.pool) return;
+
+  const key = `${actorIdentityKey(actor)}:${depleted.pool}`;
+  if (_depletingPools.has(key)) return;
+  _depletingPools.add(key);
+  try {
+    const context = {
+      self: actor,
+      target: null,
+      ally: null,
+      clash: null,
+      depleted,
+    };
+    await runActorEasyEffects(actor, "On Depleted", context);
+    for (const item of uniqueStatusItems(actor.items)) {
+      await runItemEasyEffects(item, "On Depleted", context);
+    }
+  } finally {
+    _depletingPools.delete(key);
+  }
+}
+
 // ── [On Taking Damage] runner ─────────────────────────────────────────────────
 
 /**
- * Mutates `damage.amount` and `damage.afterDeltaByPool`.
- * @param {Actor} actor
- * @param {{ amount: number, pool: string|string[], source: string, damageType: string, fromAttack?: boolean, afterDeltaByPool?: Record<string, number> }} damage
+ * Fire `[On Taking Damage]` on the actor, then equipped items and live statuses.
+ *
+ * `applyDamage` already built `damage` and keeps using that same object.
+ * Scripts can change the shared `amount`, per-pool before/after flats,
+ * or convert `pool` / `damageType`. After this returns, `applyDamage`
+ * applies those to each pool and posts the chat breakdown.
+ *
+ * @param {Actor} actor who is taking the hit
+ * @param {{
+ *   amount: number,
+ *   pool: string|string[],
+ *   source: string,
+ *   damageType: string,
+ *   fromAttack?: boolean,
+ *   afterDeltaByPool?: Record<string, number>,
+ *   beforeDeltaByPool?: Record<string, number>,
+ * }} damage pending hit; mutated in place
  * @param {{ attacker?: Actor|null }} [options]
  */
 export async function runOnTakingDamage(actor, damage, options = {}) {

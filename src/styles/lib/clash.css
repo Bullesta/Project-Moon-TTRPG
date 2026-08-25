@@ -85,6 +85,7 @@
   letter-spacing: 0.05em;
 }
 
+.clash-damage-type--none   { background: #ececec; color: #444; border: 1px solid #c8c8c8; }
 .clash-damage-type--slash  { background: #ffe5e5; color: #cc0000; border: 1px solid #ffb3b3; }
 .clash-damage-type--pierce { background: #e5f5ff; color: #0066cc; border: 1px solid #b3d9ff; }
 .clash-damage-type--blunt  { background: #fffce5; color: #cc6600; border: 1px solid #ffd9b3; }

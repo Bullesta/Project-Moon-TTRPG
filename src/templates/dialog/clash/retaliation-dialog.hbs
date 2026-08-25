@@ -61,7 +61,11 @@
   <div class="clash-item-picker" style="display: none;">
     <label class="clash-item-picker__label">
       <i class="fa-solid fa-list"></i>
-      {{i18n.weapon}}
+      <span
+        class="clash-item-picker__kind"
+        data-weapon="{{i18n.weapon}}"
+        data-outfit="{{i18n.outfit}}"
+      >{{i18n.weapon}}</span>
     </label>
     <select name="retaliationItemId" class="clash-item-picker__select">
     </select>
@@ -88,6 +92,32 @@
     <label class="consume-toggle clash-skill-consume" style="display: none;">
       <input type="checkbox" name="consumeSkillLight" checked />
       <span>{{i18n.consumeLight}}</span>
+    </label>
+  </div>
+
+  {{!-- Applied Tool hidden while a Skill is selected --}}
+  <div class="clash-tool-picker" data-none-label="{{i18n.toolNone}}" style="display: none;">
+    <label class="clash-item-picker__label">
+      <i class="fa-solid fa-wrench"></i>
+      {{i18n.toolOptional}}
+    </label>
+    <select name="appliedToolId" class="clash-item-picker__select">
+      <option value="">{{i18n.toolNone}}</option>
+    </select>
+    {{#each appliedTools}}
+      <span
+        class="clash-tool-option"
+        data-apply-to="{{applyTo}}"
+        data-item-id="{{id}}"
+        data-item-name="{{name}}"
+        data-remaining="{{remaining}}"
+        data-consumes="{{#if consumes}}1{{else}}0{{/if}}"
+        hidden
+      ></span>
+    {{/each}}
+    <label class="consume-toggle clash-tool-consume" style="display: none;">
+      <input type="checkbox" name="consumeAppliedTool" checked />
+      <span>{{i18n.consumeTool}}</span>
     </label>
   </div>
 

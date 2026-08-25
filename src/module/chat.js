@@ -1,8 +1,8 @@
 import {
   DAMAGE_POOLS,
-  DAMAGE_TYPES,
   enhanceDamageTakenCard,
   getActorWeaponDamageType,
+  isSelectableDamageType,
 } from "./damage-application.js";
 
 import {
@@ -11,6 +11,7 @@ import {
   resolveClashCombatant,
   enhanceClashRollBreakdown,
 } from "./combat/clash-chat.js";
+import { getClashDamageSourceRef } from "./combat/clash-state.js";
 
 export const displayChatActionButtons = function(message, html, data) {
   const chatCard = html.querySelector?.(".PMTTRPG.chat-card") ?? null;
@@ -18,7 +19,7 @@ export const displayChatActionButtons = function(message, html, data) {
   // Sync damage type from flags if the card did not include one.
   const flaggedType = message?.flags?.projectmoonttrpg?.damageType;
   $(html).find(".chat-damage-buttons").each((_, el) => {
-    if (!el.dataset.damageType && DAMAGE_TYPES.includes(flaggedType)) {
+    if (!el.dataset.damageType && isSelectableDamageType(flaggedType)) {
       el.dataset.damageType = flaggedType;
       el.querySelectorAll("button.dtype").forEach((btn) => {
         btn.classList.toggle("active", btn.dataset.damageType === flaggedType);
@@ -159,7 +160,7 @@ function _chatActionSetDamageType(button) {
   const root = button.closest(".chat-damage-buttons");
   if (!root) return;
   const damageType = button.dataset.damageType;
-  if (!DAMAGE_TYPES.includes(damageType)) return;
+  if (!isSelectableDamageType(damageType)) return;
   root.dataset.damageType = damageType;
   root.querySelectorAll("button.dtype").forEach((btn) => {
     btn.classList.toggle("active", btn.dataset.damageType === damageType);
@@ -198,14 +199,14 @@ async function _chatActionMarkXp(actor, message) {
 
 function _resolveDamageType(message, root) {
   const fromCard = root?.dataset?.damageType;
-  if (DAMAGE_TYPES.includes(fromCard)) return fromCard;
+  if (isSelectableDamageType(fromCard)) return fromCard;
 
   const fromFlag = message?.flags?.projectmoonttrpg?.damageType;
-  if (DAMAGE_TYPES.includes(fromFlag)) return fromFlag;
+  if (isSelectableDamageType(fromFlag)) return fromFlag;
 
   const speakerActor = ChatMessage.getSpeakerActor?.(message.speaker)
     ?? game.actors.get(message?.speaker?.actor);
-  return getActorWeaponDamageType(speakerActor);
+  return getActorWeaponDamageType(speakerActor) ?? "none";
 }
 
 function _controlledTokenActors() {
@@ -250,9 +251,10 @@ async function _clashActionDamage(message, action, button) {
   const op = opByAction[action];
   if (!op) return;
 
-  const attacker = op === "heal"
-    ? null
-    : (state?.attackerActorId ? game.actors.get(state.attackerActorId) : null);
+  const sourceRef = op === "heal" ? null : getClashDamageSourceRef(state);
+  const attacker = sourceRef
+    ? resolveClashCombatant(sourceRef.actorId, sourceRef.tokenId)
+    : null;
 
   for (const actor of actors) {
     await actor.applyDamage(rollTotal, {

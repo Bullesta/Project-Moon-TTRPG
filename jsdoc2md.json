@@ -1,0 +1,8 @@
+{
+  "files": ["src/module/**/*.js"],
+  "heading-depth": 2,
+  "module-index-format": "grouped",
+  "global-index-format": "grouped",
+  "param-list-format": "table",
+  "property-list-format": "table"
+}

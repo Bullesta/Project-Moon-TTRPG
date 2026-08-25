@@ -15,7 +15,7 @@ system:
   origin: ''
   customNotes: ''
   easyEffects: >-
-    [On Hit]
+    [On Hit Before Results]
 
     require ("Poise Pause") == 0 then 
       proc RollForNoStancePoise;

@@ -58,6 +58,7 @@ export const CLASH_RESULTS = Object.freeze({
  * @param {object[]} [params.attackRollBreakdown]
  * @param {string|null} [params.appliedToolId]
  * @param {string|null} [params.attackerSkillId]
+ * @param {string|null} [params.attackerAmmoId]
  * @param {boolean} [params.consumeSkillLight]
  * @param {boolean} [params.attackerDryFire]
  * @returns {ClashStateData}
@@ -82,6 +83,7 @@ export function createClashState({
   attackRollBreakdown = null,
   appliedToolId   = null,
   attackerSkillId = null,
+  attackerAmmoId  = null,
   consumeSkillLight = false,
   attackerDryFire = false,
 }) {
@@ -97,6 +99,7 @@ export function createClashState({
     attackerItemName,
     appliedToolId: appliedToolId ?? null,
     attackerSkillId: attackerSkillId ?? null,
+    attackerAmmoId: attackerAmmoId ?? null,
     consumeSkillLight: !!consumeSkillLight,
     attackerDryFire: !!attackerDryFire,
 
@@ -146,6 +149,40 @@ export function createClashState({
     attackMessageId,
     resultMessageId: null,
   };
+}
+
+/**
+ * Combatant who caused the HP/ST on the result card, if any.
+ * Evade regen, Counter out of range, and ranged Block exemption have no source.
+ *
+ * @param {object|null|undefined} state
+ * @returns {{ actorId: string|null, tokenId: string|null }|null}
+ */
+export function getClashDamageSourceRef(state) {
+  if (!state) return null;
+
+  const attackerWon = state.result === "attackWin";
+  const defenderWon = state.result === "defenseWin";
+  const type = state.retaliationType;
+  const counterHit = defenderWon && type === "counter" && state.counterInRange === true;
+  const blockWinSt = defenderWon && type === "block" && !state.blockWinStExempt;
+
+  if (attackerWon) {
+    if (!state.attackerActorId && !state.attackerTokenId) return null;
+    return {
+      actorId: state.attackerActorId ?? null,
+      tokenId: state.attackerTokenId ?? null,
+    };
+  }
+
+  if (counterHit || blockWinSt) {
+    const actorId = state.retaliatorActorId ?? state.targetActorId ?? null;
+    const tokenId = state.retaliatorTokenId ?? state.targetTokenId ?? null;
+    if (!actorId && !tokenId) return null;
+    return { actorId, tokenId };
+  }
+
+  return null;
 }
 
 /**

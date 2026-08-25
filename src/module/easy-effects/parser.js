@@ -15,16 +15,17 @@ import {
 import { isAlwaysActiveResource, isApplyPoolNoun, isBonusNoun, isRegenNoun, isReservedNoun, isResourceNoun, lookupNoun, nounAllowsOp, resolveApplyPool} from "./nouns.js";
 import { tokenize, tokenizeExpression, LexError } from "./lexer.js";
 
-const SINGLE_TARGETS = new Set(["self", "target", "ally", "attacker", "originator"]);
+const SINGLE_TARGETS = new Set(["self", "target", "ally", "attacker", "originator", "burster", "burstee"]);
 const MULTI_TARGETS  = new Set(["enemies", "allies", "all"]);
 const ALL_TARGETS    = new Set([...SINGLE_TARGETS, ...MULTI_TARGETS]);
 const FLAG_KEYWORDS  = new Set(["isStaggered", "isPanicking", "hasStatus"]);
 const MUL_OPS = new Set(["*", "/", "%", "//", "//f", "//c"]);
 const EXPR_PATH_ROOTS = new Set([
-  "self", "target", "ally", "attacker", "originator",
+  "self", "target", "ally", "attacker", "originator", "burster", "burstee",
   "damage", "incoming", "item", "clash", "changed", "burst", "depleted", "moved", "roll", "proc",
   "round", "combat",
 ]);
+const SINGLE_TARGET_HINT = "self/target/ally/attacker/originator/burster/burstee";
 
 const NUMERIC_COMPARE_OPS = new Set([">", "<", ">=", "<="]);
 
@@ -39,6 +40,7 @@ export {
   matchesDamageFilter,
   normalizeBurstTrigger,
   matchesBurstFilter,
+  shouldExecuteBurstBlock,
   normalizeDepletedTrigger,
   matchesDepletedFilter,
 } from "./damage-filter.js";
@@ -80,6 +82,20 @@ class Parser {
     const tok = this.peek();
     if (!ALL_TARGETS.has(tok.value)) {
       throw new ParseError(`Expected target after 'on'/'to', got '${tok.value}'`, tok);
+    }
+    return this.consume("KEYWORD").value;
+  }
+
+  /** Actor role passed as `target` in the nested proc. */
+  _parseOptionalProcTarget() {
+    if (!this.check("KEYWORD", "targeting")) return null;
+    this.consume("KEYWORD", "targeting");
+    const tok = this.peek();
+    if (!SINGLE_TARGETS.has(tok.value)) {
+      throw new ParseError(
+        `Expected proc target (${SINGLE_TARGET_HINT}), got '${tok.value}'`,
+        tok
+      );
     }
     return this.consume("KEYWORD").value;
   }
@@ -241,6 +257,7 @@ class Parser {
   }
 
   _assertAlwaysActiveSafe(stmt) {
+    if (stmt.type === "LetStatement") return;
     if (stmt.type === "DialogStatement") {
       throw new ParseError(
         "[Always Active] does not allow 'dialog'; use an event trigger",
@@ -279,6 +296,18 @@ class Parser {
           this.peek()
         );
       }
+      if (action.verb === "dialog") {
+        throw new ParseError(
+          "[Always Active] does not allow 'dialog'; use an event trigger",
+          this.peek()
+        );
+      }
+      if (action.verb === "message") {
+        throw new ParseError(
+          "[Always Active] does not allow 'message'; use an event trigger",
+          this.peek()
+        );
+      }
       if (okBonus.has(action.verb)) continue;
       if ((action.verb === "add" || action.verb === "remove") && action.noun === "resource") {
         if (!isAlwaysActiveResource(action.argument)) {
@@ -298,11 +327,12 @@ class Parser {
         }
         continue;
       }
+      if (action.verb === "instant") continue;
       if (action.verb === "set" && action.noun === "resistance") continue;
       throw new ParseError(
         `[Always Active] does not allow '${action.verb}'`
         + (action.noun === "status" ? " (status stacks)" : "")
-        + "; use combat triggers for statuses/damage. Only max resources, power, and dice max are allowed here",
+        + "; use combat triggers for statuses/damage. Only max resources, power, dice max, and instant are allowed here",
         this.peek()
       );
     }
@@ -332,12 +362,19 @@ class Parser {
     else if (this.check("KEYWORD", "advantage") || this.check("KEYWORD", "disadvantage")) {
       stmt = this.parseNaturalStatement();
     }
+    else if (this.check("KEYWORD", "let")) stmt = this.parseLetStatement();
+    else if (this.check("VARIABLE")) {
+      throw new ParseError(
+        `Unexpected '$${this.peek().value}'. Use 'let $${this.peek().value} = …' to declare a variable`,
+        this.peek()
+      );
+    }
     else if (this.check("KEYWORD", "spend"))   stmt = this.parseSpendStatement();
     else if (this.check("KEYWORD", "require")) stmt = this.parseRequireStatement();
     else if (this.checkAny("KEYWORD", ["gain", "lose", "inflict", "reduce", "increase", "halve", "double", "convert"])) {
       stmt = this.parseNaturalStatement();
     }
-    else if (this.check("IDENT", "deal") || this.check("IDENT", "heal") || this.check("IDENT", "set")) stmt = this.parseNaturalStatement();
+    else if (this.check("IDENT", "deal") || this.check("IDENT", "heal") || this.check("IDENT", "set") || this.check("IDENT", "instant")) stmt = this.parseNaturalStatement();
     else if (this._isBonusVerbAhead()) stmt = this.parseBonusVerbStatement();
     else stmt = this.parseDoStatement();
 
@@ -371,7 +408,7 @@ class Parser {
       const tok = this.peek();
       if (!SINGLE_TARGETS.has(tok.value)) {
         throw new ParseError(
-          `Expected message speaker (self/target/ally/attacker/originator), got '${tok.value}'`,
+          `Expected message speaker (${SINGLE_TARGET_HINT}), got '${tok.value}'`,
           tok
         );
       }
@@ -380,6 +417,21 @@ class Parser {
 
     this.consumeStatementEnd();
     return { type: "MessageStatement", template, speaker, polarity: null };
+  }
+
+  parseLetStatement() {
+    this.consume("KEYWORD", "let");
+    if (!this.check("VARIABLE")) {
+      throw new ParseError(`Expected $variable after 'let', got '${this.peek().value}'`, this.peek());
+    }
+    const name = this.consume("VARIABLE").value;
+    if (!this.check("ASSIGN")) {
+      throw new ParseError(`Expected '=' after 'let $${name}', got '${this.peek().value}'`, this.peek());
+    }
+    this.consume("ASSIGN");
+    const expr = this._parseMainExpr();
+    this.consumeStatementEnd();
+    return { type: "LetStatement", name, expr, polarity: null };
   }
 
   parseRollStatement() {
@@ -427,6 +479,29 @@ class Parser {
   }
 
   parseDialogStatement() {
+    const parsed = this._parseDialogCore();
+    this.consumeStatementEnd();
+    return { type: "DialogStatement", ...parsed, polarity: null };
+  }
+
+  parseNaturalDialogAction() {
+    const parsed = this._parseDialogCore();
+    return {
+      type: "Action",
+      verb: "dialog",
+      noun: null,
+      argument: parsed.prompt,
+      amount: null,
+      per: null,
+      target: null,
+      audience: parsed.audience,
+      choices: parsed.choices,
+      pool: null,
+      damageType: null,
+    };
+  }
+
+  _parseDialogCore() {
     if (this.check("KEYWORD", "create")) {
       this.consume("KEYWORD", "create");
       if (!this.check("KEYWORD", "dialog")) {
@@ -494,15 +569,14 @@ class Parser {
       const tok = this.peek();
       if (!SINGLE_TARGETS.has(tok.value)) {
         throw new ParseError(
-          `Expected dialog audience (self/target/ally/attacker/originator), got '${tok.value}'`,
+          `Expected dialog audience (${SINGLE_TARGET_HINT}), got '${tok.value}'`,
           tok
         );
       }
       audience = this.consume("KEYWORD").value;
     }
 
-    this.consumeStatementEnd();
-    return { type: "DialogStatement", prompt, audience, choices, polarity: null };
+    return { prompt, audience, choices };
   }
 
   /**
@@ -546,6 +620,7 @@ class Parser {
       next?.type === "NUMBER"
       || next?.type === "DICE"
       || next?.type === "ACCESSOR"
+      || next?.type === "VARIABLE"
       || (next?.type === "IDENT" && next.value === "N")
       || (next?.type === "IDENT" && this._isBareStatusAmountIdent(next.value))
     );
@@ -585,6 +660,9 @@ class Parser {
     }
     if (this.check("ACCESSOR")) {
       return parseAccessorExpression(this.consume("ACCESSOR").value);
+    }
+    if (this.check("VARIABLE")) {
+      return { type: "Variable", name: this.consume("VARIABLE").value };
     }
     if (this.check("STRING")) {
       const name = this.consume("STRING").value;
@@ -684,11 +762,14 @@ class Parser {
 
   parseCondLhs() {
     if (this.check("KEYWORD") && FLAG_KEYWORDS.has(this.peek().value)) return this.parseFlagExpr();
+    if (this.check("VARIABLE")) {
+      return { type: "ACCESSOR", expr: { type: "Variable", name: this.consume("VARIABLE").value } };
+    }
     if (this.check("ACCESSOR")) {
       const raw = this.consume("ACCESSOR").value;
       return { type: "ACCESSOR", expr: parseAccessorExpression(raw) };
     }
-    throw new ParseError(`Expected accessor or flag in condition LHS, got '${this.peek().value}'`, this.peek());
+    throw new ParseError(`Expected accessor, variable, or flag in condition LHS, got '${this.peek().value}'`, this.peek());
   }
 
   parseFlagExpr() {
@@ -704,7 +785,7 @@ class Parser {
    * @param {string} [operator]
    */
   parseCondRhs(operator) {
-    if (operator && NUMERIC_COMPARE_OPS.has(operator)) {
+    if (this.check("VARIABLE") || (operator && NUMERIC_COMPARE_OPS.has(operator))) {
       return this._parseAmountExpr({ required: true });
     }
     if (this.check("ACCESSOR")) {
@@ -722,12 +803,38 @@ class Parser {
   // ── Action chain ──────────────────────────────────────────────────────────
   parseActionChain() {
     this.consume("KEYWORD", "do");
+    if (this._looksLikeNaturalAction()) {
+      return this.parseNaturalActionChain();
+    }
     const actions = [this.parseSingleAction()];
     while (this.check("KEYWORD", "and")) {
       this.consume("KEYWORD", "and");
       actions.push(this.parseSingleAction());
     }
     return actions;
+  }
+
+  _looksLikeNaturalAction() {
+    if (this.checkAny("KEYWORD", [
+      "gain", "lose", "inflict", "reduce", "increase", "halve", "double", "convert",
+      "burst", "proc", "pause", "advantage", "disadvantage", "power", "dice", "regen",
+      "message", "dialog", "roll",
+    ])) return true;
+    if (
+      this.check("KEYWORD", "create")
+      && this._peekOffset(1)?.type === "KEYWORD"
+      && (this._peekOffset(1).value === "message" || this._peekOffset(1).value === "dialog")
+    ) {
+      return true;
+    }
+    if (this.check("IDENT", "deal") || this.check("IDENT", "heal") || this.check("IDENT", "instant")) {
+      return true;
+    }
+    if (this.check("IDENT", "set")) {
+      const next = this._peekOffset(1);
+      return !(next && (next.type === "IDENT" || next.type === "KEYWORD") && next.value === "stat");
+    }
+    return false;
   }
 
   /**
@@ -1096,11 +1203,12 @@ class Parser {
       rhs = { type: "NUMBER", value: Number(amount) };
     } else if (
       this.check("ACCESSOR")
+      || this.check("VARIABLE")
       || (this.check("KEYWORD") && FLAG_KEYWORDS.has(this.peek().value))
     ) {
       return this.parseConditionBody();
     } else {
-      throw new ParseError(`Expected accessor, flag, 'the roll', 'damage from', or amount after 'require', got '${this.peek().value}'`, this.peek());
+      throw new ParseError(`Expected accessor, variable, flag, 'the roll', 'damage from', or amount after 'require', got '${this.peek().value}'`, this.peek());
     }
 
     return { type: "Condition", lhs, operator, rhs };
@@ -1459,6 +1567,7 @@ class Parser {
     }
     const procName = canonicalizeProcName(rawName);
     const target = this._parseOptionalOnOrToTarget() ?? "self";
+    const procTarget = this._parseOptionalProcTarget();
     const binds = this._parseOptionalProcWithBinds();
     return {
       type: "Action",
@@ -1468,9 +1577,30 @@ class Parser {
       amount: null,
       per: null,
       target,
+      procTarget,
       pool: null,
       damageType: null,
       binds,
+    };
+  }
+
+  parseNaturalInstantAction() {
+    this.consume("IDENT", "instant");
+    const names = [this.parseStatusName()];
+    while (this.check("COMMA")) {
+      this.consume("COMMA");
+      this.skipNewlines();
+      names.push(this.parseStatusName());
+    }
+    return {
+      type: "Action",
+      verb: "instant",
+      noun: "status",
+      argument: names,
+      amount: null,
+      per: null,
+      target: null,
+      pool: null,
     };
   }
 
@@ -1522,7 +1652,7 @@ class Parser {
     const target = this._parseOptionalOnOrToTarget() ?? "self";
     if (!SINGLE_TARGETS.has(target)) {
       throw new ParseError(
-        `Expected message speaker (self/target/ally/attacker/originator), got '${target}'`,
+        `Expected message speaker (${SINGLE_TARGET_HINT}), got '${target}'`,
         this.peek()
       );
     }
@@ -1540,7 +1670,7 @@ class Parser {
   }
 
   _isAmountAhead() {
-    if (this.check("NUMBER") || this.check("DICE") || this.check("ACCESSOR")) return true;
+    if (this.check("NUMBER") || this.check("DICE") || this.check("ACCESSOR") || this.check("VARIABLE")) return true;
     if (this.check("STRING")) return true;
     if (this.check("IDENT", "N") || this.check("KEYWORD", "N")) return true;
     if (
@@ -1572,6 +1702,7 @@ class Parser {
     if (this.check("IDENT", "deal")) return this.parseNaturalDealAction();
     if (this.check("IDENT", "heal")) return this.parseNaturalHealAction();
     if (this.check("IDENT", "set")) return this.parseNaturalSetAction();
+    if (this.check("IDENT", "instant")) return this.parseNaturalInstantAction();
     if (this.check("KEYWORD", "convert")) return this.parseNaturalConvertAction();
     if (this.check("KEYWORD", "burst")) return this.parseNaturalBurstAction();
     if (this.check("KEYWORD", "proc")) return this.parseNaturalProcAction();
@@ -1579,12 +1710,21 @@ class Parser {
     if (this.check("KEYWORD", "advantage") || this.check("KEYWORD", "disadvantage")) {
       return this.parseNaturalAdvantageAction();
     }
-    if (
-      this.check("KEYWORD", "message")
-      || (this.check("KEYWORD", "create") && this._peekOffset(1)?.type === "KEYWORD" && this._peekOffset(1)?.value === "message")
-    ) {
-      return this.parseNaturalMessageAction();
+    if (this.check("KEYWORD", "create")) {
+      const next = this._peekOffset(1);
+      if (next?.type === "KEYWORD" && next.value === "message") {
+        return this.parseNaturalMessageAction();
+      }
+      if (next?.type === "KEYWORD" && next.value === "dialog") {
+        return this.parseNaturalDialogAction();
+      }
+      throw new ParseError(
+        `Expected 'dialog' or 'message' after 'create', got '${next?.value ?? "end of script"}'`,
+        next ?? this.peek()
+      );
     }
+    if (this.check("KEYWORD", "message")) return this.parseNaturalMessageAction();
+    if (this.check("KEYWORD", "dialog")) return this.parseNaturalDialogAction();
     if (
       this.check("KEYWORD", "power")
       || this.check("KEYWORD", "dice")
@@ -1595,13 +1735,14 @@ class Parser {
 
     const verbTok = this.consume("KEYWORD");
     if (!["gain", "lose", "inflict", "reduce", "increase", "halve", "double"].includes(verbTok.value))
-      throw new ParseError(`Expected 'gain', 'lose', 'inflict', 'reduce', 'increase', 'halve', 'double', 'convert', 'set', 'deal', 'heal', 'burst', 'proc', 'pause', 'advantage', 'disadvantage', 'message', 'power', 'dice', 'regen', or 'roll', got '${verbTok.value}'`, verbTok);
+      throw new ParseError(`Expected 'gain', 'lose', 'inflict', 'reduce', 'increase', 'halve', 'double', 'convert', 'set', 'deal', 'heal', 'burst', 'proc', 'instant', 'pause', 'advantage', 'disadvantage', 'message', 'dialog', 'power', 'dice', 'regen', or 'roll', got '${verbTok.value}'`, verbTok);
 
     if (verbTok.value === "halve" || verbTok.value === "double") {
       return this._desugarStatusScaleAction(verbTok.value);
     }
 
     if (verbTok.value === "reduce" || verbTok.value === "increase") {
+      const pool = this._parseOptionalHealPool();
       this._consumeDamageNoun(`'${verbTok.value}'`);
       if (this.check("KEYWORD", "by")) this.consume("KEYWORD", "by");
       const amount = this._parseAmountExpr({ required: false }) ?? { type: "NUMBER", value: 1 };
@@ -1614,7 +1755,7 @@ class Parser {
         amount,
         per: null,
         target: null,
-        pool: null,
+        pool,
         resistanceTiming,
       };
     }
@@ -1896,7 +2037,7 @@ class Parser {
 function _canStartExprFactor(tok) {
   if (!tok) return false;
   if (tok.type === "NUMBER" || tok.type === "DICE" || tok.type === "STRING") return true;
-  if (tok.type === "LPAREN" || tok.type === "ACCESSOR") return true;
+  if (tok.type === "LPAREN" || tok.type === "ACCESSOR" || tok.type === "VARIABLE") return true;
   if (tok.type === "IDENT" || tok.type === "KEYWORD") return true;
   if (tok.type === "MATHOP" && tok.value === "-") return true;
   return false;
@@ -1978,6 +2119,7 @@ class ExprParser {
     }
     if (this.check("NUMBER")) return { type: "Num",  value: Number(this.expect("NUMBER").value) };
     if (this.check("DICE"))   return { type: "Dice", formula: this.expect("DICE").value };
+    if (this.check("VARIABLE")) return { type: "Variable", name: this.expect("VARIABLE").value };
     if (this.check("STRING")) {
       const name = this.expect("STRING").value;
       return { type: "Path", segments: ["self", "status", name] };

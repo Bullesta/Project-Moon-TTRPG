@@ -26,6 +26,12 @@
     <nav class="sheet-tabs tabs" data-group="primary">
         <a class="item{{#if (eq activeTab 'description')}} active{{/if}}" data-action="tab" data-group="primary" data-tab="description">{{localize "PMTTRPG.Common.Description"}}</a>
         <a class="item{{#if (eq activeTab 'details')}} active{{/if}}" data-action="tab" data-group="primary" data-tab="details">{{localize "PMTTRPG.Common.Details"}}</a>
+        {{#if supportsEffects}}
+        <a class="item{{#if (eq activeTab 'effects')}} active{{/if}}" data-action="tab" data-group="primary" data-tab="effects">{{localize "PMTTRPG.Effects"}}</a>
+        {{/if}}
+        {{#if supportsEasyEffects}}
+        <a class="item{{#if (eq activeTab 'easy-effects')}} active{{/if}}" data-action="tab" data-group="primary" data-tab="easy-effects">{{localize "PMTTRPG.EasyEffects"}}</a>
+        {{/if}}
     </nav>
 
     {{!-- Sheet Body --}}
@@ -67,6 +73,18 @@
             </div>
           </div>
         </div>
+
+        {{#if supportsEffects}}
+        <div class="tab{{#if (eq activeTab 'effects')}} active{{/if}}" data-group="primary" data-tab="effects">
+          {{> "systems/projectmoonttrpg/templates/parts/effects-list.html"}}
+        </div>
+        {{/if}}
+
+        {{#if supportsEasyEffects}}
+        <div class="tab{{#if (eq activeTab 'easy-effects')}} active{{/if}}" data-group="primary" data-tab="easy-effects">
+          {{> "systems/projectmoonttrpg/templates/parts/easy-effects.html"}}
+        </div>
+        {{/if}}
     </section>
   </div>
 </div>

@@ -16,7 +16,7 @@ system:
   customNotes: ''
   easyEffects: |-
     [On Devastation]
-    proc DevastatingHit on attacker;
+    proc DevastatingHit on attacker targeting self;
     deal 1d8 hp damage per Devastation to self;
     lose all Devastation on self;
 

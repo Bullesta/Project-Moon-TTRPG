@@ -114,32 +114,6 @@ export async function runActorEasyEffects(actor, triggerName, context = {}) {
   return true;
 }
 
-// Update hooks can re-enter after the depth counter resets.
-const _depletingPools = new Set();
-
-/**
- * @param {Actor} actor
- * @param {{ pool: string, before: number, max: number }} depleted
- */
-export async function runDepletedEasyEffects(actor, depleted) {
-  if (!actor || !depleted?.pool) return;
-
-  const key = `${actor.id}:${depleted.pool}`;
-  if (_depletingPools.has(key)) return;
-  _depletingPools.add(key);
-  try {
-    await runActorEasyEffects(actor, "On Depleted", {
-      self: actor,
-      target: null,
-      ally: null,
-      clash: null,
-      depleted,
-    });
-  } finally {
-    _depletingPools.delete(key);
-  }
-}
-
 /**
  * @param {Array<Actor|null>} actors
  * @param {string} triggerName

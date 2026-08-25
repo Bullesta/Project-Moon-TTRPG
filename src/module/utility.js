@@ -1,3 +1,5 @@
+import { evaluateNumericExpression } from "./easy-effects/numeric-expr.js";
+
 export class PMTTRPGUtility {
   static isEmpty(arg) {
     return [null, false, undefined, 0, ''].includes(arg);
@@ -24,43 +26,10 @@ export class PMTTRPGUtility {
       return `${text}`;
     }
 
-    return `${text}`.replace(/\[(N(?:\s*[+\-*/]\s*-?\d+(?:\.\d+)?)?)\]/gi, (match, expression) => {
-      const normalized = `${expression}`.replace(/\s+/g, '').toUpperCase();
-      if (normalized === 'N') {
-        return `${stackValue}`;
-      }
-
-      const parts = normalized.match(/^N([+\-*/])(-?\d+(?:\.\d+)?)$/);
-      if (!parts) {
-        return match;
-      }
-
-      const operator = parts[1];
-      const operand = Number(parts[2]);
-      if (!Number.isFinite(operand)) {
-        return match;
-      }
-
-      let result = stackValue;
-      switch (operator) {
-      case '+':
-        result += operand;
-        break;
-      case '-':
-        result -= operand;
-        break;
-      case '*':
-        result *= operand;
-        break;
-      case '/':
-        if (operand === 0) return match;
-        result /= operand;
-        break;
-      default:
-        return match;
-      }
-
-      return Number.isInteger(result) ? `${result}` : `${result}`;
+    return `${text}`.replace(/\[([^\]]+)\]/g, (match, expression) => {
+      const value = evaluateNumericExpression(expression, { effectN: stackValue });
+      if (value == null) return match;
+      return Number.isInteger(value) ? `${value}` : `${value}`;
     });
   }
 

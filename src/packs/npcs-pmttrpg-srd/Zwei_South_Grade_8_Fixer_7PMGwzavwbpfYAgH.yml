@@ -232,8 +232,8 @@ items:
       weaponType: melee
       damageType: slash
       damageTypeFixed: false
-      formProperty: null
-      handProperty: null
+      formProperty: small
+      handProperty: off1h
       offensiveDice: 1d10+0
       rank: 1
       effects:

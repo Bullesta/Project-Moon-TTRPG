@@ -153,7 +153,8 @@ export class PMTTRPGItemSheet extends HandlebarsApplicationMixin(ItemSheetV2) {
         weapon: 'TYPES.Item.weapon',
         outfit: 'TYPES.Item.outfit',
         skill: 'TYPES.Item.skill',
-        augment: 'TYPES.Item.augment'
+        augment: 'TYPES.Item.augment',
+        ammunition: 'TYPES.Item.ammunition',
       };
     }
 
@@ -535,12 +536,12 @@ export class PMTTRPGItemSheet extends HandlebarsApplicationMixin(ItemSheetV2) {
   }
 
   _supportsEffects() {
-    return ['weapon', 'outfit', 'skill', 'augment', 'tool'].includes(this.document.type);
+    return ['weapon', 'outfit', 'skill', 'augment', 'tool', 'ammunition'].includes(this.document.type);
   }
 
   // separated cause effects & EasyEffects are different, though the function is the same currently, may not be the case always
   _supportsEasyEffects() {
-    return ['weapon', 'outfit', 'skill', 'augment', 'tool', 'status', 'effect'].includes(this.document.type);
+    return ['weapon', 'outfit', 'skill', 'augment', 'tool', 'ammunition', 'status', 'effect'].includes(this.document.type);
   }
 
   async _onRegenerateSlug(event, target) {

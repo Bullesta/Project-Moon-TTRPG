@@ -1,6 +1,7 @@
 import {
   DAMAGE_TYPES,
   RESISTANCE_MULTIPLIERS,
+  normalizeDamageType,
   normalizeResistanceLevel,
   formatResistanceMultiplier,
 } from "./easy-effects/resistances.js";
@@ -17,6 +18,12 @@ export {
   mergeResistanceOverrideMaps,
   formatResistanceMultiplier,
 } from "./easy-effects/resistances.js";
+
+export const SELECTABLE_DAMAGE_TYPES = Object.freeze(["none", ...DAMAGE_TYPES]);
+
+export function isSelectableDamageType(value) {
+  return SELECTABLE_DAMAGE_TYPES.includes(String(value ?? "").trim().toLowerCase());
+}
 
 const { renderTemplate } = foundry.applications.handlebars;
 
@@ -85,11 +92,48 @@ export function damageTypeLabel(damageType) {
   return game.i18n.localize(DAMAGE_TYPE_LABEL_KEYS[damageType] ?? damageType);
 }
 
+/**
+ * Damage type for a ranged attack or ranged Counter.
+ * If the applied tool has Slash, Pierce, or Blunt, use that. Otherwise a
+ * weapon with Fixed Damage Type keeps its own type and ignores ammo. Everyone
+ * else uses the selected round, unless they dry-fired.
+ *
+ * @param {{
+ *   weapon?: Item|null,
+ *   ammo?: Item|null,
+ *   appliedTool?: Item|null,
+ *   dryFire?: boolean,
+ * }} [opts]
+ * @returns {"none"|"slash"|"pierce"|"blunt"}
+ */
+export function resolveRangedDamageType({
+  weapon = null,
+  ammo = null,
+  appliedTool = null,
+  dryFire = false,
+} = {}) {
+  const toolType = normalizeDamageType(appliedTool?.system?.damageType);
+  if (toolType) return toolType;
+
+  if (weapon?.system?.damageTypeFixed) {
+    return normalizeDamageType(weapon.system?.damageType) ?? "none";
+  }
+
+  if (!dryFire) {
+    const ammoType = normalizeDamageType(ammo?.system?.damageType);
+    if (ammoType) return ammoType;
+  }
+
+  return "none";
+}
+
 export function getActorWeaponDamageType(actor) {
   if (!actor) return null;
   const weapon = actor.items.find((item) => item.type === "weapon" && item.system?.equipped);
-  const damageType = weapon?.system?.damageType;
-  return DAMAGE_TYPES.includes(damageType) ? damageType : null;
+  if (!weapon) return null;
+  const damageType = weapon.system?.damageType;
+  if (DAMAGE_TYPES.includes(damageType)) return damageType;
+  return "none";
 }
 
 export function getEquippedOutfit(actor) {
@@ -256,7 +300,8 @@ export function formatBreakdownRows(breakdown = []) {
         const reduction = Number(step.reduction) || 0;
         const delta = reduction >= 0 ? `−${reduction}` : `+${Math.abs(reduction)}`;
         return {
-          label: game.i18n.localize("PMTTRPG.DamageTaken.Breakdown.EasyEffects"),
+          label: (step.pool ? `${poolLabel(step.pool)} · ` : "")
+            + game.i18n.localize("PMTTRPG.DamageTaken.Breakdown.EasyEffects"),
           detail: game.i18n.format("PMTTRPG.DamageTaken.Breakdown.EasyEffectsDetail", {
             from: step.from,
             delta,

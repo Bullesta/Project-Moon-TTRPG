@@ -248,7 +248,7 @@ items:
       damageType: slash
       damageTypeFixed: false
       formProperty: medium
-      handProperty: null
+      handProperty: off1h
       offensiveDice: 1d10+0
       rank: 3
       effects:

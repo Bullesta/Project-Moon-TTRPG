@@ -1,4 +1,5 @@
 import { applyDiceMaxFloor, formatDiceFormula} from "../easy-effects/dice-formula.js";
+import { normalizeWeaponProperties } from "../item/weapon-properties.js";
 
 /**
  * All dice roll logic for the clash system.
@@ -86,8 +87,7 @@ function handLabel(handProperty) {
 export function buildOffensiveDiceParts(actor, weaponItem, clashBonuses = {}) {
   const rows = [];
   const baseSides = 10;
-  const formProperty = weaponItem?.system?.formProperty ?? null;
-  const handProperty = weaponItem?.system?.handProperty ?? null;
+  const { formProperty, handProperty } = normalizeWeaponProperties(weaponItem?.system);
   const formMax = formMaxBonus(formProperty);
   const handPower = handPowerBonus(handProperty);
 

@@ -11,15 +11,33 @@ import {
   resolvePathShorthand,
 } from "./nouns.js";
 import { expandSimpleDiceByMultiplier } from "./dice-formula.js";
-import { filterPoolValue, matchesBurstFilter, matchesClashStanceFilter, matchesDamageFilter, matchesDepletedFilter } from "./damage-filter.js";
+import { applyPendingDamageDelta, matchesClashStanceFilter, matchesDamageFilter, matchesDepletedFilter, shouldExecuteBurstBlock } from "./damage-filter.js";
 import { mergeResistanceOverrideMaps } from "./resistances.js";
 import { promptChoiceDialog } from "./choice-dialog.js";
 import { runAsOwnerOrGM } from "./gm-route.js";
 import { parseAccessorExpression } from "./parser.js";
+import { applyMathOp } from "./numeric-expr.js";
 import { clampPoolValue } from "../pool-clamp.js";
+import { resolveBurstBurster, sameActor } from "./burst-roles.js";
 
 // Me and the boi's hate infinite recursion
 const DIALOG_NEST_MAX_DEPTH = 8;
+
+function lookupVariable(context, name) {
+  const vars = context?._eeVars;
+  if (!(vars instanceof Map) || !vars.has(name)) {
+    throw new InterpretError(`Undefined variable '$${name}'`);
+  }
+  return vars.get(name);
+}
+
+function declareVariable(context, name, value) {
+  if (!(context._eeVars instanceof Map)) context._eeVars = new Map();
+  if (context._eeVars.has(name)) {
+    throw new InterpretError(`Variable '$${name}' is already declared`);
+  }
+  context._eeVars.set(name, value);
+}
 
 async function evaluateExpr(node, context) {
   switch (node.type) {
@@ -30,6 +48,7 @@ async function evaluateExpr(node, context) {
       return roll.total;
     }
     case "Path":  return resolvePath(node.segments, context);
+    case "Variable": return lookupVariable(context, node.name);
     case "Percent": return await resolvePercentExpr(node.expr, context, evaluateExpr);
     case "EffectN":
       return Math.max(0, Number(context.effectN) || 0);
@@ -54,6 +73,7 @@ function evaluateExprSync(node, context) {
       console.warn("[EasyEffects] Dice expressions are not allowed in [Always Active]; returning 0.");
       return 0;
     case "Path": return resolvePath(node.segments, context);
+    case "Variable": return lookupVariable(context, node.name);
     case "Percent": return resolvePercentExpr(node.expr, context, evaluateExprSync);
     case "EffectN":
       return Math.max(0, Number(context.effectN) || 0);
@@ -64,21 +84,6 @@ function evaluateExprSync(node, context) {
         evaluateExprSync(node.right, context)
       );
     default: return 0;
-  }
-}
-
-function applyMathOp(op, left, right) {
-  switch (op) {
-    case "+":  return left + right;
-    case "-":  return left - right;
-    case "*":  return left * right;
-    case "/":  return right === 0 ? (console.warn("[EasyEffects] Division by zero"), 0) : left / right;
-    case "%":  return right === 0 ? (console.warn("[EasyEffects] Modulo by zero"), 0)   : left % right;
-    case "//":
-    case "//f":
-      return right === 0 ? (console.warn("[EasyEffects] Floor-div by zero"), 0) : Math.floor(left / right);
-    case "//c": return right === 0 ? (console.warn("[EasyEffects] Ceil-div by zero"), 0) : Math.ceil(left / right);
-    default:   console.warn(`[EasyEffects] Unknown operator '${op}'`); return 0;
   }
 }
 
@@ -289,7 +294,8 @@ function resolvePath(segments, context) {
       return procBinds[root];
     }
     if (root === "self" || root === "target" || root === "ally"
-      || root === "attacker" || root === "originator") {
+      || root === "attacker" || root === "originator"
+      || root === "burster" || root === "burstee") {
       const actorRoot = resolveContextActor(root, context);
       if (!actorRoot) {
         console.warn(`[EasyEffects] Path root '${root}' not in context.`);
@@ -581,12 +587,12 @@ function _resolveClashBonusSide(context, actionTarget) {
   const attacker = context.attacker ?? null;
   const defender = context.defender ?? null;
 
-  if (actor && attacker && actor.id === attacker.id) return "attacker";
-  if (actor && defender && actor.id === defender.id) return "defender";
-  if (context.self && attacker && context.self.id === attacker.id) {
+  if (actor && attacker && sameActor(actor, attacker)) return "attacker";
+  if (actor && defender && sameActor(actor, defender)) return "defender";
+  if (context.self && attacker && sameActor(context.self, attacker)) {
     return wantTarget ? "defender" : "attacker";
   }
-  if (context.self && defender && context.self.id === defender.id) {
+  if (context.self && defender && sameActor(context.self, defender)) {
     return wantTarget ? "attacker" : "defender";
   }
   return wantTarget ? "defender" : "attacker";
@@ -625,6 +631,62 @@ function _applyClashBonus(context, field, delta, actionTarget = "self") {
   bonuses[field] = (bonuses[field] ?? 0) + delta;
 }
 
+function statusApplyFilterFromContext(context) {
+  return context?.clash?.statusApplyFilter ?? null;
+}
+
+function statusApplyFilterNames(filter) {
+  const raw = filter?.names;
+  if (raw instanceof Set) {
+    return new Set([...raw].map((n) => String(n ?? "").trim().toLowerCase()).filter(Boolean));
+  }
+  if (Array.isArray(raw)) {
+    return new Set(raw.map((n) => String(n ?? "").trim().toLowerCase()).filter(Boolean));
+  }
+  return new Set();
+}
+
+const STATUS_APPLY_VERBS = ["add", "remove", "set"];
+
+function statusApplyFilterVerbs(filter) {
+  const raw = filter?.verbs;
+  if (Array.isArray(raw) && raw.length) {
+    return new Set(raw.map((v) => String(v ?? "").trim().toLowerCase()).filter(Boolean));
+  }
+  return new Set(STATUS_APPLY_VERBS);
+}
+
+function actionStatusName(action) {
+  if (!action || action.noun !== "status") return null;
+  if (!STATUS_APPLY_VERBS.includes(action.verb)) return null;
+  const name = String(action.argument ?? "").trim().toLowerCase();
+  return name || null;
+}
+
+function actionAllowedByStatusFilter(action, filter) {
+  if (!filter?.mode) return true;
+  const names = statusApplyFilterNames(filter);
+  if (!names.size) return true;
+  const statusName = actionStatusName(action);
+  if (!statusName) return filter.mode !== "only";
+  if (!statusApplyFilterVerbs(filter).has(action.verb)) return filter.mode !== "only";
+  const listed = names.has(statusName);
+  return filter.mode === "only" ? listed : !listed;
+}
+
+function statementAllowedByStatusFilter(stmt, filter) {
+  if (!filter?.mode) return true;
+  if (stmt.type === "DialogStatement" || stmt.type === "MessageStatement" || stmt.type === "RollStatement") {
+    return filter.mode !== "only";
+  }
+  return true;
+}
+
+function instantApplyIsLive(context) {
+  const filter = statusApplyFilterFromContext(context);
+  return filter?.mode === "only" && filter.forceLive === true;
+}
+
 const ACTION_HANDLERS = {
   // ── Status / resource ──────────────────────────────────────────────────────
   add: async (action, context, amount) => {
@@ -641,7 +703,7 @@ const ACTION_HANDLERS = {
     if (action.noun !== "status") throw new InterpretError(`'add' only supports noun 'status'`);
     const originUuid = context.self?.uuid ?? null;
     for (const actor of resolveTargets(action.target, context)) {
-      if (action.timing) {
+      if (action.timing && !instantApplyIsLive(context)) {
         await runAsOwnerOrGM(actor, "addPendingStatusStacks", {
           statusName: action.argument,
           amount,
@@ -747,12 +809,11 @@ const ACTION_HANDLERS = {
       console.warn("[EasyEffects] 'reduce damage' used outside [On Taking Damage]; ignored.");
       return;
     }
-    if (action.resistanceTiming === "after") {
-      applyAfterResistanceDelta(context.damage, -amount, context._blockDamageFilter);
-      return;
-    }
-    const cur = Number(context.damage.amount) || 0;
-    context.damage.amount = Math.max(0, cur - amount);
+    applyPendingDamageDelta(context.damage, -amount, {
+      damageFilter: context._blockDamageFilter,
+      actionPool: action.pool,
+      timing: action.resistanceTiming === "after" ? "after" : "before",
+    });
   },
 
   increase: async (action, context, amount) => {
@@ -761,12 +822,11 @@ const ACTION_HANDLERS = {
       console.warn("[EasyEffects] 'increase damage' used outside [On Taking Damage]; ignored.");
       return;
     }
-    if (action.resistanceTiming === "after") {
-      applyAfterResistanceDelta(context.damage, amount, context._blockDamageFilter);
-      return;
-    }
-    const cur = Number(context.damage.amount) || 0;
-    context.damage.amount = Math.max(0, cur + amount);
+    applyPendingDamageDelta(context.damage, amount, {
+      damageFilter: context._blockDamageFilter,
+      actionPool: action.pool,
+      timing: action.resistanceTiming === "after" ? "after" : "before",
+    });
   },
 
   // Conversion changes the pending hit without applying new damage.
@@ -965,11 +1025,13 @@ const ACTION_HANDLERS = {
       return;
     }
     const { emitStatusBurst } = await import("./registry.js");
+    const burster = resolveBurstBurster(context);
     for (const actor of targets) {
       await emitStatusBurst({
         statusName,
         actor,
-        attacker: context.attacker ?? context.target ?? null,
+        burster,
+        attacker: context.attacker ?? null,
         clash: context.clash ?? null,
         sourceItem: context.item ?? null,
         attackerSkill: context.attackerSkill ?? context.clash?.attackerSkill ?? null,
@@ -998,6 +1060,8 @@ const ACTION_HANDLERS = {
       binds[bind.name] = await resolveAmount(bind.amount, context);
     }
 
+    const procTarget = resolveProcTargetActor(action.procTarget, context);
+
     const { emitProc } = await import("./registry.js");
     for (const focusActor of targets) {
       await emitProc({
@@ -1005,7 +1069,7 @@ const ACTION_HANDLERS = {
         focusActor,
         proccer: context.self ?? null,
         attacker: context.attacker ?? null,
-        target: context.target ?? null,
+        target: procTarget,
         clash: context.clash ?? null,
         sourceItem: context.item ?? null,
         attackerSkill: context.attackerSkill ?? context.clash?.attackerSkill ?? null,
@@ -1018,6 +1082,19 @@ const ACTION_HANDLERS = {
 
   message: async (action, context) => {
     await postChatMessage(action.argument, action.target ?? "self", context);
+  },
+
+  dialog: async (action, context) => {
+    const ast = context._scriptAst;
+    if (!ast) {
+      console.warn("[EasyEffects] Dialog action missing script AST");
+      return;
+    }
+    await runDialogStatement({
+      prompt: action.argument,
+      audience: action.audience,
+      choices: action.choices,
+    }, ast, context, Number(context._dialogDepth) || 0);
   },
 
   roll: async (action, context, resolvedAmount) => {
@@ -1129,7 +1206,7 @@ function evaluateConditionSync(condition, context) {
 
 // ── Target resolution ─────────────────────────────────────────────────────────
 
-const SINGLE_TARGETS = new Set(["self", "target", "ally", "attacker", "originator"]);
+const SINGLE_TARGETS = new Set(["self", "target", "ally", "attacker", "originator", "burster", "burstee"]);
 
 function resolveTargets(targetName, context) {
   if (SINGLE_TARGETS.has(targetName)) {
@@ -1156,26 +1233,17 @@ function _isEnemy(other, self) {
   return ot.document.disposition !== st.document.disposition;
 }
 
-// After-resistance flats honor the block's pool filter.
-function applyAfterResistanceDelta(damage, delta, damageFilter = null) {
-  if (!damage || !Number(delta)) return;
-  const raw = damage.pool;
-  let pools = (Array.isArray(raw) ? raw : [raw ?? "hp"])
-    .map((p) => String(p ?? "").toLowerCase())
-    .filter(Boolean);
-  const wantPool = filterPoolValue(damageFilter);
-  if (wantPool) {
-    const want = String(wantPool).toLowerCase();
-    pools = pools.filter((p) => p === want);
-  }
-  if (!pools.length) return;
-  if (!damage.afterDeltaByPool || typeof damage.afterDeltaByPool !== "object") {
-    damage.afterDeltaByPool = {};
-  }
-  for (const pool of pools) {
-    damage.afterDeltaByPool[pool] = (Number(damage.afterDeltaByPool[pool]) || 0) + delta;
-  }
+/**
+ * Actor passed as `target` in a nested proc.
+ * @param {string|null|undefined} procTarget
+ * @param {object} context
+ * @returns {Actor|null}
+ */
+function resolveProcTargetActor(procTarget, context) {
+  if (!procTarget) return context.target ?? null;
+  return resolveTargets(procTarget, context)[0] ?? null;
 }
+
 
 // ── Main async entry point ────────────────────────────────────────────────────
 
@@ -1189,60 +1257,71 @@ function applyAfterResistanceDelta(damage, delta, damageFilter = null) {
 export async function execute(ast, trigger, context) {
   const dialogDepth = Number(context?._dialogDepth) || 0;
   ensureRollsBag(context);
+  // Fresh lets per execute() call. Dialog answers and concurrent runs stay isolated.
+  const execContext = { ...context, _eeVars: new Map(), _scriptAst: ast };
 
   for (const block of ast.blocks) {
     if (block.trigger !== trigger) continue;
-    if (block.damageFilter && !matchesDamageFilter(block.damageFilter, context.damage)) continue;
-    if (block.depletedFilter && !matchesDepletedFilter(block.depletedFilter, context.depleted)) continue;
-    if (block.clashStanceFilter && !matchesClashStanceFilter(block.clashStanceFilter, context.clashStance)) continue;
-    if (trigger === "On Burst" && context.burstPhase) {
-      if (!matchesBurstFilter(block.burstFilter, {
-        statusName: context.burst?.status,
-        phase: context.burstPhase,
-      })) continue;
+    if (block.damageFilter && !matchesDamageFilter(block.damageFilter, execContext.damage)) continue;
+    if (block.depletedFilter && !matchesDepletedFilter(block.depletedFilter, execContext.depleted)) continue;
+    if (block.clashStanceFilter && !matchesClashStanceFilter(block.clashStanceFilter, execContext.clashStance)) continue;
+    if (trigger === "On Burst" && execContext.burstPhase) {
+      if (!shouldExecuteBurstBlock(block, execContext)) continue;
     }
 
-    context._blockDamageFilter = block.damageFilter ?? null;
+    execContext._blockDamageFilter = block.damageFilter ?? null;
+
+    const statusFilter = statusApplyFilterFromContext(execContext);
 
     for (const stmt of block.statements) {
       try {
         // Skip effect-template branches for the other polarity.
-        if (stmt.polarity && stmt.polarity !== context.effectMode) continue;
+        if (stmt.polarity && stmt.polarity !== execContext.effectMode) continue;
+        if (!statementAllowedByStatusFilter(stmt, statusFilter)) continue;
+
+        const actions = stmt.actions ?? [];
+        const allowedActions = actions.filter((action) => actionAllowedByStatusFilter(action, statusFilter));
+        if (actions.length && !allowedActions.length) continue;
+
+        if (stmt.type === "LetStatement") {
+          await runLetStatement(stmt, execContext);
+          continue;
+        }
 
         if (stmt.type === "DialogStatement") {
-          await runDialogStatement(stmt, ast, context, dialogDepth);
+          await runDialogStatement(stmt, ast, execContext, dialogDepth);
           continue;
         }
 
         if (stmt.type === "MessageStatement") {
-          await runMessageStatement(stmt, context);
+          await runMessageStatement(stmt, execContext);
           continue;
         }
 
         if (stmt.type === "RollStatement") {
-          await applyRollToContext(stmt.formula, context, stmt.bind);
+          await applyRollToContext(stmt.formula, execContext, stmt.bind);
           continue;
         }
 
-        if (stmt.condition && !(await evaluateCondition(stmt.condition, context))) continue;
+        if (stmt.condition && !(await evaluateCondition(stmt.condition, execContext))) continue;
 
         if (stmt.roll) {
-          await applyRollToContext(stmt.roll.formula, context, stmt.roll.bind ?? null);
+          await applyRollToContext(stmt.roll.formula, execContext, stmt.roll.bind ?? null);
         }
 
-        if (stmt.postCondition && !(await evaluateCondition(stmt.postCondition, context))) continue;
+        if (stmt.postCondition && !(await evaluateCondition(stmt.postCondition, execContext))) continue;
 
         let inheritedTarget = "self";
-        for (const action of stmt.actions) {
+        for (const action of allowedActions) {
 
           const effectiveTarget = action.target ?? inheritedTarget;
           if (action.target) inheritedTarget = action.target;
 
-          const { amount, formula } = await resolveActionAmount(action, context);
+          const { amount, formula } = await resolveActionAmount(action, execContext);
 
           const handler = ACTION_HANDLERS[action.verb];
           if (!handler) { console.warn(`[EasyEffects] Unknown verb '${action.verb}'`); continue; }
-          await handler({ ...action, target: effectiveTarget }, context, amount, { formula });
+          await handler({ ...action, target: effectiveTarget }, execContext, amount, { formula });
         }
       } catch (err) {
         console.error(`[EasyEffects] Error in statement:`, stmt, err);
@@ -1250,6 +1329,16 @@ export async function execute(ast, trigger, context) {
       }
     }
   }
+}
+
+async function runLetStatement(stmt, context) {
+  const value = await evaluateExpr(stmt.expr, context);
+  declareVariable(context, stmt.name, value);
+}
+
+function runLetStatementSync(stmt, context) {
+  const value = evaluateExprSync(stmt.expr, context);
+  declareVariable(context, stmt.name, value);
 }
 
 async function runDialogStatement(stmt, ast, context, dialogDepth) {
@@ -1271,6 +1360,7 @@ async function runDialogStatement(stmt, ast, context, dialogDepth) {
   await execute(ast, `On Dialog Answer ${answerId}`, {
     ...context,
     _dialogDepth: dialogDepth + 1,
+    _dialogResponder: audienceActor ?? null,
   });
 }
 
@@ -1397,16 +1487,22 @@ export function executeAlwaysActive(ast, prepareContext) {
     item: prepareContext.item ?? null,
     clash: null,
     combat: prepareContext.combat ?? globalThis.game?.combat ?? null,
+    _eeVars: new Map(),
   };
 
   for (const block of ast.blocks) {
     if (block.trigger !== "Always Active") continue;
     for (const stmt of block.statements) {
       try {
+        if (stmt.type === "LetStatement") {
+          runLetStatementSync(stmt, context);
+          continue;
+        }
+
         // Condition (sync eval only — no dice)
         if (stmt.condition && !evaluateConditionSync(stmt.condition, context)) continue;
 
-        for (const action of stmt.actions) {
+        for (const action of stmt.actions ?? []) {
           let rawAmount = resolveAmountSync(action.amount, context);
           if (action.per) rawAmount *= resolveAmountSync(action.per, context);
           const amount = Math.max(0, Math.round(rawAmount));
@@ -1479,6 +1575,8 @@ export function executeAlwaysActive(ast, prepareContext) {
               );
               break;
             }
+            case "instant":
+              break;
             default:
               console.warn(`[EasyEffects] Verb '${action.verb}' is not supported in [Always Active].`);
           }

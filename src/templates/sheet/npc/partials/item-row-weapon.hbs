@@ -4,10 +4,8 @@
       {{> "systems/projectmoonttrpg/templates/sheet/character/partials/item-thumb.hbs" img=item.img name=item.name}}
       <strong class="item-name">{{item.name}}</strong>
       <div class="item-title-row__actions">
-        {{#if item.system.offensiveDiceComputed}}
-          {{#if (lookup selects.damageTypes item.system.damageType)}}
-          {{> "systems/projectmoonttrpg/templates/sheet/character/partials/item-attack-dice.hbs" assetPath=assetPath roll=item.system.offensiveDiceComputed itemId=item._id damageType=item.system.damageType damageLabel=(localize (lookup selects.damageTypes item.system.damageType))}}
-          {{/if}}
+        {{#if (and item.system.offensiveDiceComputed (or (and (eq item.system.weaponType "ranged") (not item.system.damageTypeFixed)) (lookup selects.damageTypes item.system.damageType)))}}
+          {{> "systems/projectmoonttrpg/templates/sheet/character/partials/item-attack-dice.hbs" assetPath=assetPath roll=item.system.offensiveDiceComputed itemId=item._id damageType=item.system.damageType damageLabel=(localize (lookup selects.damageTypes item.system.damageType)) showDamageIcon=(lookup selects.damageTypes item.system.damageType)}}
         {{/if}}
       </div>
     </div>
