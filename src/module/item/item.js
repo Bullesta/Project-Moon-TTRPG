@@ -17,20 +17,28 @@ import {
 } from "./declare-skill.js";
 import { applyDiceMaxFloor, formatDiceFormula } from "../easy-effects/dice-formula.js";
 import { promptRangedAmmo } from "../combat/clash-dialog.js";
+import { resolveRangedDamageType } from "../damage-application.js";
+import { normalizeWeaponProperties } from "./weapon-properties.js";
 
-async function pickWeaponBuyIn(actor, hostItem, {
+/**
+ * Skill XOR applied tool.
+ */
+export async function pickDeclaredBuyIn(actor, hostItem, {
+  applyTo,
+  skillType = "attack",
   configureDialog = true,
   appliedTool = undefined,
   consumeAppliedTool = true,
   declaredSkill = undefined,
   consumeSkillLight = true,
+  defenseType = null,
 } = {}) {
   let skill = declaredSkill;
   let consumeLight = consumeSkillLight !== false;
 
   if (configureDialog && declaredSkill === undefined) {
     const skillPick = await promptDeclareSkillDialog(actor, {
-      skillType: "attack",
+      skillType,
       hostItem,
     });
     if (skillPick == null) return null;
@@ -46,8 +54,9 @@ async function pickWeaponBuyIn(actor, hostItem, {
     consumeTool = false;
   } else if (configureDialog && appliedTool === undefined) {
     const pick = await promptAppliedToolDialog(actor, {
-      applyTo: "weapon",
+      applyTo,
       hostItem,
+      defenseType,
     });
     if (pick == null) return null;
     tool = pick.tool;
@@ -55,6 +64,14 @@ async function pickWeaponBuyIn(actor, hostItem, {
   }
 
   return { skill: skill ?? null, consumeLight, tool, consumeTool };
+}
+
+async function pickWeaponBuyIn(actor, hostItem, options = {}) {
+  return pickDeclaredBuyIn(actor, hostItem, {
+    ...options,
+    applyTo: "weapon",
+    skillType: "attack",
+  });
 }
 
 function getEffectSignature(entry) {
@@ -82,6 +99,14 @@ export class ItemPMTTRPG extends Item {
     if (source?.type === "tool" && source.system) {
       if (source.system.held) source.system.equipped = true;
       delete source.system.held;
+      if (source.system.applyTo == null) source.system.applyTo = "";
+      if (source.system.damageType == null) source.system.damageType = "";
+    }
+    if (source?.type === "weapon" && source.system) {
+      Object.assign(source.system, normalizeWeaponProperties(source.system));
+    }
+    if (source?.type === "ammunition" && source.system && !source.system.damageType) {
+      source.system.damageType = "slash";
     }
     if (source?.system && (source.system.slug === undefined || source.system.slug === null)) {
       source.system.slug = "";
@@ -107,6 +132,12 @@ export class ItemPMTTRPG extends Item {
         changed.system.equipped = true;
       }
       changed.system.held = foundry.data.operators.ForcedDeletion;
+    }
+    if (this.type === "weapon" && changed.system) {
+      const merged = { ...this._source?.system, ...changed.system };
+      const next = normalizeWeaponProperties(merged);
+      if (next.formProperty !== merged.formProperty) changed.system.formProperty = next.formProperty;
+      if (next.handProperty !== merged.handProperty) changed.system.handProperty = next.handProperty;
     }
     if (changed.system && Object.hasOwn(changed.system, "slug")) {
       const raw = changed.system.slug;
@@ -151,6 +182,7 @@ export class ItemPMTTRPG extends Item {
       let diceMaxBonus = 0;
       let dicePowerFromHand = 0;
       let dicePowerFromAttack = 0;
+      Object.assign(data, normalizeWeaponProperties(data));
 
       switch (data.formProperty) {
       case 'medium':
@@ -204,6 +236,15 @@ export class ItemPMTTRPG extends Item {
       const normalizedEffects = normalizeEffectEntries(data.effects);
       data.effects = normalizedEffects;
       data.effectsSummary = computeEffectSummary(normalizedEffects, Number(data.epMax ?? 0));
+    }
+
+    if (itemData.type == 'ammunition') {
+      data.quantity = Math.max(0, Number(data.quantity ?? 1));
+      data.easyEffects = String(data.easyEffects ?? '');
+      const normalizedEffects = normalizeEffectEntries(data.effects);
+      data.effects = normalizedEffects;
+      data.epMax = Number(data.epMax ?? 0) || 0;
+      data.effectsSummary = computeEffectSummary(normalizedEffects, data.epMax);
     }
 
     if (itemData.type == 'outfit') {
@@ -312,6 +353,8 @@ export class ItemPMTTRPG extends Item {
       data.form = data.form || 'consumable';
       data.handProperty = data.handProperty || 'handless';
       data.toolKind = data.toolKind || 'market';
+      data.applyTo = data.applyTo ?? '';
+      data.damageType = data.damageType ?? '';
       data.inventoryTag = data.inventoryTag || 'tool';
       data.slotCost = data.compact ? 0 : slotCostFromHand(data.handProperty);
       data.stackPerSlot = Math.max(1, Number(data.stackPerSlot ?? 1));
@@ -542,12 +585,15 @@ export class ItemPMTTRPG extends Item {
           ammoName: isDryFire ? dryFireLabel : ammo.name,
           ammoType: isDryFire ? null : (ammo.system?.ammoType ?? null),
           ammoDamageType: isDryFire ? null : (ammo.system?.damageType ?? null),
-          damageType: tool?.system?.damageType
-            || (!isDryFire ? ammo.system?.damageType : null)
-            || this.system?.damageType
-            || null,
+          ammoId: isDryFire ? null : (ammo?.id ?? null),
           ...buildAppliedToolTemplateData(tool),
           ...buildDeclaredSkillTemplateData(skill, consumeLight),
+          damageType: resolveRangedDamageType({
+            weapon: this,
+            ammo: isDryFire ? null : ammo,
+            appliedTool: tool,
+            dryFire: isDryFire,
+          }),
         },
         onBeforeChat: buildAppliedToolOnBeforeChat({
           actor: this.actor,
@@ -751,6 +797,8 @@ export class ItemPMTTRPG extends Item {
                 'system.bonusEP', 'system.bonusLight', 'system.resistances', 'system.effects'],
       skill:   ['name', 'img', 'system.description', 'system.rank', 'system.lightCost',
                 'system.innate', 'system.effects'],
+      ammunition: ['name', 'img', 'system.description', 'system.ammoType', 'system.damageType',
+                'system.inventoryPool', 'system.effects', 'system.easyEffects'],
       tool:    ['name', 'img', 'system.description', 'system.rank', 'system.form',
                 'system.handProperty', 'system.toolKind', 'system.applyTo', 'system.damageType',
                 'system.allowUse', 'system.effects', 'system.easyEffects'],

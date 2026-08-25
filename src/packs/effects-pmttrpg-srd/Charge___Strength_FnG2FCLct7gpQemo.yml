@@ -31,7 +31,7 @@ system:
     [On Clash RESULT]
     spend (N*6) Charge to gain (N) Strength next round;
 effects: []
-sort: 2200000
+sort: 3100000
 ownership:
   default: 0
   yWsvx4DXrmYcZsue: 3
@@ -41,7 +41,7 @@ _stats:
   systemId: projectmoonttrpg
   systemVersion: 0.0.1
   createdTime: 1787251585545
-  modifiedTime: 1787251585545
+  modifiedTime: 1787561958508
   lastModifiedBy: yWsvx4DXrmYcZsue
   compendiumSource: null
   duplicateSource: Item.PDFPvdnt6GidEUos

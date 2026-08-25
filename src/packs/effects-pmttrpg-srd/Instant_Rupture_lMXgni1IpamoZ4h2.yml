@@ -5,10 +5,10 @@ img: >-
   systems/projectmoonttrpg/assets/icons/limbus_assets/Basic%20Effects/Rupture/Rupture.webp
 system:
   name: ''
-  description: '<p><em>Note: This effect is not yet automated.</em></p>'
+  description: ''
   slug: instant-rupture
-  cost: 2
-  stackMax: 5
+  cost: 4
+  stackMax: 1
   appliesTo: skill
   canPositive: true
   canNegative: false
@@ -22,13 +22,16 @@ system:
   procAction: any
   procCondition: ''
   positive: >-
-    <p>If the character has [N*2+2] or more Rupture stacks, increase Dice Power
-    by [N].</p>
+    <p>[Inflict Rupture] from Effects and this Skill is applied to the target
+    and is activated immediately for the round. This occurs before any Rupture
+    Burst.</p>
   negative: ''
   macro:
     uuid: ''
   customNotes: ''
-  easyEffects: ''
+  easyEffects: |-
+    [Always Active]
+    instant Rupture
 effects: []
 sort: 100000
 ownership:

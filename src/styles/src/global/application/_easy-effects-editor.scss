@@ -5,6 +5,7 @@
   --ee-tok-keyword: #d4b896;
   --ee-tok-string: #e0a8b8;
   --ee-tok-number: #f0d09a;
+  --ee-tok-variable: #8ec8e8;
   --ee-code-font: Consolas, "Courier New", monospace;
   --ee-code-size: 13px;
   --ee-code-line: 1.5;
@@ -113,9 +114,11 @@
   &--comment { color: #9db88a; }
   &--trigger { color: #f5c15a; }
   &--action { color: #7ed4c8; }
+  &--tag { color: #c4b5d4; font-style: italic; }
   &--keyword { color: #d4b896; }
   &--string { color: #e0a8b8; }
   &--number { color: #f0d09a; }
+  &--variable { color: var(--ee-tok-variable, #8ec8e8); }
 }
 
 .item-form .resource.resource--easy-effects .pm-ee-code {

@@ -27,7 +27,7 @@ system:
   customNotes: ''
   easyEffects: |-
     [On FailedDevastationRoll]
-    on roll 1d10 <= Ruin proc AskForDevastation;
+    on roll 1d10 <= Ruin then proc AskForDevastation;
 effects: []
 sort: 100000
 ownership:
@@ -42,9 +42,9 @@ _stats:
   exportSource: null
   coreVersion: '14.364'
   systemId: projectmoonttrpg
-  systemVersion: 0.0.1
+  systemVersion: 0.1.0
   createdTime: 1787229135232
-  modifiedTime: 1787229431255
+  modifiedTime: 1787561943439
   lastModifiedBy: yWsvx4DXrmYcZsue
 _id: XmdANtsAGwYwdqbF
 _key: '!items!XmdANtsAGwYwdqbF'

@@ -235,7 +235,7 @@ items:
       damageType: blunt
       damageTypeFixed: false
       formProperty: long
-      handProperty: null
+      handProperty: off1h
       offensiveDice: 1d10+0
       rank: 3
       effects:
@@ -368,7 +368,7 @@ items:
       damageType: blunt
       damageTypeFixed: false
       formProperty: long
-      handProperty: null
+      handProperty: off1h
       offensiveDice: 1d10+0
       rank: 3
       effects:

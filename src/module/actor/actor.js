@@ -2,8 +2,7 @@ import { PMTTRPGUtility } from '../utility.js';
 import { getActionEconomyFromRank, getRankFromLevel, TACTICAL_SQUARES_BASE, squareTurnCap } from './progression.js';
 import { actorHistorySquareCost, actorSquaresExhausted } from '../combat/movement.js';
 const { renderTemplate } = foundry.applications.handlebars;
-import { applyAlwaysActiveModifiers, runOnTakingDamage } from '../easy-effects/registry.js';
-import { runDepletedEasyEffects } from '../easy-effects/actor-scripts.js';
+import { applyAlwaysActiveModifiers, runOnTakingDamage, runDepletedEasyEffects } from '../easy-effects/registry.js';
 import { applyResourceModsToSystem, applyResourceOverridesToSystem } from '../easy-effects/nouns.js';
 import { applyInventorySlotUsage } from '../inventory/slots.js';
 import { isPendingStatus, normalizeArrival } from '../status/pending.js';
@@ -651,6 +650,7 @@ export class ActorPMTTRPG extends Actor {
     let poolsAfter = pools;
     let damageTypeForResist = damageType;
     let afterDeltaByPool = {};
+    let beforeDeltaByPool = {};
 
     if (op !== "heal" && !skipEasyEffects) {
       const beforeEe = amountAfterSource;
@@ -661,11 +661,15 @@ export class ActorPMTTRPG extends Actor {
         damageType: eeDamageType,
         fromAttack,
         afterDeltaByPool: {},
+        beforeDeltaByPool: {},
       };
       await runOnTakingDamage(this, damageCtx, { attacker: options.attacker ?? null });
       amountAfterSource = Math.max(0, Number(damageCtx.amount) || 0);
       afterDeltaByPool = damageCtx.afterDeltaByPool && typeof damageCtx.afterDeltaByPool === "object"
         ? damageCtx.afterDeltaByPool
+        : {};
+      beforeDeltaByPool = damageCtx.beforeDeltaByPool && typeof damageCtx.beforeDeltaByPool === "object"
+        ? damageCtx.beforeDeltaByPool
         : {};
       poolsAfter = normalizePools(damageCtx.pool);
 
@@ -717,6 +721,18 @@ export class ActorPMTTRPG extends Actor {
       const current = Number(poolData.value) || 0;
       const max = Number(poolData.max) || 0;
       let newAmount = amountAfterSource;
+      const beforeFlat = Number(beforeDeltaByPool[pool]) || 0;
+      if (beforeFlat) {
+        const before = newAmount;
+        newAmount = Math.max(0, newAmount + beforeFlat);
+        breakdown.push({
+          key: "easyEffects",
+          pool,
+          reduction: -beforeFlat,
+          from: before,
+          to: newAmount,
+        });
+      }
       const skipTypeResist = !useOutfitTypeResists || pool === "sp" || pool === "light";
 
       if (!skipTypeResist) {

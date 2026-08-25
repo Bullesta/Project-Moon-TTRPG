@@ -348,6 +348,10 @@ function _attackCardI18n(state) {
   return {
     retaliate:    game.i18n.localize("PMTTRPG.Clash.Retaliate"),
     intercept:    game.i18n.localize("PMTTRPG.Clash.Intercept"),
+    retaliateHint: state.targetName
+      ? game.i18n.format("PMTTRPG.Clash.RetaliateHint", { name: state.targetName })
+      : game.i18n.localize("PMTTRPG.Clash.Retaliate"),
+    interceptHint: game.i18n.localize("PMTTRPG.Clash.InterceptHint"),
     using:        game.i18n.localize("PMTTRPG.Clash.Using"),
     attackBy:     game.i18n.format("PMTTRPG.Clash.AttackBy",     { name: state.attackerName }),
     targeting:    state.targetName

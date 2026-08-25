@@ -23,7 +23,8 @@ export class PMTTRPGEffectItemSheet extends PMTTRPGItemSheet {
       weapon: 'TYPES.Item.weapon',
       outfit: 'TYPES.Item.outfit',
       skill: 'TYPES.Item.skill',
-      augment: 'TYPES.Item.augment'
+      augment: 'TYPES.Item.augment',
+      ammunition: 'TYPES.Item.ammunition',
     };
 
     return context;

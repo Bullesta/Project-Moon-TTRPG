@@ -1,4 +1,5 @@
 import { isApplyPoolNoun, resolveApplyPool } from "./nouns.js";
+import { sameActor } from "./burst-roles.js";
 
 function splitTakingDamageTokens(mid) {
   const tokens = [];
@@ -16,11 +17,122 @@ export function isAttackDamage(damage) {
   return damage?.fromAttack === true;
 }
 
+/** Pool named on a taking-damage filter, if any. Compound filters keep it on `.pool`. */
 export function filterPoolValue(filter) {
   if (!filter) return null;
   if (filter.kind === "pool") return filter.value ?? null;
   if (filter.kind === "compound") return filter.pool ?? null;
   return null;
+}
+
+function normalizePoolList(raw) {
+  if (raw == null || raw === "") return [];
+
+  const list = Array.isArray(raw) ? raw : [raw];
+
+  return list.map((p) => String(p ?? "").toLowerCase()).filter(Boolean);
+}
+
+/**
+ * Returns the pools this hit is about to touch.
+ *
+ * Missing pool defaults to HP.
+ *
+ * @param {{ pool?: string|string[] }|null|undefined} damage
+ * @returns {string[]}
+ */
+export function pendingDamagePools(damage) {
+  const list = normalizePoolList(damage?.pool);
+  return list.length ? list : ["hp"];
+}
+
+/**
+ * Pick the pools this `reduce/increase` line can affect.
+ *
+ * `all` is every pool on the hit. `pools` is the subset selected by things
+ * like `[On Taking HP Attack Damage]` or `reduce hp damage`.
+ *
+ * @param {{ pool?: string|string[] }|null|undefined} damage
+ * @param {{ damageFilter?: object|null, actionPool?: string|string[]|null }} [options]
+ * @returns {{ all: string[], pools: string[] }}
+ */
+export function resolveDamageDeltaPools(
+  damage,
+  { damageFilter = null, actionPool = null } = {}
+) {
+  const all = pendingDamagePools(damage);
+  let pools = all.slice();
+
+  const fromAction = normalizePoolList(actionPool);
+  if (fromAction.length) {
+    const want = new Set(fromAction);
+    pools = pools.filter((p) => want.has(p));
+  }
+
+  const fromFilter = filterPoolValue(damageFilter);
+  if (fromFilter) {
+    const want = String(fromFilter).toLowerCase();
+    pools = pools.filter((p) => p === want);
+  }
+
+  return { all, pools };
+}
+
+/**
+ * Apply one `reduce/increase` modifier to the pending hit.
+ *
+ * Negative delta reduces damage while positive delta increases it.
+ *
+ * After-resistance changes are always tracked per pool.
+ *
+ * Before resistance, a modifier that affects the whole hit can update
+ * `damage.amount` directly. Pool-specific changes use `beforeDeltaByPool`.
+ *
+ * @param {object} damage Pending hit from `applyDamage`.
+ * @param {number} delta Signed amount.
+ * @param {{
+ *   damageFilter?: object|null,
+ *   actionPool?: string|string[]|null,
+ *   timing?: "before"|"after",
+ * }} [options]
+ */
+export function applyPendingDamageDelta(damage, delta, options = {}) {
+  if (!damage || !Number(delta)) return;
+
+  const timing = options.timing === "after" ? "after" : "before";
+  const { all, pools } = resolveDamageDeltaPools(damage, options);
+
+  if (!pools.length) return;
+
+  if (timing === "after") {
+    if (!damage.afterDeltaByPool || typeof damage.afterDeltaByPool !== "object") {
+      damage.afterDeltaByPool = {};
+    }
+
+    for (const pool of pools) {
+      damage.afterDeltaByPool[pool] =
+        (Number(damage.afterDeltaByPool[pool]) || 0) + delta;
+    }
+
+    return;
+  }
+
+  const affectsAll =
+    pools.length === all.length && all.every((p) => pools.includes(p));
+
+  if (affectsAll) {
+    damage.amount = Math.max(0, (Number(damage.amount) || 0) + delta);
+    return;
+  }
+
+  if (!damage.beforeDeltaByPool || typeof damage.beforeDeltaByPool !== "object") {
+    damage.beforeDeltaByPool = {};
+  }
+
+  for (const pool of pools) {
+    damage.beforeDeltaByPool[pool] =
+      (Number(damage.beforeDeltaByPool[pool]) || 0) + delta;
+  }
 }
 
 function matchesPoolFilter(want, damage) {
@@ -93,7 +205,11 @@ export function normalizeTakingDamageTrigger(raw) {
   };
 }
 
-/** Runtime check for block.damageFilter vs context.damage. */
+/**
+ * Should this `[On Taking … Damage]` block run for the pending hit?
+ * HP matches when HP is anywhere on the hit, including HP+ST attacks.
+ * That is "does the block fire".
+ */
 export function matchesDamageFilter(filter, damage) {
   if (!filter) return true;
   if (!damage) return false;
@@ -191,6 +307,16 @@ export function matchesBurstFilter(filter, { statusName = "", phase = "local" } 
   return got === want;
 }
 
+/** Actor [On X Burst] waits for the global pass so it doesn't also fire locally. */
+export function shouldExecuteBurstBlock(block, execContext) {
+  if (!execContext?.burstPhase) return true;
+  if (execContext._actorBurstLocal && block.burstFilter?.status) return false;
+  return matchesBurstFilter(block.burstFilter, {
+    statusName: execContext.burst?.status,
+    phase: execContext.burstPhase,
+  });
+}
+
 const CLASH_STANCE_ALIASES = {
   attack: "attack",
   attacks: "attack",
@@ -249,10 +375,10 @@ export function resolveActorClashStance(actor, payload = {}) {
   if (payload.side === "attacker") return "attack";
   if (payload.side === "defender") return defenderStance();
 
-  if (payload.attacker && actor.id === payload.attacker.id) return "attack";
-  if (payload.defender && actor.id === payload.defender.id) return defenderStance();
+  if (payload.attacker && sameActor(actor, payload.attacker)) return "attack";
+  if (payload.defender && sameActor(actor, payload.defender)) return defenderStance();
   // Win and loss payloads may omit the defender.
-  if (payload.attacker && actor.id !== payload.attacker.id) return defenderStance();
+  if (payload.attacker && !sameActor(actor, payload.attacker)) return defenderStance();
   return null;
 }
 
@@ -263,7 +389,7 @@ export function resolveActorClashStance(actor, payload = {}) {
 export function normalizeClashStanceTrigger(raw) {
   const text = String(raw ?? "").trim();
   const m = text.match(
-    /^(On Clash Start|On Clash Win|Clash Win|On Clash Lose|Clash Lose|On Clash)\s+With\s+(.+)$/i
+    /^(On Clash Win Before Results|Clash Win Before Results|Before Clash Results|On Clash Start|On Clash Win|Clash Win|On Clash Lose|Clash Lose|On Clash)\s+With\s+(.+)$/i
   );
   if (!m) return { matched: false, trigger: text, clashStanceFilter: null };
 
@@ -271,6 +397,9 @@ export function normalizeClashStanceTrigger(raw) {
   const baseLower = base.toLowerCase();
   if (baseLower === "on clash start") base = "On Clash Start";
   else if (baseLower === "on clash") base = "On Clash";
+  else if (baseLower === "on clash win before results") base = "On Clash Win Before Results";
+  else if (baseLower === "clash win before results") base = "Clash Win Before Results";
+  else if (baseLower === "before clash results") base = "Before Clash Results";
   else if (baseLower === "on clash win") base = "On Clash Win";
   else if (baseLower === "clash win") base = "Clash Win";
   else if (baseLower === "on clash lose") base = "On Clash Lose";

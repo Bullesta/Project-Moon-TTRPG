@@ -31,7 +31,7 @@ import { registerChoiceDialogSocket } from "./easy-effects/choice-dialog.js";
 import { registerGmRouteSocket } from "./easy-effects/gm-route.js";
 import { registerStatusTray, registerStatusTraySettings } from "./apps/status-tray.js";
 import { registerWorldEasyEffectsSettings } from "./apps/easy-effects-editor.js";
-import { getActorWeaponDamageType } from "./damage-application.js";
+import { getActorWeaponDamageType, isSelectableDamageType } from "./damage-application.js";
 import {
   registerTokenStatusBadges,
   registerTokenStatusBadgeSettings,
@@ -60,9 +60,6 @@ Hooks.once("init", async function() {
     statusMacros: PMTTRPGStatusMacroAPI,
     clash: PMTTRPGClashAPI,
   };
-
-  // TODO: Extend the combat class.
-  // CONFIG.Combat.entityClass = CombatPMTTRPG;
 
   CONFIG.PMTTRPG = PMTTRPG;
   CONFIG.Actor.documentClass = ActorPMTTRPG;
@@ -260,10 +257,10 @@ Hooks.on('createChatMessage', async (message, options, id) => {
       r.render().then(rTemplate => {
         const existingType = message.flags?.projectmoonttrpg?.damageType ?? null;
         let damageType = existingType;
-        if (!damageType) {
+        if (!isSelectableDamageType(damageType)) {
           const speakerActor = ChatMessage.getSpeakerActor?.(message.speaker)
             ?? game.actors.get(message.speaker?.actor);
-          damageType = getActorWeaponDamageType(speakerActor);
+          damageType = getActorWeaponDamageType(speakerActor) ?? "none";
         }
         // Render the damage buttons.
         renderTemplate(`systems/projectmoonttrpg/templates/parts/chat-buttons.html`, { damageType }).then(buttonTemplate => {

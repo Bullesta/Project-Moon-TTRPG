@@ -60,7 +60,7 @@ _stats:
   systemId: projectmoonttrpg
   systemVersion: 0.0.1
   createdTime: 1787251585547
-  modifiedTime: 1787251585547
+  modifiedTime: 1787561958504
   lastModifiedBy: yWsvx4DXrmYcZsue
   compendiumSource: Compendium.projectmoonttrpg.effects-pmttrpg-srd.Item.GG8qH3KXwZV3KXjO
   duplicateSource: Item.aJudQ8vozasUxy9n
@@ -69,5 +69,5 @@ ownership:
   default: 0
   yWsvx4DXrmYcZsue: 3
 _id: 3juNeCDKPZe8Kgoh
-sort: 200000
+sort: 500000
 _key: '!items!3juNeCDKPZe8Kgoh'

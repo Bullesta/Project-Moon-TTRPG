@@ -796,6 +796,7 @@ export class PMTTRPGCharacterSheet extends HandlebarsApplicationMixin(ActorSheet
     for (const w of weapons) buildGroupsFor(w);
     for (const o of outfits) buildGroupsFor(o);
     for (const s of skills) buildGroupsFor(s);
+    for (const a of ammunition) buildGroupsFor(a);
 
     const equippedWeapon = this.actor.items.find(i => i.type === "weapon" && i.system?.equipped)
       || this.actor.items.find(i => i.type === "weapon");

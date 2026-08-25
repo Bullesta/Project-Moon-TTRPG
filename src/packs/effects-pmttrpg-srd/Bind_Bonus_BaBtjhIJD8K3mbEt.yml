@@ -29,7 +29,7 @@ system:
   customNotes: ''
   easyEffects: |-
     [On Clash Start]
-    require (target.Bind) >= N then
+    require (target.status.Bind) >= N then
       power up attack N and power up defense N;
 effects: []
 sort: 0

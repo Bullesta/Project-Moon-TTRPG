@@ -31,7 +31,7 @@ system:
     [On Clash RESULT]
     spend (N*4) Charge to inflict (N) "Stagger Fragile" next round;
 effects: []
-sort: 2600000
+sort: 3500000
 ownership:
   default: 0
   yWsvx4DXrmYcZsue: 3
@@ -41,7 +41,7 @@ _stats:
   systemId: projectmoonttrpg
   systemVersion: 0.0.1
   createdTime: 1787251585546
-  modifiedTime: 1787251585546
+  modifiedTime: 1787561958508
   lastModifiedBy: yWsvx4DXrmYcZsue
   compendiumSource: null
   duplicateSource: Item.4ODeg3rRYIbJysvP

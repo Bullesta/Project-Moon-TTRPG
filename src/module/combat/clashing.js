@@ -9,7 +9,9 @@
  *   pmttrpg.clashStarted       { attacker, defender, attackerItem, defenderItem, clash }
  *   pmttrpg.clashResolved      { winner, loser, attackerItem, defenderItem,
  *                                attackerRoll, defenderRoll, clash }
- *   pmttrpg.attackConnected    { attacker, defender, item, clash }
+ *   pmttrpg.clashBeforeResults [On Clash Win Before Results] (winner kit)
+ *   pmttrpg.hitBeforeResults   [On Hit Before Results] / [On Being Hit Before Results]
+ *   pmttrpg.attackConnected    { attacker, defender, item, clash } after Clash Win/Lose
  *   pmttrpg.damageCalc         { attacker, defender, attackerItem, clash }
  *   pmttrpg.skillUseStart      { actor, skillItem }
  *   pmttrpg.skillUseEnd        { actor, skillItem }
@@ -46,8 +48,15 @@ import {
   promptRangedCounterAmmo,
 } from "./clash-dialog.js";
 
-import { createClashContext, emitAttackConnected, emitClashStarted, emitClashResolved } from "../easy-effects/registry.js";
+import { createClashContext, emitAttackConnected, emitClashStarted, emitClashOutcome } from "../easy-effects/registry.js";
+import { normalizeDamageType, resolveRangedDamageType } from "../damage-application.js";
+import {
+  canConsumeAppliedTool,
+  emitAppliedToolHooks,
+  maybeConsumeAppliedTool,
+} from "../item/applied-tool.js";
 import { exhaustRemainingSquares } from "./movement.js";
+import { normalizeWeaponProperties } from "../item/weapon-properties.js";
 import {
   bumpRecycledEvade,
   clearRecycledEvade,
@@ -88,7 +97,9 @@ export async function initiateAttack(attackPayload) {
       ? `${attackPayload.item.name} · ${attackPayload.templateData.ammoName}`
       : attackPayload.item.name);
   const skillName = attackPayload.templateData?.skillName;
+  const toolName = attackPayload.templateData?.appliedToolName;
   if (skillName) attackerItemName = `${attackerItemName} · ${skillName}`;
+  else if (toolName) attackerItemName = `${attackerItemName} · ${toolName}`;
 
   const attackerSkillId = attackPayload.templateData?.skillId ?? null;
   const consumeSkillLight = !!attackerSkillId && attackPayload.templateData?.consumeSkillLight !== false;
@@ -121,13 +132,16 @@ export async function initiateAttack(attackPayload) {
     attackRollFormula: null,
     attackRollTerms:   null,
     damageType:        attackPayload.templateData?.damageType
-      || attackPayload.item.system?.damageType
-      || "none",
+      ?? attackPayload.item.system?.damageType
+      ?? "none",
     attackMessageId:   tempMessage.id,
     clashBonuses:      null,
     attackRollBreakdown: null,
     appliedToolId:     attackPayload.templateData?.appliedToolId ?? null,
     attackerSkillId,
+    attackerAmmoId:    attackPayload.templateData?.dryFire
+      ? null
+      : (attackPayload.templateData?.ammoId ?? null),
     consumeSkillLight,
     attackerDryFire:   attackPayload.templateData?.dryFire === true,
   });
@@ -139,7 +153,8 @@ export async function initiateAttack(attackPayload) {
 
 /**
  * Handles a click on "Retaliate" or "Intercept" buttons on the attack card.
- * Shows the retaliation dialog and proceeds to execute the clash.
+ * Retaliate always answers as the clash target. Intercept answers as the
+ * currently selected token.
  *
  * @param {ClashStateData} state
  * @param {object} [options]
@@ -153,17 +168,27 @@ export async function handleRetaliateClick(state, { isIntercept = false } = {}) 
     return;
   }
 
-  // Intercept: require two-click confirmation.
-  if (isIntercept) {
-    const confirmed = await showInterceptConfirmDialog();
-    if (!confirmed) return;
+  const { actor: retaliatorActor, tokenId: retaliatorTokenId } = isIntercept
+    ? _getSelectedRetaliator()
+    : _getClashTargetRetaliator(state);
+
+  if (!retaliatorActor) {
+    ui.notifications.warn(game.i18n.localize(
+      isIntercept ? "PMTTRPG.Clash.NoOwnedActor" : "PMTTRPG.Clash.NoClashTarget"
+    ));
+    return;
   }
 
-  // Determine the retaliating actor from the current user's owned characters.
-  const retaliatorActor = _getOwnedActor();
-  if (!retaliatorActor) {
-    ui.notifications.warn(game.i18n.localize("PMTTRPG.Clash.NoOwnedActor"));
+  if (!retaliatorActor.isOwner) {
+    ui.notifications.warn(game.i18n.localize(
+      isIntercept ? "PMTTRPG.Clash.NoOwnedActor" : "PMTTRPG.Clash.NotTargetOwner"
+    ));
     return;
+  }
+
+  if (isIntercept) {
+    const confirmed = await showInterceptConfirmDialog(retaliatorActor.name);
+    if (!confirmed) return;
   }
 
   const choice = await showRetaliationDialog(retaliatorActor, state, { isIntercept });
@@ -181,15 +206,21 @@ export async function handleRetaliateClick(state, { isIntercept = false } = {}) 
     choice.dryFire = ammoPick.dryFire;
   }
 
+  if (!canConsumeAppliedTool(choice.appliedTool, choice.consumeAppliedTool !== false)) {
+    ui.notifications.warn(game.i18n.localize("PMTTRPG.Dialog.noToolUses"));
+    return;
+  }
+
   // Lock the card immediately so no one else retaliates.
   state.phase               = CLASH_PHASES.ROLLING;
   state.retaliatorActorId   = retaliatorActor.id;
-  state.retaliatorTokenId   = retaliatorActor.getActiveTokens(true)[0]?.id ?? null;
+  state.retaliatorTokenId   = retaliatorTokenId;
   state.retaliatorName      = retaliatorActor.name;
   state.retaliatorImg       = retaliatorActor.img;
   state.retaliationItemId   = choice.item?.id ?? null;
   state.retaliatorItemName  = _retaliatorItemLabel(choice);
   state.retaliationType     = choice.type;
+  state.retaliatorAmmoId    = choice.dryFire ? null : (choice.ammo?.id ?? null);
 
   await updateAttackCard(state.attackMessageId, state);
   await _executeClash(state, retaliatorActor, choice);
@@ -215,12 +246,19 @@ async function _executeClash(state, retaliatorActor, choice) {
   const attackerSkill = state.attackerSkillId
     ? (attackerActor?.items.get(state.attackerSkillId) ?? null)
     : null;
+  const attackerAmmo = (!state.attackerDryFire && state.attackerAmmoId)
+    ? (attackerActor?.items.get(state.attackerAmmoId) ?? null)
+    : null;
 
   if(choice.type === RETALIATION_TYPES.ONESIDED) {
     choice.item = null;
     choice.skillItem = null;
+    choice.appliedTool = null;
+    choice.ammo = null;
+    choice.dryFire = false;
     state.retaliationItemId = null;
     state.retaliatorItemName = null;
+    state.retaliatorAmmoId = null;
   }
 
   let isRecycled = choice.type === RETALIATION_TYPES.RECYCLED_EVADE || choice.recycled === true;
@@ -236,6 +274,8 @@ async function _executeClash(state, retaliatorActor, choice) {
   }
 
   const defenderSkill = choice.skillItem ?? null;
+  let defenderAppliedTool = choice.skillItem ? null : (choice.appliedTool ?? null);
+  const defenderAmmo = (choice.dryFire || !choice.ammo) ? null : choice.ammo;
   if (attackerSkill) {
     Hooks.callAll("pmttrpg.skillUseStart", { actor: attackerActor, skillItem: attackerSkill });
   }
@@ -254,6 +294,24 @@ async function _executeClash(state, retaliatorActor, choice) {
     }
   }
 
+  if (defenderAppliedTool) {
+    const ok = await maybeConsumeAppliedTool(defenderAppliedTool, {
+      consume: choice.consumeAppliedTool !== false,
+    });
+    if (!ok) {
+      ui.notifications.warn(game.i18n.localize("PMTTRPG.Dialog.noToolUses"));
+      defenderAppliedTool = null;
+    } else {
+      emitAppliedToolHooks({
+        actor: retaliatorActor,
+        tool: defenderAppliedTool,
+        hostItem: choice.item ?? null,
+        target: attackerActor,
+        actionType: _reactionAppliedToolActionType(choice.type),
+      });
+    }
+  }
+
   const counterDryFire = choice.type === RETALIATION_TYPES.COUNTER
     && (_isRangedWeapon(choice.item) && (choice.dryFire === true || !choice.ammo));
 
@@ -262,6 +320,8 @@ async function _executeClash(state, retaliatorActor, choice) {
   clashCtx.isRecycledEvade = isRecycled;
   clashCtx.attackerSkill = attackerSkill;
   clashCtx.defenderSkill = defenderSkill;
+  clashCtx.appliedTool = appliedTool;
+  clashCtx.defenderAppliedTool = defenderAppliedTool;
   const defenderItem = choice.item ?? null;
   const clashPayloadBase = {
     attacker:     attackerActor,
@@ -269,8 +329,11 @@ async function _executeClash(state, retaliatorActor, choice) {
     attackerItem,
     defenderItem,
     appliedTool,
+    defenderAppliedTool,
     attackerSkill,
     defenderSkill,
+    attackerAmmo,
+    defenderAmmo,
     retaliationType: choice.type,
     isRecycledEvade: isRecycled,
     clash:        clashCtx,
@@ -373,7 +436,10 @@ async function _executeClash(state, retaliatorActor, choice) {
     defender:     retaliatorActor,
     attackerItem,
     appliedTool,
+    defenderAppliedTool,
     attackerSkill,
+    defenderSkill,
+    attackerAmmo,
     clash:        clashCtx,
   });
 
@@ -401,10 +467,7 @@ async function _executeClash(state, retaliatorActor, choice) {
       counterConnects = true;
       state.hpDamage = defenseResult.total;
       state.stDamage = defenseResult.total;
-      state.damageType = (counterItem.system?.damageTypeFixed
-        ? (counterItem.system?.damageType || state.damageType)
-        : (choice.ammo?.system?.damageType || counterItem.system?.damageType || state.damageType)
-      ) || "none";
+      state.damageType = _counterDamageType(counterItem, choice, defenderAppliedTool);
     }
   }
 
@@ -426,7 +489,7 @@ async function _executeClash(state, retaliatorActor, choice) {
   const winner = result === CLASH_RESULTS.ATTACK_WIN ? attackerActor  : retaliatorActor;
   const loser  = result === CLASH_RESULTS.ATTACK_WIN ? retaliatorActor : attackerActor;
 
-  await emitClashResolved({
+  const resolvedPayload = {
     winner,
     loser,
     attacker:      attackerActor,
@@ -434,14 +497,44 @@ async function _executeClash(state, retaliatorActor, choice) {
     attackerItem:  attackerItem,
     defenderItem,
     appliedTool,
+    defenderAppliedTool,
     attackerSkill,
     defenderSkill,
+    attackerAmmo,
+    defenderAmmo,
     retaliationType: choice.type,
     isRecycledEvade: isRecycled,
     attackerRoll:  state.attackRollTotal,
     defenderRoll:  defenseResult.total,
     clash:         clashCtx,
-  });
+  };
+
+  const attackConnects = result === CLASH_RESULTS.ATTACK_WIN;
+  const hitPayload = attackConnects
+    ? {
+      attacker: attackerActor,
+      defender: retaliatorActor,
+      item:     attackerItem,
+      appliedTool,
+      attackerSkill,
+      ammo:     attackerAmmo,
+      damageType: state.damageType,
+      clash:    clashCtx,
+    }
+    : counterConnects
+      ? {
+        attacker: retaliatorActor,
+        defender: attackerActor,
+        item:     counterItem,
+        appliedTool: defenderAppliedTool,
+        attackerSkill: defenderSkill,
+        ammo:     defenderAmmo,
+        damageType: state.damageType,
+        clash:    clashCtx,
+      }
+      : null;
+
+  await emitClashOutcome(resolvedPayload, hitPayload);
 
   if (attackerSkill) {
     Hooks.callAll("pmttrpg.skillUseEnd", { actor: attackerActor, skillItem: attackerSkill });
@@ -457,25 +550,8 @@ async function _executeClash(state, retaliatorActor, choice) {
     else await grantRecycledEvade(retaliatorActor, choice.item);
   }
 
-  if (result === CLASH_RESULTS.ATTACK_WIN) {
-    await emitAttackConnected({
-      attacker: attackerActor,
-      defender: retaliatorActor,
-      item:     attackerItem,
-      appliedTool,
-      attackerSkill,
-      damageType: state.damageType,
-      clash:    clashCtx,
-    });
-  } else if (counterConnects) {
-    await emitAttackConnected({
-      attacker: retaliatorActor,
-      defender: attackerActor,
-      item:     counterItem,
-      attackerSkill: defenderSkill,
-      damageType: state.damageType,
-      clash:    clashCtx,
-    });
+  if (hitPayload) {
+    await emitAttackConnected(hitPayload);
   }
 }
 
@@ -485,8 +561,32 @@ function _isRangedWeapon(weapon) {
   return weapon?.system?.weaponType === "ranged";
 }
 
+function _reactionAppliedToolActionType(type) {
+  if (type === RETALIATION_TYPES.COUNTER) return "attack";
+  if (type === RETALIATION_TYPES.BLOCK) return "block";
+  if (type === RETALIATION_TYPES.EVADE || type === RETALIATION_TYPES.RECYCLED_EVADE) return "evade";
+  return "applied";
+}
+
+function _counterDamageType(counterItem, choice, appliedTool) {
+  if (_isRangedWeapon(counterItem)) {
+    return resolveRangedDamageType({
+      weapon: counterItem,
+      ammo: choice.ammo,
+      appliedTool,
+      dryFire: choice.dryFire === true || !choice.ammo,
+    }) || "none";
+  }
+
+  const toolType = normalizeDamageType(appliedTool?.system?.damageType);
+  if (toolType) return toolType;
+  return normalizeDamageType(counterItem?.system?.damageType) ?? "none";
+}
+
 function _rangedAttackConsumesMovement(weapon) {
-  return _isRangedWeapon(weapon) && weapon.system?.formProperty !== "lowCaliber";
+  if (!_isRangedWeapon(weapon)) return false;
+  const { formProperty } = normalizeWeaponProperties(weapon.system);
+  return formProperty !== "lowCaliber";
 }
 
 /**
@@ -498,7 +598,8 @@ function _rangedAttackConsumesMovement(weapon) {
 function _getWeaponRangeSquares(weapon) {
   if (!weapon) return 1;
   if (_isRangedWeapon(weapon)) return 10;
-  if (weapon.system?.formProperty === "long") return 2;
+  const { formProperty } = normalizeWeaponProperties(weapon.system);
+  if (formProperty === "long") return 2;
   return 1;
 }
 
@@ -563,11 +664,14 @@ function _isEvadeLike(choice) {
 }
 
 function _retaliatorItemLabel(choice) {
+  const extraName = choice?.skillItem?.name || choice?.appliedTool?.name;
   if (choice?.ammo) {
-    return `${choice.item?.name ?? ""} · ${choice.ammo.name}`;
+    const base = `${choice.item?.name ?? ""} · ${choice.ammo.name}`;
+    return extraName ? `${base} · ${extraName}` : base;
   }
   if (choice?.dryFire && choice.item) {
-    return `${choice.item.name} · ${game.i18n.localize("PMTTRPG.Clash.DryFireShort")}`;
+    const base = `${choice.item.name} · ${game.i18n.localize("PMTTRPG.Clash.DryFireShort")}`;
+    return extraName ? `${base} · ${extraName}` : base;
   }
   if (choice?.type === RETALIATION_TYPES.RECYCLED_EVADE) {
     const recycledTag = game.i18n.localize("PMTTRPG.Clash.RecycledEvadeShort");
@@ -575,10 +679,10 @@ function _retaliatorItemLabel(choice) {
     const base = outfitName
       ? game.i18n.format("PMTTRPG.Clash.RecycledEvadeItem", { item: outfitName, tag: recycledTag })
       : recycledTag;
-    return choice.skillItem ? `${base} · ${choice.skillItem.name}` : base;
+    return extraName ? `${base} · ${extraName}` : base;
   }
   const itemName = choice?.item?.name ?? null;
-  if (itemName && choice?.skillItem?.name) return `${itemName} · ${choice.skillItem.name}`;
+  if (itemName && extraName) return `${itemName} · ${extraName}`;
   return itemName;
 }
 
@@ -592,16 +696,29 @@ async function _spendSkillLight(actor, skill) {
 }
 
 /**
- * Returns the first actor owned by the current user that is a character.
- * Prefers actors with an active token on the current scene.
+ * Retaliate answers as the clash target.
+ * @param {ClashStateData} state
+ * @returns {{ actor: Actor|null, tokenId: string|null }}
  */
-function _getOwnedActor() {
-  const controlled = canvas.tokens?.controlled ?? [];
-  if (controlled.length) return controlled[0].actor ?? null;
+function _getClashTargetRetaliator(state) {
+  const token = state.targetTokenId ? canvas.tokens?.get(state.targetTokenId) : null;
+  if (token?.actor) return { actor: token.actor, tokenId: token.id };
 
-  return game.actors.find(
-    a => a.type === "character" && a.isOwner
-  ) ?? null;
+  const actor = state.targetActorId ? game.actors.get(state.targetActorId) : null;
+  return {
+    actor: actor ?? null,
+    tokenId: state.targetTokenId ?? actor?.getActiveTokens(true)[0]?.id ?? null,
+  };
+}
+
+/**
+ * Intercept answers as the currently selected token.
+ * @returns {{ actor: Actor|null, tokenId: string|null }}
+ */
+function _getSelectedRetaliator() {
+  const token = canvas.tokens?.controlled?.[0] ?? null;
+  if (!token) return { actor: null, tokenId: null };
+  return { actor: token.actor ?? null, tokenId: token.id ?? null };
 }
 
 // ── Public exports ────────────────────────────────────────────────────────────

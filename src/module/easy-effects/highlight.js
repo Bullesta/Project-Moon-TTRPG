@@ -1,3 +1,5 @@
+import { KEYWORDS as LEXER_KEYWORDS } from "./lexer.js";
+
 const ACTIONS = new Set([
   "gain", "spend", "lose", "require", "inflict", "reduce", "increase",
   "convert", "create", "dialog", "message", "burst", "proc", "deal", "heal", "add", "remove",
@@ -5,16 +7,10 @@ const ACTIONS = new Set([
   "advantage", "disadvantage",
 ]);
 
+const TAGS = new Set(["instant"]);
+
 const KEYWORDS = new Set([
-  "if", "do", "on", "per", "and", "to", "from", "then", "as", "by", "of", "with",
-  "the", "roll", "next", "round", "turn", "pause", "proc", "before", "after",
-  "half", "all",
-  "self", "target", "ally", "attacker", "originator", "enemies", "allies",
-  "up", "down", "max",
-  "advantage", "disadvantage",
-  "positive", "negative",
-  "isStaggered", "isPanicking", "hasStatus",
-  "dialog", "message", "create",
+  ...LEXER_KEYWORDS,
   "action", "actions", "reaction", "reactions",
   "movement", "square", "squares", "sqr", "sqrs",
   "hp", "st", "sp", "light", "stagger", "sanity",
@@ -81,6 +77,15 @@ export function highlightEasyEffects(source) {
       continue;
     }
 
+    if (ch === "$") {
+      const rest = text.slice(i + 1).match(WORD_RE);
+      if (rest) {
+        out += span("variable", `$${rest[0]}`);
+        i += 1 + rest[0].length;
+        continue;
+      }
+    }
+
     const num = text.slice(i).match(NUMBER_RE);
     if (num) {
       out += span("number", num[0]);
@@ -92,7 +97,8 @@ export function highlightEasyEffects(source) {
     if (word) {
       const raw = word[0];
       const lower = raw.toLowerCase();
-      if (ACTIONS.has(lower)) out += span("action", raw);
+      if (TAGS.has(lower)) out += span("tag", raw);
+      else if (ACTIONS.has(lower)) out += span("action", raw);
       else if (KEYWORDS.has(lower) || KEYWORDS.has(raw)) out += span("keyword", raw);
       else out += escapeHtml(raw);
       i += raw.length;

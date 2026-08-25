@@ -1,17 +1,17 @@
-folder: Zac3Xkc5Y82RXJkZ
-name: Charge - Regen HP
+folder: AjubTmmqnDZcHg2N
+name: Inflict Tremor
 type: effect
-img: >-
-  systems/projectmoonttrpg/assets/icons/limbus_assets/Basic%20Effects/HP%20Healing%20Boost.webp
+_id: AYI3I9wW6LSF3shb
+img: systems/projectmoonttrpg/assets/icons/Statuses/Tremor.webp
 system:
   name: ''
   description: ''
-  slug: charge-regen-hp
-  cost: 1
+  slug: ''
+  cost: 2
   stackMax: 5
   appliesTo: skill
   canPositive: true
-  canNegative: false
+  canNegative: true
   procOn: onClashResult
   procResult: none
   procResultLocked: false
@@ -21,16 +21,19 @@ system:
   procDice: any
   procAction: any
   procCondition: ''
-  positive: <p>Consume [N*2] Charge to regen [N*3] HP to the character.</p>
-  negative: ''
+  positive: <p>Apply [N] Tremor to the target next round.</p>
+  negative: <p>Apply [N] Tremor to the character next round.</p>
   macro:
     uuid: ''
   customNotes: ''
   easyEffects: |-
     [On Clash RESULT]
-    spend (2*N) Charge to heal (N*3) hp damage on self;
+    positive:
+    inflict N Tremor next round;
+    negative:
+    gain N Tremor next round;
 effects: []
-sort: 800000
+sort: 0
 ownership:
   default: 0
   yWsvx4DXrmYcZsue: 3
@@ -38,12 +41,11 @@ flags: {}
 _stats:
   coreVersion: '14.364'
   systemId: projectmoonttrpg
-  systemVersion: 0.0.1
-  createdTime: 1787251585536
-  modifiedTime: 1787561958505
+  systemVersion: 0.1.0
+  createdTime: 1787562696159
+  modifiedTime: 1787562769458
   lastModifiedBy: yWsvx4DXrmYcZsue
   compendiumSource: null
-  duplicateSource: Item.yHwApoxvxMwLGyFN
+  duplicateSource: null
   exportSource: null
-_id: 2gszhDSJEjrSNWWl
-_key: '!items!2gszhDSJEjrSNWWl'
+_key: '!items!AYI3I9wW6LSF3shb'
