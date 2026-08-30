@@ -28,9 +28,9 @@ system:
   customNotes: ''
   easyEffects: |-
     [On Clash RESULT]
-    spend (2*N) Charge to regen sp (N*2) on self;
+    spend (2*N) Charge to heal (N*2) sp damage on self;
 effects: []
-sort: 700000
+sort: 1000000
 ownership:
   default: 0
   yWsvx4DXrmYcZsue: 3
@@ -40,7 +40,7 @@ _stats:
   systemId: projectmoonttrpg
   systemVersion: 0.0.1
   createdTime: 1787251585540
-  modifiedTime: 1787251585540
+  modifiedTime: 1787561958505
   lastModifiedBy: yWsvx4DXrmYcZsue
   compendiumSource: null
   duplicateSource: Item.RUgemNVff0PLOvwe

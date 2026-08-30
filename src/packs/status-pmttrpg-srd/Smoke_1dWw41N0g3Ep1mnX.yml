@@ -23,8 +23,11 @@ system:
     increase damage by (Smoke //f 2) after resistances
 
     [End of Round]
-    lose 2 Smoke
     require (Smoke) > 10 then lose 2 Smoke
+    lose 2 Smoke
+
+    [On Gain]
+    require (Smoke) > 20 then set Smoke to 20
 effects: []
 folder: fMFB6OnVCAkgdA96
 sort: 400000

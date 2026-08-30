@@ -29,7 +29,7 @@ system:
     [On Rupture Burst]
     gain (burst.amount) Charge;
 effects: []
-sort: 1400000
+sort: 2200000
 ownership:
   default: 0
   yWsvx4DXrmYcZsue: 3
@@ -39,7 +39,7 @@ _stats:
   systemId: projectmoonttrpg
   systemVersion: 0.0.1
   createdTime: 1787251585551
-  modifiedTime: 1787251585551
+  modifiedTime: 1787561958507
   lastModifiedBy: yWsvx4DXrmYcZsue
   compendiumSource: null
   duplicateSource: Item.A7BQuuGpBTHXTpob

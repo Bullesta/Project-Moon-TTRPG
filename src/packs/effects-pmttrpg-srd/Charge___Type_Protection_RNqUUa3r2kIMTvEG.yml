@@ -1,0 +1,69 @@
+folder: Zac3Xkc5Y82RXJkZ
+name: Charge - Type Protection
+type: effect
+img: systems/projectmoonttrpg/assets/icons/Statuses/Blunt%20Protection.webp
+system:
+  name: ''
+  description: >-
+    <p><em>Note: This effect is not yet fully automated. It only gives Type
+    Protection to self, instead of an ally.</em></p>
+  slug: charge-type-protection
+  cost: 1
+  stackMax: 5
+  appliesTo: skill
+  canPositive: true
+  canNegative: false
+  procOn: onClashResult
+  procResult: none
+  procResultLocked: false
+  procChoice: none
+  procChoiceLocked: false
+  procStat: any
+  procDice: any
+  procAction: any
+  procCondition: ''
+  positive: >-
+    <p>Consume [N*2] Charge to give [N*2] Type Protection to self or an ally
+    next round.</p>
+  negative: ''
+  macro:
+    uuid: ''
+  customNotes: ''
+  easyEffects: |-
+    [Clash RESULT]
+    require (N*2) Charge then
+    create dialog "Charge : Inflict [Type] Protection": 
+      slash as "Slash Fragile",
+      pierce as "Pierce Fragile",
+      blunt as "Blunt Fragile"
+      to self;
+    lose (N*2) Charge;
+
+    [On Dialog Answer slash]
+    gain (N*2) "Slash Protection" next round;
+
+    [On Dialog Answer pierce]
+    gain (N*2) "Pierce Protection" next round;
+
+    [On Dialog Answer blunt]
+    gain (N*2) "Blunt Protection" next round;
+effects: []
+ownership:
+  default: 0
+  yWsvx4DXrmYcZsue: 3
+flags:
+  projectmoonttrpg:
+    syncDismissedAt: 1787561562496
+_stats:
+  coreVersion: '14.364'
+  systemId: projectmoonttrpg
+  systemVersion: 0.1.0
+  createdTime: 1787561962346
+  modifiedTime: 1787561962346
+  lastModifiedBy: yWsvx4DXrmYcZsue
+  exportSource: null
+  compendiumSource: null
+  duplicateSource: null
+_id: RNqUUa3r2kIMTvEG
+sort: 0
+_key: '!items!RNqUUa3r2kIMTvEG'

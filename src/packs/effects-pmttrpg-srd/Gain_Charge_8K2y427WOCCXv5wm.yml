@@ -34,7 +34,7 @@ system:
     negative:
     lose N Charge;
 effects: []
-sort: 300000
+sort: 600000
 ownership:
   default: 0
   yWsvx4DXrmYcZsue: 3
@@ -44,7 +44,7 @@ _stats:
   systemId: projectmoonttrpg
   systemVersion: 0.0.1
   createdTime: 1787251585536
-  modifiedTime: 1787251585536
+  modifiedTime: 1787561958504
   lastModifiedBy: yWsvx4DXrmYcZsue
   compendiumSource: null
   duplicateSource: null
