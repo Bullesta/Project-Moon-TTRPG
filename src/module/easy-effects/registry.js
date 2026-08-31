@@ -1,6 +1,6 @@
 import { parse }                                    from "./parser.js";
 import { execute, executeAlwaysActive }             from "./interpreter.js";
-import { emptyAlwaysActiveMods }                    from "./nouns.js";
+import { emptyAlwaysActiveMods, pickCombatDiceMods, zeroCombatDiceMods } from "./nouns.js";
 import { isToolPresent }                            from "../inventory/slots.js";
 import { uniqueStatusItems }                        from "../status/group-statuses.js";
 import { isPendingStatus }                          from "../status/pending.js";
@@ -525,7 +525,7 @@ const TRIGGER_HOOKS = [
   },
 
   // ── [On Action] ─────────────────────────────────────────────────────────────
-  // Fires whenever the actor uses an action or reaction with this item.
+  // Fires for Attack, Block, Counter, Evade, and the sheet [Used Action] / [Used Reaction] buttons.
   {
     hook: "pmttrpg.actorAction",
     triggerName: "On Action",
@@ -534,13 +534,15 @@ const TRIGGER_HOOKS = [
       if (!actor) return [];
       return [...getEquippedItems(actor), ...uniqueStatusItems(actor.items)];
     },
-    buildContext: ({ actor, target }) => {
+    buildContext: ({ actor, target, attacker, defender, clash }) => {
       if (!actor) return null;
       return {
-        self:   actor,
-        target: target ?? null,
-        ally:   null,
-        clash:  null,
+        self:      actor,
+        target:    target ?? null,
+        attacker:  attacker ?? null,
+        defender:  defender ?? null,
+        ally:      null,
+        clash:     clash ?? null,
       };
     },
   },
@@ -765,6 +767,7 @@ export async function runItemEasyEffects(item, triggerName, context = {}) {
 }
 
 /**
+ * [On Action] scripts. On a clash, pass `clash`, `attacker`, and `defender`.
  * @param {object} payload
  * @returns {Promise<void>}
  */
@@ -1394,6 +1397,9 @@ function findStatusItem(actor, statusName) {
  * Iterates all equipped items, runs their [Always Active] blocks synchronously,
  * and returns a merged modifier object.
  *
+ * Combat dice (power / max) from weapons and outfits stay on that item
+ * (see getItemAlwaysActiveCombatMods).
+ *
  * Usage in actor.js:
  *
  *   // At the end of _prepareCharacterData():
@@ -1402,7 +1408,6 @@ function findStatusItem(actor, statusName) {
  *   data.attributes.evadeModifier.value   += eeMods.evadePower;
  *   data.attributes.blockModifier.value   += eeMods.blockPower;
  *   applyResourceModsToSystem(data, eeMods);
- *   // damagePower / damageMax / attackMax etc. — apply to weapon dice fields
  *
  * @param {ActorPMTTRPG} actor
  * @returns {object} merged modifier object
@@ -1435,10 +1440,29 @@ export function applyAlwaysActiveModifiers(actor) {
     const hasAlwaysActive = ast.blocks.some(b => b.trigger === "Always Active");
     if (!hasAlwaysActive) continue;
 
-    mergeAlwaysActiveMods(merged, executeAlwaysActive(ast, { self: actor, item }), item.name || item.id);
+    const mods = executeAlwaysActive(ast, { self: actor, item });
+    const toMerge = (item.type === "weapon" || item.type === "outfit")
+      ? zeroCombatDiceMods(mods)
+      : mods;
+    mergeAlwaysActiveMods(merged, toMerge, item.name || item.id);
   }
 
   return merged;
+}
+
+/**
+ * Always Active power / dice max on this weapon or outfit only.
+ * @param {Item} item
+ * @param {Actor} [actor]
+ * @returns {Record<string, number>}
+ */
+export function getItemAlwaysActiveCombatMods(item, actor) {
+  if (!item) return pickCombatDiceMods();
+  const ast = getAST(item);
+  if (!ast?.blocks.some(b => b.trigger === "Always Active")) return pickCombatDiceMods();
+  const self = actor?.system ? actor : (item.actor ?? null);
+  if (!self) return pickCombatDiceMods();
+  return pickCombatDiceMods(executeAlwaysActive(ast, { self, item }));
 }
 
 function mergeAlwaysActiveMods(merged, mods, sourceName) {
