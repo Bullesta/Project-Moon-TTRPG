@@ -1,0 +1,10 @@
+{
+  "name": "Project Moon TTRPG",
+  "install": "npm ci && pip3 install --user --break-system-packages mkdocs-material && npm run build",
+  "terminals": [
+    {
+      "name": "gulp-watch",
+      "command": "npm run gulp"
+    }
+  ]
+}
