@@ -88,6 +88,8 @@ export class PMTTRPGCharacterSheet extends HandlebarsApplicationMixin(ActorSheet
       counterDecrease: PMTTRPGCharacterSheet.prototype._onCounterDecrease,
       statusControl: PMTTRPGCharacterSheet.prototype._onStatusControl,
       easyEffects: PMTTRPGCharacterSheet.prototype._onOpenEasyEffects,
+      applyOutOfCombatHeal: PMTTRPGCharacterSheet.prototype._onApplyOutOfCombatHeal,
+      applyRest: PMTTRPGCharacterSheet.prototype._onApplyRest,
     },
   };
 
@@ -907,6 +909,73 @@ export class PMTTRPGCharacterSheet extends HandlebarsApplicationMixin(ActorSheet
     const macroMisc = Number(this.actor.flags?.projectmoonttrpg?.initiative?.macroMisc ?? 0) || 0;
     const manualMisc = Number(form?.querySelector('input[name="flags.projectmoonttrpg.initiative.manualMisc"]')?.value ?? this.actor.flags?.projectmoonttrpg?.initiative?.manualMisc ?? 0 ) || 0;
     await PMTTRPGTargetingAPI.rollInitiative(this.actor, { macroMisc, manualMisc });
+  }
+
+  async _onApplyOutOfCombatHeal() {
+    event.preventDefault();
+
+    const data = {
+      staggerBefore: this.actor.system.st.value,
+      staggerAfter: this.actor.system.st.max,
+      staggerMax: this.actor.system.st.max,
+
+      sanityBefore: this.actor.system.sp.value,
+      sanityAfter: this.actor.system.sp.value + this.actor.system.abilities.pru.value + 5,
+      sanityMax: this.actor.system.sp.max,
+
+      lightBefore: this.actor.system.light.value,
+      lightAfter: this.actor.system.light.value + this.actor.system.rank.value,
+      lightMax: this.actor.system.light.max
+    };
+
+    if(data.sanityAfter >= this.actor.system.sp.max) data.sanityAfter = this.actor.system.sp.max;
+    if(data.lightAfter >= this.actor.system.light.max) data.lightAfter = this.actor.system.light.max;
+
+    const html = await renderTemplate("systems/projectmoonttrpg/templates/dialog/apply-end-of-combat-healing.hbs", { data });
+    const confirmed = await foundry.applications.api.DialogV2.confirm({
+      window: { title: game.i18n.localize("PMTTRPG.Sheet.Dialog.ApplyEOCHeal") },
+      content: html,
+      rejectClose: false,
+      modal: true,
+    });
+    if (confirmed) {
+      await this.actor.applyPostCombatHealing();
+    }
+  }
+
+  async _onApplyRest() {
+    event.preventDefault();
+
+
+    const data = {
+      healthBefore: this.actor.system.hp.value,
+      healthPerHour: 25 + this.actor.system.rank.value * 3 + this.actor.system.for.value * 3,
+      healthMax: this.actor.system.hp.max,
+
+      sanityBefore: this.actor.system.sp.value,
+      sanityPerHour: 3 + this.actor.system.pru.value,
+      sanityMax: this.actor.system.sp.max,
+
+      lightBefore: this.actor.system.light.value,
+      lightPerHour: this.actor.system.rank.value,
+      lightMax: this.actor.system.light.max
+    };
+
+    const html = await renderTemplate("systems/projectmoonttrpg/templates/dialog/apply-out-of-combat-healing.hbs", { data });
+    const hours = await foundry.applications.api.DialogV2.prompt({
+      window: { title: game.i18n.localize("PMTTRPG.Sheet.Dialog.ApplyOOCHeal") },
+      content: html,
+      ok: {
+        label: game.i18n.localize("PMTTRPG.Sheet.Dialog.RestConfirm"),
+        callback: (event, button, dialog) => {
+          const input = button.form.elements.hours;
+          return Number(input?.value ?? 1);
+        }
+      },
+    });
+
+    if (!hours || hours < 1) return;
+    await this.actor.applyRestHealing(hours);
   }
 
   async _onUsedActionEconomy(event, target) {

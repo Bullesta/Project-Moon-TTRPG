@@ -1,0 +1,24 @@
+.out-of-combat-healing .recap-list {
+    display: flex;
+    flex-direction: column;
+    margin: 8px 0 0 0;
+    padding: 0;
+}
+
+.out-of-combat-healing .recap-item {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 8px;
+}
+
+.out-of-combat-healing .recap-icon {
+  width: 32px;
+  height: 32px;
+}
+
+.out-of-combat-healing .recap-icon img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}

@@ -1,6 +1,27 @@
 <div class="player-header">
   <input class="player-header__name txt charname" type="text" name="name" value="{{actor.name}}" placeholder="{{localize "PMTTRPG.CharacterNamePlaceholder"}}"
          maxlength="30" spellcheck="false" {{#if locked}}readonly{{/if}} aria-label="{{localize "PMTTRPG.CharacterName"}}">
+
+  <div class="player-header__quick-actions npc-header__quick-actions">
+    <button type="button"
+        class="action-button"
+        data-action="applyOutOfCombatHeal"
+        title="End of Combat Healing"
+        aria-label="End of Combat Healing"
+        aria-pressed="">
+      <i class="fa-solid fa-hand-holding-medical" aria-hidden="true"></i>
+    </button>
+
+    <button type="button"
+        class="action-button"
+        data-action="applyRest"
+        title="Rest"
+        aria-label="Rest"
+        aria-pressed="">
+      <i class="fa-solid fa-bed" aria-hidden="true"></i>
+    </button>
+  </div>
+
   <div class="player-header__stats">
     <div class="player-header__stat">
       <p class="player-header__label">{{localize "PMTTRPG.Rank"}}</p>

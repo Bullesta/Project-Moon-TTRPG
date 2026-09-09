@@ -16,6 +16,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - [EasyEffects] `[On Action]` now triggers before clash dice are rolled, allowing Paralysis and Bleed to trigger at the correct time.
 - [DiceSoNice] Dice rolls now have visual flavour colors.
 - [DiceSoNice] Dice rolls now support "flavour syntax", such as `1d10[poise]`, `1d12+2[pierce]`, `2d8kh[ruin]`, putting a dice type onto the dice roll.
+- There are now 2 buttons on the header of Actors allowing you to do End of Combat Healing and Out of Combat Resting (according to CR 3.x rules).
 
 ### QoL
 
@@ -32,6 +33,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Cleanup
 
 - Removed some old unused rolling code.
+- Small cleanup on the Header.
 
 ## [0.1.2] - 2026/08/26
 

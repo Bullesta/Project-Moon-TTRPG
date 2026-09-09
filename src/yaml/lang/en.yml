@@ -552,6 +552,15 @@ PMTTRPG.EasyEffectsSyncDirty: "Synced block was edited. Click Sync to refresh it
 PMTTRPG.EasyEffectsHostSyncHint: "Linked effects update the marked sync block. Keep custom scripts outside it."
 PMTTRPG.EasyEffectsEffectTemplateHint: "Effect templates use N for intensity, positive:/negative: branches, RESULT for Win/Lose, and CHOICE for Attack/Defense."
 
+PMTTRPG.Sheet.Dialog.ApplyEOCHeal: "Apply end of combat healing?"
+PMTTRPG.Sheet.Dialog.ApplyEOCHealRuleExcerpt: "When a combat ends, characters recover all their Stagger Threshold, Light equal to their Rank, and 5 + [Prudence] Sanity."
+
+PMTTRPG.Sheet.Dialog.ApplyOOCHeal: "Apply out of combat healing?"
+PMTTRPG.Sheet.Dialog.ApplyOOCHealRuleExcerpt: "When out of combat and resting, characters Health, Sanity and Light depending on their Fortitude, Prudence and Rank. Characters can rest for multiple hours."
+PMTTRPG.Sheet.Dialog.RestConfirm: "Rest."
+PMTTRPG.Sheet.Dialog.RestHours: "Time of Rest : "
+PMTTRPG.Sheet.Dialog.PerHourRecap: "You can rest for as many hours as the GM allows you to."
+
 PMTTRPG.EasyEffectsEditor.ActorEditor: "EasyEffects Script"
 PMTTRPG.EasyEffectsEditor.EditorTitle: "EasyEffects Script"
 PMTTRPG.EasyEffectsEditor.EditorTitleWorld: "World EasyEffects Script"

@@ -1,0 +1,41 @@
+<div class="out-of-combat-healing">
+  <span class="rule-excerpt">
+    {{localize "PMTTRPG.Sheet.Dialog.ApplyOOCHealRuleExcerpt"}}
+  </span>
+
+  <div class="form-group">
+    <label for="rest-hours">{{ localize "PMTTRPG.Sheet.Dialog.RestHours" }}</label>
+    <input id="rest-hours" type="number" name="hours" min="1" value="1" />
+  </div>
+
+  <p class="hint">
+    {{ localize "PMTTRPG.Sheet.Dialog.PerHourRecap" }}
+  </p>
+
+  <ol class="recap-list">
+    <li class="recap-item">
+      <span class="recap-icon">
+        <img src="systems/projectmoonttrpg/assets/icons/sheet/hp_healthyplus.webp" />
+      </span>
+      <span class="recap-text">
+        Health : {{data.healthBefore}} (+{{data.healthPerHour}}/hr)
+      </span>
+    </li>
+    <li class="recap-item">
+      <span class="recap-icon">
+        <img src="systems/projectmoonttrpg/assets/icons/sheet/SanityIcons_SanityBase.webp" />
+      </span>
+      <span class="recap-text">
+        Sanity : {{data.sanityBefore}} (+{{data.sanityPerHour}}/hr)
+      </span>
+    </li>
+    <li class="recap-item">
+      <span class="recap-icon">
+        <img src="systems/projectmoonttrpg/assets/icons/sheet/00_light.webp" />
+      </span>
+      <span class="recap-text">
+        Light : {{data.lightBefore}} (+{{data.lightPerHour}}/hr)
+      </span>
+    </li>
+  </ol>
+</div>
