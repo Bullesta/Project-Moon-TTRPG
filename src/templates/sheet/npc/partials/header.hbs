@@ -7,6 +7,26 @@
     <span class="npc-badge" title="{{localize "TYPES.Actor.npc"}}">{{localize "PMTTRPG.npc"}}</span>
   </div>
 
+  <div class="player-header__quick-actions npc-header__quick-actions">
+    <button type="button"
+        class="action-button"
+        data-action="applyOutOfCombatHeal"
+        title="End of Combat Healing"
+        aria-label="End of Combat Healing"
+        aria-pressed="">
+      <i class="fa-solid fa-hand-holding-medical" aria-hidden="true"></i>
+    </button>
+
+    <button type="button"
+        class="action-button"
+        data-action="applyRest"
+        title="Rest"
+        aria-label="Rest"
+        aria-pressed="">
+      <i class="fa-solid fa-bed" aria-hidden="true"></i>
+    </button>
+  </div>
+
   <div class="player-header__stats npc-header__stats">
     <div class="player-header__stat">
       <p class="player-header__label">{{localize "PMTTRPG.Rank"}}</p>
@@ -25,14 +45,16 @@
   </div>
 
   <div class="npc-header__ratings" title="{{localize "PMTTRPG.NpcBriefRatings"}}">
-    <span class="npc-rating">
-      <span class="npc-rating__label">{{localize "PMTTRPG.NpcComplexityGm"}}</span>
-      <span class="npc-rating__value">{{gmBrief.complexityGm}}</span>
-    </span>
-    <span class="npc-rating">
-      <span class="npc-rating__label">{{localize "PMTTRPG.NpcComplexityPlayers"}}</span>
-      <span class="npc-rating__value">{{gmBrief.complexityPlayers}}</span>
-    </span>
+    <div>
+      <span class="npc-rating">
+        <span class="npc-rating__label">{{localize "PMTTRPG.NpcComplexityGm"}}</span>
+        <span class="npc-rating__value">{{gmBrief.complexityGm}}</span>
+      </span>
+      <span class="npc-rating">
+        <span class="npc-rating__label">{{localize "PMTTRPG.NpcComplexityPlayers"}}</span>
+        <span class="npc-rating__value">{{gmBrief.complexityPlayers}}</span>
+      </span>
+    </div>
     {{#if gmBrief.strength}}
     <span class="npc-rating npc-rating--strength">
       <span class="npc-rating__label">{{localize "PMTTRPG.NpcStrength"}}</span>

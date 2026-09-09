@@ -24,6 +24,7 @@
   align-items: center;
   gap: 0.5rem;
   min-width: 0;
+  width: 70%;
 }
 
 .npc-sheet .npc-header__title-row .player-header__name {
@@ -49,7 +50,8 @@
 
 .npc-sheet .npc-header__ratings {
   display: flex;
-  flex-wrap: wrap;
+  flex-direction: column;
+  flex-wrap: nowrap;
   gap: 0.55rem 0.85rem;
   margin-top: 0.45rem;
   padding-top: 0.35rem;

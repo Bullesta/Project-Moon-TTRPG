@@ -1,0 +1,37 @@
+<div class="out-of-combat-healing">
+  <span class="rule-excerpt">
+    {{localize "PMTTRPG.Sheet.Dialog.ApplyEOCHealRuleExcerpt"}}
+  </span>
+  <ol class="recap-list">
+    <li class="recap-item">
+      <span class="recap-icon">
+        <img
+          src="systems/projectmoonttrpg/assets/icons/sheet/Guard_Stagger_Undamaged.webp"
+        >
+      </span>
+      <span class="recap-text {{#ifEquals data.staggerAfter data.staggerMax}}recap-text--isMax{{/ifEquals}}">
+        Stagger : {{data.staggerBefore}} -> {{data.staggerAfter}}
+      </span>
+    </li>
+    <li class="recap-item">
+      <span class="recap-icon">
+        <img
+          src="systems/projectmoonttrpg/assets/icons/sheet/SanityIcons_SanityBase.webp"
+        >
+      </span>
+      <span class="recap-text {{#ifEquals data.sanityAfter data.sanityMax}}recap-text--isMax{{/ifEquals}}">
+        Sanity : {{data.sanityBefore}} -> {{data.sanityAfter}}
+      </span>
+    </li>
+    <li class="recap-item">
+      <span class="recap-icon">
+        <img
+          src="systems/projectmoonttrpg/assets/icons/sheet/00_light.webp"
+        >
+      </span>
+      <span class="recap-text {{#ifEquals data.lightAfter data.lightMax}}recap-text--isMax{{/ifEquals}}">
+        Light : {{data.lightBefore}} -> {{data.lightAfter}}
+      </span>
+    </li>
+  </ol>
+</div>

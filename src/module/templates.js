@@ -66,6 +66,9 @@
     "systems/projectmoonttrpg/templates/combat/parts/initiative-tracker.hbs",
     "systems/projectmoonttrpg/templates/combat/parts/main-stat-tracker.hbs",
     "systems/projectmoonttrpg/templates/combat/parts/detail-stat-tracker.hbs",
+    // Character sheet dialogs
+    "systems/projectmoonttrpg/templates/dialog/apply-end-of-combat-healing.hbs",
+    "systems/projectmoonttrpg/templates/dialog/apply-out-of-combat-healing.hbs"
   ];
 
   // Load the template parts

@@ -779,9 +779,9 @@ export class ActorPMTTRPG extends Actor {
   async applyPostCombatHealing() {
     const updates = {};
     updates[`system.attributes.st.value`] = this.system.st.max;
-    updates[`system.attributes.light.value`] = this.system.light.value + this.system.rank;
-    updates[`system.attributes.sp.value`] = this.system.sp.value + this.system.abilities.pru + 5;
-    await actor.update(updates);
+    updates[`system.attributes.light.value`] = this.system.light.value + this.system.rank.value;
+    updates[`system.attributes.sp.value`] = this.system.sp.value + this.system.abilities.pru.value + 5;
+    await this.update(updates);
   }
 
   /**
@@ -793,10 +793,10 @@ export class ActorPMTTRPG extends Actor {
    */
   async applyRestHealing(hours = 1) {
     const updates = {};
-    updates[`system.attributes.hp.value`] = this.system.hp.value + (this.system.abilities.for + this.system.rank + 25) * hours;
-    updates[`system.attributes.sp.value`] = this.system.sp.value + (this.system.abilities.pru + 3) * hours;
-    updates[`system.attributes.light.value`] = this.system.light.value + (this.system.rank) * hours;
-    await actor.update(updates);
+    updates[`system.attributes.hp.value`] = this.system.hp.value + (((this.system.abilities.for.value * 3) + (this.system.rank.value * 3) + 25) * hours);
+    updates[`system.attributes.sp.value`] = this.system.sp.value + ((this.system.abilities.pru.value + 3) * hours);
+    updates[`system.attributes.light.value`] = this.system.light.value + ((this.system.rank.value) * hours);
+    await this.update(updates);
   }
 
   /**
