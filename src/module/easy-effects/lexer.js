@@ -2,11 +2,11 @@ export const KEYWORDS = new Set([
   // core syntax
   "if", "do", "on", "per", "and", "to", "from",
   // targets (single)
-  "self", "target", "ally", "attacker", "originator", "burster", "burstee",
+  "self", "target", "ally", "attacker", "originator", "burster", "burstee", "healer",
   // targets (multi)
   "enemies", "allies", "all",
   // flag keywords
-  "isStaggered", "isPanicking", "hasStatus",
+  "isStaggered", "isPanicking", "hasStatus", "hasFlag",
   // natural-language aliases
   "gain", "spend", "lose", "require", "then", "inflict",
   "reduce", "increase", "by",
@@ -20,6 +20,7 @@ export const KEYWORDS = new Set([
   "targeting",
   "with",
   "as",
+  "tagged",
   "roll", "the",
   "next", "round", "turn", "pause",
   // effect template polarity
@@ -98,10 +99,7 @@ function readNumberOrDice(source, index, diceError) {
   return { type: "NUMBER", value: num, length: i - index };
 }
 
-/**
- * @param {string} source
- * @returns {{ type: string, value: string }[]}
- */
+/** Top-level EasyEffects tokens. Accessor interiors stay opaque until `tokenizeExpression`. */
 export function tokenize(source) {
   const tokens = [];
   let i = 0;
@@ -257,6 +255,7 @@ export function tokenizeExpression(source) {
     if (/\s/.test(source[i])) { i++; continue; }
     if (source[i] === "(") { tokens.push({ type: "LPAREN", value: "(" }); i++; continue; }
     if (source[i] === ")") { tokens.push({ type: "RPAREN", value: ")" }); i++; continue; }
+    if (source[i] === ",") { tokens.push({ type: "COMMA",  value: "," }); i++; continue; }
     if (source[i] === ".") { tokens.push({ type: "DOT",    value: "." }); i++; continue; }
 
     if (source[i] === '"') {

@@ -137,7 +137,10 @@ export function uniqueStatusItems(items = []) {
   const byName = new Map();
   for (const item of items) {
     if (item.type !== "status") continue;
+    if (item.destroyed || !item.parent) continue;
     if (isPendingStatus(item)) continue;
+    const stacks = Math.max(0, Number(item.system?.stacks ?? 1) || 0);
+    if (stacks <= 0) continue;
     const key = item.name?.trim().toLowerCase();
     if (key && !byName.has(key)) byName.set(key, item);
   }

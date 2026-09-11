@@ -13,6 +13,8 @@ const RESERVED_PROC_NAMES = new Set([
   "before clash results",
   "burst",
   "use",
+  "equip",
+  "unequip",
   "action",
   "stagger",
   "applied",
@@ -20,40 +22,57 @@ const RESERVED_PROC_NAMES = new Set([
   "lose",
   "removed",
   "turn start",
+  "start of turn",
+  "end of turn",
   "end of round",
   "start of round",
+  "combat start",
+  "start of combat",
+  "combat end",
+  "end of combat",
   "move",
   "taking damage",
+  "dealing damage",
+  "before dealing damage",
+  "heal",
+  "being healed",
   "depleted",
   "always active",
   "dialog answer",
+  "roll",
 ]);
 
 export const RESERVED_PROC_BIND_NAMES = new Set([
-  "self", "target", "ally", "attacker", "originator", "burster", "burstee",
+  "self", "target", "ally", "attacker", "originator", "burster", "burstee", "healer",
   "enemies", "allies", "all",
-  "damage", "incoming", "item", "clash", "changed", "burst",   "depleted", "roll",
+  "damage", "incoming", "heal", "item", "clash", "changed", "burst",   "depleted", "roll",
+  "pendingRoll",
   "proc", "N", "moved", "round", "combat",
+  "event", "flag",
 ]);
 
-/** @param {string} name @returns {string} */
 export function canonicalizeProcName(name) {
   return String(name ?? "").trim();
 }
 
-/** @param {string} name @returns {boolean} */
+/** Lifecycle trigger names cannot be used as `proc <Name>`. */
 export function isReservedProcName(name) {
   const raw = String(name ?? "").trim().toLowerCase();
   if (!raw) return true;
   if (RESERVED_PROC_NAMES.has(raw)) return true;
+  if (raw.startsWith("roll ")) return true;
   if (raw.startsWith("dialog answer")) return true;
   if (raw.startsWith("taking ") && raw.endsWith(" damage")) return true;
+  if (raw.startsWith("dealing ") && raw.endsWith(" damage")) return true;
+  if (raw.startsWith("before dealing ") && raw.endsWith(" damage")) return true;
+  if (raw === "heal" || raw.startsWith("heal ")) return true;
+  if (raw === "being healed" || raw.startsWith("being healed")) return true;
   if (raw.startsWith("depleted ")) return true;
   if (raw.endsWith(" burst")) return true;
   return false;
 }
 
-/** @param {string} name @returns {boolean} */
+/** Bind names that would collide with path roots (`self`, `heal`, `event`, …). */
 export function isReservedProcBindName(name) {
   const raw = String(name ?? "").trim();
   if (!raw) return true;
@@ -61,12 +80,15 @@ export function isReservedProcBindName(name) {
 }
 
 /**
- * @param {string} raw
- * @returns {{ matched: boolean, trigger: string }}
+ * `[On <Name>]` when `<Name>` is not a reserved lifecycle trigger.
+ * Dialog / Roll / Burst mids are left unmatched so those parsers own them.
  */
 export function normalizeProcTrigger(raw) {
   const text = String(raw ?? "").trim();
   if (/^On Dialog Answer\b/i.test(text)) {
+    return { matched: false, trigger: text };
+  }
+  if (/^On Roll$/i.test(text) || /^On Roll\s+/i.test(text)) {
     return { matched: false, trigger: text };
   }
   if (/^On Burst$/i.test(text) || /^On\s+.+\s+Burst$/i.test(text)) {

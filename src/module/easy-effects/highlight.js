@@ -3,25 +3,45 @@ import { KEYWORDS as LEXER_KEYWORDS } from "./lexer.js";
 const ACTIONS = new Set([
   "gain", "spend", "lose", "require", "inflict", "reduce", "increase",
   "convert", "create", "dialog", "message", "burst", "proc", "deal", "heal", "add", "remove",
-  "set", "halve", "double", "regen", "power", "dice", "range", "roll", "pause",
-  "advantage", "disadvantage",
+  "set", "clear", "halve", "double", "regen", "power", "dice", "range", "roll", "pause",
+  "advantage", "disadvantage", "let",
 ]);
 
+const CALLS = new Set(["min", "max", "clamp"]);
 const TAGS = new Set(["instant"]);
 
+const HOSTS = new Set([
+  "self", "target", "ally", "attacker", "originator", "burster", "burstee", "healer",
+  "enemies", "allies",
+  "event", "item", "combat",
+]);
+
+const PATH_SEGMENTS = new Set([
+  "status", "flag", "amount", "pool", "originalpool", "origin",
+  "source", "damagetype", "attack",
+  "before", "after", "max",
+  "squares", "spaces", "movement", "forced", "method",
+  "value", "rolledvalue", "number", "tag", "tags",
+  "uuid", "name", "id",
+  "attr", "stat", "rank",
+  "hp", "st", "sp", "light",
+  ...HOSTS,
+]);
+
 const KEYWORDS = new Set([
-  ...LEXER_KEYWORDS,
+  ...[...LEXER_KEYWORDS].map((word) => word.toLowerCase()),
   "action", "actions", "reaction", "reactions",
   "movement", "square", "squares", "sqr", "sqrs",
   "hp", "st", "sp", "light", "stagger", "sanity",
-  "tempHp", "tempSt", "tempSp",
-  "maxHp", "maxSt", "maxSp", "maxLight",
+  "temphp", "tempst", "tempsp",
+  "maxhp", "maxst", "maxsp", "maxlight",
   "resistance", "resistances",
   "fatal", "weak", "normal", "endured", "ineffective", "immune",
   "slash", "pierce", "blunt",
-  "incoming", "damage", "changed", "depleted", "moved", "clash", "item", "burst",
-  "combat", "round",
+  "incoming", "damage", "heal", "changed", "depleted", "moved", "clash", "burst",
+  "round", "pendingroll", "flag",
   "status", "uuid", "name", "id", "origin",
+  "true", "false",
 ]);
 
 const WORD_RE = /^[A-Za-z_][A-Za-z0-9_]*/;
@@ -38,7 +58,29 @@ function span(cls, text) {
   return `<span class="pm-ee-tok pm-ee-tok--${cls}">${escapeHtml(text)}</span>`;
 }
 
-/** @param {string} source */
+/*
+ * After a dot, only known path fields are highlighted. User-defined keys stay
+ * plain. min/max/clamp count as calls only when followed by `(` so names like
+ * `dice max` and `self.hp.max` are not misclassified. (big brain ik)
+ */
+export function classifyEasyEffectsIdent(
+  raw,
+  { afterDot = false, followedByParen = false } = {}
+) {
+  const lower = String(raw ?? "").toLowerCase();
+  if (!lower) return null;
+
+  if (afterDot) return PATH_SEGMENTS.has(lower) ? "keyword" : null;
+  if (followedByParen && CALLS.has(lower)) return "call";
+  if (TAGS.has(lower)) return "tag";
+  if (ACTIONS.has(lower)) return "action";
+  if (HOSTS.has(lower)) return "host";
+  if (lower === "n") return "number";
+  if (KEYWORDS.has(lower)) return "keyword";
+
+  return null;
+}
+
 export function highlightEasyEffects(source) {
   const text = String(source ?? "");
   if (!text) return "";
@@ -96,11 +138,12 @@ export function highlightEasyEffects(source) {
     const word = text.slice(i).match(WORD_RE);
     if (word) {
       const raw = word[0];
-      const lower = raw.toLowerCase();
-      if (TAGS.has(lower)) out += span("tag", raw);
-      else if (ACTIONS.has(lower)) out += span("action", raw);
-      else if (KEYWORDS.has(lower) || KEYWORDS.has(raw)) out += span("keyword", raw);
-      else out += escapeHtml(raw);
+      const cls = classifyEasyEffectsIdent(raw, {
+        afterDot: i > 0 && text[i - 1] === ".",
+        followedByParen: text[i + raw.length] === "(",
+      });
+
+      out += cls ? span(cls, raw) : escapeHtml(raw);
       i += raw.length;
       continue;
     }
@@ -112,9 +155,9 @@ export function highlightEasyEffects(source) {
   return out.endsWith("\n") ? `${out}\n` : `${out}\n`;
 }
 
-/**
- * @param {ParentNode} root
- * @param {{ signal?: AbortSignal }} [options]
+/*
+ * Keeps the syntax layer aligned with each EasyEffects textarea. AbortSignal
+ * lets a re-render tear down the binding without leaving stale listeners.
  */
 export function bindEasyEffectsHighlighter(root, { signal } = {}) {
   if (!root?.querySelectorAll) return;
@@ -128,12 +171,13 @@ export function bindEasyEffectsHighlighter(root, { signal } = {}) {
       highlight.innerHTML = highlightEasyEffects(textarea.value);
     };
 
-    // Moving the mirror avoids scrollbar-gutter drift.
     let raf = 0;
     const syncScroll = () => {
       if (raf) return;
       raf = requestAnimationFrame(() => {
         raf = 0;
+
+        // Move the mirror instead of scrolling it to avoid scrollbar-gutter drift.
         highlight.style.transform =
           `translate3d(${-textarea.scrollLeft}px, ${-textarea.scrollTop}px, 0)`;
       });

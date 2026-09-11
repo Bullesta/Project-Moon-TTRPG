@@ -1,7 +1,8 @@
 import { isApplyPoolNoun, resolveApplyPool } from "./nouns.js";
-import { sameActor } from "./burst-roles.js";
+import { itemIdentityKey, sameActor } from "./burst-roles.js";
+import { normalizeDamageType } from "./resistances.js";
 
-function splitTakingDamageTokens(mid) {
+function splitDamageFilterTokens(mid) {
   const tokens = [];
   const re = /"([^"]+)"|'([^']+)'|(\S+)/g;
   let m;
@@ -27,9 +28,7 @@ export function filterPoolValue(filter) {
 
 function normalizePoolList(raw) {
   if (raw == null || raw === "") return [];
-
   const list = Array.isArray(raw) ? raw : [raw];
-
   return list.map((p) => String(p ?? "").toLowerCase()).filter(Boolean);
 }
 
@@ -162,7 +161,7 @@ export function normalizeTakingDamageTrigger(raw) {
     return { trigger: "On Taking Damage", damageFilter: null };
   }
 
-  const tokens = splitTakingDamageTokens(mid);
+  const tokens = splitDamageFilterTokens(mid);
   let pool = null;
   let attack = false;
   let sourceOrType = null;
@@ -180,29 +179,99 @@ export function normalizeTakingDamageTrigger(raw) {
     sourceOrType = sourceOrType ? `${sourceOrType} ${tok.value}` : tok.value;
   }
 
-  if (!pool && !attack && !sourceOrType) {
-    return { trigger: "On Taking Damage", damageFilter: null };
+  return {
+    trigger: "On Taking Damage",
+    damageFilter: buildDamageFilterAst(pool, attack, sourceOrType),
+  };
+}
+
+function buildDamageFilterAst(pool, attack, sourceOrType) {
+  if (!pool && !attack && !sourceOrType) return null;
+  if (pool && !attack && !sourceOrType) return { kind: "pool", value: pool };
+  if (attack && !pool && !sourceOrType) return { kind: "attack" };
+  if (!pool && !attack && sourceOrType) return { kind: "sourceOrType", value: sourceOrType };
+  return { kind: "compound", pool, attack, sourceOrType };
+}
+
+export function normalizeDealingDamageTrigger(raw) {
+  const text = String(raw ?? "").trim();
+  const m = text.match(/^(Before|On)\s+Dealing(?:\s+(.*?))?\s+Damage$/i);
+  if (!m) return { matched: false, trigger: text, damageFilter: null };
+
+  const trigger = /^before$/i.test(m[1]) ? "Before Dealing Damage" : "On Dealing Damage";
+  let mid = (m[2] ?? "").trim();
+  if (!mid || /^any$/i.test(mid)) {
+    return { matched: true, trigger, damageFilter: null };
   }
-  if (pool && !attack && !sourceOrType) {
+
+  const tokens = splitDamageFilterTokens(mid);
+  let pool = null;
+  let attack = false;
+  let sourceOrType = null;
+
+  for (const tok of tokens) {
+    if (!tok.quoted && /^attacks?$/i.test(tok.value)) {
+      attack = true;
+      continue;
+    }
+    const poolKey = tok.value.toLowerCase();
+    if (!tok.quoted && isApplyPoolNoun(poolKey) && !pool) {
+      pool = resolveApplyPool(poolKey);
+      continue;
+    }
+    const typeKey = normalizeDamageType(tok.value);
+    if (typeKey && !sourceOrType) {
+      sourceOrType = typeKey;
+      continue;
+    }
     return {
-      trigger: "On Taking Damage",
-      damageFilter: { kind: "pool", value: pool },
-    };
-  }
-  if (attack && !pool && !sourceOrType) {
-    return { trigger: "On Taking Damage", damageFilter: { kind: "attack" } };
-  }
-  if (!pool && !attack && sourceOrType) {
-    return {
-      trigger: "On Taking Damage",
-      damageFilter: { kind: "sourceOrType", value: sourceOrType },
+      matched: true,
+      trigger,
+      damageFilter: null,
+      error: `'${tok.value}' is not a valid [${trigger}] filter. Dealer filters are pool, Attack, Slash/Pierce/Blunt, or Any. Use [On Taking ${tok.value} Damage] for status-origin damage.`,
     };
   }
 
   return {
-    trigger: "On Taking Damage",
-    damageFilter: { kind: "compound", pool, attack, sourceOrType },
+    matched: true,
+    trigger,
+    damageFilter: buildDamageFilterAst(pool, attack, sourceOrType),
   };
+}
+
+/**
+ * Frozen after the hit lands. `amount` is `appliedAmount` (includes temp absorb).
+ */
+export function buildDealerDamageResult({
+  requestedAmount = 0,
+  finalAmount = 0,
+  appliedAmount = 0,
+  pool = "hp",
+  damageType = "",
+  fromAttack = true,
+  sourceActor = null,
+  targetActor = null,
+  sourceItem = null,
+  beforeValue = null,
+  afterValue = null,
+  source = "",
+} = {}) {
+  const applied = Math.max(0, Number(appliedAmount) || 0);
+  return Object.freeze({
+    amount: applied,
+    requestedAmount: Math.max(0, Number(requestedAmount) || 0),
+    finalAmount: Math.max(0, Number(finalAmount) || 0),
+    appliedAmount: applied,
+    pool,
+    damageType: damageType ?? "",
+    fromAttack: fromAttack === true,
+    sourceActor,
+    targetActor,
+    sourceItem,
+    beforeValue: beforeValue == null ? null : Number(beforeValue) || 0,
+    afterValue: afterValue == null ? null : Number(afterValue) || 0,
+    source: source ?? "",
+  });
 }
 
 /**
@@ -427,4 +496,224 @@ export function matchesClashStanceFilter(filter, clashStance) {
   const want = String(filter.stance).toLowerCase();
   if (want === "defense") return got === "block" || got === "evade";
   return got === want;
+}
+
+export const HEAL_TRIGGER_ORDER = Object.freeze(["On Heal", "On Being Healed"]);
+
+function snapshotPools(raw) {
+  const list = normalizePoolList(raw);
+  const pools = list.length ? list : ["hp"];
+  return pools.length === 1 ? pools[0] : pools.slice();
+}
+
+/**
+ * Pending restore for one `applyDamage({ op: "heal" })`.
+ * `originalPool` is snapshotted here and `pool` is whatever `convert` last wrote.
+ */
+export function createHealBag({ amount = 0, pool = "hp", source = "" } = {}) {
+  const originalPool = snapshotPools(pool);
+  return {
+    amount: Number(amount) || 0,
+    pool: Array.isArray(originalPool) ? originalPool.slice() : originalPool,
+    originalPool,
+    source: typeof source === "string" ? source : "",
+    beforeDeltaByPool: {},
+  };
+}
+
+function parseHealPoolMid(mid) {
+  const text = String(mid ?? "").trim();
+  if (!text || /^any$/i.test(text)) return { ok: true, filter: null };
+  const poolKey = text.toLowerCase();
+  if (!isApplyPoolNoun(poolKey)) return { ok: false, filter: null };
+  return { ok: true, filter: { kind: "pool", value: resolveApplyPool(poolKey) } };
+}
+
+export function normalizeHealTrigger(raw) {
+  const text = String(raw ?? "").trim();
+  if (/^On Heal$/i.test(text)) {
+    return { matched: true, trigger: "On Heal", healFilter: null };
+  }
+  const m = text.match(/^On Heal\s+(.+)$/i);
+  if (!m) return { matched: false, trigger: text, healFilter: null };
+  const parsed = parseHealPoolMid(m[1]);
+  if (!parsed.ok) return { matched: false, trigger: text, healFilter: null };
+  return { matched: true, trigger: "On Heal", healFilter: parsed.filter };
+}
+
+export function normalizeBeingHealedTrigger(raw) {
+  const text = String(raw ?? "").trim();
+  if (/^On Being Healed$/i.test(text)) {
+    return { matched: true, trigger: "On Being Healed", healFilter: null };
+  }
+  const m = text.match(/^On Being Healed\s+(.+)$/i);
+  if (!m) return { matched: false, trigger: text, healFilter: null };
+  const parsed = parseHealPoolMid(m[1]);
+  if (!parsed.ok) return { matched: false, trigger: text, healFilter: null };
+  return { matched: true, trigger: "On Being Healed", healFilter: parsed.filter };
+}
+
+/**
+ * Matches `originalPool`. This makes it so that a later `convert` doesn't skip this slice.
+ */
+export function matchesHealFilter(filter, heal) {
+  if (!filter) return true;
+  if (!heal) return false;
+  if (filter.kind !== "pool") return true;
+  const want = String(filter.value ?? "").toLowerCase();
+  if (!want) return true;
+  const raw = heal.originalPool ?? heal.pool;
+  const list = Array.isArray(raw) ? raw : [raw];
+  return list.some((p) => String(p ?? "").toLowerCase() === want);
+}
+
+export function collectUniqueHealItems(items = [], extraItem = null) {
+  const out = [];
+  const seen = new Set();
+  const push = (item) => {
+    const key = itemIdentityKey(item);
+    if (!key || seen.has(key)) return;
+    seen.add(key);
+    out.push(item);
+  };
+  push(extraItem);
+  for (const item of items) push(item);
+  return out;
+}
+
+/**
+ * Healer and patient share this `heal` object. No healer means no `[On Heal]`.
+ */
+export function buildHealSliceContexts(payload = {}) {
+  const actor = payload.actor ?? null;
+  const healer = payload.healer ?? null;
+  const heal = payload.heal ?? null;
+  const item = payload.item ?? null;
+  return {
+    onHeal: healer && heal
+      ? {
+        self: healer,
+        target: actor,
+        healer,
+        ally: null,
+        clash: null,
+        heal,
+        item,
+      }
+      : null,
+    onBeingHealed: actor && heal
+      ? {
+        self: actor,
+        target: healer,
+        healer,
+        ally: null,
+        clash: null,
+        heal,
+      }
+      : null,
+  };
+}
+
+export function planHealSlices(payload = {}) {
+  const contexts = buildHealSliceContexts(payload);
+  return [
+    {
+      trigger: "On Heal",
+      context: contexts.onHeal,
+      items: contexts.onHeal
+        ? collectUniqueHealItems(payload.healerItems ?? [], payload.item ?? null)
+        : [],
+    },
+    {
+      trigger: "On Being Healed",
+      context: contexts.onBeingHealed,
+      items: contexts.onBeingHealed
+        ? collectUniqueHealItems(payload.patientItems ?? [], null)
+        : [],
+    },
+  ].filter((slice) => slice.context);
+}
+
+export function pendingRollTags(pendingRoll) {
+  if (!pendingRoll) return [];
+  if (Array.isArray(pendingRoll.tags)) return pendingRoll.tags;
+  const legacy = pendingRoll.tag;
+  if (legacy == null || legacy === "") return [];
+  return [legacy];
+}
+
+/**
+ * Named `roll` bag. `tags` is the list; `tag` reads and writes `tags[0]`.
+ */
+export function createPendingRoll({
+  rolledValue,
+  value,
+  bind = null,
+  tag = null,
+  tags = null,
+  formula = null,
+  producerActor = null,
+  producerItem = null,
+} = {}) {
+  const list = Array.isArray(tags)
+    ? tags.map((entry) => String(entry ?? "").trim()).filter(Boolean)
+    : (tag != null && String(tag).trim() ? [String(tag).trim()] : []);
+  const pending = {
+    rolledValue,
+    value,
+    bind: bind ?? null,
+    tags: list,
+    formula: formula ?? null,
+    producerActor: producerActor ?? null,
+    producerItem: producerItem ?? null,
+  };
+  Object.defineProperty(pending, "tag", {
+    configurable: true,
+    enumerable: true,
+    get() {
+      return this.tags[0] ?? null;
+    },
+    set(next) {
+      const text = next == null ? "" : String(next).trim();
+      if (!text) {
+        this.tags = [];
+        return;
+      }
+      if (!Array.isArray(this.tags) || !this.tags.length) this.tags = [text];
+      else this.tags[0] = text;
+    },
+  });
+  return pending;
+}
+
+export function normalizeOnRollTrigger(raw) {
+  const text = String(raw ?? "").trim();
+  if (/^On Roll$/i.test(text)) {
+    return { matched: true, trigger: "On Roll", rollFilter: null };
+  }
+
+  const m = text.match(/^On Roll\s+(.+)$/i);
+  if (!m) return { matched: false, trigger: text, rollFilter: null };
+
+  let mid = (m[1] ?? "").trim();
+  const quoted = mid.match(/^"([^"]*)"$/) || mid.match(/^'([^']*)'$/);
+  if (quoted) mid = quoted[1].trim();
+  if (!mid) return { matched: false, trigger: text, rollFilter: null };
+
+  return {
+    matched: true,
+    trigger: "On Roll",
+    rollFilter: { tag: mid },
+  };
+}
+
+/** Case-insensitive match on `pendingRoll.tags`. */
+export function matchesRollFilter(filter, pendingRoll) {
+  if (!filter) return true;
+  if (!pendingRoll) return false;
+  const want = String(filter.tag ?? "").trim().toLowerCase();
+  if (!want) return true;
+  return pendingRollTags(pendingRoll).some(
+    (entry) => String(entry ?? "").trim().toLowerCase() === want
+  );
 }

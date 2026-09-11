@@ -7,21 +7,55 @@ import {
   getPowerFields,
   getRegenField,
   isRuntimeResource,
-  recoverPool,
   resolvePathShorthand,
 } from "./nouns.js";
 import { expandSimpleDiceByMultiplier } from "./dice-formula.js";
-import { applyPendingDamageDelta, matchesClashStanceFilter, matchesDamageFilter, matchesDepletedFilter, shouldExecuteBurstBlock } from "./damage-filter.js";
+import { applyPendingDamageDelta, matchesClashStanceFilter, matchesDamageFilter, matchesDepletedFilter, matchesHealFilter, matchesRollFilter, shouldExecuteBurstBlock, createPendingRoll } from "./filters.js";
+import {
+  flushEEEmission,
+  getEventFlag,
+  setEventFlag,
+  clearEventFlag,
+  getPersistentFlag,
+  hasPersistentFlag,
+  stagePersistentFlag,
+  stageClearPersistentFlag,
+  isValidFlagValue,
+} from "./ee-meta.js";
 import { mergeResistanceOverrideMaps } from "./resistances.js";
 import { promptChoiceDialog } from "./choice-dialog.js";
-import { runAsOwnerOrGM } from "./gm-route.js";
+import { runAsOwnerOrGM, runEEMetaPatch } from "./gm-route.js";
 import { parseAccessorExpression } from "./parser.js";
-import { applyMathOp } from "./numeric-expr.js";
+import { applyMathOp, applyMathCall } from "./numeric-expr.js";
 import { clampPoolValue } from "../pool-clamp.js";
 import { resolveBurstBurster, sameActor } from "./burst-roles.js";
+import { showDiceForRoll } from "../utility.js";
 
 // Me and the boi's hate infinite recursion
 const DIALOG_NEST_MAX_DEPTH = 8;
+// These verbs mutate Foundry docs. Flush first or nested EE still sees the overlay.
+const EE_MUTATION_BARRIER_VERBS = new Set([
+  "add", "remove", "deal", "heal", "set", "clear", "regen", "burst", "proc", "pause", "roll",
+]);
+const FLAG_ACTOR_HOSTS = new Set([
+  "self", "target", "ally", "attacker", "originator", "burster", "burstee", "healer",
+]);
+
+function skipNestedApply(context) {
+  return !!(context?.damage || context?.heal);
+}
+
+function rejectIfDamageReadOnly(context, verb) {
+  if (context?.damageMutable !== false) return false;
+  console.warn(
+    `[EasyEffects] \`${verb} damage\` is not allowed during [On Dealing Damage] because the damage transaction has already been applied.`
+  );
+  return true;
+}
+
+async function flushContextEmission(context) {
+  await flushEEEmission(context?._eeEmission);
+}
 
 function lookupVariable(context, name) {
   const vars = context?._eeVars;
@@ -55,11 +89,8 @@ function writeAmountSnapshot(context, node, value) {
 async function evaluateExpr(node, context) {
   switch (node.type) {
     case "Num":   return node.value;
-    case "Dice": {
-      const roll = new Roll(node.formula);
-      await roll.roll();
-      return roll.total;
-    }
+    case "Dice":
+      return evaluateDiceFormula(node.formula, context);
     case "Path":  return resolvePath(node.segments, context);
     case "Variable": return lookupVariable(context, node.name);
     case "Percent": return await resolvePercentExpr(node.expr, context, evaluateExpr);
@@ -71,6 +102,10 @@ async function evaluateExpr(node, context) {
         evaluateExpr(node.right, context),
       ]);
       return applyMathOp(node.op, left, right);
+    }
+    case "Call": {
+      const args = await Promise.all(node.args.map((arg) => evaluateExpr(arg, context)));
+      return applyMathCall(node.name, args);
     }
     default:
       console.warn(`[EasyEffects] Unknown expr node type '${node.type}'`);
@@ -96,6 +131,10 @@ function evaluateExprSync(node, context) {
         evaluateExprSync(node.left, context),
         evaluateExprSync(node.right, context)
       );
+      return applyMathCall(
+        node.name,
+        node.args.map((arg) => evaluateExprSync(arg, context))
+      );
     default: return 0;
   }
 }
@@ -114,7 +153,7 @@ function resolvePercentExpr(inner, context, evalFn) {
   return Number(value) || 0;
 }
 
-/** @returns {number|null} */
+/** HP/ST/SP/Light as 0-100. Null if this isn't a pool percent path. */
 function resolvePathPoolPercent(segments, context) {
   if (!Array.isArray(segments) || segments.length < 2) return null;
   const root = segments[0];
@@ -152,12 +191,12 @@ export function ensureRollsBag(context) {
   return context.rolls;
 }
 
-/**
- * @param {string} formula
- * @param {object} context
- * @param {string|null} bind
- * @returns {Promise<number>}
- */
+function finiteNumber(value, fallback = 0) {
+  const n = Number(value);
+  return Number.isFinite(n) ? n : fallback;
+}
+
+/** Statement `on roll` / completed bind. Doesn't trigger [On Roll]. */
 export async function applyRollToContext(formula, context, bind = null) {
   const bag = ensureRollsBag(context);
   const total = await evaluateDiceFormula(String(formula), context);
@@ -167,38 +206,63 @@ export async function applyRollToContext(formula, context, bind = null) {
 }
 
 /**
- * @param {string} formula
- * @param {object} [context]
- * @returns {Promise<number>}
+ * Named `roll`. Flushes the parent overlay, then [On Roll] runs in its own emission.
+ * We keep the previous pendingRoll and put it back when this returns.
  */
+export async function commitNamedRoll(context, {
+  formula = null,
+  bind = null,
+  tag = null,
+  total,
+} = {}) {
+  const bag = ensureRollsBag(context);
+  const rolled = finiteNumber(total, 0);
+  const previous = context.pendingRoll;
+  const pending = createPendingRoll({
+    rolledValue: rolled,
+    value: rolled,
+    bind: bind ?? null,
+    tag: tag ?? null,
+    formula: formula ?? null,
+    producerActor: context.self ?? null,
+    producerItem: context.item ?? null,
+  });
+  context.pendingRoll = pending;
+  try {
+    await flushContextEmission(context);
+    const emit = typeof context._emitPendingRoll === "function"
+      ? context._emitPendingRoll
+      : (await import("./registry.js")).emitRoll;
+    await emit(context);
+    const effective = finiteNumber(pending.value, rolled);
+    bag.last = effective;
+    if (bind) bag.named[bind] = effective;
+  } finally {
+    context.pendingRoll = previous;
+  }
+  return bag.last;
+}
+
+function applyPendingRollDelta(context, delta, verb) {
+  const pending = context.pendingRoll;
+  if (!pending) {
+    console.warn(`[EasyEffects] '${verb} roll' used outside [On Roll]; ignored.`);
+    return;
+  }
+  pending.value = finiteNumber(pending.value) + finiteNumber(delta);
+}
+
 export async function evaluateDiceFormula(formula, context = null) {
   const raw = String(formula ?? "").trim();
   if (!raw || raw === "0") return 0;
 
   const roll = new Roll(raw);
-  await roll.roll();
+  await roll.evaluate({ allowInteractive: false });
 
-  const dice3d = globalThis.game?.modules?.get("dice-so-nice")?.active
-    ? globalThis.game.dice3d
-    : null;
-  if (typeof dice3d?.showForRoll === "function") {
-    try {
-      const speaker = (typeof ChatMessage !== "undefined" && context?.self)
-        ? ChatMessage.getSpeaker?.({ actor: context.self })
-        : undefined;
-      await dice3d.showForRoll(
-        roll,
-        game.user,
-        true,
-        null,
-        false,
-        null,
-        speaker ?? undefined
-      );
-    } catch (err) {
-      console.warn("[EasyEffects] Dice So Nice showForRoll failed; continuing with total.", err);
-    }
-  }
+  const speaker = (typeof ChatMessage !== "undefined" && context?.self)
+    ? ChatMessage.getSpeaker?.({ actor: context.self })
+    : undefined;
+  await showDiceForRoll(roll, { speaker });
 
   return Number(roll.total) || 0;
 }
@@ -239,6 +303,7 @@ function resolveOriginator(context) {
 function resolveContextActor(name, context) {
   if (!name) return null;
   if (name === "attacker") return context.attacker ?? null;
+  if (name === "healer") return context.healer ?? null;
   if (name === "originator") return resolveOriginator(context);
   return context[name] ?? null;
 }
@@ -264,6 +329,164 @@ function resolveCombatRound(context) {
   return Math.max(0, Number(combat.round) || 0);
 }
 
+function flagKeyFromSegments(segments, flagIndex) {
+  if (!Array.isArray(segments) || segments.length <= flagIndex + 1) return "";
+  return segments.slice(flagIndex + 1).join(".");
+}
+
+function resolveFlagHost(host, context) {
+  if (host === "event") return { kind: "event" };
+  if (host === "item") return { kind: "doc", doc: context?.item ?? null, label: "item" };
+  if (host === "combat") {
+    return { kind: "doc", doc: resolveEncounterCombat(context), label: "combat" };
+  }
+  if (FLAG_ACTOR_HOSTS.has(host)) {
+    return { kind: "doc", doc: resolveContextActor(host, context), label: host };
+  }
+  return null;
+}
+
+function readFlagValue(host, key, context) {
+  const resolved = resolveFlagHost(host, context);
+  if (!resolved) return undefined;
+  if (resolved.kind === "event") {
+    const emission = context?._eeEmission;
+    if (!emission?.event?.flags) return undefined;
+    return getEventFlag(emission, key);
+  }
+  if (!resolved.doc) return undefined;
+  return getPersistentFlag(context?._eeEmission ?? null, resolved.doc, key);
+}
+
+// Missing flags warn and become 0 here. The getters themselves return undefined.
+function resolveFlagPathValue(host, key, context) {
+  if (!key) {
+    console.warn(`[EasyEffects] Missing flag key on ${host}`);
+    return 0;
+  }
+  if (host === "event" && !context?._eeEmission?.event?.flags) {
+    console.warn("[EasyEffects] 'event.flag' is not available in this trigger.");
+    return 0;
+  }
+  const value = readFlagValue(host, key, context);
+  if (value !== undefined) return value;
+  console.warn(`[EasyEffects] Missing flag '${key}' on ${host}`);
+  return 0;
+}
+
+async function resolveFlagValueNode(amountNode, context) {
+  if (!amountNode) return undefined;
+  switch (amountNode.type) {
+    case "NUMBER": return amountNode.value;
+    case "STRING": return amountNode.value;
+    case "BOOLEAN": return amountNode.value;
+    case "EFFECT_N": {
+      const n = Number(context.effectN);
+      return Number.isFinite(n) ? n : 0;
+    }
+    case "ACCESSOR": return evaluateExpr(amountNode.expr, context);
+    default:
+      console.warn(`[EasyEffects] Unknown flag value type '${amountNode.type}'`);
+      return undefined;
+  }
+}
+
+async function writeFlagValue(resolved, context, key, value) {
+  if (resolved.kind === "event") {
+    const emission = context?._eeEmission;
+    if (!emission?.event?.flags) {
+      console.warn("[EasyEffects] 'event.flag' is not available in this trigger.");
+      return;
+    }
+    setEventFlag(emission, key, value);
+    return;
+  }
+  if (!resolved.doc) {
+    console.warn(`[EasyEffects] Flag host '${resolved.label}' is not in context.`);
+    return;
+  }
+  const emission = context?._eeEmission;
+  if (emission) stagePersistentFlag(emission, resolved.doc, key, value);
+  else await runEEMetaPatch(resolved.doc, { set: { [key]: value } });
+}
+
+// set, clear, increase, and reduce all share this write path.
+// Two clients can still race so this is not an atomic increment.
+async function applyFlagAction(action, context, mode) {
+  const key = action.argument;
+  const host = action.target;
+  if (!key) {
+    console.warn("[EasyEffects] Flag action missing key");
+    return;
+  }
+  const resolved = resolveFlagHost(host, context);
+  if (!resolved) {
+    console.warn(`[EasyEffects] Unknown flag host '${host}'`);
+    return;
+  }
+
+  if (mode === "increase" || mode === "reduce") {
+    const delta = await resolveFlagValueNode(action.amount ?? { type: "NUMBER", value: 1 }, context);
+    if (typeof delta !== "number" || !Number.isFinite(delta)) {
+      console.warn(`[EasyEffects] Ignored non-numeric ${mode} for flag '${key}'`);
+      return;
+    }
+    let current;
+    if (resolved.kind === "event") {
+      const emission = context?._eeEmission;
+      if (!emission?.event?.flags) {
+        console.warn("[EasyEffects] 'event.flag' is not available in this trigger.");
+        return;
+      }
+      current = getEventFlag(emission, key);
+    } else {
+      if (!resolved.doc) {
+        console.warn(`[EasyEffects] Flag host '${resolved.label}' is not in context.`);
+        return;
+      }
+      current = getPersistentFlag(context?._eeEmission ?? null, resolved.doc, key);
+    }
+    if (current !== undefined && typeof current !== "number") {
+      console.warn(`[EasyEffects] Cannot ${mode} non-numeric flag '${key}'`);
+      return;
+    }
+    const value = (current === undefined ? 0 : current) + (mode === "reduce" ? -delta : delta);
+    if (!isValidFlagValue(value)) {
+      console.warn(`[EasyEffects] Ignored invalid flag value for '${key}'`);
+      return;
+    }
+    await writeFlagValue(resolved, context, key, value);
+    return;
+  }
+
+  if (mode === "set") {
+    const value = await resolveFlagValueNode(action.amount, context);
+    if (!isValidFlagValue(value)) {
+      console.warn(`[EasyEffects] Ignored invalid flag value for '${key}'`);
+      return;
+    }
+    await writeFlagValue(resolved, context, key, value);
+    return;
+  }
+
+  if (resolved.kind === "event") {
+    const emission = context?._eeEmission;
+    if (!emission?.event?.flags) {
+      console.warn("[EasyEffects] 'event.flag' is not available in this trigger.");
+      return;
+    }
+    clearEventFlag(emission, key);
+    return;
+  }
+  if (!resolved.doc) {
+    console.warn(`[EasyEffects] Flag host '${resolved.label}' is not in context.`);
+    return;
+  }
+  const emission = context?._eeEmission;
+  if (emission) stageClearPersistentFlag(emission, resolved.doc, key);
+  else await runEEMetaPatch(resolved.doc, { unset: [key] });
+}
+
 function resolvePath(segments, context) {
   const root = segments[0];
 
@@ -280,7 +503,30 @@ function resolvePath(segments, context) {
     if (segments.length === 1) return resolveCombatRound(context);
     const key = segments[1];
     if (key === "round") return resolveCombatRound(context);
+    if (key === "flag") return resolveFlagPathValue("combat", flagKeyFromSegments(segments, 1), context);
     console.warn(`[EasyEffects] Unknown combat path 'combat.${key}'`);
+    return 0;
+  }
+
+  if (root === "event") {
+    if (segments[1] !== "flag") {
+      console.warn(`[EasyEffects] Unknown event path '${segments.join(".")}'`);
+      return 0;
+    }
+    return resolveFlagPathValue("event", flagKeyFromSegments(segments, 1), context);
+  }
+
+  if (root === "pendingRoll") {
+    const pending = context.pendingRoll;
+    if (!pending) {
+      console.warn("[EasyEffects] 'pendingRoll' used outside [On Roll].");
+      return 0;
+    }
+    if (segments.length === 1) return finiteNumber(pending.value);
+    const key = segments[1];
+    if (key === "value") return finiteNumber(pending.value);
+    if (key === "rolledValue") return finiteNumber(pending.rolledValue);
+    console.warn(`[EasyEffects] Unknown pendingRoll path 'pendingRoll.${key}'`);
     return 0;
   }
 
@@ -290,9 +536,9 @@ function resolvePath(segments, context) {
       console.warn("[EasyEffects] 'roll' used before any 'roll' / 'on roll' in this trigger.");
       return 0;
     }
-    if (segments.length === 1) return Number(bag.last) || 0;
+    if (segments.length === 1) return finiteNumber(bag.last);
     const key = segments[1];
-    if (key in (bag.named ?? {})) return Number(bag.named[key]) || 0;
+    if (key in (bag.named ?? {})) return finiteNumber(bag.named[key]);
     console.warn(`[EasyEffects] Unknown named roll 'roll.${key}'`);
     return 0;
   }
@@ -300,7 +546,7 @@ function resolvePath(segments, context) {
   if (segments.length === 1) {
     const bag = context.rolls;
     if (bag?.named && Object.prototype.hasOwnProperty.call(bag.named, root)) {
-      return Number(bag.named[root]) || 0;
+      return finiteNumber(bag.named[root]);
     }
     const procBinds = context.proc?.binds;
     if (procBinds && Object.prototype.hasOwnProperty.call(procBinds, root)) {
@@ -308,7 +554,7 @@ function resolvePath(segments, context) {
     }
     if (root === "self" || root === "target" || root === "ally"
       || root === "attacker" || root === "originator"
-      || root === "burster" || root === "burstee") {
+      || root === "burster" || root === "burstee" || root === "healer") {
       const actorRoot = resolveContextActor(root, context);
       if (!actorRoot) {
         console.warn(`[EasyEffects] Path root '${root}' not in context.`);
@@ -357,6 +603,7 @@ function resolvePath(segments, context) {
     const item = context.item;
     if (!item) { console.warn("[EasyEffects] 'item.*' used but no item in context."); return 0; }
     const key = segments[1];
+    if (key === "flag") return resolveFlagPathValue("item", flagKeyFromSegments(segments, 1), context);
     if (key === "origin") return item.system?.origin ?? "";
     if (!ITEM_PATH_FIELDS.has(key)) {
       console.warn(`[EasyEffects] Unknown item path 'item.${key}'`);
@@ -365,15 +612,37 @@ function resolvePath(segments, context) {
     return Number(item.system?.[key] ?? 0);
   }
 
+  if (root === "heal") {
+    const pending = context.heal;
+    if (!pending) {
+      console.warn("[EasyEffects] 'heal.*' used outside [On Heal] / [On Being Healed] context.");
+      return 0;
+    }
+    const key = segments[1];
+    if (key === "amount") return Number(pending.amount) || 0;
+    if (key === "source") return pending.source ?? "";
+    if (key === "pool" || key === "originalPool") {
+      const raw = key === "originalPool" ? (pending.originalPool ?? pending.pool) : pending.pool;
+      if (Array.isArray(raw)) return raw[0] ?? "";
+      return raw ?? "";
+    }
+    console.warn(`[EasyEffects] Unknown heal path 'heal.${key}'`);
+    return 0;
+  }
+
   // incoming.* == damage.*
   if (root === "damage" || root === "incoming") {
     const dmg = context.damage;
     if (!dmg) {
-      console.warn(`[EasyEffects] '${root}.*' used outside [On Taking Damage] context.`);
+      console.warn(`[EasyEffects] '${root}.*' used outside a damage trigger.`);
       return 0;
     }
     const key = segments[1];
     if (key === "amount") return Number(dmg.amount) || 0;
+    if (key === "requestedAmount" || key === "finalAmount" || key === "appliedAmount") {
+      return Number(dmg[key]) || 0;
+    }
+    if (key === "beforeValue" || key === "afterValue") return Number(dmg[key]) || 0;
     if (key === "source" || key === "damageType") return dmg[key] ?? "";
     if (key === "attack") return dmg.fromAttack === true ? 1 : 0;
     if (key === "pool") {
@@ -463,6 +732,10 @@ function resolvePath(segments, context) {
 
   const sub = segments.slice(1);
   if (!sub.length) return actor.name ?? "";
+
+  if (sub[0] === "flag") {
+    return resolveFlagPathValue(root, flagKeyFromSegments(segments, 1), context);
+  }
 
   if (sub[0] === "status" && sub[1]) {
     if (sub[2] === "origin") {
@@ -558,8 +831,7 @@ async function resolveAmount(amountNode, context) {
 }
 
 /**
- * Simple dice pools expand before rolling; other formulas roll once, then multiply.
- * @returns {Promise<{ amount: number, formula: string|null }>}
+ * `1d10 per N` expands to `Nd10` before rolling. Other formulas roll once, then multiply.
  */
 async function resolveActionAmount(action, context) {
   const amountNode = action.amount;
@@ -792,12 +1064,14 @@ const ACTION_HANDLERS = {
         ? String(context.clash.damageType)
         : null)
       || null;
-    // Avoid rerunning On Taking Damage for reflected hits.
-    const skipEasyEffects = !!context.damage;
+    const skipEasyEffects = skipNestedApply(context);
     const resistanceTiming = action.resistanceTiming === "before" ? "before" : "after";
     const formula = typeof meta.formula === "string" && meta.formula.trim()
       ? meta.formula.trim()
       : null;
+    const isStatusHost = host?.type === "status";
+    const attacker = isStatusHost ? null : (context.attacker ?? context.self ?? null);
+    const attackerItem = isStatusHost ? null : (context.item ?? null);
     for (const actor of resolveTargets(action.target, context)) {
       await runAsOwnerOrGM(actor, "applyDamage", {
         amount,
@@ -809,6 +1083,8 @@ const ACTION_HANDLERS = {
           formula,
           skipEasyEffects,
           skipResistance: resistanceTiming !== "before",
+          attacker,
+          attackerItem,
         },
       });
     }
@@ -829,18 +1105,44 @@ const ACTION_HANDLERS = {
           pool,
           formula,
           sourceLabel,
-          skipEasyEffects: !!context.damage,
+          skipEasyEffects: skipNestedApply(context),
+          healer: context.self ?? null,
+          item: context.item ?? null,
         },
       });
     }
   },
 
   reduce: async (action, context, amount) => {
-    if (action.noun !== "damage") throw new InterpretError(`'reduce' only supports noun 'damage'`);
-    if (!context.damage) {
-      console.warn("[EasyEffects] 'reduce damage' used outside [On Taking Damage]; ignored.");
+    if (action.noun === "flag") {
+      await applyFlagAction(action, context, "reduce");
       return;
     }
+    if (action.noun === "roll") {
+      applyPendingRollDelta(context, -amount, "reduce");
+      return;
+    }
+    if (action.noun === "heal") {
+      if (!context.heal) {
+        console.warn("[EasyEffects] 'reduce heal' used outside [On Heal] / [On Being Healed]; ignored.");
+        return;
+      }
+      if (action.resistanceTiming === "after") {
+        console.warn("[EasyEffects] 'after resistances' cannot be used with heal; ignored.");
+        return;
+      }
+      applyPendingDamageDelta(context.heal, -amount, {
+        actionPool: action.pool,
+        timing: "before",
+      });
+      return;
+    }
+    if (action.noun !== "damage") throw new InterpretError(`'reduce' only supports noun 'damage', 'heal', or 'roll'`);
+    if (!context.damage) {
+      console.warn("[EasyEffects] 'reduce damage' used outside [Before Dealing Damage] / [On Taking Damage]; ignored.");
+      return;
+    }
+    if (rejectIfDamageReadOnly(context, "reduce")) return;
     applyPendingDamageDelta(context.damage, -amount, {
       damageFilter: context._blockDamageFilter,
       actionPool: action.pool,
@@ -849,11 +1151,35 @@ const ACTION_HANDLERS = {
   },
 
   increase: async (action, context, amount) => {
-    if (action.noun !== "damage") throw new InterpretError(`'increase' only supports noun 'damage'`);
-    if (!context.damage) {
-      console.warn("[EasyEffects] 'increase damage' used outside [On Taking Damage]; ignored.");
+    if (action.noun === "flag") {
+      await applyFlagAction(action, context, "increase");
       return;
     }
+    if (action.noun === "roll") {
+      applyPendingRollDelta(context, amount, "increase");
+      return;
+    }
+    if (action.noun === "heal") {
+      if (!context.heal) {
+        console.warn("[EasyEffects] 'increase heal' used outside [On Heal] / [On Being Healed]; ignored.");
+        return;
+      }
+      if (action.resistanceTiming === "after") {
+        console.warn("[EasyEffects] 'after resistances' cannot be used with heal; ignored.");
+        return;
+      }
+      applyPendingDamageDelta(context.heal, amount, {
+        actionPool: action.pool,
+        timing: "before",
+      });
+      return;
+    }
+    if (action.noun !== "damage") throw new InterpretError(`'increase' only supports noun 'damage', 'heal', or 'roll'`);
+    if (!context.damage) {
+      console.warn("[EasyEffects] 'increase damage' used outside [Before Dealing Damage] / [On Taking Damage]; ignored.");
+      return;
+    }
+    if (rejectIfDamageReadOnly(context, "increase")) return;
     applyPendingDamageDelta(context.damage, amount, {
       damageFilter: context._blockDamageFilter,
       actionPool: action.pool,
@@ -863,11 +1189,25 @@ const ACTION_HANDLERS = {
 
   // Conversion changes the pending hit without applying new damage.
   convert: async (action, context, amount) => {
-    if (action.noun !== "damage") throw new InterpretError(`'convert' only supports noun 'damage'`);
-    if (!context.damage) {
-      console.warn("[EasyEffects] 'convert damage' used outside [On Taking Damage]; ignored.");
+    if (action.noun === "heal") {
+      if (!context.heal) {
+        console.warn("[EasyEffects] 'convert heal' used outside [On Heal] / [On Being Healed]; ignored.");
+        return;
+      }
+      if (action.setAmount) {
+        context.heal.amount = Math.max(0, amount);
+      }
+      if (action.convertKind === "pool") {
+        context.heal.pool = action.convertTo;
+      }
       return;
     }
+    if (action.noun !== "damage") throw new InterpretError(`'convert' only supports noun 'damage' or 'heal'`);
+    if (!context.damage) {
+      console.warn("[EasyEffects] 'convert damage' used outside [Before Dealing Damage] / [On Taking Damage]; ignored.");
+      return;
+    }
+    if (rejectIfDamageReadOnly(context, "convert")) return;
     if (action.setAmount) {
       context.damage.amount = Math.max(0, amount);
     }
@@ -879,6 +1219,10 @@ const ACTION_HANDLERS = {
   },
 
   set: async (action, context, amount) => {
+    if (action.noun === "flag") {
+      await applyFlagAction(action, context, "set");
+      return;
+    }
     if (action.noun === "resistance") {
       const map = action.resistanceOverrides;
       if (!map || typeof map !== "object") {
@@ -929,7 +1273,9 @@ const ACTION_HANDLERS = {
               op: "heal",
               pool,
               sourceLabel,
-              skipEasyEffects: !!context.damage,
+              skipEasyEffects: skipNestedApply(context),
+              healer: context.self ?? null,
+              item: context.item ?? null,
             },
           });
         } else {
@@ -1025,14 +1371,13 @@ const ACTION_HANDLERS = {
 
   regen: async (action, context, amount) => {
     const field = getRegenField(action.noun);
-    if (field) {
+    if (field && context.clash) {
       _applyClashBonus(context, field, +amount, action.target ?? "self");
       return;
     }
 
-    // Route SP and Light through the heal breakdown.
     const pool = String(action.noun ?? "").toLowerCase();
-    if (pool === "sp" || pool === "light") {
+    if (pool === "hp" || pool === "st" || pool === "sp" || pool === "light") {
       const sourceLabel = resolveEffectSourceLabel(context);
       for (const actor of resolveTargets(action.target, context)) {
         await runAsOwnerOrGM(actor, "applyDamage", {
@@ -1041,19 +1386,17 @@ const ACTION_HANDLERS = {
             op: "heal",
             pool,
             sourceLabel,
-            skipEasyEffects: true,
+            createMessage: pool === "hp" || pool === "st" ? false : undefined,
+            skipEasyEffects: skipNestedApply(context),
+            healer: context.self ?? null,
+            item: context.item ?? null,
           },
         });
       }
       return;
     }
 
-    let supported = false;
-    for (const actor of resolveTargets(action.target, context)) {
-      supported = await recoverPool(actor, action.noun, amount) || supported;
-    }
-    if (!supported)
-      console.warn(`[EasyEffects] Unknown regen pool '${action.noun}'`);
+    console.warn(`[EasyEffects] Unknown regen pool '${action.noun}'`);
   },
 
   burst: async (action, context) => {
@@ -1120,6 +1463,7 @@ const ACTION_HANDLERS = {
         defenderSkill: context.defenderSkill ?? context.clash?.defenderSkill ?? null,
         binds,
         depth: Number(context._procDepth) || 0,
+        _emitPendingRoll: context._emitPendingRoll,
       });
     }
   },
@@ -1142,11 +1486,17 @@ const ACTION_HANDLERS = {
   },
 
   roll: async (action, context, resolvedAmount) => {
-    const bag = ensureRollsBag(context);
-    const total = Number(resolvedAmount) || 0;
-    bag.last = total;
-    const bind = action.bind ?? action.argument ?? null;
-    if (bind) bag.named[bind] = total;
+    await commitNamedRoll(context, {
+      formula: action.amount?.type === "DICE" ? action.amount.value : null,
+      bind: action.bind ?? action.argument ?? null,
+      tag: action.tag ?? null,
+      total: resolvedAmount,
+    });
+  },
+
+  clear: async (action, context) => {
+    if (action.noun !== "flag") throw new InterpretError(`'clear' only supports noun 'flag'`);
+    await applyFlagAction(action, context, "clear");
   },
 
   pause: async (action, context) => {
@@ -1167,7 +1517,25 @@ const ACTION_HANDLERS = {
 
 // ── Flag and condition ────────────────────────────────────────────────────────
 
+function resolveHasFlag(flagNode, context) {
+  const key = flagNode.statusName;
+  const host = flagNode.target ?? "self";
+  if (!key) return 0;
+  if (host === "event") {
+    const emission = context?._eeEmission;
+    if (!emission?.event?.flags) {
+      console.warn("[EasyEffects] 'event.flag' is not available in this trigger.");
+      return 0;
+    }
+    return Object.prototype.hasOwnProperty.call(emission.event.flags, key) ? 1 : 0;
+  }
+  const resolved = resolveFlagHost(host, context);
+  if (!resolved?.doc) return 0;
+  return hasPersistentFlag(context?._eeEmission ?? null, resolved.doc, key) ? 1 : 0;
+}
+
 function resolveFlag(flagNode, context) {
+  if (flagNode.flag === "hasFlag") return resolveHasFlag(flagNode, context);
   const actor = resolveContextActor(flagNode.target, context);
   if (!actor) return 0;
   switch (flagNode.flag) {
@@ -1188,6 +1556,7 @@ async function resolveRhs(rhs, context) {
   if (!rhs) return 0;
   if (rhs.snapshot) return resolveAmount(rhs, context);
   if (rhs.type === "NUMBER")   return rhs.value;
+  if (rhs.type === "BOOLEAN")  return rhs.value;
   if (rhs.type === "EFFECT_N") return Math.max(0, Number(context.effectN) || 0);
   if (rhs.type === "ACCESSOR") return evaluateExpr(rhs.expr, context);
   if (rhs.type === "DICE")     return evaluateDiceFormula(rhs.value, context);
@@ -1199,6 +1568,7 @@ function resolveRhsSync(rhs, context) {
   if (!rhs) return 0;
   if (rhs.snapshot) return resolveAmountSync(rhs, context);
   if (rhs.type === "NUMBER")   return rhs.value;
+  if (rhs.type === "BOOLEAN")  return rhs.value;
   if (rhs.type === "EFFECT_N") return Math.max(0, Number(context.effectN) || 0);
   if (rhs.type === "ACCESSOR") return evaluateExprSync(rhs.expr, context);
   if (rhs.type === "IDENT" || rhs.type === "STRING") return rhs.value;
@@ -1252,7 +1622,7 @@ function evaluateConditionSync(condition, context) {
 
 // ── Target resolution ─────────────────────────────────────────────────────────
 
-const SINGLE_TARGETS = new Set(["self", "target", "ally", "attacker", "originator", "burster", "burstee"]);
+const SINGLE_TARGETS = new Set(["self", "target", "ally", "attacker", "originator", "burster", "burstee", "healer"]);
 
 function resolveTargets(targetName, context) {
   if (SINGLE_TARGETS.has(targetName)) {
@@ -1293,17 +1663,14 @@ function resolveProcTargetActor(procTarget, context) {
 
 // ── Main async entry point ────────────────────────────────────────────────────
 
-/**
- * Execute all statements in a Script that match the given trigger.
- *
- * @param {object} ast
- * @param {string} trigger
- * @param {object} context — { self, target, ally, item?, clash? }
+/*
+ * Runs matching trigger blocks inside an existing emission.
+ * Registry emitters already provide the shared event state and overlay.
  */
 export async function execute(ast, trigger, context) {
   const dialogDepth = Number(context?._dialogDepth) || 0;
   ensureRollsBag(context);
-  // Fresh lets per execute() call. Dialog answers and concurrent runs stay isolated.
+  // Each execute call gets its own locals and amount snapshots.
   const execContext = { ...context, _eeVars: new Map(), _scriptAst: ast, _amountSnapshots: new WeakMap() };
 
   for (const block of ast.blocks) {
@@ -1311,6 +1678,8 @@ export async function execute(ast, trigger, context) {
     if (block.damageFilter && !matchesDamageFilter(block.damageFilter, execContext.damage)) continue;
     if (block.depletedFilter && !matchesDepletedFilter(block.depletedFilter, execContext.depleted)) continue;
     if (block.clashStanceFilter && !matchesClashStanceFilter(block.clashStanceFilter, execContext.clashStance)) continue;
+    if (block.rollFilter && !matchesRollFilter(block.rollFilter, execContext.pendingRoll)) continue;
+    if (block.healFilter && !matchesHealFilter(block.healFilter, execContext.heal)) continue;
     if (trigger === "On Burst" && execContext.burstPhase) {
       if (!shouldExecuteBurstBlock(block, execContext)) continue;
     }
@@ -1321,7 +1690,6 @@ export async function execute(ast, trigger, context) {
 
     for (const stmt of block.statements) {
       try {
-        // Skip effect-template branches for the other polarity.
         if (stmt.polarity && stmt.polarity !== execContext.effectMode) continue;
         if (!statementAllowedByStatusFilter(stmt, statusFilter)) continue;
 
@@ -1345,7 +1713,13 @@ export async function execute(ast, trigger, context) {
         }
 
         if (stmt.type === "RollStatement") {
-          await applyRollToContext(stmt.formula, execContext, stmt.bind);
+          const total = await evaluateDiceFormula(stmt.formula, execContext);
+          await commitNamedRoll(execContext, {
+            formula: stmt.formula,
+            bind: stmt.bind ?? null,
+            tag: stmt.tag ?? null,
+            total,
+          });
           continue;
         }
 
@@ -1359,14 +1733,21 @@ export async function execute(ast, trigger, context) {
 
         let inheritedTarget = "self";
         for (const action of allowedActions) {
-
+          const isFlagAction = action.noun === "flag";
           const effectiveTarget = action.target ?? inheritedTarget;
-          if (action.target) inheritedTarget = action.target;
-
-          const { amount, formula } = await resolveActionAmount(action, execContext);
+          if (action.target && !isFlagAction) inheritedTarget = action.target;
 
           const handler = ACTION_HANDLERS[action.verb];
           if (!handler) { console.warn(`[EasyEffects] Unknown verb '${action.verb}'`); continue; }
+          if (EE_MUTATION_BARRIER_VERBS.has(action.verb)) {
+            await flushContextEmission(execContext);
+          }
+          if (isFlagAction) {
+            await handler({ ...action, target: action.target }, execContext);
+            continue;
+          }
+
+          const { amount, formula } = await resolveActionAmount(action, execContext);
           await handler({ ...action, target: effectiveTarget }, execContext, amount, { formula });
         }
       } catch (err) {
@@ -1403,6 +1784,8 @@ async function runDialogStatement(stmt, ast, context, dialogDepth) {
   });
   if (!answerId) return;
 
+  // [On Dialog Answer] reuses this emission. Flush first so Foundry has the overlay.
+  await flushContextEmission(context);
   await execute(ast, `On Dialog Answer ${answerId}`, {
     ...context,
     _dialogDepth: dialogDepth + 1,

@@ -84,10 +84,7 @@ const ACTOR_SCRIPT_MAX_DEPTH = 8;
 let _actorScriptDepth = 0;
 
 /**
- * @param {Actor} actor
- * @param {string} triggerName
- * @param {object} context
- * @returns {Promise<boolean>} true if a script ran
+ * Returns false if there is no matching block or nesting overflowed.
  */
 export async function runActorEasyEffects(actor, triggerName, context = {}) {
   if (!actor || !triggerName) return false;
@@ -115,9 +112,7 @@ export async function runActorEasyEffects(actor, triggerName, context = {}) {
 }
 
 /**
- * @param {Array<Actor|null>} actors
- * @param {string} triggerName
- * @param {(actor: Actor) => object} buildContext
+ * One pass per unique actor id. `buildContext` returning falsy skips that actor.
  */
 export async function runActorEasyEffectsFor(actors, triggerName, buildContext) {
   const seen = new Set();
