@@ -161,6 +161,33 @@
     text-shadow: 0 0 2px rgba(0, 0, 0, 0.7);
 }
 
+.ct .char-revealed,
+.ct .char-hidden {
+    position: absolute;
+    top: 2px;
+    right: 3px;
+    z-index: 2;
+    pointer-events: none;
+    font-size: 0.65em;
+    text-shadow: 0 0 2px rgba(0, 0, 0, 0.7);
+}
+
+.ct .char-revealed,
+.ct .char-name-revealed {
+    color: var(--ct-gold);
+}
+
+.ct .char-name-revealed {
+    flex-shrink: 0;
+    font-size: 0.75em;
+    pointer-events: none;
+    text-shadow: 0 0 2px rgba(0, 0, 0, 0.7);
+}
+
+.ct .char-hidden {
+    color: var(--ct-text-dim);
+}
+
 /* ── NPC badge ── */
 .ct .npc-badge {
     flex-shrink: 0;
@@ -194,6 +221,7 @@
 
 /* ── Initiative card ── */
 .ct .initiative-card {
+    position: relative;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -224,6 +252,7 @@
 
 /* ── Main stat card (HP / Shield / Frost) ── */
 .ct .main-stat-card {
+    position: relative;
     display: flex;
     flex-direction: row;
     align-items: center;
@@ -315,6 +344,7 @@
 
 /* ── Detail stat card ── */
 .ct .detail-stat-card {
+    position: relative;
     display: flex;
     flex-direction: row;
     align-items: center;

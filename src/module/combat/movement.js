@@ -1,5 +1,4 @@
 import { emitTokenMoved } from "../easy-effects/registry.js";
-import { registerTokenRuler } from "../canvas/token-ruler.js";
 
 function combatantForToken(tokenDoc) {
   const combat = game.combat;
@@ -33,22 +32,58 @@ function paidHistory(tokenDoc) {
   return history.filter((waypoint) => !waypoint?.forced && !waypoint?.teleport);
 }
 
+function isMeasureGrid(grid) {
+  return typeof grid?.getCenterPoint === "function" && typeof grid?.measurePath === "function";
+}
+
+function readMeasuredSpaces(measured, grid) {
+  const spaces = Number(measured?.spaces);
+  if (Number.isFinite(spaces) && spaces >= 0) return Math.max(0, Math.round(spaces));
+  const distance = Number(measured?.distance);
+  const cell = Number(grid?.distance ?? canvas?.grid?.distance) || 1;
+  if (Number.isFinite(distance) && distance >= 0 && cell > 0) {
+    return Math.max(0, Math.round(distance / cell));
+  }
+  return 0;
+}
+
+function chebyshevSpaces(waypoints, size) {
+  if (!(size > 0)) return 0;
+  let spaces = 0;
+  for (let i = 1; i < waypoints.length; i++) {
+    const from = waypoints[i - 1];
+    const to = waypoints[i];
+    if (!to || to.forced || to.teleport) continue;
+    const dx = Math.abs(Number(to.x) - Number(from.x)) / size;
+    const dy = Math.abs(Number(to.y) - Number(from.y)) / size;
+    if (!Number.isFinite(dx) || !Number.isFinite(dy)) continue;
+    spaces += Math.max(0, Math.round(Math.max(dx, dy)));
+  }
+  return spaces;
+}
+
 function measureWaypointSpaces(tokenDoc, waypoints) {
-  if (!Array.isArray(waypoints) || !waypoints.length) return 0;
+  if (!Array.isArray(waypoints) || waypoints.length < 2) return 0;
+
+  const accrued = Number(waypoints.at(-1)?.measurement?.spaces);
+  if (Number.isFinite(accrued) && accrued >= 0) return Math.max(0, Math.round(accrued));
+  const parentGrid = tokenDoc?.parent?.grid;
   try {
-    const measured = tokenDoc.measureMovementPath?.(waypoints)
-      ?? canvas?.grid?.measurePath?.(waypoints);
-    const spaces = Number(measured?.spaces);
-    if (Number.isFinite(spaces) && spaces >= 0) return Math.max(0, Math.round(spaces));
-    const distance = Number(measured?.distance);
-    const cell = Number(canvas?.grid?.distance) || 1;
-    if (Number.isFinite(distance) && distance >= 0 && cell > 0) {
-      return Math.max(0, Math.round(distance / cell));
+    if (typeof tokenDoc?.measureMovementPath === "function" && isMeasureGrid(parentGrid)) {
+      return readMeasuredSpaces(tokenDoc.measureMovementPath(waypoints), parentGrid);
+    }
+    if (isMeasureGrid(parentGrid)) {
+      return readMeasuredSpaces(parentGrid.measurePath(waypoints), parentGrid);
+    }
+    if (tokenDoc?.parent === canvas?.scene && isMeasureGrid(canvas?.grid)) {
+      return readMeasuredSpaces(canvas.grid.measurePath(waypoints), canvas.grid);
     }
   } catch (error) {
     console.warn("[PMTTRPG] measureMovementPath failed", error);
   }
-  return 0;
+
+  const size = Number(parentGrid?.size) || Number(canvas?.grid?.size) || 0;
+  return chebyshevSpaces(waypoints, size);
 }
 
 function paidWaypoints(waypoints) {
@@ -96,7 +131,9 @@ export async function exhaustRemainingSquares(actor) {
     updates["system.attributes.movement.value"] = 0;
   }
   if (foundry.utils.isEmpty(updates)) return actor;
-  return actor.update(updates);
+  const { runAsOwnerOrGM } = await import("../easy-effects/gm-route.js");
+  await runAsOwnerOrGM(actor, "applyActorUpdate", { update: updates });
+  return actor;
 }
 
 function refreshActorFromToken(tokenDoc) {
@@ -161,6 +198,13 @@ async function emitMovedIfNeeded(tokenDoc, movement, operation, user) {
   }
 }
 
+function isCombatantCollection(collection) {
+  const name = typeof collection === "string"
+    ? collection
+    : (collection?.name ?? collection?.documentName ?? "");
+  return String(name).toLowerCase().startsWith("combatant");
+}
+
 function registerCombatDocument() {
   const Base = CONFIG.Combat.documentClass;
 
@@ -170,6 +214,50 @@ function registerCombatDocument() {
       if (!combatant) return;
       return combatant.clearMovementHistory();
     }
+
+    /**
+     * Combat End scripts run here so Foundry hasn't deleted the Combat yet.
+     * @override
+     */
+    async _preDelete(options, user) {
+      const { emitCombatEndForEncounter } = await import("./combat.js");
+      await emitCombatEndForEncounter(this, user?.id);
+      return super._preDelete(options, user);
+    }
+
+    /**
+     * Someone was added to a fight that's already started.
+     * @override
+     */
+    async _onCreateDescendantDocuments(parent, collection, documents, data, options, user) {
+      const result = await super._onCreateDescendantDocuments(
+        parent, collection, documents, data, options, user
+      );
+      if (isCombatantCollection(collection)) {
+        const { emitCombatStartForCombatant } = await import("./combat.js");
+        const userId = user?.id ?? user;
+        for (const combatant of documents ?? []) {
+          await emitCombatStartForCombatant(this, combatant, userId);
+        }
+      }
+      return result;
+    }
+
+    /**
+     * Someone was taken out while combat is still up.
+     * @override
+     */
+    async _preDeleteDescendantDocuments(parent, collection, ids, options, user) {
+      if (isCombatantCollection(collection)) {
+        const { emitCombatEndForCombatant } = await import("./combat.js");
+        const userId = user?.id ?? user;
+        for (const id of ids ?? []) {
+          const combatant = this.combatants.get(id);
+          if (combatant) await emitCombatEndForCombatant(this, combatant, userId);
+        }
+      }
+      return super._preDeleteDescendantDocuments(parent, collection, ids, options, user);
+    }
   }
 
   CONFIG.Combat.documentClass = CombatPMTTRPG;
@@ -177,7 +265,6 @@ function registerCombatDocument() {
 
 export function registerCombatMovement() {
   registerCombatDocument();
-  registerTokenRuler();
 
   Hooks.on("moveToken", (tokenDoc, movement, operation, user) => {
     refreshActorFromToken(tokenDoc);

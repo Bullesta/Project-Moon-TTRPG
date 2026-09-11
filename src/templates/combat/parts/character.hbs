@@ -5,11 +5,11 @@
 >
     <div class="main-part">
         <div class="avatar-side">
-            <div class="avatar" data-action="openSheet" title="{{actorData.name}}">
+            <div class="avatar" data-action="openSheet" data-tracker-context data-reveal-key="all" title="{{actorData.name}}">
                 <img src="{{actorData.img}}" alt="{{actorData.name}}">
             </div>
 
-            {{#if showFull}}
+            {{#if showDetails}}
             <button
                 type="button"
                 class="char-toggle-details"
@@ -24,35 +24,34 @@
         </div>
 
         <div class="right-side">
-            <div class="name-container">
+            <div class="name-container" data-tracker-context data-reveal-key="all">
                 {{#if actorData.system.details.badge}}
                     <img class="faction-badge" src="{{actorData.system.details.badge}}">
                 {{/if}}
                 <span class="char-name">{{actorData.name}}</span>
                 {{#ifEquals actorData.type 'npc'}}
-                    <span class="npc-badge">NPC</span>
+                    <span class="npc-badge">{{localize "PMTTRPG.npc"}}</span>
                 {{/ifEquals}}
+                {{#if showNameRevealEye}}
+                    <i class="fas fa-eye char-name-revealed" title="{{localize "PMTTRPG.Combat.TrackerRevealed"}}" aria-hidden="true"></i>
+                {{/if}}
             </div>
 
             <div class="main-stats">
-                {{#if showFull}}
                 {{> "systems/projectmoonttrpg/templates/combat/parts/initiative-tracker.hbs"
-                    initiative=combatantData.initiative }}
-                {{else}}
-                {{> "systems/projectmoonttrpg/templates/combat/parts/initiative-tracker.hbs"
-                    initiative="?" }}
-                {{/if}}
+                    initiative=combatantData.initiative
+                    showValue=showInitiativeValue
+                    showRevealEye=showInitiativeEye
+                    showHiddenEye=showInitiativeHiddenEye }}
 
-                {{#if showFull}}
                 {{#each mainStats}}
                     {{> "systems/projectmoonttrpg/templates/combat/parts/main-stat-tracker.hbs" stat=this actorData=../actorData}}
                 {{/each}}
-                {{/if}}
             </div>
         </div>
     </div>
 
-    {{#if showFull}}
+    {{#if showDetails}}
     <div class="details" aria-hidden="{{#unless isExpanded}}true{{/unless}}">
         {{#each detailedStats}}
             {{> "systems/projectmoonttrpg/templates/combat/parts/detail-stat-tracker.hbs" stat=this actorData=../actorData}}

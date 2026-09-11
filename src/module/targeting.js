@@ -329,12 +329,11 @@ export async function promptTargetSelection({
   });
 }
 
-export async function rollInitiative(actor, { macroMisc = null, manualMisc = null } = {}) {
+export async function rollInitiative(actor, { macroMisc = null, manualMisc = null, combatant = null } = {}) {
   if (!actor) return false;
 
   const parts = computeInitiativeFormulaParts(actor, { macroMisc, manualMisc });
-  // TODO: Initiative Dice Visual Type
-  const roll = await (new Roll(parts.formula, {type:rollData.visualType}, actor.getRollData())).evaluate();
+  const roll = await (new Roll(parts.formula, actor.getRollData())).evaluate();
   const rollPMTTRPG = await roll.render();
 
   const templateData = {
@@ -374,12 +373,13 @@ export async function rollInitiative(actor, { macroMisc = null, manualMisc = nul
   const combat = game.combat;
   if (combat) {
     const tokenId = actor.token?.id ?? null;
-    const combatant = tokenId
-      ? combat.combatants.find(entry => entry.tokenId === tokenId)
-      : combat.combatants.find(entry => entry.actorId === actor.id && !entry.token?.actorLink === false) ?? null;
+    const resolvedCombatant = combatant
+      ?? (tokenId
+        ? combat.combatants.find(entry => entry.tokenId === tokenId)
+        : combat.combatants.find(entry => entry.actorId === actor.id && !entry.token?.actorLink === false) ?? null);
 
-    if (combatant) {
-      await combatant.update({ initiative: roll.total });
+    if (resolvedCombatant) {
+      await resolvedCombatant.update({ initiative: roll.total });
     }
   }
 

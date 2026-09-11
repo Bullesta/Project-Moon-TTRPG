@@ -1,7 +1,4 @@
-<!-- main-stat-tracker.hbs -->
-<!-- stat: { icon, name, amount, percent (0–1) } -->
-<div class="main-stat-card">
-    <!-- Dual-layer icon: colour on top, greyscale fills from bottom based on percent -->
+<div class="main-stat-card" data-tracker-context data-reveal-key="{{stat.key}}">
     <div class="stat-icon-wrap" style="--percent: {{stat.percent}};">
         <img src="{{stat.icon}}" class="stat-icon stat-icon--grey"   alt="">
         <img src="{{stat.icon}}" class="stat-icon stat-icon--colour" alt="{{stat.name}}">
@@ -19,4 +16,9 @@
             tabindex="-1"
         {{/if}}
     ></input>
+    {{#if stat.showRevealEye}}
+        <i class="fas fa-eye char-revealed" title="{{localize "PMTTRPG.Combat.TrackerRevealed"}}" aria-hidden="true"></i>
+    {{else if stat.showHiddenEye}}
+        <i class="fas fa-eye-slash char-hidden" title="{{localize "PMTTRPG.Combat.TrackerHidden"}}" aria-hidden="true"></i>
+    {{/if}}
 </div>

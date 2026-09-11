@@ -1,4 +1,9 @@
-<div class="initiative-card">
-    <img class="initiative-icon" src="systems/projectmoonttrpg/assets/icons/sheet/initiative.webp" alt="Initiative">
-    <span class="initiative-value">{{initiative}}</span>
+<div class="initiative-card" data-tracker-context data-reveal-key="initiative">
+    <img class="initiative-icon" src="systems/projectmoonttrpg/assets/icons/sheet/initiative.webp" alt="{{localize "PMTTRPG.Combat.Stat.initiative"}}">
+    <span class="initiative-value">{{#if showValue}}{{initiative}}{{else}}?{{/if}}</span>
+    {{#if showRevealEye}}
+        <i class="fas fa-eye char-revealed" title="{{localize "PMTTRPG.Combat.TrackerRevealed"}}" aria-hidden="true"></i>
+    {{else if showHiddenEye}}
+        <i class="fas fa-eye-slash char-hidden" title="{{localize "PMTTRPG.Combat.TrackerHidden"}}" aria-hidden="true"></i>
+    {{/if}}
 </div>

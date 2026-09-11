@@ -9,6 +9,7 @@ import { PMTTRPG } from "./config.js";
 import { ActorPMTTRPG } from "./actor/actor.js";
 import { ItemPMTTRPG } from "./item/item.js";
 import { TokenPMTTRPG } from "./canvas/token.js";
+import { TokenRulerPMTTRPG } from "./canvas/token-ruler.js";
 import { PMTTRPGItemSheet } from "./item/item-sheet.js";
 import { PMTTRPGWeaponItemSheet } from "./item/weapon-item-sheet.js";
 import { PMTTRPGSkillItemSheet } from "./item/skill-item-sheet.js";
@@ -57,6 +58,7 @@ Hooks.once("init", async function() {
     ActorPMTTRPG,
     ItemPMTTRPG,
     TokenPMTTRPG,
+    TokenRulerPMTTRPG,
     rollItemMacro,
     PMTTRPGUtility,
     targeting: PMTTRPGTargetingAPI,
@@ -68,6 +70,7 @@ Hooks.once("init", async function() {
   CONFIG.Actor.documentClass = ActorPMTTRPG;
   CONFIG.Item.documentClass = ItemPMTTRPG;
   CONFIG.Token.objectClass = TokenPMTTRPG;
+  CONFIG.Token.rulerClass = TokenRulerPMTTRPG;
   registerTokenStatusBadges();
   CONFIG.Item.typeLabels = foundry.utils.mergeObject(CONFIG.Item.typeLabels ?? {}, {
     status: game.i18n.localize("TYPES.Item.status"),
