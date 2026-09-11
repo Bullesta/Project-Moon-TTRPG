@@ -131,6 +131,7 @@ function evaluateExprSync(node, context) {
         evaluateExprSync(node.left, context),
         evaluateExprSync(node.right, context)
       );
+    case "Call":
       return applyMathCall(
         node.name,
         node.args.map((arg) => evaluateExprSync(arg, context))
