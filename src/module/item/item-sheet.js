@@ -6,6 +6,7 @@ import {
   syncEasyEffectsFromHostEffects,
 } from "../easy-effects/sync-from-effects.js";
 import { bindEasyEffectsHighlighter } from "../easy-effects/highlight.js";
+import { emitItemEquipped } from "../easy-effects/registry.js";
 import { sluggify } from "../slug.js";
 import { isPendingStatus } from "../status/pending.js";
 
@@ -580,6 +581,7 @@ export class PMTTRPGItemSheet extends HandlebarsApplicationMixin(ItemSheetV2) {
     this._eeSyncArmed = false;
     clearTimeout(this._eeSyncTimer);
     await syncEasyEffectsFromHostEffects(this.document, { force: true });
+    await emitItemEquipped(this.document);
 
     button.classList.remove("armed");
     button.classList.add("synced");
@@ -601,6 +603,7 @@ export class PMTTRPGItemSheet extends HandlebarsApplicationMixin(ItemSheetV2) {
     if (result?.dirty) {
       ui.notifications?.warn(game.i18n.localize("PMTTRPG.EasyEffectsSyncDirty"));
     }
+    if (!result?.skipped) await emitItemEquipped(this.document);
   }
 
   _effectHostType() {

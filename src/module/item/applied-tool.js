@@ -1,4 +1,5 @@
 import { PMTTRPGUtility } from "../utility.js";
+import { emitActorAction } from "../easy-effects/registry.js";
 import { canUseTool, consumeToolUse, getToolUsesRemaining, toolConsumesByDefault } from "./tool-use.js";
 const { renderTemplate } = foundry.applications.handlebars;
 
@@ -61,7 +62,7 @@ export function buildAppliedToolOnBeforeChat({
       ui.notifications.warn(game.i18n.localize("PMTTRPG.Dialog.noToolUses"));
     }
 
-    emitAppliedToolHooks({
+    await emitAppliedToolHooks({
       actor,
       tool,
       hostItem,
@@ -71,7 +72,7 @@ export function buildAppliedToolOnBeforeChat({
   };
 }
 
-export function emitAppliedToolHooks({
+export async function emitAppliedToolHooks({
   actor,
   tool,
   hostItem = null,
@@ -80,7 +81,7 @@ export function emitAppliedToolHooks({
 } = {}) {
   if (!actor || !tool) return;
 
-  Hooks.callAll("pmttrpg.actorAction", {
+  await emitActorAction({
     actor,
     item: tool,
     hostItem,

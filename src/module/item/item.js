@@ -16,7 +16,12 @@ import {
   promptDeclareSkillDialog,
 } from "./declare-skill.js";
 import { applyDiceMaxFloor, formatDiceFormula } from "../easy-effects/dice-formula.js";
-import { getItemAlwaysActiveCombatMods } from "../easy-effects/registry.js";
+import {
+  emitItemEquipped,
+  emitItemUnequipped,
+  getItemAlwaysActiveCombatMods,
+  itemIsLoadoutActive,
+} from "../easy-effects/registry.js";
 import { promptRangedAmmo } from "../combat/clash-dialog.js";
 import { resolveRangedDamageType } from "../damage-application.js";
 import { normalizeWeaponProperties } from "./weapon-properties.js";
@@ -127,6 +132,10 @@ export class ItemPMTTRPG extends Item {
 
   /** @inheritDoc */
   async _preUpdate(changed, options, userId) {
+    options.PMTTRPG = options.PMTTRPG ?? {};
+    if (options.PMTTRPG.wasLoadoutActive === undefined) {
+      options.PMTTRPG.wasLoadoutActive = itemIsLoadoutActive(this, this.actor);
+    }
     if (this.type === "tool" && this._source?.system?.held != null) {
       changed.system ??= {};
       if (this._source.system.held && changed.system.equipped === undefined) {
@@ -164,6 +173,28 @@ export class ItemPMTTRPG extends Item {
       }
     }
     return super._preUpdate(changed, options, userId);
+  }
+
+  /** @inheritDoc */
+  async _onUpdate(changed, options, userId) {
+    await super._onUpdate(changed, options, userId);
+    if (userId !== game.userId) return;
+    if (!this.actor) return;
+    const was = options.PMTTRPG?.wasLoadoutActive;
+    if (typeof was !== "boolean") return;
+    const now = itemIsLoadoutActive(this, this.actor);
+    if (was === now) return;
+    if (now) await emitItemEquipped(this);
+    else await emitItemUnequipped(this);
+  }
+
+  /** @inheritDoc */
+  async _preDelete(options, user) {
+    const initiatorId = typeof user === "string" ? user : user?.id;
+    if (initiatorId === game.userId && this.actor && itemIsLoadoutActive(this, this.actor)) {
+      await emitItemUnequipped(this);
+    }
+    return super._preDelete(options, user);
   }
 
   /**
@@ -367,6 +398,7 @@ export class ItemPMTTRPG extends Item {
       data.effects = normalizedEffects;
       data.effectsSummary = computeEffectSummary(normalizedEffects, Number(data.epMax ?? 0));
       data.lightCostMax = actorLightMax > 0 ? actorLightMax : null;
+      data.alwaysActiveCombatMods = getItemAlwaysActiveCombatMods(itemData, actorData);
     }
 
     if (itemData.type == 'tool') {
@@ -583,7 +615,11 @@ export class ItemPMTTRPG extends Item {
       }
 
       if (!isDryFire && consumeAmmo && ammo) {
-        await ammo.update({ 'system.quantity': Math.max(0, ammoQuantity - 1) });
+        const { runAsOwnerOrGM } = await import("../easy-effects/gm-route.js");
+        await runAsOwnerOrGM(ammo.actor ?? this.actor, "updateOwnedItem", {
+          itemUuid: ammo.uuid,
+          update: { "system.quantity": Math.max(0, ammoQuantity - 1) },
+        });
       }
 
       const dryFireLabel = game.i18n.localize('PMTTRPG.Clash.DryFireShort');

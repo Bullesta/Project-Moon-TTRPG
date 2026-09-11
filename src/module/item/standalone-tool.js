@@ -1,3 +1,4 @@
+import { emitActorAction, emitToolUsed } from "../easy-effects/registry.js";
 import { PMTTRPGUtility } from "../utility.js";
 import { PMTTRPGRolls } from "../rolls.js";
 import {
@@ -169,14 +170,14 @@ export async function useStandaloneTool(tool, {
           remaining,
         });
 
-      Hooks.callAll("pmttrpg.toolUsed", {
+      await emitToolUsed({
         actor,
         item: tool,
         target: resolvedTarget ?? null,
         result: resultType,
         effectMode: mode,
       });
-      Hooks.callAll("pmttrpg.actorAction", {
+      await emitActorAction({
         actor,
         item: tool,
         actionType: "standalone",
