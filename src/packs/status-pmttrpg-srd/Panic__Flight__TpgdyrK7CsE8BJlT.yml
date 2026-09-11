@@ -21,7 +21,12 @@ system:
   stackMax: 0
   priority: 0
   customNotes: ''
-  easyEffects: ''
+  easyEffects: |-
+    [On Applied]
+    set flag "isPanicking" on self to 1;
+
+    [On Removed]
+    clear flag "isPanicking" on self;
 effects: []
 sort: 0
 ownership:

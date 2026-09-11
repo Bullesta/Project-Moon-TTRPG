@@ -1,4 +1,5 @@
 import { PMTTRPGUtility } from "../utility.js";
+import { resolveActingUser } from "../acting-user.js";
 
 const SOCKET_EVENT = "system.projectmoonttrpg";
 const CHOICE_REQUEST = "eeChoiceRequest";
@@ -10,20 +11,16 @@ const _pending = new Map();
 let _socketRegistered = false;
 
 /**
- * @param {{
- *   prompt: string,
- *   choices: { id: string, label: string }[],
- *   actor?: Actor|null,
- * }} options
- * @returns {Promise<string|null>}
+ * Prompt the actor's controlling user, or the local client if that's us.
+ * Returns the chosen answer id, or `null` on cancel / remote timeout.
  */
-export async function promptChoiceDialog({ prompt, choices, actor = null } = {}) {
+export async function promptChoiceDialog({ prompt, choices, actor = null, tokenId = null } = {}) {
   const list = Array.isArray(choices) ? choices.filter((c) => c?.id && c?.label) : [];
   if (!list.length) return null;
 
   ensureChoiceSocket();
 
-  const recipient = resolvePromptUser(actor);
+  const recipient = resolvePromptUser(actor, tokenId);
   if (!recipient || recipient.id === game.user.id) {
     return showLocalChoiceDialog({ prompt, choices: list });
   }
@@ -36,21 +33,12 @@ export async function promptChoiceDialog({ prompt, choices, actor = null } = {})
 }
 
 /**
- * Player owner first, then any owner, then an active GM.
- * @param {Actor|null|undefined} actor
- * @returns {User}
+ * Active non-GM owner of the token or actor, else the current user if they
+ * can act, else an active GM.
  */
-export function resolvePromptUser(actor) {
-  if (!actor) return game.user;
-
-  const owners = game.users.filter(
-    (u) => u.active && actor.testUserPermission(u, CONST.DOCUMENT_OWNERSHIP_LEVELS.OWNER)
-  );
-  const playerOwner = owners.find((u) => !u.isGM);
-  if (playerOwner) return playerOwner;
-  if (owners.length) return owners[0];
-
-  return game.users.find((u) => u.active && u.isGM) ?? game.user;
+export function resolvePromptUser(actor, tokenId = null) {
+  if (!actor && !tokenId) return game.user;
+  return resolveActingUser(actor, tokenId) ?? game.user;
 }
 
 async function showLocalChoiceDialog({ prompt, choices }) {

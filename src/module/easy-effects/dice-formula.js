@@ -1,8 +1,5 @@
 /**
- * Max below d1 becomes a Power penalty.
- * @param {number} baseSides
- * @param {number} maxDelta
- * @returns {{ sides: number, powerAdjust: number }}
+ * Max that would drop a die below d1 becomes a Power penalty instead.
  */
 export function applyDiceMaxFloor(baseSides, maxDelta = 0) {
   const base = Math.max(1, Math.round(Number(baseSides) || 1));
@@ -16,10 +13,7 @@ export function applyDiceMaxFloor(baseSides, maxDelta = 0) {
   return { sides, powerAdjust };
 }
 
-/**
- * @param {string} formula
- * @returns {{ count: number, sides: number, power: number }|null}
- */
+/** `NdX+P` only. Keep/drop and other Foundry syntax return null. */
 export function parseSimpleDiceFormula(formula) {
   const raw = String(formula ?? "").trim();
   const m = raw.match(/^(\d*)d(\d+)([+-]\d+)?$/i);
@@ -31,12 +25,6 @@ export function parseSimpleDiceFormula(formula) {
   };
 }
 
-/**
- * @param {number} count
- * @param {number} sides
- * @param {number} power
- * @returns {string}
- */
 export function formatDiceFormula(count, sides, power) {
   const n = Math.max(1, Math.round(Number(count) || 1));
   const s = Math.max(1, Math.round(Number(sides) || 1));
@@ -46,10 +34,7 @@ export function formatDiceFormula(count, sides, power) {
 }
 
 /**
- * Multiplies die count; flat Power applies once.
- * @param {string} formula
- * @param {number} times
- * @returns {string|null}
+ * `deal 1d10 per N` becomes one `Nd10` roll. Flat Power is not multiplied.
  */
 export function expandSimpleDiceByMultiplier(formula, times) {
   const n = Math.max(0, Math.round(Number(times) || 0));
@@ -59,12 +44,7 @@ export function expandSimpleDiceByMultiplier(formula, times) {
   return formatDiceFormula(parsed.count * n, parsed.sides, parsed.power);
 }
 
-/**
- * Max changes die size; Power stays flat.
- * @param {string} baseFormula
- * @param {{ power?: number, max?: number }} [bonuses]
- * @returns {{ formula: string, sides: number, power: number, powerAdjust: number, maxDelta: number }}
- */
+/** Max changes die size; Power stays flat. */
 export function resolveDiceBonuses(baseFormula, bonuses = {}) {
   const power = Math.round(Number(bonuses.power) || 0);
   const max = Math.round(Number(bonuses.max) || 0);

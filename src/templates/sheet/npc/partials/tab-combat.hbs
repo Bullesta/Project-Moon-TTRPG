@@ -62,7 +62,7 @@
     </header>
   </section>
 
-  {{#unless (or (eq loadoutWeapons.length 0) (eq loadoutOutfits.length 0)) }}
+  {{#unless (and (eq loadoutWeapons.length 0) (eq loadoutOutfits.length 0)) }}
   <section class="equipment-section equipment-section--loadout">
     <header class="tab-section-header">
       <h3 class="tab-section-title">{{localize "PMTTRPG.NpcLoadout"}}</h3>

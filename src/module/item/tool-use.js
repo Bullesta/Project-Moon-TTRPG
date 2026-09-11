@@ -1,4 +1,5 @@
 import { PMTTRPGUtility } from "../utility.js";
+import { emitActorAction, emitToolUsed } from "../easy-effects/registry.js";
 const { renderTemplate } = foundry.applications.handlebars;
 
 export function getToolUsesRemaining(tool) {
@@ -32,14 +33,18 @@ export async function consumeToolUse(tool, { consume = true } = {}) {
 
   const data = tool.system ?? {};
   if (data.form === "none") return true;
-  if (data.form === "reusable") {
-    const next = Math.max(0, Number(data.usesRemaining ?? 0) - 1);
-    await tool.update({ "system.usesRemaining": next });
+  const update = data.form === "reusable"
+    ? { "system.usesRemaining": Math.max(0, Number(data.usesRemaining ?? 0) - 1) }
+    : { "system.quantity": Math.max(0, Number(data.quantity ?? 0) - 1) };
+  if (tool.actor) {
+    const { runAsOwnerOrGM } = await import("../easy-effects/gm-route.js");
+    const ok = await runAsOwnerOrGM(tool.actor, "updateOwnedItem", {
+      itemUuid: tool.uuid,
+      update,
+    });
+    return !!ok;
   }
-  else {
-    const next = Math.max(0, Number(data.quantity ?? 0) - 1);
-    await tool.update({ "system.quantity": next });
-  }
+  await tool.update(update);
   return true;
 }
 
@@ -171,12 +176,12 @@ export async function useTool(tool, {
 
   const message = await ChatMessage.create(chatData);
 
-  Hooks.callAll("pmttrpg.toolUsed", {
+  await emitToolUsed({
     actor,
     item: tool,
     target: resolvedTarget ?? null,
   });
-  Hooks.callAll("pmttrpg.actorAction", {
+  await emitActorAction({
     actor,
     item: tool,
     actionType: "tool",

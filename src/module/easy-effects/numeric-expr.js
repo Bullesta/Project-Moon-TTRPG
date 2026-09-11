@@ -23,6 +23,23 @@ export function applyMathOp(op, left, right) {
   }
 }
 
+export function applyMathCall(name, args) {
+  const nums = args.map((n) => Number(n) || 0);
+  switch (name) {
+    case "min":
+      return Math.min(...nums);
+    case "max":
+      return Math.max(...nums);
+    case "clamp": {
+      const [value, lo, hi] = nums;
+      return Math.min(hi, Math.max(lo, value));
+    }
+    default:
+      console.warn(`[EasyEffects] Unknown math function '${name}'`);
+      return 0;
+  }
+}
+
 function isNumericAst(node) {
   if (!node) return false;
   switch (node.type) {
@@ -31,6 +48,8 @@ function isNumericAst(node) {
       return true;
     case "BinOp":
       return isNumericAst(node.left) && isNumericAst(node.right);
+    case "Call":
+      return Array.isArray(node.args) && node.args.length > 0 && node.args.every(isNumericAst);
     default:
       return false;
   }
@@ -44,6 +63,8 @@ function evalNumericAst(node, effectN) {
       return Math.max(0, Number(effectN) || 0);
     case "BinOp":
       return applyMathOp(node.op, evalNumericAst(node.left, effectN), evalNumericAst(node.right, effectN));
+    case "Call":
+      return applyMathCall(node.name, node.args.map((arg) => evalNumericAst(arg, effectN)));
     default:
       return null;
   }

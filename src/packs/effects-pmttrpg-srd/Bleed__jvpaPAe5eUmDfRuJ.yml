@@ -5,7 +5,7 @@ img: >-
   systems/projectmoonttrpg/assets/icons/limbus_assets/Basic%20Effects/Bleed/Bleed.webp
 system:
   name: ''
-  description: '<p><em>Note: This effect is not yet automated.</em></p>'
+  description: ''
   slug: ''
   cost: 1
   stackMax: 5
@@ -28,7 +28,22 @@ system:
   macro:
     uuid: ''
   customNotes: ''
-  easyEffects: ''
+  easyEffects: |-
+    [On Clash Start]
+    set flag "bleedBeforeTarget" on item to (target.status.Bleed);
+    set flag "bleedBeforeSelf" on item to (self.status.Bleed);
+
+    [On Clash Win]
+    require (target.status.Bleed) > (item.flag.bleedBeforeTarget) then
+      inflict (min(N, 3)) Bleed on target;
+    require (self.status.Bleed) > (item.flag.bleedBeforeSelf) then
+      inflict (min(N, 3)) Bleed on self;
+
+    [On Clash Lose]
+    require (target.status.Bleed) > (item.flag.bleedBeforeTarget) then
+      inflict (min(N, 3)) Bleed on target;
+    require (self.status.Bleed) > (item.flag.bleedBeforeSelf) then
+      inflict (min(N, 3)) Bleed on self;
 effects: []
 sort: 100000
 ownership:

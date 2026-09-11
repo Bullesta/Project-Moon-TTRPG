@@ -28,7 +28,7 @@ system:
   customNotes: ''
   easyEffects: |
     [On FailedCriticalRoll]
-    roll 1d10 as secondPoiseRoll;
+    roll 1d10 as secondPoiseRoll tagged "critical-check";
     require (secondPoiseRoll) <= Poise then proc AskForCritical on self;
 effects: []
 sort: 100000

@@ -22,6 +22,7 @@ system:
   customNotes: ''
   easyEffects: |-
     [On Applied]
+    set flag "isStaggered" on self to 1;
     proc SelfStagger on self;
     create dialog "Self-Stagger : Deal SP Damage to Self?":
       selfSpDamage as "Deal 5 SP Damage to Self",
@@ -36,6 +37,7 @@ system:
     set resistances to fatal;
 
     [On Removed]
+    clear flag "isStaggered" on self;
     set st to max;
     gain 10 tempSt on self;
 effects: []

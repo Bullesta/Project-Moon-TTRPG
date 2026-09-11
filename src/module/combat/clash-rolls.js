@@ -1,5 +1,5 @@
 import { applyDiceMaxFloor, formatDiceFormula} from "../easy-effects/dice-formula.js";
-import { addCombatDiceMods } from "../easy-effects/nouns.js";
+import { addCombatDiceMods, pickCombatDiceMods } from "../easy-effects/nouns.js";
 import { getItemAlwaysActiveCombatMods } from "../easy-effects/registry.js";
 import { normalizeWeaponProperties } from "../item/weapon-properties.js";
 
@@ -79,6 +79,16 @@ function handLabel(handProperty) {
   return map[handProperty] ? game.i18n.localize(map[handProperty]) : handProperty;
 }
 
+function itemCombatDiceMods(actor, item) {
+  if (!item) return pickCombatDiceMods();
+  return item.system?.alwaysActiveCombatMods
+    ?? getItemAlwaysActiveCombatMods(item, actor);
+}
+
+function usedKitCombatDiceMods(actor, hostItem, skillItem) {
+  return addCombatDiceMods(itemCombatDiceMods(actor, hostItem), itemCombatDiceMods(actor, skillItem));
+}
+
 /**
  * Returns the computed evade dice string from the actor's equipped outfit,
  * falling back to the system default.
@@ -86,7 +96,7 @@ function handLabel(handProperty) {
  * @returns {string}
  * @returns {{ formula: string, breakdown: RollBreakdownRow[] }}
  */
-export function buildOffensiveDiceParts(actor, weaponItem, clashBonuses = {}) {
+export function buildOffensiveDiceParts(actor, weaponItem, clashBonuses = {}, skillItem = null) {
   const rows = [];
   const baseSides = 10;
   const { formProperty, handProperty } = normalizeWeaponProperties(weaponItem?.system);
@@ -95,8 +105,7 @@ export function buildOffensiveDiceParts(actor, weaponItem, clashBonuses = {}) {
 
   const rank = Number(actor?.system?.attributes?.rank?.value ?? 0) || 0;
   const eeMods = actor?.system?.attributes?.easyEffectsMods ?? {};
-  const local = weaponItem?.system?.alwaysActiveCombatMods
-    ?? getItemAlwaysActiveCombatMods(weaponItem, actor);
+  const local = usedKitCombatDiceMods(actor, weaponItem, skillItem);
   const always = addCombatDiceMods(eeMods, local);
   const alwaysPower = Number(always.attackPower ?? 0) || 0;
   const alwaysMax = Number(always.attackMax ?? 0) || 0;
@@ -184,7 +193,7 @@ export function buildOffensiveDiceParts(actor, weaponItem, clashBonuses = {}) {
  * @returns {string}
  * @returns {{ formula: string, breakdown: RollBreakdownRow[] }}
  */
-export function buildDefenseDiceParts(actor, kind, clashBonuses = {}) {
+export function buildDefenseDiceParts(actor, kind, clashBonuses = {}, skillItem = null) {
   const rows = [];
   const isEvade = kind === "evade";
   const baseSides = isEvade ? 12 : 10;
@@ -197,8 +206,7 @@ export function buildDefenseDiceParts(actor, kind, clashBonuses = {}) {
     ? Number(actor?.system?.abilities?.ins?.value ?? 0) || 0
     : Number(actor?.system?.abilities?.tem?.value ?? 0) || 0;
   const eeMods = actor?.system?.attributes?.easyEffectsMods ?? {};
-  const local = outfit?.system?.alwaysActiveCombatMods
-    ?? getItemAlwaysActiveCombatMods(outfit, actor);
+  const local = usedKitCombatDiceMods(actor, outfit, skillItem);
   const always = addCombatDiceMods(eeMods, local);
   const alwaysPower = Number(isEvade ? always.evadePower : always.blockPower) || 0;
   const alwaysMax = Number(isEvade ? always.evadeMax : always.blockMax) || 0;
@@ -280,11 +288,7 @@ export function buildDefenseDiceParts(actor, kind, clashBonuses = {}) {
  * @returns {Promise<RollResult>}
  */
 async function evaluate(formula, rollData = {}, breakdown = []) {
-  // TODO: Clash roll visualTypes
-  console.log(rollData);
-
-  const roll = await new Roll(formula, rollData, {type:rollData.visualType}).evaluate();
-  console.log(roll);
+  const roll = await new Roll(formula, rollData, { type: rollData.visualType }).evaluate({ allowInteractive: false });
   return {
     total:   roll.total,
     formula: roll.formula,
@@ -400,10 +404,11 @@ function rollDataForActor(actor) {
  * @param {object} [options]
  * @param {boolean} [options.advantage]
  * @param {boolean} [options.disadvantage]
+ * @param {Item|null} [options.skillItem]
  * @returns {Promise<RollResult>}
  */
 export async function rollAttack(actor, weaponItem, bonuses = {}, options = {}) {
-  const built = buildOffensiveDiceParts(actor, weaponItem, bonuses);
+  const built = buildOffensiveDiceParts(actor, weaponItem, bonuses, options.skillItem);
   const mode = resolveClashRollMode(bonuses, options);
   return evaluateWithRollMode(built.formula, rollDataForActor(actor), built.breakdown, mode, weaponItem.system.damageType);
 }
@@ -412,10 +417,11 @@ export async function rollAttack(actor, weaponItem, bonuses = {}, options = {}) 
  * @param {ActorPMTTRPG} actor
  * @param {object} [bonuses]
  * @param {object} [options]
+ * @param {Item|null} [options.skillItem]
  * @returns {Promise<RollResult>}
  */
 export async function rollEvade(actor, bonuses = {}, options = {}) {
-  const built = buildDefenseDiceParts(actor, "evade", bonuses);
+  const built = buildDefenseDiceParts(actor, "evade", bonuses, options.skillItem);
   const mode = resolveClashRollMode(bonuses, options);
   return evaluateWithRollMode(built.formula, rollDataForActor(actor), built.breakdown, mode, "evade");
 }
@@ -424,10 +430,11 @@ export async function rollEvade(actor, bonuses = {}, options = {}) {
  * @param {ActorPMTTRPG} actor
  * @param {object} [bonuses]
  * @param {object} [options]
+ * @param {Item|null} [options.skillItem]
  * @returns {Promise<RollResult>}
  */
 export async function rollBlock(actor, bonuses = {}, options = {}) {
-  const built = buildDefenseDiceParts(actor, "block", bonuses);
+  const built = buildDefenseDiceParts(actor, "block", bonuses, options.skillItem);
   const mode = resolveClashRollMode(bonuses, options);
   return evaluateWithRollMode(built.formula, rollDataForActor(actor), built.breakdown, mode, "block");
 }
@@ -457,4 +464,11 @@ export function resolveClash(attackTotal, defenseTotal) {
     return { result: "attackWin", margin };
   }
   return { result: "defenseWin", margin };
+}
+
+export function resolveBlockWinStDamage(blockTotal, margin, outfitProperty) {
+  const difference = Math.max(0, Math.round(Number(margin) || 0));
+  if (outfitProperty !== "armored") return difference;
+  const halfRoll = Math.floor(Math.max(0, Number(blockTotal) || 0) / 2);
+  return Math.max(difference, halfRoll);
 }

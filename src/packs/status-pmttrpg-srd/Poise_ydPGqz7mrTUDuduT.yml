@@ -22,12 +22,12 @@ system:
 
     [On RollForNoStancePoise]
 
-    roll 1d10 as poiseRoll
+    roll 1d10 as poiseRoll tagged "critical-check"
 
-    require (poiseRoll) <= (Poise - "Scattering Dance" - (4 * "Slasher Stance"))
+    require (poiseRoll) <= (Poise - (4 * "Slasher Stance"))
     then proc AskForCritical
 
-    require (poiseRoll) > (Poise - "Scattering Dance" - (4 * "Slasher Stance"))
+    require (poiseRoll) > (Poise - (4 * "Slasher Stance"))
     then proc FailedCriticalRoll
 
 
@@ -35,12 +35,12 @@ system:
 
     create dialog "Proc Critical?":
       procCritical as "Do a Critical Hit",
-      gainCritical as "Gain 1 Critical and lose all Poise"
+      gainCritical as "Gain 1 Critical and reset Poise to 1"
       to self;
 
     [On Dialog Answer procCritical]
 
-    proc Critical and lose all Poise on self;
+    proc Critical with (Critical) as amount and lose all Poise on self;
 
 
     [On Dialog Answer gainCritical]
@@ -50,7 +50,8 @@ system:
 
     [On Gain]
 
-    require (changed.before) == 0 then set Critical to 1;
+    require (changed.before) == 0 then
+      require (Critical) == 0 then set Critical to 1;
 
 
     [On Lose]

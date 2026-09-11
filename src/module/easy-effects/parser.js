@@ -5,7 +5,16 @@ import {
   normalizeDamageType,
   normalizeResistanceLevel,
 } from "./resistances.js";
-import { normalizeBurstTrigger, normalizeClashStanceTrigger, normalizeDepletedTrigger, normalizeTakingDamageTrigger } from "./damage-filter.js";
+import {
+  normalizeBurstTrigger,
+  normalizeClashStanceTrigger,
+  normalizeDepletedTrigger,
+  normalizeTakingDamageTrigger,
+  normalizeDealingDamageTrigger,
+  normalizeBeingHealedTrigger,
+  normalizeHealTrigger,
+  normalizeOnRollTrigger,
+} from "./filters.js";
 import {
   canonicalizeProcName,
   isReservedProcBindName,
@@ -15,17 +24,18 @@ import {
 import { isAlwaysActiveResource, isApplyPoolNoun, isBonusNoun, isRegenNoun, isReservedNoun, isResourceNoun, lookupNoun, nounAllowsOp, resolveApplyPool} from "./nouns.js";
 import { tokenize, tokenizeExpression, LexError } from "./lexer.js";
 
-const SINGLE_TARGETS = new Set(["self", "target", "ally", "attacker", "originator", "burster", "burstee"]);
+const SINGLE_TARGETS = new Set(["self", "target", "ally", "attacker", "originator", "burster", "burstee", "healer"]);
 const MULTI_TARGETS  = new Set(["enemies", "allies", "all"]);
 const ALL_TARGETS    = new Set([...SINGLE_TARGETS, ...MULTI_TARGETS]);
-const FLAG_KEYWORDS  = new Set(["isStaggered", "isPanicking", "hasStatus"]);
+const FLAG_KEYWORDS  = new Set(["isStaggered", "isPanicking", "hasStatus", "hasFlag"]);
+const FLAG_HOSTS = new Set([...SINGLE_TARGETS, "event", "item", "combat"]);
 const MUL_OPS = new Set(["*", "/", "%", "//", "//f", "//c"]);
 const EXPR_PATH_ROOTS = new Set([
-  "self", "target", "ally", "attacker", "originator", "burster", "burstee",
-  "damage", "incoming", "item", "clash", "changed", "burst", "depleted", "moved", "roll", "proc",
-  "round", "combat",
+  "self", "target", "ally", "attacker", "originator", "burster", "burstee", "healer",
+  "damage", "incoming", "heal", "item", "clash", "changed", "burst", "depleted", "moved", "roll", "pendingRoll", "proc",
+  "round", "combat", "event",
 ]);
-const SINGLE_TARGET_HINT = "self/target/ally/attacker/originator/burster/burstee";
+const SINGLE_TARGET_HINT = "self/target/ally/attacker/originator/burster/burstee/healer";
 
 const NUMERIC_COMPARE_OPS = new Set([">", "<", ">=", "<="]);
 
@@ -34,16 +44,6 @@ function packConditions(conditions) {
   if (conditions.length === 1) return conditions[0];
   return { type: "And", conditions };
 }
-
-export {
-  normalizeTakingDamageTrigger,
-  matchesDamageFilter,
-  normalizeBurstTrigger,
-  matchesBurstFilter,
-  shouldExecuteBurstBlock,
-  normalizeDepletedTrigger,
-  matchesDepletedFilter,
-} from "./damage-filter.js";
 
 export {
   canonicalizeProcName,
@@ -100,10 +100,7 @@ class Parser {
     return this.consume("KEYWORD").value;
   }
 
-  /**
-   * @param {"before"|"after"} defaultTiming
-   * @returns {"before"|"after"}
-   */
+  /** `before` / `after` [resistances], or `defaultTiming` if omitted. */
   _parseOptionalResistanceTiming(defaultTiming) {
     if (!(this.check("KEYWORD", "before") || this.check("KEYWORD", "after"))) {
       return defaultTiming;
@@ -197,6 +194,146 @@ class Parser {
     return this.check("STRING") || (this.check("IDENT") && !isReservedNoun(this.peek().value));
   }
 
+  _isFlagWordTok(tok) {
+    return !!tok && (tok.type === "IDENT" || tok.type === "KEYWORD")
+      && String(tok.value).toLowerCase() === "flag";
+  }
+
+  _isFlagWord() {
+    return this._isFlagWordTok(this.peek());
+  }
+
+  _consumeFlagWord() {
+    if (!this._isFlagWord()) {
+      throw new ParseError(`Expected 'flag', got '${this.peek().value}'`, this.peek());
+    }
+    return this.advance().value;
+  }
+
+  _parseFlagKey({ allowBare = false } = {}) {
+    if (this.check("STRING")) {
+      const key = this.consume("STRING").value;
+      if (!String(key).length) {
+        throw new ParseError("Flag key cannot be empty", this.peek());
+      }
+      return key;
+    }
+    if (allowBare && this.check("IDENT")) return this.consume("IDENT").value;
+    throw new ParseError(`Expected flag key string, got '${this.peek().value}'`, this.peek());
+  }
+
+  _isFlagHostAhead() {
+    const tok = this.peek();
+    return !!tok && FLAG_HOSTS.has(tok.value) && (tok.type === "KEYWORD" || tok.type === "IDENT");
+  }
+
+  _parseFlagHost() {
+    const tok = this.peek();
+    if (MULTI_TARGETS.has(tok?.value)) {
+      throw new ParseError(`Flags cannot target '${tok.value}'; use a single host`, tok);
+    }
+    if (!this._isFlagHostAhead()) {
+      throw new ParseError(
+        `Expected flag host (event/item/combat/${SINGLE_TARGET_HINT}), got '${tok?.value}'`,
+        tok
+      );
+    }
+    return this.advance().value;
+  }
+
+  _parseRequiredFlagHost() {
+    if (!this.check("KEYWORD", "on")) {
+      throw new ParseError(`Expected 'on <host>' after flag key, got '${this.peek().value}'`, this.peek());
+    }
+    this.consume("KEYWORD", "on");
+    return this._parseFlagHost();
+  }
+
+  _parseFlagValue() {
+    if (this.check("STRING")) return { type: "STRING", value: this.consume("STRING").value };
+    if (this.check("IDENT", "true") || this.check("IDENT", "false")) {
+      return { type: "BOOLEAN", value: this.consume("IDENT").value === "true" };
+    }
+    if (this.check("MATHOP", "-") && this._peekOffset(1)?.type === "NUMBER") {
+      this.advance();
+      return { type: "NUMBER", value: -Number(this.consume("NUMBER").value) };
+    }
+    if (this.check("NUMBER")) return { type: "NUMBER", value: Number(this.consume("NUMBER").value) };
+    if (this.check("ACCESSOR")) {
+      return { type: "ACCESSOR", expr: parseAccessorExpression(this.consume("ACCESSOR").value) };
+    }
+    if (this.check("VARIABLE")) {
+      return { type: "ACCESSOR", expr: { type: "Variable", name: this.consume("VARIABLE").value } };
+    }
+    if (this.check("IDENT", "N") || this.check("KEYWORD", "N")) {
+      this.advance();
+      return { type: "EFFECT_N" };
+    }
+    throw new ParseError(`Expected flag value, got '${this.peek().value}'`, this.peek());
+  }
+
+  parseSetFlagAction() {
+    this.consume("IDENT", "set");
+    return this._parseSetFlagTail();
+  }
+
+  _parseSetFlagTail() {
+    this._consumeFlagWord();
+    const key = this._parseFlagKey({ allowBare: false });
+    const host = this._parseRequiredFlagHost();
+    this.consume("KEYWORD", "to");
+    const amount = this._parseFlagValue();
+    return {
+      type: "Action",
+      verb: "set",
+      noun: "flag",
+      argument: key,
+      amount,
+      per: null,
+      target: host,
+      pool: null,
+    };
+  }
+
+  parseClearFlagAction() {
+    this.consume("IDENT", "clear");
+    this._consumeFlagWord();
+    const key = this._parseFlagKey({ allowBare: false });
+    const host = this._parseRequiredFlagHost();
+    return {
+      type: "Action",
+      verb: "clear",
+      noun: "flag",
+      argument: key,
+      amount: null,
+      per: null,
+      target: host,
+      pool: null,
+    };
+  }
+
+  // `by` is optional; default delta is 1.
+  _parseIncreaseReduceFlagTail(verb) {
+    this._consumeFlagWord();
+    const key = this._parseFlagKey({ allowBare: false });
+    const host = this._parseRequiredFlagHost();
+    let amount = { type: "NUMBER", value: 1 };
+    if (this.check("KEYWORD", "by")) {
+      this.consume("KEYWORD", "by");
+      amount = this._parseAmountExpr({ required: true });
+    }
+    return {
+      type: "Action",
+      verb,
+      noun: "flag",
+      argument: key,
+      amount,
+      per: null,
+      target: host,
+      pool: null,
+    };
+  }
+
   // ── Top level ──────────────────────────────────────────────────────────────
   parseScript() {
     const blocks = [];
@@ -209,31 +346,57 @@ class Parser {
   }
 
   parseBlock() {
-    const rawTrigger = this.consume("TRIGGER").value;
+    const triggerTok = this.consume("TRIGGER");
+    const rawTrigger = triggerTok.value;
     let { trigger, damageFilter } = normalizeTakingDamageTrigger(rawTrigger);
     let burstFilter = null;
     let depletedFilter = null;
     let clashStanceFilter = null;
+    let rollFilter = null;
+    let healFilter = null;
     if (!damageFilter && trigger === String(rawTrigger ?? "").trim()) {
-      const depleted = normalizeDepletedTrigger(rawTrigger);
-      if (depleted.matched) {
-        trigger = depleted.trigger;
-        depletedFilter = depleted.depletedFilter;
+      const dealing = normalizeDealingDamageTrigger(rawTrigger);
+      if (dealing.matched) {
+        if (dealing.error) throw new ParseError(dealing.error, triggerTok);
+        trigger = dealing.trigger;
+        damageFilter = dealing.damageFilter;
       } else {
-        const clashStance = normalizeClashStanceTrigger(rawTrigger);
-        if (clashStance.matched) {
-          trigger = clashStance.trigger;
-          clashStanceFilter = clashStance.clashStanceFilter;
+      const heal = normalizeHealTrigger(rawTrigger);
+      const beingHealed = heal.matched ? null : normalizeBeingHealedTrigger(rawTrigger);
+      if (heal.matched) {
+        trigger = heal.trigger;
+        healFilter = heal.healFilter;
+      } else if (beingHealed?.matched) {
+        trigger = beingHealed.trigger;
+        healFilter = beingHealed.healFilter;
+      } else {
+        const depleted = normalizeDepletedTrigger(rawTrigger);
+        if (depleted.matched) {
+          trigger = depleted.trigger;
+          depletedFilter = depleted.depletedFilter;
         } else {
-          const burst = normalizeBurstTrigger(rawTrigger);
-          if (burst.matched) {
-            trigger = burst.trigger;
-            burstFilter = burst.burstFilter;
+          const clashStance = normalizeClashStanceTrigger(rawTrigger);
+          if (clashStance.matched) {
+            trigger = clashStance.trigger;
+            clashStanceFilter = clashStance.clashStanceFilter;
           } else {
-            const proc = normalizeProcTrigger(rawTrigger);
-            if (proc.matched) trigger = proc.trigger;
+            const burst = normalizeBurstTrigger(rawTrigger);
+            if (burst.matched) {
+              trigger = burst.trigger;
+              burstFilter = burst.burstFilter;
+            } else {
+              const onRoll = normalizeOnRollTrigger(rawTrigger);
+              if (onRoll.matched) {
+                trigger = onRoll.trigger;
+                rollFilter = onRoll.rollFilter;
+              } else {
+                const proc = normalizeProcTrigger(rawTrigger);
+                if (proc.matched) trigger = proc.trigger;
+              }
+            }
           }
         }
+      }
       }
     }
     const statements = [];
@@ -252,6 +415,8 @@ class Parser {
       burstFilter,
       depletedFilter,
       clashStanceFilter,
+      rollFilter,
+      healFilter,
       statements,
     };
   }
@@ -327,6 +492,16 @@ class Parser {
         }
         continue;
       }
+      if (
+        (action.verb === "set" || action.verb === "clear"
+          || action.verb === "increase" || action.verb === "reduce")
+        && action.noun === "flag"
+      ) {
+        throw new ParseError(
+          "[Always Active] does not allow set/clear/increase/reduce flag; use an event trigger",
+          this.peek()
+        );
+      }
       if (action.verb === "instant") continue;
       if (action.verb === "set" && action.noun === "resistance") continue;
       throw new ParseError(
@@ -374,7 +549,7 @@ class Parser {
     else if (this.checkAny("KEYWORD", ["gain", "lose", "inflict", "reduce", "increase", "halve", "double", "convert"])) {
       stmt = this.parseNaturalStatement();
     }
-    else if (this.check("IDENT", "deal") || this.check("IDENT", "heal") || this.check("IDENT", "set") || this.check("IDENT", "instant")) stmt = this.parseNaturalStatement();
+    else if (this.check("IDENT", "deal") || this.check("IDENT", "heal") || this.check("IDENT", "set") || this.check("IDENT", "clear") || this.check("IDENT", "instant")) stmt = this.parseNaturalStatement();
     else if (this._isBonusVerbAhead()) stmt = this.parseBonusVerbStatement();
     else if (this.check("KEYWORD", "range")) stmt = this.parseNaturalStatement();
     else stmt = this.parseDoStatement();
@@ -441,16 +616,37 @@ class Parser {
       throw new ParseError(`Expected dice formula after 'roll', got '${this.peek().value}'`, this.peek());
     }
     const formula = this.consume("DICE").value;
-    let bind = null;
-    if (this.check("KEYWORD", "as")) {
-      this.consume("KEYWORD", "as");
-      if (!(this.check("IDENT") || this.check("KEYWORD"))) {
-        throw new ParseError(`Expected bind name after 'roll … as', got '${this.peek().value}'`, this.peek());
-      }
-      bind = this.advance().value;
-    }
+    const { bind, tag } = this._parseOptionalRollBindAndTag();
     this.consumeStatementEnd();
-    return { type: "RollStatement", formula, bind, polarity: null };
+    return { type: "RollStatement", formula, bind, tag, polarity: null };
+  }
+
+  _consumeRollTag() {
+    this.consume("KEYWORD", "tagged");
+    if (this.check("STRING")) return this.consume("STRING").value;
+    if (this.check("IDENT") || this.check("KEYWORD")) return this.advance().value;
+    throw new ParseError(`Expected tag after 'tagged', got '${this.peek().value}'`, this.peek());
+  }
+
+  _parseOptionalRollBindAndTag() {
+    let bind = null;
+    let tag = null;
+    for (;;) {
+      if (bind == null && this.check("KEYWORD", "as")) {
+        this.consume("KEYWORD", "as");
+        if (!(this.check("IDENT") || this.check("KEYWORD"))) {
+          throw new ParseError(`Expected bind name after 'roll … as', got '${this.peek().value}'`, this.peek());
+        }
+        bind = this.advance().value;
+        continue;
+      }
+      if (tag == null && this.check("KEYWORD", "tagged")) {
+        tag = this._consumeRollTag();
+        continue;
+      }
+      break;
+    }
+    return { bind, tag };
   }
 
   parseOnRollHead() {
@@ -580,10 +776,7 @@ class Parser {
     return { prompt, audience, choices };
   }
 
-  /**
-   * Optional `positive:` / `negative:` effect-template polarity.
-   * @returns {"positive"|"negative"|null}
-   */
+  /** Optional `positive:` / `negative:` effect-template polarity. */
   _parsePolarityPrefix() {
     if (!this.checkAny("KEYWORD", ["positive", "negative"])) return null;
     if (this._peekOffset(1)?.type !== "COLON") return null;
@@ -777,15 +970,21 @@ class Parser {
     const flag = this.consume("KEYWORD").value;
     let statusName = null;
     if (flag === "hasStatus") statusName = this.parseStatusName();
+    if (flag === "hasFlag") statusName = this._parseFlagKey({ allowBare: true });
     let flagTarget = "self";
-    if (this.check("KEYWORD") && ALL_TARGETS.has(this.peek().value)) flagTarget = this.consume("KEYWORD").value;
+    if (flag === "hasFlag") {
+      if (this._isFlagHostAhead()) flagTarget = this._parseFlagHost();
+    } else if (this.check("KEYWORD") && ALL_TARGETS.has(this.peek().value)) {
+      flagTarget = this.consume("KEYWORD").value;
+    }
     return { type: "FLAG", flag, statusName, target: flagTarget };
   }
 
-  /**
-   * @param {string} [operator]
-   */
+  /** Boolean, amount, or ident depending on the compare op. */
   parseCondRhs(operator) {
+    if (this.check("IDENT", "true") || this.check("IDENT", "false")) {
+      return { type: "BOOLEAN", value: this.consume("IDENT").value === "true" };
+    }
     if (this.check("VARIABLE") || (operator && NUMERIC_COMPARE_OPS.has(operator))) {
       return this._parseAmountExpr({ required: true });
     }
@@ -831,6 +1030,9 @@ class Parser {
     if (this.check("IDENT", "deal") || this.check("IDENT", "heal") || this.check("IDENT", "instant")) {
       return true;
     }
+    if (this.check("IDENT", "clear")) {
+      return this._isFlagWordTok(this._peekOffset(1));
+    }
     if (this.check("IDENT", "set")) {
       const next = this._peekOffset(1);
       return !(next && (next.type === "IDENT" || next.type === "KEYWORD") && next.value === "stat");
@@ -853,6 +1055,21 @@ class Parser {
     const t0 = this.peek();
     const t1 = this._peekOffset(1);
     const t2 = this._peekOffset(2);
+
+    if (t0?.type === "IDENT" && t0.value === "set" && this._isFlagWordTok(t1)) {
+      return this.parseSetFlagAction();
+    }
+    if (t0?.type === "IDENT" && t0.value === "clear" && this._isFlagWordTok(t1)) {
+      return this.parseClearFlagAction();
+    }
+    if (
+      t0?.type === "KEYWORD"
+      && (t0.value === "increase" || t0.value === "reduce")
+      && this._isFlagWordTok(t1)
+    ) {
+      this.consume("KEYWORD", t0.value);
+      return this._parseIncreaseReduceFlagTail(t0.value);
+    }
 
     if (t0.type === "KEYWORD" && t0.value === "power") {
       if (t1.type === "KEYWORD" && t1.value === "up") {
@@ -946,7 +1163,7 @@ class Parser {
     };
   }
 
-  /** @returns {object|null} */
+  /** Optional `per (...)` scaling. */
   _parseOptionalPerAmount() {
     if (!this.check("KEYWORD", "per")) return null;
     this.consume("KEYWORD", "per");
@@ -1070,6 +1287,16 @@ class Parser {
       throw new ParseError(`Expected 'damage' after ${after}, got '${token.value}'`, token);
     }
     this.advance();
+  }
+
+  _consumeDamageOrHealNoun(after) {
+    const token = this.peek();
+    if (["IDENT", "KEYWORD"].includes(token.type) && token.value === "heal") {
+      this.advance();
+      return "heal";
+    }
+    this._consumeDamageNoun(after);
+    return "damage";
   }
 
   _parseDealHealTail(verb) {
@@ -1317,6 +1544,10 @@ class Parser {
   parseNaturalSetAction() {
     this.consume("IDENT", "set");
 
+    if (this._isFlagWord()) {
+      return this._parseSetFlagTail();
+    }
+
     if (this._isSetResistanceAhead()) {
       return this._parseSetResistanceTail();
     }
@@ -1326,7 +1557,7 @@ class Parser {
     let isPool = false;
     let statusName = null;
 
-    if (this._isAmountAhead() || this._isUnaryMinusAhead()) {
+    if (this._isNumericAmountAhead()) {
       amount = this._parseAmountExpr({ required: true });
       const nameTok = this.peek();
       if ((nameTok.type === "IDENT" || nameTok.type === "KEYWORD") && isApplyPoolNoun(nameTok.value)) {
@@ -1508,13 +1739,27 @@ class Parser {
       setAmount = true;
     }
 
-    this._consumeDamageNoun("'convert'");
+    const noun = this._consumeDamageOrHealNoun("'convert'");
 
     this.consume("KEYWORD", "to");
 
     let convertKind;
     let convertTo;
-    if (this.check("STRING")) {
+    if (noun === "heal") {
+      const destTok = this.peek();
+      if (destTok.type !== "IDENT" && destTok.type !== "KEYWORD") {
+        throw new ParseError(`Expected pool after 'convert heal to', got '${destTok.value}'`, destTok);
+      }
+      const poolKey = String(destTok.value).toLowerCase();
+      if (!isApplyPoolNoun(poolKey)) {
+        throw new ParseError(`Expected pool after 'convert heal to', got '${destTok.value}'`, destTok);
+      }
+      convertKind = "pool";
+      const pools = [resolveApplyPool(poolKey)];
+      this.advance();
+      this._parseAdditionalPools(pools);
+      convertTo = this._packPools(pools);
+    } else if (this.check("STRING")) {
       convertKind = "damageType";
       convertTo = this.consume("STRING").value;
     } else {
@@ -1540,7 +1785,7 @@ class Parser {
     return {
       type: "Action",
       verb: "convert",
-      noun: "damage",
+      noun,
       argument: null,
       amount,
       setAmount,
@@ -1682,6 +1927,10 @@ class Parser {
     };
   }
 
+  _isNumericAmountAhead() {
+    return (this._isAmountAhead() && !this.check("STRING")) || this._isUnaryMinusAhead();
+  }
+
   _isAmountAhead() {
     if (this.check("NUMBER") || this.check("DICE") || this.check("ACCESSOR") || this.check("VARIABLE")) return true;
     if (this.check("STRING")) return true;
@@ -1715,6 +1964,7 @@ class Parser {
     if (this.check("IDENT", "deal")) return this.parseNaturalDealAction();
     if (this.check("IDENT", "heal")) return this.parseNaturalHealAction();
     if (this.check("IDENT", "set")) return this.parseNaturalSetAction();
+    if (this.check("IDENT", "clear")) return this.parseClearFlagAction();
     if (this.check("IDENT", "instant")) return this.parseNaturalInstantAction();
     if (this.check("KEYWORD", "convert")) return this.parseNaturalConvertAction();
     if (this.check("KEYWORD", "burst")) return this.parseNaturalBurstAction();
@@ -1756,21 +2006,42 @@ class Parser {
     }
 
     if (verbTok.value === "reduce" || verbTok.value === "increase") {
+      if (this._isFlagWord()) {
+        return this._parseIncreaseReduceFlagTail(verbTok.value);
+      }
+      if (this.check("KEYWORD", "roll")) {
+        this.consume("KEYWORD", "roll");
+        if (this.check("KEYWORD", "by")) this.consume("KEYWORD", "by");
+        const amount = this._parseAmountExpr({ required: false }) ?? { type: "NUMBER", value: 1 };
+        return {
+          type: "Action",
+          verb: verbTok.value,
+          noun: "roll",
+          argument: null,
+          amount,
+          per: null,
+          target: null,
+          pool: null,
+        };
+      }
       const pool = this._parseOptionalHealPool();
-      this._consumeDamageNoun(`'${verbTok.value}'`);
+      const noun = this._consumeDamageOrHealNoun(`'${verbTok.value}'`);
       if (this.check("KEYWORD", "by")) this.consume("KEYWORD", "by");
       const amount = this._parseAmountExpr({ required: false }) ?? { type: "NUMBER", value: 1 };
       const resistanceTiming = this._parseOptionalResistanceTiming("before");
+      if (noun === "heal" && resistanceTiming === "after") {
+        throw new ParseError("'after resistances' cannot be used with heal", this.peek());
+      }
       return {
         type: "Action",
         verb: verbTok.value,
-        noun: "damage",
+        noun,
         argument: null,
         amount,
         per: null,
         target: null,
         pool,
-        resistanceTiming,
+        resistanceTiming: noun === "heal" ? "before" : resistanceTiming,
       };
     }
 
@@ -1795,7 +2066,7 @@ class Parser {
       return this._desugarStatusClearAllAction();
     }
 
-    const amountAhead = (this._isAmountAhead() && !this.check("STRING")) || this._isUnaryMinusAhead();
+    const amountAhead = this._isNumericAmountAhead();
     let amount = amountAhead
       ? (this._parseOptionalAmount() ?? { type: "NUMBER", value: 1 })
       : { type: "NUMBER", value: 1 };
@@ -1908,14 +2179,7 @@ class Parser {
       throw new ParseError(`Expected dice formula after 'roll', got '${this.peek().value}'`, this.peek());
     }
     const formula = this.consume("DICE").value;
-    let bind = null;
-    if (this.check("KEYWORD", "as")) {
-      this.consume("KEYWORD", "as");
-      if (!(this.check("IDENT") || this.check("KEYWORD"))) {
-        throw new ParseError(`Expected bind name after 'roll … as', got '${this.peek().value}'`, this.peek());
-      }
-      bind = this.advance().value;
-    }
+    const { bind, tag } = this._parseOptionalRollBindAndTag();
     return {
       type: "Action",
       verb: "roll",
@@ -1923,6 +2187,7 @@ class Parser {
       argument: bind,
       amount: { type: "DICE", value: formula },
       bind,
+      tag,
       per: null,
       target: null,
       pool: null,
@@ -2049,7 +2314,7 @@ class Parser {
 
 // ── Math-expression parser ────────────────────────────────────────────────────
 
-/** True when a token can begin a factor (so `%` is modulo and not a postfix percent). */
+/** Next token can start a factor, so a following `%` is modulo, not postfix percent. */
 function _canStartExprFactor(tok) {
   if (!tok) return false;
   if (tok.type === "NUMBER" || tok.type === "DICE" || tok.type === "STRING") return true;
@@ -2141,14 +2406,13 @@ class ExprParser {
       return { type: "Path", segments: ["self", "status", name] };
     }
     if (this.check("IDENT")) {
+      const next = this.tokens[this.pos + 1];
       // Bare N is the effect intensity.
-      if (this.peek().value === "N") {
-        const j = this.pos + 1;
-        if (this.tokens[j]?.type !== "DOT") {
-          this.expect("IDENT");
-          return { type: "EffectN" };
-        }
+      if (this.peek().value === "N" && next?.type !== "DOT" && next?.type !== "LPAREN") {
+        this.expect("IDENT");
+        return { type: "EffectN" };
       }
+      if (next?.type === "LPAREN") return this.parseCall();
       const segments = [this.expect("IDENT").value];
       while (this.check("DOT")) {
         this.expect("DOT");
@@ -2158,6 +2422,39 @@ class ExprParser {
       return { type: "Path", segments };
     }
     throw new ParseError(`Unexpected token in expression: '${this.peek().value}'`, this.peek());
+  }
+
+  parseCall() {
+    const nameTok = this.expect("IDENT");
+    const name = nameTok.value;
+    this.expect("LPAREN");
+    const args = [];
+    if (!this.check("RPAREN")) {
+      args.push(this.parseExpr());
+      while (this.check("COMMA")) {
+        this.expect("COMMA");
+        args.push(this.parseExpr());
+      }
+    }
+    this.expect("RPAREN");
+    this._validateMathCall(name, args, nameTok);
+    return { type: "Call", name, args };
+  }
+
+  _validateMathCall(name, args, tok) {
+    if (name === "min" || name === "max") {
+      if (args.length < 2) {
+        throw new ParseError(`'${name}()' needs at least 2 arguments, got ${args.length}`, tok);
+      }
+      return;
+    }
+    if (name === "clamp") {
+      if (args.length !== 3) {
+        throw new ParseError(`'clamp()' needs 3 arguments (value, lo, hi), got ${args.length}`, tok);
+      }
+      return;
+    }
+    throw new ParseError(`Unknown function '${name}()'`, tok);
   }
 }
 

@@ -4,6 +4,41 @@ import {
   serialiseClashState,
   deserialiseClashState,
 } from "./clash-state.js";
+import { showDiceForRoll } from "../utility.js";
+
+const SOCKET_EVENT = "system.projectmoonttrpg";
+const CHAT_UPDATE = "chatUpdate";
+
+export function emitChatUpdate(messageId, { content, flags = null } = {}) {
+  const payload = {
+    type: CHAT_UPDATE,
+    message: messageId,
+    content,
+  };
+  if (flags) payload.flags = flags;
+  globalThis.game.socket.emit(SOCKET_EVENT, payload);
+}
+
+export function isChatUpdatePayload(data) {
+  if (!data || typeof data !== "object") return false;
+  if (data.type === CHAT_UPDATE) return true;
+  return !data.type && !!data.message && data.content != null;
+}
+
+function flagsToUpdate(flags) {
+  if (!flags || typeof flags !== "object") return {};
+  return foundry.utils.flattenObject({ flags });
+}
+
+export function applyChatUpdate(data) {
+  if (!isChatUpdatePayload(data) || data.content == null) return;
+  const message = globalThis.game.messages.get(data.message);
+  if (!message) return;
+  message.update({
+    content: data.content,
+    ...flagsToUpdate(data.flags),
+  });
+}
 
 const { renderTemplate } = foundry.applications.handlebars;
 
@@ -35,13 +70,7 @@ export async function postAttackCard(state, attackRoll = null, messageId = null)
   let message;
   if (messageId) {
     message = game.messages.get(messageId);
-    if (message) {
-      if (message.isAuthor || game.user.isGM) {
-        await message.update(chatData);
-      } else {
-        game.socket.emit("system.projectmoonttrpg", { message: messageId, content: chatData.content, flags: chatData.flags });
-      }
-    }
+    if (message) await _writeClashMessage(message, chatData);
   } else {
     chatData.author = game.user.id;
     chatData.speaker = ChatMessage.getSpeaker({ actor: game.actors.get(state.attackerActorId) });
@@ -59,18 +88,10 @@ export async function updateAttackCard(messageId, updatedState) {
     state: updatedState, rollHtml, isGM: game.user.isGM, i18n: _attackCardI18n(updatedState),
   });
 
-  if (message.isAuthor || game.user.isGM) {
-    await message.update({
-      content: content, 
-      [`flags.${CLASH_FLAG_SCOPE}.${CLASH_FLAG_KEY}`]: serialiseClashState(updatedState) }
-    );
-  } else {
-    game.socket.emit("system.projectmoonttrpg", { 
-      message: messageId, 
-      content: content, 
-      [`flags.${CLASH_FLAG_SCOPE}.${CLASH_FLAG_KEY}`]: serialiseClashState(updatedState) }
-    );
-  }
+  await _writeClashMessage(message, {
+    content,
+    flags: { [CLASH_FLAG_SCOPE]: { [CLASH_FLAG_KEY]: serialiseClashState(updatedState) } },
+  });
 }
 
 export async function postResultCard(state, defenseRoll = null, messageId = null, attackRoll = null) {
@@ -113,32 +134,13 @@ export async function postResultCard(state, defenseRoll = null, messageId = null
     flags: { [CLASH_FLAG_SCOPE]: { [CLASH_FLAG_KEY]: serialiseClashState(state) } },
   };
 
-  // Let DSN finish rolling before the result appears.
-  if (game.dice3d) {
-    const shows = [];
-    if (attackRoll) {
-      shows.push(_showClashDice(attackRoll, state.attackerActorId, state.attackerTokenId));
-    }
-    if (defenseRoll) {
-      shows.push(_showClashDice(
-        defenseRoll,
-        state.retaliatorActorId ?? state.targetActorId,
-        state.retaliatorTokenId ?? state.targetTokenId,
-      ));
-    }
-    if (shows.length) await Promise.all(shows);
-  }
- 
+  // Keep the rolling banner up until DSN finishes (or times out).
+  await _showClashResultDice(state, attackRoll, defenseRoll);
+
   let message;
   if (messageId) {
     message = game.messages.get(messageId);
-    if (message) {
-      if (message.isAuthor || game.user.isGM) {
-        await message.update(chatData);
-      } else {
-        game.socket.emit("system.projectmoonttrpg", { message: messageId, content: chatData.content, flags: chatData.flags });
-      }
-    }
+    if (message) await _writeClashMessage(message, chatData);
   } else {
     chatData.author = game.user.id;
     chatData.speaker = ChatMessage.getSpeaker({ actor: game.actors.get(state.attackerActorId) });
@@ -292,36 +294,22 @@ export function resolveClashCombatant(actorId, tokenId) {
   return actorId ? (game.actors.get(actorId) ?? null) : null;
 }
 
-function _tokenDocument(tokenId) {
-  if (!tokenId) return null;
-  const onCanvas = canvas.tokens?.get(tokenId)?.document;
-  if (onCanvas) return onCanvas;
-  for (const scene of game.scenes ?? []) {
-    const tokenDoc = scene.tokens?.get(tokenId);
-    if (tokenDoc) return tokenDoc;
+async function _writeClashMessage(message, chatData) {
+  const update = {
+    content: chatData.content,
+    ...flagsToUpdate(chatData.flags),
+  };
+  if (chatData.rolls) update.rolls = chatData.rolls;
+  if (chatData.sound) update.sound = chatData.sound;
+
+  if (message.isAuthor || game.user.isGM) {
+    await message.update(update);
+    return;
   }
-  return null;
-}
-
-function _dsnUserForCombatant(actorId, tokenId) {
-  const actor = resolveClashCombatant(actorId, tokenId);
-  const tokenDoc = _tokenDocument(tokenId);
-  const permDoc = tokenDoc ?? actor;
-  if (!permDoc) return game.user;
-
-  const OWNER = CONST.DOCUMENT_OWNERSHIP_LEVELS.OWNER;
-  const owners = game.users.filter((u) => permDoc.testUserPermission(u, OWNER));
-  const assigned = actor ? game.users.find((u) => u.character?.id === actor.id) : null;
-  if (assigned && !assigned.isGM) return assigned;
-
-  const players = owners.filter((u) => !u.isGM);
-  const activePlayer = players.find((u) => u.active);
-  if (activePlayer) return activePlayer;
-  if (players.length) return players[0];
-
-  const activeGm = owners.find((u) => u.isGM && u.active);
-  if (activeGm) return activeGm;
-  return owners.find((u) => u.isGM) ?? game.user;
+  emitChatUpdate(message.id, {
+    content: chatData.content,
+    flags: chatData.flags ?? null,
+  });
 }
 
 function _dsnSpeakerForCombatant(actorId, tokenId) {
@@ -332,9 +320,28 @@ function _dsnSpeakerForCombatant(actorId, tokenId) {
 }
 
 function _showClashDice(roll, actorId, tokenId) {
-  const user = _dsnUserForCombatant(actorId, tokenId);
   const speaker = _dsnSpeakerForCombatant(actorId, tokenId);
-  return game.dice3d.showForRoll(roll, user, true, null, false, null, speaker ?? undefined);
+  return showDiceForRoll(roll, { speaker });
+}
+
+async function _showClashResultDice(state, attackRoll, defenseRoll) {
+  const shows = [];
+  if (attackRoll) {
+    shows.push(_showClashDice(attackRoll, state.attackerActorId, state.attackerTokenId));
+  }
+  if (defenseRoll) {
+    shows.push(_showClashDice(
+      defenseRoll,
+      state.retaliatorActorId ?? state.targetActorId,
+      state.retaliatorTokenId ?? state.targetTokenId,
+    ));
+  }
+  if (!shows.length) return;
+  try {
+    await Promise.all(shows);
+  } catch (err) {
+    console.warn("[PMTTRPG] Clash Dice So Nice display failed; posting result card.", err);
+  }
 }
 
 async function _rerenderRollHtml(message) {

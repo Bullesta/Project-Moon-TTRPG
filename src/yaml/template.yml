@@ -30,7 +30,7 @@ Actor:
           max: 15
         level:
           value: 1
-          min: 0
+          min: -3
           max: 21
         xp:
           value: 0

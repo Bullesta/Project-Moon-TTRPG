@@ -1,15 +1,12 @@
-/**
- * Progression functions
- */
-
-// According to the PMTTRPG rules, the rank is calculated based on the level. Every three levels, the rank increases by 1.
+// Rank = floor(level / 3) + 1.
 export function getRankFromLevel(level) {
-  const lv = Math.max(0, Number(level) || 0);
-  return Math.min(5, Math.floor(lv / 3) + 1);
+  const parsed = Number(level);
+  const lv = Number.isFinite(parsed) ? parsed : 0;
+  return Math.max(0, Math.floor(lv / 3) + 1);
 }
 export function isRankUpLevel(level) {
   const lv = Number(level) || 0;
-  return lv > 0 && lv % 3 === 0 && lv <= 15;
+  return lv > 0 && lv % 3 === 0;
 }
 export function getStatCap(rank) {
   return Number(rank) + 2;
@@ -25,12 +22,12 @@ export const ACTION_ECONOMY_BY_RANK = Object.freeze({
 });
 
 /**
- * @param {number} rank
- * @returns {{ actions: number, reactions: number, movement: number }}
+ * Actions/Reactions from rank. Movement is always 1 (tactical SQR pool is separate).
  */
 export function getActionEconomyFromRank(rank) {
-  const r = Math.clamp(Number(rank) || 0, 0, 5);
-  const row = ACTION_ECONOMY_BY_RANK[r] ?? ACTION_ECONOMY_BY_RANK[0];
+  const parsed = Number(rank);
+  const r = Number.isFinite(parsed) ? Math.max(0, Math.trunc(parsed)) : 0;
+  const row = ACTION_ECONOMY_BY_RANK[r] ?? ACTION_ECONOMY_BY_RANK[5];
   return {
     actions: row.actions,
     reactions: row.reactions,

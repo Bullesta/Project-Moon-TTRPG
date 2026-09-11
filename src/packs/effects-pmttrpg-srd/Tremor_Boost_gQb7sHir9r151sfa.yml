@@ -30,7 +30,7 @@ system:
   customNotes: ''
   easyEffects: |-
     [Clash Win]
-    burst Tremor;
+    burst Tremor on target;
 
     [On Tremor Burst]
     require (burst.before) >= 4 then

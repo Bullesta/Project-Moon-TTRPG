@@ -31,7 +31,7 @@ system:
     uuid: ''
   customNotes: ''
   easyEffects: |-
-    [Start of Round]
+    [On Clash Start]
     require (round) == 1 then
       power up attack N and power up defense N;
 effects: []

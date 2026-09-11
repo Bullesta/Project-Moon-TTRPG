@@ -4,16 +4,22 @@ import { emptyAlwaysActiveMods, pickCombatDiceMods, zeroCombatDiceMods } from ".
 import { isToolPresent }                            from "../inventory/slots.js";
 import { uniqueStatusItems }                        from "../status/group-statuses.js";
 import { isPendingStatus }                          from "../status/pending.js";
+import { wasRemovedThisLifecyclePass }              from "../status/lifecycle-pass.js";
 import { getActorAST, runActorEasyEffects }         from "./actor-scripts.js";
-import { resolveActorClashStance }                  from "./damage-filter.js";
+import { resolveActorClashStance, buildHealSliceContexts, collectUniqueHealItems } from "./filters.js";
 import { normalizeResistanceLevel, RESISTANCE_MULTIPLIERS } from "./resistances.js";
 import {
+  attachEmitState,
+  runLogicalEmission,
+} from "./ee-meta.js";
+import {
   actorIdentityKey,
-  itemBelongsToActor,
+  collectUsedSkills,
   itemIdentityKey,
   rememberBurstListenerItem,
   sameActor,
   uniqueBurstOwners,
+  usedSkillsFromContext,
 } from "./burst-roles.js";
 
 // ── Clash context factory ─────────────────────────────────────────────────────
@@ -79,7 +85,9 @@ function getAST(item) {
   }
 }
 
-Hooks.on("updateItem", (item) => _astCache.delete(item.id));
+if (typeof globalThis.Hooks?.on === "function") {
+  Hooks.on("updateItem", (item) => _astCache.delete(item.id));
+}
 
 function documentId(doc) {
   return doc?.id ?? doc?._id ?? null;
@@ -113,7 +121,8 @@ function isPassiveClashItem(item) {
   return false;
 }
 
-function itemIsLoadoutActive(item, actor) {
+/** Weapon/outfit/tool equipped, augment on, or NPC skill. Tools also need quantity > 0. */
+export function itemIsLoadoutActive(item, actor) {
   if (!item) return false;
   if (item.type === "augment") return item.system?.active === true;
   if (item.type === "tool") return !!item.system?.equipped && isToolPresent(item);
@@ -322,6 +331,30 @@ function onBeingHitContext({ attacker, defender, clash, attackerSkill }) {
   };
 }
 
+function onHealItems({ healer, item } = {}) {
+  if (!healer) return [];
+  return collectUniqueHealItems(
+    [...getEquippedItems(healer), ...uniqueStatusItems(healer.items)],
+    item ?? null
+  );
+}
+
+function onHealContext(payload = {}) {
+  return buildHealSliceContexts(payload).onHeal;
+}
+
+function onBeingHealedItems({ actor } = {}) {
+  if (!actor) return [];
+  return collectUniqueHealItems(
+    [...getEquippedItems(actor), ...uniqueStatusItems(actor.items)],
+    null
+  );
+}
+
+function onBeingHealedContext(payload = {}) {
+  return buildHealSliceContexts(payload).onBeingHealed;
+}
+
 function clashLoseItems({
   winner,
   attacker,
@@ -377,6 +410,35 @@ function clashStartedActorContexts(payload) {
     actor,
     context: buildClashStartedActorContext(payload, actor),
   }));
+}
+
+function combatLifecycleItems({ actor } = {}) {
+  if (!actor) return [];
+  return [
+    ...getEquippedItems(actor),
+    ...uniqueStatusItems(actor.items).filter((item) => !wasRemovedThisLifecyclePass(item)),
+  ];
+}
+
+function allOwnedEasyEffectItems({ actor } = {}) {
+  if (!actor) return [];
+  const out = [];
+  const seen = new Set();
+  if (actor.items) {
+    for (const item of actor.items) {
+      if (item.type === "status") continue;
+      addUniqueItem(out, seen, item);
+    }
+  }
+  for (const item of uniqueStatusItems(actor.items).filter((item) => !wasRemovedThisLifecyclePass(item))) {
+    addUniqueItem(out, seen, item);
+  }
+  return out;
+}
+
+function combatLifecycleContext({ actor, combat } = {}) {
+  if (!actor) return null;
+  return { self: actor, target: null, ally: null, clash: null, combat: combat ?? null };
 }
 
 // ── Trigger definitions ───────────────────────────────────────────────────────
@@ -620,11 +682,40 @@ const TRIGGER_HOOKS = [
   {
     hook: "pmttrpg.turnStart",
     triggerName: "Turn Start",
-    getItems: ({ actor }) => actor ? getEquippedItems(actor) : [],
-    buildContext: ({ actor, combat }) => {
-      if (!actor) return null;
-      return { self: actor, target: null, ally: null, clash: null, combat: combat ?? null };
-    },
+    getItems: combatLifecycleItems,
+    buildContext: combatLifecycleContext,
+  },
+  {
+    hook: "pmttrpg.turnStart",
+    triggerName: "On Turn Start",
+    getItems: combatLifecycleItems,
+    buildContext: combatLifecycleContext,
+  },
+  {
+    hook: "pmttrpg.turnStart",
+    triggerName: "Start of Turn",
+    getItems: combatLifecycleItems,
+    buildContext: combatLifecycleContext,
+  },
+  {
+    hook: "pmttrpg.turnStart",
+    triggerName: "On Start of Turn",
+    getItems: combatLifecycleItems,
+    buildContext: combatLifecycleContext,
+  },
+
+  // ── [End of Turn] ───────────────────────────────────────────────────────────
+  {
+    hook: "pmttrpg.endOfTurn",
+    triggerName: "End of Turn",
+    getItems: combatLifecycleItems,
+    buildContext: combatLifecycleContext,
+  },
+  {
+    hook: "pmttrpg.endOfTurn",
+    triggerName: "On End of Turn",
+    getItems: combatLifecycleItems,
+    buildContext: combatLifecycleContext,
   },
 
   // ── [End of Round] ──────────────────────────────────────────────────────────
@@ -632,14 +723,35 @@ const TRIGGER_HOOKS = [
   {
     hook: "pmttrpg.endOfRound",
     triggerName: "End of Round",
-    getItems: ({ actor }) => {
-      if (!actor) return [];
-      return [...getEquippedItems(actor), ...uniqueStatusItems(actor.items)];
-    },
-    buildContext: ({ actor, combat }) => {
-      if (!actor) return null;
-      return { self: actor, target: null, ally: null, clash: null, combat: combat ?? null };
-    },
+    getItems: combatLifecycleItems,
+    buildContext: combatLifecycleContext,
+  },
+  {
+    hook: "pmttrpg.endOfRound",
+    triggerName: "On End of Round",
+    getItems: combatLifecycleItems,
+    buildContext: combatLifecycleContext,
+  },
+
+  // ── [Combat Start] ──────────────────────────────────────────────────────────
+  // Begin Combat, and anyone added after that. Every owned item.
+  {
+    hook: "pmttrpg.combatStart",
+    triggerName: "On Combat Start",
+    getItems: allOwnedEasyEffectItems,
+    buildContext: combatLifecycleContext,
+  },
+  {
+    hook: "pmttrpg.combatStart",
+    triggerName: "Combat Start",
+    getItems: allOwnedEasyEffectItems,
+    buildContext: combatLifecycleContext,
+  },
+  {
+    hook: "pmttrpg.combatStart",
+    triggerName: "Start of Combat",
+    getItems: allOwnedEasyEffectItems,
+    buildContext: combatLifecycleContext,
   },
 
   // ── [Start of Round] ────────────────────────────────────────────────────────
@@ -647,14 +759,35 @@ const TRIGGER_HOOKS = [
   {
     hook: "pmttrpg.startOfRound",
     triggerName: "Start of Round",
-    getItems: ({ actor }) => {
-      if (!actor) return [];
-      return [...getEquippedItems(actor), ...uniqueStatusItems(actor.items)];
-    },
-    buildContext: ({ actor, combat }) => {
-      if (!actor) return null;
-      return { self: actor, target: null, ally: null, clash: null, combat: combat ?? null };
-    },
+    getItems: combatLifecycleItems,
+    buildContext: combatLifecycleContext,
+  },
+  {
+    hook: "pmttrpg.startOfRound",
+    triggerName: "On Start of Round",
+    getItems: combatLifecycleItems,
+    buildContext: combatLifecycleContext,
+  },
+
+  // ── [Combat End] ────────────────────────────────────────────────────────────
+  // Combat deleted, or that actor leaves a fight that's still going.
+  {
+    hook: "pmttrpg.combatEnd",
+    triggerName: "On Combat End",
+    getItems: allOwnedEasyEffectItems,
+    buildContext: combatLifecycleContext,
+  },
+  {
+    hook: "pmttrpg.combatEnd",
+    triggerName: "Combat End",
+    getItems: allOwnedEasyEffectItems,
+    buildContext: combatLifecycleContext,
+  },
+  {
+    hook: "pmttrpg.combatEnd",
+    triggerName: "End of Combat",
+    getItems: allOwnedEasyEffectItems,
+    buildContext: combatLifecycleContext,
   },
 
   // ── [On Move] ───────────────────────────────────────────────────────────────
@@ -677,6 +810,20 @@ const TRIGGER_HOOKS = [
     },
   },
 
+  // ── [On Heal] / [On Being Healed] ──────────────────────────────────────────
+  {
+    hook: "pmttrpg.heal",
+    triggerName: "On Heal",
+    getItems: onHealItems,
+    buildContext: onHealContext,
+  },
+  {
+    hook: "pmttrpg.heal",
+    triggerName: "On Being Healed",
+    getItems: onBeingHealedItems,
+    buildContext: onBeingHealedContext,
+  },
+
 ];
 
 // Prevent hook listeners from rerunning awaited emitters.
@@ -687,8 +834,25 @@ let _emittingClashBeforeResults = false;
 let _emittingHitBeforeResults = false;
 let _emittingActorAction = false;
 let _emittingTokenMoved = false;
+let _emittingTurnStart = false;
+let _emittingEndOfTurn = false;
+let _emittingEndOfRound = false;
+let _emittingStartOfRound = false;
+let _emittingCombatStart = false;
+let _emittingCombatEnd = false;
+let _emittingDamageCalc = false;
+let _emittingToolUsed = false;
+let _emittingHeal = false;
+let _emittingStatusStackDepth = 0;
 
-async function runActorScriptsForDef(def, payload) {
+const STATUS_STACK_HOOKS = new Set([
+  "pmttrpg.statusApplied",
+  "pmttrpg.statusGained",
+  "pmttrpg.statusLost",
+  "pmttrpg.statusRemoved",
+]);
+
+async function runActorScriptsForDef(def, payload, emission = null) {
   let entries;
   if (def.getActorContexts) {
     entries = def.getActorContexts(payload) ?? [];
@@ -703,44 +867,86 @@ async function runActorScriptsForDef(def, payload) {
     if (!actor || !entry.context || seen.has(actor.id)) continue;
     seen.add(actor.id);
     try {
-      await runActorEasyEffects(actor, def.triggerName, entry.context);
+      const context = emission ? attachEmitState(entry.context, emission) : entry.context;
+      await runActorEasyEffects(actor, def.triggerName, context);
     } catch (err) {
       console.error(`[EasyEffects] Actor script ${def.triggerName} failed on '${actor.name}':`, err);
     }
   }
 }
 
+function allowsClashWeapon(hookName) {
+  return hookName === "pmttrpg.clashStarted"
+    || hookName === "pmttrpg.clashResolved"
+    || hookName === "pmttrpg.clashBeforeResults";
+}
+
+async function runTriggerDefs(hookName, payload, emission) {
+  const eeDefs = TRIGGER_HOOKS.filter((d) => d.hook === hookName);
+  for (const def of eeDefs) {
+    const items = def.getItems(payload) ?? [];
+    for (const item of items) {
+      if (allowsClashWeapon(hookName) && !isDesignatedClashWeapon(item, payload)) continue;
+      const context = def.buildContext(payload, item);
+      if (!context) continue;
+      try {
+        await runItemEasyEffects(
+          item,
+          def.triggerName,
+          emission ? attachEmitState(context, emission) : context
+        );
+      } catch (err) {
+        console.error(`[EasyEffects] ${def.triggerName} failed on '${item?.name}':`, err);
+      }
+    }
+    await runActorScriptsForDef(def, payload, emission);
+  }
+}
+
+function isHookEmitting(hookName) {
+  if (hookName === "pmttrpg.attackConnected") return _emittingAttackConnected;
+  if (hookName === "pmttrpg.clashStarted") return _emittingClashStarted;
+  if (hookName === "pmttrpg.clashResolved") return _emittingClashResolved;
+  if (hookName === "pmttrpg.clashBeforeResults") return _emittingClashBeforeResults;
+  if (hookName === "pmttrpg.hitBeforeResults") return _emittingHitBeforeResults;
+  if (hookName === "pmttrpg.actorAction") return _emittingActorAction;
+  if (hookName === "pmttrpg.tokenMoved") return _emittingTokenMoved;
+  if (hookName === "pmttrpg.turnStart") return _emittingTurnStart;
+  if (hookName === "pmttrpg.endOfTurn") return _emittingEndOfTurn;
+  if (hookName === "pmttrpg.endOfRound") return _emittingEndOfRound;
+  if (hookName === "pmttrpg.startOfRound") return _emittingStartOfRound;
+  if (hookName === "pmttrpg.combatStart") return _emittingCombatStart;
+  if (hookName === "pmttrpg.combatEnd") return _emittingCombatEnd;
+  if (hookName === "pmttrpg.damageCalc") return _emittingDamageCalc;
+  if (hookName === "pmttrpg.toolUsed") return _emittingToolUsed;
+  if (hookName === "pmttrpg.heal") return _emittingHeal;
+  if (STATUS_STACK_HOOKS.has(hookName)) return _emittingStatusStackDepth > 0;
+  return false;
+}
+
 // ── Hook registration ─────────────────────────────────────────────────────────
 
 /**
- * Call once during system init:
- *   Hooks.once("init", () => registerEasyEffectsHooks());
+ * One `Hooks.on` per unique Foundry hook name. Several TRIGGER_HOOKS defs
+ * can share that listener and run in array order.
+ *
+ * Call once at init: `Hooks.once("init", () => registerEasyEffectsHooks());`
  */
 export function registerEasyEffectsHooks() {
+  const byHook = new Map();
   for (const def of TRIGGER_HOOKS) {
-    Hooks.on(def.hook, async (...hookArgs) => {
-      if (def.hook === "pmttrpg.attackConnected" && _emittingAttackConnected) return;
-      if (def.hook === "pmttrpg.clashStarted" && _emittingClashStarted) return;
-      if (def.hook === "pmttrpg.clashResolved" && _emittingClashResolved) return;
-      if (def.hook === "pmttrpg.clashBeforeResults" && _emittingClashBeforeResults) return;
-      if (def.hook === "pmttrpg.hitBeforeResults" && _emittingHitBeforeResults) return;
-      if (def.hook === "pmttrpg.actorAction" && _emittingActorAction) return;
-      if (def.hook === "pmttrpg.tokenMoved" && _emittingTokenMoved) return;
+    const list = byHook.get(def.hook) ?? [];
+    list.push(def);
+    byHook.set(def.hook, list);
+  }
 
+  for (const hookName of byHook.keys()) {
+    Hooks.on(hookName, async (...hookArgs) => {
+      if (isHookEmitting(hookName)) return;
       const payload = hookArgs[0] ?? {};
-      const items = def.getItems(payload);
-      for (const item of items) {
-        if (
-          (def.hook === "pmttrpg.clashStarted"
-            || def.hook === "pmttrpg.clashResolved"
-            || def.hook === "pmttrpg.clashBeforeResults")
-          && !isDesignatedClashWeapon(item, payload)
-        ) continue;
-        const context = def.buildContext(payload, item);
-        if (!context) continue;
-        await runItemEasyEffects(item, def.triggerName, context);
-      }
-      await runActorScriptsForDef(def, payload);
+      await runLogicalEmission(async (emission) => {
+        await runTriggerDefs(hookName, payload, emission);
+      });
     });
   }
 
@@ -751,10 +957,7 @@ export function registerEasyEffectsHooks() {
 }
 
 /**
- * @param {Item} item
- * @param {string} triggerName
- * @param {object} context
- * @returns {Promise<boolean>} true if a script ran
+ * Skip pending statuses. Returns whether a script actually ran.
  */
 export async function runItemEasyEffects(item, triggerName, context = {}) {
   if (!item || !triggerName) return false;
@@ -767,60 +970,50 @@ export async function runItemEasyEffects(item, triggerName, context = {}) {
 }
 
 /**
- * [On Action] scripts. On a clash, pass `clash`, `attacker`, and `defender`.
- * @param {object} payload
- * @returns {Promise<void>}
+ * [On Action]. Clash callers should pass `clash`, `attacker`, and `defender`.
  */
 export async function emitActorAction(payload) {
   _emittingActorAction = true;
   try {
-    const eeDefs = TRIGGER_HOOKS.filter((d) => d.hook === "pmttrpg.actorAction");
-    for (const def of eeDefs) {
-      const items = def.getItems(payload);
-      for (const item of items) {
-        const context = def.buildContext(payload, item);
-        if (!context) continue;
-        try {
-          await runItemEasyEffects(item, def.triggerName, context);
-        } catch (err) {
-          console.error(
-            `[EasyEffects] ${def.triggerName} failed on '${item?.name}':`,
-            err
-          );
-        }
-      }
-      await runActorScriptsForDef(def, payload);
-    }
+    await runLogicalEmission(async (emission) => {
+      await runTriggerDefs("pmttrpg.actorAction", payload, emission);
+    });
     Hooks.callAll("pmttrpg.actorAction", payload);
   } finally {
     _emittingActorAction = false;
   }
 }
 
-/**
- * @param {object} payload
- * @returns {Promise<void>}
- */
+export async function emitTurnStart(payload) {
+  await emitNamedHook("pmttrpg.turnStart", payload);
+}
+
+export async function emitEndOfTurn(payload) {
+  await emitNamedHook("pmttrpg.endOfTurn", payload);
+}
+
+export async function emitEndOfRound(payload) {
+  await emitNamedHook("pmttrpg.endOfRound", payload);
+}
+
+export async function emitStartOfRound(payload) {
+  await emitNamedHook("pmttrpg.startOfRound", payload);
+}
+
+export async function emitCombatStart(payload) {
+  await emitNamedHook("pmttrpg.combatStart", payload);
+}
+
+export async function emitCombatEnd(payload) {
+  await emitNamedHook("pmttrpg.combatEnd", payload);
+}
+
 export async function emitTokenMoved(payload) {
   _emittingTokenMoved = true;
   try {
-    const eeDefs = TRIGGER_HOOKS.filter((d) => d.hook === "pmttrpg.tokenMoved");
-    for (const def of eeDefs) {
-      const items = def.getItems(payload);
-      for (const item of items) {
-        const context = def.buildContext(payload, item);
-        if (!context) continue;
-        try {
-          await runItemEasyEffects(item, def.triggerName, context);
-        } catch (err) {
-          console.error(
-            `[EasyEffects] ${def.triggerName} failed on '${item?.name}':`,
-            err
-          );
-        }
-      }
-      await runActorScriptsForDef(def, payload);
-    }
+    await runLogicalEmission(async (emission) => {
+      await runTriggerDefs("pmttrpg.tokenMoved", payload, emission);
+    });
     Hooks.callAll("pmttrpg.tokenMoved", payload);
   } finally {
     _emittingTokenMoved = false;
@@ -828,29 +1021,15 @@ export async function emitTokenMoved(payload) {
 }
 
 /**
- * @param {object} payload
- * @returns {Promise<void>}
+ * [On Hit] then [On Being Hit] share one emission (`event.flags` and overlay).
+ * Public hook `pmttrpg.attackConnected` fires after both slices.
  */
 export async function emitAttackConnected(payload) {
   _emittingAttackConnected = true;
   try {
-    const eeDefs = TRIGGER_HOOKS.filter((d) => d.hook === "pmttrpg.attackConnected");
-    for (const def of eeDefs) {
-      const items = def.getItems(payload);
-      for (const item of items) {
-        const context = def.buildContext(payload, item);
-        if (!context) continue;
-        try {
-          await runItemEasyEffects(item, def.triggerName, context);
-        } catch (err) {
-          console.error(
-            `[EasyEffects] ${def.triggerName} failed on '${item?.name}':`,
-            err
-          );
-        }
-      }
-      await runActorScriptsForDef(def, payload);
-    }
+    await runLogicalEmission(async (emission) => {
+      await runTriggerDefs("pmttrpg.attackConnected", payload, emission);
+    });
     Hooks.callAll("pmttrpg.attackConnected", payload);
   } finally {
     _emittingAttackConnected = false;
@@ -858,9 +1037,50 @@ export async function emitAttackConnected(payload) {
 }
 
 /**
- * @param {object} payload
- * @param {"attacker"|"defender"|"all"} [payload.side="all"]
- * @returns {Promise<object>} the clash context (same reference as payload.clash)
+ * [On Heal] then [On Being Healed] share one `heal` bag and one emission.
+ * `applyDamage({ op: "heal" })` must call this before writing pools.
+ */
+export async function emitHeal(payload) {
+  if (!payload?.heal) return;
+  _emittingHeal = true;
+  try {
+    await runLogicalEmission(async (emission) => {
+      await runTriggerDefs("pmttrpg.heal", payload, emission);
+    });
+    Hooks.callAll("pmttrpg.heal", payload);
+  } finally {
+    _emittingHeal = false;
+  }
+}
+
+/** [On Damage Calc], then the public `pmttrpg.damageCalc` hook. */
+export async function emitDamageCalc(payload) {
+  _emittingDamageCalc = true;
+  try {
+    await runLogicalEmission(async (emission) => {
+      await runTriggerDefs("pmttrpg.damageCalc", payload, emission);
+    });
+    Hooks.callAll("pmttrpg.damageCalc", payload);
+  } finally {
+    _emittingDamageCalc = false;
+  }
+}
+
+/** [On Use] for a tool, then `pmttrpg.toolUsed`. */
+export async function emitToolUsed(payload) {
+  _emittingToolUsed = true;
+  try {
+    await runLogicalEmission(async (emission) => {
+      await runTriggerDefs("pmttrpg.toolUsed", payload, emission);
+    });
+    Hooks.callAll("pmttrpg.toolUsed", payload);
+  } finally {
+    _emittingToolUsed = false;
+  }
+}
+
+/**
+ * [On Clash] / [On Clash Start] for one side.
  */
 export async function emitClashStarted(payload = {}) {
   const clash = payload.clash ?? createClashContext();
@@ -868,23 +1088,9 @@ export async function emitClashStarted(payload = {}) {
 
   _emittingClashStarted = true;
   try {
-    const eeDefs = TRIGGER_HOOKS.filter((d) => d.hook === "pmttrpg.clashStarted");
-    for (const def of eeDefs) {
-      for (const item of def.getItems(full)) {
-        if (!isDesignatedClashWeapon(item, full)) continue;
-        const context = def.buildContext(full, item);
-        if (!context) continue;
-        try {
-          await runItemEasyEffects(item, def.triggerName, context);
-        } catch (err) {
-          console.error(
-            `[EasyEffects] ${def.triggerName} failed on '${item?.name}':`,
-            err
-          );
-        }
-      }
-      await runActorScriptsForDef(def, full);
-    }
+    await runLogicalEmission(async (emission) => {
+      await runTriggerDefs("pmttrpg.clashStarted", full, emission);
+    });
     Hooks.callAll("pmttrpg.clashStarted", full);
   } finally {
     _emittingClashStarted = false;
@@ -894,39 +1100,39 @@ export async function emitClashStarted(payload = {}) {
 }
 
 /**
- * Pause resolves before [On Being Hit] burst checks.
- * @param {object} payload
- * @returns {Promise<void>}
+ * Clash Win/Lose. Pause statuses resolve here, before [On Being Hit] burst checks.
  */
 export async function emitClashResolved(payload = {}, { fireHook = true } = {}) {
   const clash = payload.clash;
   _emittingClashResolved = true;
   try {
-    const eeDefs = TRIGGER_HOOKS.filter((d) => d.hook === "pmttrpg.clashResolved");
-    for (const def of eeDefs) {
-      for (const item of def.getItems(payload)) {
-        if (!isDesignatedClashWeapon(item, payload)) continue;
-        const context = def.buildContext(payload, item);
-        if (!context) continue;
-        const instantNames = instantNamesForUsedItem(item, payload);
-        if (clash) {
-          clash.statusApplyFilter = instantNames.size
-            ? instantStatusFilter(instantNames, "except")
-            : null;
+    await runLogicalEmission(async (emission) => {
+      const eeDefs = TRIGGER_HOOKS.filter((d) => d.hook === "pmttrpg.clashResolved");
+      for (const def of eeDefs) {
+        for (const item of def.getItems(payload)) {
+          if (!isDesignatedClashWeapon(item, payload)) continue;
+          const context = def.buildContext(payload, item);
+          if (!context) continue;
+          const instantNames = instantNamesForUsedItem(item, payload);
+          if (clash) {
+            clash.statusApplyFilter = instantNames.size
+              ? instantStatusFilter(instantNames, "except")
+              : null;
+          }
+          try {
+            await runItemEasyEffects(item, def.triggerName, attachEmitState(context, emission));
+          } catch (err) {
+            console.error(
+              `[EasyEffects] ${def.triggerName} failed on '${item?.name}':`,
+              err
+            );
+          } finally {
+            if (clash) clash.statusApplyFilter = null;
+          }
         }
-        try {
-          await runItemEasyEffects(item, def.triggerName, context);
-        } catch (err) {
-          console.error(
-            `[EasyEffects] ${def.triggerName} failed on '${item?.name}':`,
-            err
-          );
-        } finally {
-          if (clash) clash.statusApplyFilter = null;
-        }
+        await runActorScriptsForDef(def, payload, emission);
       }
-      await runActorScriptsForDef(def, payload);
-    }
+    });
     if (fireHook) Hooks.callAll("pmttrpg.clashResolved", payload);
   } finally {
     _emittingClashResolved = false;
@@ -1019,30 +1225,34 @@ async function applyInstantClashStatuses(payload) {
 async function emitNamedHook(hookName, payload, { fireHook = true } = {}) {
   if (hookName === "pmttrpg.clashBeforeResults") _emittingClashBeforeResults = true;
   if (hookName === "pmttrpg.hitBeforeResults") _emittingHitBeforeResults = true;
+  if (hookName === "pmttrpg.turnStart") _emittingTurnStart = true;
+  if (hookName === "pmttrpg.endOfTurn") _emittingEndOfTurn = true;
+  if (hookName === "pmttrpg.endOfRound") _emittingEndOfRound = true;
+  if (hookName === "pmttrpg.startOfRound") _emittingStartOfRound = true;
+  if (hookName === "pmttrpg.combatStart") _emittingCombatStart = true;
+  if (hookName === "pmttrpg.combatEnd") _emittingCombatEnd = true;
+  const isStatusStack = STATUS_STACK_HOOKS.has(hookName);
+  if (isStatusStack) _emittingStatusStackDepth += 1;
   try {
-    const eeDefs = TRIGGER_HOOKS.filter((d) => d.hook === hookName);
-    for (const def of eeDefs) {
-      const items = def.getItems(payload) ?? [];
-      for (const item of items) {
-        if (
-          hookName === "pmttrpg.clashBeforeResults"
-          && !isDesignatedClashWeapon(item, payload)
-        ) continue;
-        const context = def.buildContext(payload, item);
-        if (!context) continue;
-        try {
-          await runItemEasyEffects(item, def.triggerName, context);
-        } catch (err) {
-          console.error(`[EasyEffects] ${def.triggerName} failed on '${item?.name}':`, err);
-        }
-      }
-      await runActorScriptsForDef(def, payload);
-    }
+    await runLogicalEmission(async (emission) => {
+      await runTriggerDefs(hookName, payload, emission);
+    });
     if (fireHook) Hooks.callAll(hookName, payload);
   } finally {
     if (hookName === "pmttrpg.clashBeforeResults") _emittingClashBeforeResults = false;
     if (hookName === "pmttrpg.hitBeforeResults") _emittingHitBeforeResults = false;
+    if (hookName === "pmttrpg.turnStart") _emittingTurnStart = false;
+    if (hookName === "pmttrpg.endOfTurn") _emittingEndOfTurn = false;
+    if (hookName === "pmttrpg.endOfRound") _emittingEndOfRound = false;
+    if (hookName === "pmttrpg.startOfRound") _emittingStartOfRound = false;
+    if (hookName === "pmttrpg.combatStart") _emittingCombatStart = false;
+    if (hookName === "pmttrpg.combatEnd") _emittingCombatEnd = false;
+    if (isStatusStack) _emittingStatusStackDepth = Math.max(0, _emittingStatusStackDepth - 1);
   }
+}
+
+export async function emitStatusEasyEffects(hookName, payload) {
+  await emitNamedHook(hookName, payload);
 }
 
 /**
@@ -1064,31 +1274,6 @@ export async function emitClashOutcome(resolvedPayload, hitPayload = null) {
 }
 
 const BURST_NEST_MAX_DEPTH = 8;
-
-function usedSkillsFromContext({
-  sourceItem = null,
-  attackerSkill = null,
-  defenderSkill = null,
-  clash = null,
-} = {}) {
-  return [sourceItem, attackerSkill, defenderSkill, clash?.attackerSkill, clash?.defenderSkill]
-    .filter((item) => item?.type === "skill");
-}
-
-function collectUsedSkills(owner, usedSkills) {
-  if (!owner) return [];
-  const out = [];
-  const seen = new Set();
-  for (const item of usedSkills ?? []) {
-    if (item?.type !== "skill") continue;
-    const key = itemIdentityKey(item);
-    if (!key || seen.has(key)) continue;
-    if (!itemBelongsToActor(item, owner)) continue;
-    seen.add(key);
-    out.push(item);
-  }
-  return out;
-}
 
 function collectBurstListenerItems(burster, burstee, skipItem, usedSkills = []) {
   const out = [];
@@ -1112,17 +1297,9 @@ function collectBurstListenerItems(burster, burstee, skipItem, usedSkills = []) 
 // Fires when a Rupture/Tremor/other burst triggers.
 // Burst state lives on context.burst (status / amount / before / after).
 
-/**
- * @param {{
- *   statusName: string,
- *   actor: Actor,
- *   burster?: Actor|null,
- *   attacker?: Actor|null,
- *   clash?: object|null,
- *   sourceItem?: Item|null,
- *   depth?: number,
- * }} opts
- * @returns {Promise<boolean>}
+/*
+ * Runs the status item's local `[On Burst]` first, followed by the global
+ * `[On <Status> Burst]`. Nested bursts start with their own emission state.
  */
 export async function emitStatusBurst({
   statusName,
@@ -1165,46 +1342,9 @@ export async function emitStatusBurst({
   const resolvedAttackerSkill = attackerSkill ?? clash?.attackerSkill ?? null;
   const resolvedDefenderSkill = defenderSkill ?? clash?.defenderSkill ?? null;
 
-  const localCtx = {
-    self: burstee,
-    target: burstee,
-    attacker: attacker ?? null,
-    burster: burster ?? null,
-    burstee,
-    attackerSkill: resolvedAttackerSkill,
-    defenderSkill: resolvedDefenderSkill,
-    ally: null,
-    clash: clash ?? null,
-    item: statusItem,
-    burst,
-    burstPhase: "local",
-    _burstDepth: depth + 1,
-  };
-
-  try {
-    await runItemEasyEffects(statusItem, "On Burst", localCtx);
-  } catch (err) {
-    console.error(`[EasyEffects] Local burst failed on '${statusItem.name}':`, err);
-  }
-
-  await runActorEasyEffects(burstee, "On Burst", {
-    ...localCtx,
-    item: null,
-    _actorBurstLocal: true,
-  });
-
-  burst.after = Number(burstee.getStatusStacks?.(name) ?? 0) || 0;
-
-  const usedSkills = usedSkillsFromContext({
-    sourceItem,
-    attackerSkill: resolvedAttackerSkill,
-    defenderSkill: resolvedDefenderSkill,
-    clash,
-  });
-  const listeners = collectBurstListenerItems(burster, burstee, statusItem, usedSkills);
-  for (const { item, owner } of listeners) {
-    const globalCtx = {
-      self: owner,
+  await runLogicalEmission(async (emission) => {
+    const localCtx = attachEmitState({
+      self: burstee,
       target: burstee,
       attacker: attacker ?? null,
       burster: burster ?? null,
@@ -1213,35 +1353,74 @@ export async function emitStatusBurst({
       defenderSkill: resolvedDefenderSkill,
       ally: null,
       clash: clash ?? null,
-      item,
-      burst: { ...burst },
-      burstPhase: "global",
+      item: statusItem,
+      burst,
+      burstPhase: "local",
       _burstDepth: depth + 1,
-    };
+    }, emission);
+
     try {
-      await runItemEasyEffects(item, "On Burst", globalCtx);
+      await runItemEasyEffects(statusItem, "On Burst", localCtx);
     } catch (err) {
-      console.error(`[EasyEffects] Global On ${burst.status} Burst failed on '${item?.name}':`, err);
+      console.error(`[EasyEffects] Local burst failed on '${statusItem.name}':`, err);
     }
-  }
 
-  for (const owner of uniqueBurstOwners(burster, burstee)) {
-    await runActorEasyEffects(owner, "On Burst", {
-      self: owner,
-      target: burstee,
-      attacker: attacker ?? null,
-      burster: burster ?? null,
-      burstee,
+    await runActorEasyEffects(burstee, "On Burst", {
+      ...localCtx,
+      item: null,
+      _actorBurstLocal: true,
+    });
+
+    burst.after = Number(burstee.getStatusStacks?.(name) ?? 0) || 0;
+
+    const usedSkills = usedSkillsFromContext({
+      sourceItem,
       attackerSkill: resolvedAttackerSkill,
       defenderSkill: resolvedDefenderSkill,
-      ally: null,
-      clash: clash ?? null,
-      item: null,
-      burst: { ...burst },
-      burstPhase: "global",
-      _burstDepth: depth + 1,
+      clash,
     });
-  }
+    const listeners = collectBurstListenerItems(burster, burstee, statusItem, usedSkills);
+    for (const { item, owner } of listeners) {
+      const globalCtx = attachEmitState({
+        self: owner,
+        target: burstee,
+        attacker: attacker ?? null,
+        burster: burster ?? null,
+        burstee,
+        attackerSkill: resolvedAttackerSkill,
+        defenderSkill: resolvedDefenderSkill,
+        ally: null,
+        clash: clash ?? null,
+        item,
+        burst: { ...burst },
+        burstPhase: "global",
+        _burstDepth: depth + 1,
+      }, emission);
+      try {
+        await runItemEasyEffects(item, "On Burst", globalCtx);
+      } catch (err) {
+        console.error(`[EasyEffects] Global On ${burst.status} Burst failed on '${item?.name}':`, err);
+      }
+    }
+
+    for (const owner of uniqueBurstOwners(burster, burstee)) {
+      await runActorEasyEffects(owner, "On Burst", attachEmitState({
+        self: owner,
+        target: burstee,
+        attacker: attacker ?? null,
+        burster: burster ?? null,
+        burstee,
+        attackerSkill: resolvedAttackerSkill,
+        defenderSkill: resolvedDefenderSkill,
+        ally: null,
+        clash: clash ?? null,
+        item: null,
+        burst: { ...burst },
+        burstPhase: "global",
+        _burstDepth: depth + 1,
+      }, emission));
+    }
+  });
 
   Hooks.callAll("pmttrpg.burstTriggered", {
     actor: burstee,
@@ -1265,18 +1444,8 @@ const PROC_NEST_MAX_DEPTH = 8;
 // Dynamic trigger: `On ${procName}` (e.g. On Tremor).
 
 /**
- * @param {{
- *   procName: string,
- *   focusActor: Actor,
- *   proccer?: Actor|null,
- *   attacker?: Actor|null,
- *   target?: Actor|null,  // listener `target` role
- *   clash?: object|null,
- *   sourceItem?: Item|null,
- *   binds?: Record<string, unknown>,
- *   depth?: number,
- * }} opts
- * @returns {Promise<boolean>}
+ * Local `[On <Name>]` on a matching status, then global listeners.
+ * Nested proc starts a new emission; it does not inherit the caller's `event.flags`.
  */
 export async function emitProc({
   procName,
@@ -1290,6 +1459,7 @@ export async function emitProc({
   defenderSkill = null,
   binds = {},
   depth = 0,
+  _emitPendingRoll,
 } = {}) {
   const name = String(procName ?? "").trim();
   if (!focusActor || !name) return false;
@@ -1309,77 +1479,159 @@ export async function emitProc({
 
   const clashTarget = target ?? null;
   const statusItem = findStatusItem(focusActor, name);
+  const resolvedAttackerSkill = attackerSkill ?? clash?.attackerSkill ?? null;
+  const resolvedDefenderSkill = defenderSkill ?? clash?.defenderSkill ?? null;
 
-  if (statusItem) {
-    const localCtx = {
-      self: focusActor,
-      target: clashTarget,
-      attacker: attacker ?? null,
-      ally: null,
-      clash: clash ?? null,
-      item: statusItem,
-      proc: { ...proc, binds: { ...proc.binds } },
-      _procDepth: depth + 1,
-    };
-    try {
-      await runItemEasyEffects(statusItem, triggerName, localCtx);
-    } catch (err) {
-      console.error(`[EasyEffects] Local proc failed on '${statusItem.name}':`, err);
+  await runLogicalEmission(async (emission) => {
+    if (statusItem) {
+      const localCtx = attachEmitState({
+        self: focusActor,
+        target: clashTarget,
+        attacker: attacker ?? null,
+        ally: null,
+        clash: clash ?? null,
+        item: statusItem,
+        proc: { ...proc, binds: { ...proc.binds } },
+        attackerSkill: resolvedAttackerSkill,
+        defenderSkill: resolvedDefenderSkill,
+        _procDepth: depth + 1,
+        _emitPendingRoll,
+      }, emission);
+      try {
+        await runItemEasyEffects(statusItem, triggerName, localCtx);
+      } catch (err) {
+        console.error(`[EasyEffects] Local proc failed on '${statusItem.name}':`, err);
+      }
+      await runActorEasyEffects(focusActor, triggerName, { ...localCtx, item: null });
     }
-    await runActorEasyEffects(focusActor, triggerName, { ...localCtx, item: null });
-  }
 
-  const listeners = collectBurstListenerItems( proccer, focusActor, statusItem, usedSkillsFromContext({ sourceItem, attackerSkill, defenderSkill, clash }) );
-  for (const { item, owner } of listeners) {
-    const globalCtx = {
-      self: owner,
-      target: clashTarget,
-      attacker: attacker ?? null,
-      ally: null,
-      clash: clash ?? null,
-      item,
-      proc: { ...proc, binds: { ...proc.binds } },
-      _procDepth: depth + 1,
-    };
-    try {
-      await runItemEasyEffects(item, triggerName, globalCtx);
-    } catch (err) {
-      console.error(`[EasyEffects] Global ${triggerName} failed on '${item?.name}':`, err);
+    const listeners = collectBurstListenerItems(proccer, focusActor, statusItem, usedSkillsFromContext({
+      sourceItem,
+      attackerSkill: resolvedAttackerSkill,
+      defenderSkill: resolvedDefenderSkill,
+      clash,
+    }));
+    for (const { item, owner } of listeners) {
+      const globalCtx = attachEmitState({
+        self: owner,
+        target: clashTarget,
+        attacker: attacker ?? null,
+        ally: null,
+        clash: clash ?? null,
+        item,
+        proc: { ...proc, binds: { ...proc.binds } },
+        attackerSkill: resolvedAttackerSkill,
+        defenderSkill: resolvedDefenderSkill,
+        _procDepth: depth + 1,
+        _emitPendingRoll,
+      }, emission);
+      try {
+        await runItemEasyEffects(item, triggerName, globalCtx);
+      } catch (err) {
+        console.error(`[EasyEffects] Global ${triggerName} failed on '${item?.name}':`, err);
+      }
     }
-  }
 
-  const globalOwners = [proccer, focusActor].filter(Boolean);
-  const seenOwners = new Set();
-  for (const owner of globalOwners) {
-    const ownerKey = actorIdentityKey(owner);
-    if (!ownerKey || seenOwners.has(ownerKey)) continue;
-    seenOwners.add(ownerKey);
-    if (statusItem && sameActor(owner, focusActor)) continue;
-    await runActorEasyEffects(owner, triggerName, {
-      self: owner,
-      target: clashTarget,
+    const globalOwners = [proccer, focusActor].filter(Boolean);
+    const seenOwners = new Set();
+    for (const owner of globalOwners) {
+      const ownerKey = actorIdentityKey(owner);
+      if (!ownerKey || seenOwners.has(ownerKey)) continue;
+      seenOwners.add(ownerKey);
+      if (statusItem && sameActor(owner, focusActor)) continue;
+      await runActorEasyEffects(owner, triggerName, attachEmitState({
+        self: owner,
+        target: clashTarget,
+        attacker: attacker ?? null,
+        ally: null,
+        clash: clash ?? null,
+        item: null,
+        proc: { ...proc, binds: { ...proc.binds } },
+        attackerSkill: resolvedAttackerSkill,
+        defenderSkill: resolvedDefenderSkill,
+        _procDepth: depth + 1,
+        _emitPendingRoll,
+      }, emission));
+    }
+  });
+
+  if (typeof globalThis.Hooks?.callAll === "function") {
+    Hooks.callAll("pmttrpg.procTriggered", {
+      procName: name,
+      proc,
+      focus: focusActor,
+      proccer: proccer ?? null,
       attacker: attacker ?? null,
-      ally: null,
+      target: clashTarget,
+      item: statusItem ?? null,
+      sourceItem: sourceItem ?? null,
       clash: clash ?? null,
-      item: null,
-      proc: { ...proc, binds: { ...proc.binds } },
-      _procDepth: depth + 1,
     });
   }
 
-  Hooks.callAll("pmttrpg.procTriggered", {
-    procName: name,
-    proc,
-    focus: focusActor,
-    proccer: proccer ?? null,
-    attacker: attacker ?? null,
-    target: clashTarget,
-    item: statusItem ?? null,
-    sourceItem: sourceItem ?? null,
-    clash: clash ?? null,
+  return true;
+}
+
+const ROLL_NEST_MAX_DEPTH = 8;
+
+/**
+ * Fires `[On Roll]` after the named roll resolves, before its bind is stored.
+ * The producing item can still listen. Listener `self` is the item owner, while
+ * `target` remains the rolling script's target.
+ */
+export async function emitRoll(context = {}) {
+  const pending = context.pendingRoll;
+  if (!pending) return;
+
+  const depth = Number(context._rollDepth) || 0;
+  if (depth >= ROLL_NEST_MAX_DEPTH) {
+    console.warn(
+      `[EasyEffects] Skipping [On Roll] (depth ${depth}): nested rolls exceeded limit`
+    );
+    return;
+  }
+
+  const self = context.self ?? null;
+  const resolvedAttackerSkill = context.attackerSkill ?? context.clash?.attackerSkill ?? null;
+  const resolvedDefenderSkill = context.defenderSkill ?? context.clash?.defenderSkill ?? null;
+  const usedSkills = usedSkillsFromContext({
+    sourceItem: context.item ?? null,
+    attackerSkill: resolvedAttackerSkill,
+    defenderSkill: resolvedDefenderSkill,
+    clash: context.clash ?? null,
   });
 
-  return true;
+  await runLogicalEmission(async (emission) => {
+    const listenerCtx = attachEmitState({
+      self,
+      target: context.target ?? null,
+      attacker: context.attacker ?? null,
+      ally: context.ally ?? null,
+      clash: context.clash ?? null,
+      combat: context.combat ?? null,
+      pendingRoll: pending,
+      attackerSkill: resolvedAttackerSkill,
+      defenderSkill: resolvedDefenderSkill,
+      rolls: context.rolls,
+      _rollDepth: depth + 1,
+      _emitPendingRoll: context._emitPendingRoll,
+    }, emission);
+
+    await runActorEasyEffects(self, "On Roll", { ...listenerCtx, item: null });
+
+    const listeners = collectBurstListenerItems(self, self, null, usedSkills);
+    for (const { item, owner } of listeners) {
+      try {
+        await runItemEasyEffects(item, "On Roll", {
+          ...listenerCtx,
+          self: owner,
+          item,
+        });
+      } catch (err) {
+        console.error(`[EasyEffects] On Roll failed on '${item?.name}':`, err);
+      }
+    }
+  });
 }
 
 function findStatusItem(actor, statusName) {
@@ -1390,27 +1642,58 @@ function findStatusItem(actor, statusName) {
   ) ?? null;
 }
 
+/**
+ * [On Equip] scripts. Call after a weapon, outfit, augment, or tool is equipped.
+ */
+export async function emitItemEquipped(item) {
+  const actor = item?.actor;
+  if (!item || !actor) return;
+  if (!itemIsLoadoutActive(item, actor)) return;
+  try {
+    await runLogicalEmission(async (emission) => {
+      await runItemEasyEffects(item, "On Equip", attachEmitState({
+        self: actor,
+        target: null,
+        ally: null,
+        clash: null,
+      }, emission));
+    });
+  } catch (err) {
+    console.error(`[EasyEffects] On Equip failed on '${item.name}':`, err);
+  }
+}
+
+/**
+ * [On Unequip]. Needs an owning actor so `self` resolves. Loadout-active is not
+ * required: after an unequip update it is already false, and on delete it is
+ * still true.
+ */
+export async function emitItemUnequipped(item) {
+  const actor = item?.actor;
+  if (!item || !actor) return;
+  try {
+    await runLogicalEmission(async (emission) => {
+      await runItemEasyEffects(item, "On Unequip", attachEmitState({
+        self: actor,
+        target: null,
+        ally: null,
+        clash: null,
+      }, emission));
+    });
+  } catch (err) {
+    console.error(`[EasyEffects] On Unequip failed on '${item.name}':`, err);
+  }
+}
+
 // ── [Always Active] integration ───────────────────────────────────────────────
 
 /**
- * Call at the END of _prepareCharacterData(), after all base values are set.
- * Iterates all equipped items, runs their [Always Active] blocks synchronously,
- * and returns a merged modifier object.
+ * Collects `[Always Active]` modifiers from the actor, equipped items, and
+ * active statuses into one merged result.
  *
- * Combat dice (power / max) from weapons and outfits stay on that item
- * (see getItemAlwaysActiveCombatMods).
- *
- * Usage in actor.js:
- *
- *   // At the end of _prepareCharacterData():
- *   const eeMods = applyAlwaysActiveModifiers(actorData);
- *   data.attributes.attackModifier.value  += eeMods.attackPower;
- *   data.attributes.evadeModifier.value   += eeMods.evadePower;
- *   data.attributes.blockModifier.value   += eeMods.blockPower;
- *   applyResourceModsToSystem(data, eeMods);
- *
- * @param {ActorPMTTRPG} actor
- * @returns {object} merged modifier object
+ * Weapon, outfit, and skill combat dice modifiers stay item-local. Clash rolls
+ * add the used skill separately, which prevents unused skills from affecting
+ * standing Attack, Block, or Evade modifiers.
  */
 export function applyAlwaysActiveModifiers(actor) {
   const merged = emptyAlwaysActiveMods();
@@ -1435,13 +1718,10 @@ export function applyAlwaysActiveModifiers(actor) {
 
     const ast = getAST(item);
     if (!ast) continue;
-
-    // Check if this item even has an [Always Active] block before running
-    const hasAlwaysActive = ast.blocks.some(b => b.trigger === "Always Active");
-    if (!hasAlwaysActive) continue;
+    if (!ast.blocks.some(b => b.trigger === "Always Active")) continue;
 
     const mods = executeAlwaysActive(ast, { self: actor, item });
-    const toMerge = (item.type === "weapon" || item.type === "outfit")
+    const toMerge = (item.type === "weapon" || item.type === "outfit" || item.type === "skill")
       ? zeroCombatDiceMods(mods)
       : mods;
     mergeAlwaysActiveMods(merged, toMerge, item.name || item.id);
@@ -1451,10 +1731,8 @@ export function applyAlwaysActiveModifiers(actor) {
 }
 
 /**
- * Always Active power / dice max on this weapon or outfit only.
- * @param {Item} item
- * @param {Actor} [actor]
- * @returns {Record<string, number>}
+ * Always Active Power / Max for this weapon, outfit, or skill.
+ * Other item types contribute those through `applyAlwaysActiveModifiers`.
  */
 export function getItemAlwaysActiveCombatMods(item, actor) {
   if (!item) return pickCombatDiceMods();
@@ -1512,8 +1790,9 @@ function mergeAlwaysActiveMods(merged, mods, sourceName) {
 const _depletingPools = new Set();
 
 /**
- * @param {Actor} actor
- * @param {{ pool: string, before: number, max: number }} depleted
+ * [On Depleted] / [On Depleted HP] etc. Actor script first, then live statuses.
+ * Re-entry for the same actor+pool is ignored (heal/damage from the script
+ * must not retrigger depletion).
  */
 export async function runDepletedEasyEffects(actor, depleted) {
   if (!actor || !depleted?.pool) return;
@@ -1522,17 +1801,19 @@ export async function runDepletedEasyEffects(actor, depleted) {
   if (_depletingPools.has(key)) return;
   _depletingPools.add(key);
   try {
-    const context = {
-      self: actor,
-      target: null,
-      ally: null,
-      clash: null,
-      depleted,
-    };
-    await runActorEasyEffects(actor, "On Depleted", context);
-    for (const item of uniqueStatusItems(actor.items)) {
-      await runItemEasyEffects(item, "On Depleted", context);
-    }
+    await runLogicalEmission(async (emission) => {
+      const context = attachEmitState({
+        self: actor,
+        target: null,
+        ally: null,
+        clash: null,
+        depleted,
+      }, emission);
+      await runActorEasyEffects(actor, "On Depleted", context);
+      for (const item of uniqueStatusItems(actor.items)) {
+        await runItemEasyEffects(item, "On Depleted", context);
+      }
+    });
   } finally {
     _depletingPools.delete(key);
   }
@@ -1544,51 +1825,93 @@ export async function runDepletedEasyEffects(actor, depleted) {
  * Fire `[On Taking Damage]` on the actor, then equipped items and live statuses.
  *
  * `applyDamage` already built `damage` and keeps using that same object.
- * Scripts can change the shared `amount`, per-pool before/after flats,
- * or convert `pool` / `damageType`. After this returns, `applyDamage`
- * applies those to each pool and posts the chat breakdown.
- *
- * @param {Actor} actor who is taking the hit
- * @param {{
- *   amount: number,
- *   pool: string|string[],
- *   source: string,
- *   damageType: string,
- *   fromAttack?: boolean,
- *   afterDeltaByPool?: Record<string, number>,
- *   beforeDeltaByPool?: Record<string, number>,
- * }} damage pending hit; mutated in place
- * @param {{ attacker?: Actor|null }} [options]
+ * Scripts can change amount, before/after flats, or convert pool / type.
+ * After this returns, `applyDamage` writes those to each pool.
  */
 export async function runOnTakingDamage(actor, damage, options = {}) {
   if (!actor || !damage) return;
 
-  const baseCtx = {
-    self: actor,
-    target: options.attacker ?? null,
-    attacker: options.attacker ?? null,
-    ally: null,
-    clash: null,
-    damage,
-  };
+  await runLogicalEmission(async (emission) => {
+    const baseCtx = attachEmitState({
+      self: actor,
+      target: options.attacker ?? null,
+      attacker: options.attacker ?? null,
+      ally: null,
+      clash: null,
+      damage,
+    }, emission);
 
-  await runActorEasyEffects(actor, "On Taking Damage", baseCtx);
+    await runActorEasyEffects(actor, "On Taking Damage", baseCtx);
 
-  const items = [
-    ...getEquippedItems(actor),
-    ...uniqueStatusItems(actor.items),
-  ];
-  const seen = new Set();
-  for (const item of items) {
-    if (!item?.id || seen.has(item.id)) continue;
-    seen.add(item.id);
-    await runItemEasyEffects(item, "On Taking Damage", baseCtx);
-  }
+    const items = [
+      ...getEquippedItems(actor),
+      ...uniqueStatusItems(actor.items),
+    ];
+    const seen = new Set();
+    for (const item of items) {
+      if (!item?.id || seen.has(item.id)) continue;
+      seen.add(item.id);
+      await runItemEasyEffects(item, "On Taking Damage", baseCtx);
+    }
+  });
 
   Hooks.callAll("pmttrpg.takingDamage", { actor, damage, attacker: options.attacker ?? null });
 }
 
+/**
+ * `[Before Dealing Damage]` / `[On Dealing Damage]` on the dealer.
+ * Live actor script, equipped loadout, statuses, and used source items.
+ */
+async function runDealerDamageScripts(actor, trigger, damage, options = {}) {
+  if (!actor || !damage) return;
+
+  await runLogicalEmission(async (emission) => {
+    const baseCtx = attachEmitState({
+      self: actor,
+      target: options.defender ?? null,
+      attacker: actor,
+      ally: null,
+      clash: null,
+      damage,
+      damageMutable: options.damageMutable !== false,
+    }, emission);
+
+    await runActorEasyEffects(actor, trigger, baseCtx);
+
+    const items = collectDealerItems(actor, options.sourceItems);
+    const seen = new Set();
+    for (const item of items) {
+      const key = itemIdentityKey(item) || item.id;
+      if (!key || seen.has(key)) continue;
+      seen.add(key);
+      await runItemEasyEffects(item, trigger, baseCtx);
+    }
+  });
+}
+
+export async function runBeforeDealingDamage(actor, damage, options = {}) {
+  await runDealerDamageScripts(actor, "Before Dealing Damage", damage, {
+    ...options,
+    damageMutable: true,
+  });
+}
+
+export async function runOnDealingDamage(actor, damage, options = {}) {
+  await runDealerDamageScripts(actor, "On Dealing Damage", damage, {
+    ...options,
+    damageMutable: false,
+  });
+}
+
 // ── Helpers ───────────────────────────────────────────────────────────────────
+
+function collectDealerItems(actor, sourceItems = []) {
+  const extras = Array.isArray(sourceItems) ? sourceItems : (sourceItems ? [sourceItems] : []);
+  return collectUniqueHealItems(
+    [...extras, ...getEquippedItems(actor), ...uniqueStatusItems(actor.items)],
+    null
+  );
+}
 
 /**
  * Returns all equipped weapons, outfits, skills, tools, and augments on an actor.

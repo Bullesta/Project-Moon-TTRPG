@@ -35,16 +35,12 @@ system:
       to self;
 
     [On Dialog Answer transferStT]
-    require (self.status.Ruin) > 0 and (self.status.Ruin) < N then
-      inflict (self.status.Ruin) Ruin on target and lose all Ruin on self;
-    require (self.status.Ruin) >= N then
-      inflict N Ruin on target and lose N Ruin on self;
+    let $taken = (min(self.status.Ruin, N));
+    require ($taken) > 0 then inflict ($taken) Ruin on target and lose ($taken) Ruin on self;
 
     [On Dialog Answer transferTtS]
-    require (target.status.Ruin) > 0 and (target.status.Ruin) < N then
-      gain (target.status.Ruin) Ruin on self and lose all Ruin on target;
-    require (target.status.Ruin) >= N then
-      gain N Ruin on self and lose N Ruin on target;
+    let $taken = (min(target.status.Ruin, N));
+    require ($taken) > 0 then gain ($taken) Ruin on self and lose ($taken) Ruin on target;
 effects: []
 sort: 100000
 ownership:

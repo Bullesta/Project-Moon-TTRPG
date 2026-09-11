@@ -1,4 +1,4 @@
-<div class="detail-stat-card">
+<div class="detail-stat-card" data-tracker-context data-reveal-key="{{stat.key}}">
     <img class="detail-stat-icon" src="{{stat.icon}}" alt="{{stat.name}}">
 
     <input
@@ -6,9 +6,14 @@
         type="text"
         value="{{stat.amount}}"
         {{#if stat.editable}}
+            {{#if stat.path}}
             data-stat-path="{{stat.path}}"
             data-actor-id="{{actorData._id}}"
             data-dtype="Number"
+            {{else}}
+            readonly
+            tabindex="-1"
+            {{/if}}
         {{else}}
             readonly
             tabindex="-1"
@@ -19,4 +24,9 @@
         <span class="detail-stat-sep"> / </span><span class="detail-stat-max">{{stat.max}}</span>
     {{/if}}
     </span>
+    {{#if stat.showRevealEye}}
+        <i class="fas fa-eye char-revealed" title="{{localize "PMTTRPG.Combat.TrackerRevealed"}}" aria-hidden="true"></i>
+    {{else if stat.showHiddenEye}}
+        <i class="fas fa-eye-slash char-hidden" title="{{localize "PMTTRPG.Combat.TrackerHidden"}}" aria-hidden="true"></i>
+    {{/if}}
 </div>

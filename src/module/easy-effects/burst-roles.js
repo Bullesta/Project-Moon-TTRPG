@@ -1,7 +1,5 @@
 /**
  * Unlinked token actors can share a world actor's id so we use uuid as the the real key.
- * @param {object|null|undefined} actor
- * @returns {string|null}
  */
 export function actorIdentityKey(actor) {
   if (!actor) return null;
@@ -21,8 +19,6 @@ export function sameActor(a, b) {
 
 /**
  * Same embedded item id can exist on two different actors.
- * @param {object|null|undefined} item
- * @returns {string|null}
  */
 export function itemIdentityKey(item) {
   if (!item) return null;
@@ -39,10 +35,7 @@ export function resolveBurstBurster(context) {
   return context?._dialogResponder ?? context?.self ?? null;
 }
 
-/**
- * @param {...(object|null|undefined)} actors
- * @returns {object[]}
- */
+/** First occurrence of each actor, keyed by `actorIdentityKey`. */
 export function uniqueBurstOwners(...actors) {
   const out = [];
   const seen = new Set();
@@ -55,11 +48,7 @@ export function uniqueBurstOwners(...actors) {
   return out;
 }
 
-/**
- * @param {object|null|undefined} item
- * @param {object|null|undefined} owner
- * @returns {boolean}
- */
+/** Owned by `owner`, including unlinked token copies of the same item. */
 export function itemBelongsToActor(item, owner) {
   if (!item || !owner) return false;
   const ownerKey = actorIdentityKey(owner);
@@ -71,10 +60,7 @@ export function itemBelongsToActor(item, owner) {
 }
 
 /**
- * @param {Set<string>} seenKeys
- * @param {object|null|undefined} item
- * @param {string|null} skipItemKey
- * @returns {boolean}
+ * Dedupes burst/proc listeners. False if the item was skipped or already seen.
  */
 export function rememberBurstListenerItem(seenKeys, item, skipItemKey) {
   const key = itemIdentityKey(item);
@@ -83,4 +69,29 @@ export function rememberBurstListenerItem(seenKeys, item, skipItemKey) {
   if (seenKeys.has(key)) return false;
   seenKeys.add(key);
   return true;
+}
+
+export function usedSkillsFromContext({
+  sourceItem = null,
+  attackerSkill = null,
+  defenderSkill = null,
+  clash = null,
+} = {}) {
+  return [sourceItem, attackerSkill, defenderSkill, clash?.attackerSkill, clash?.defenderSkill]
+    .filter((item) => item?.type === "skill");
+}
+
+export function collectUsedSkills(owner, usedSkills) {
+  if (!owner) return [];
+  const out = [];
+  const seen = new Set();
+  for (const item of usedSkills ?? []) {
+    if (item?.type !== "skill") continue;
+    const key = itemIdentityKey(item);
+    if (!key || seen.has(key)) continue;
+    if (!itemBelongsToActor(item, owner)) continue;
+    seen.add(key);
+    out.push(item);
+  }
+  return out;
 }

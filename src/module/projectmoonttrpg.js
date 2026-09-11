@@ -9,6 +9,7 @@ import { PMTTRPG } from "./config.js";
 import { ActorPMTTRPG } from "./actor/actor.js";
 import { ItemPMTTRPG } from "./item/item.js";
 import { TokenPMTTRPG } from "./canvas/token.js";
+import { TokenRulerPMTTRPG } from "./canvas/token-ruler.js";
 import { PMTTRPGItemSheet } from "./item/item-sheet.js";
 import { PMTTRPGWeaponItemSheet } from "./item/weapon-item-sheet.js";
 import { PMTTRPGSkillItemSheet } from "./item/skill-item-sheet.js";
@@ -37,7 +38,11 @@ import {
   registerTokenStatusBadges,
   registerTokenStatusBadgeSettings,
 } from "./canvas/token.js";
-import { registerClashChatListeners } from "./combat/clash-chat.js";
+import {
+  registerClashChatListeners,
+  applyChatUpdate,
+  isChatUpdatePayload,
+} from "./combat/clash-chat.js";
 import { PMTTRPGClashAPI } from "./combat/clashing.js";
 
 import * as chat from "./chat.js";
@@ -57,6 +62,7 @@ Hooks.once("init", async function() {
     ActorPMTTRPG,
     ItemPMTTRPG,
     TokenPMTTRPG,
+    TokenRulerPMTTRPG,
     rollItemMacro,
     PMTTRPGUtility,
     targeting: PMTTRPGTargetingAPI,
@@ -68,6 +74,7 @@ Hooks.once("init", async function() {
   CONFIG.Actor.documentClass = ActorPMTTRPG;
   CONFIG.Item.documentClass = ItemPMTTRPG;
   CONFIG.Token.objectClass = TokenPMTTRPG;
+  CONFIG.Token.rulerClass = TokenRulerPMTTRPG;
   registerTokenStatusBadges();
   CONFIG.Item.typeLabels = foundry.utils.mergeObject(CONFIG.Item.typeLabels ?? {}, {
     status: game.i18n.localize("TYPES.Item.status"),
@@ -226,10 +233,9 @@ Hooks.once("ready", async function() {
       return;
     }
 
-    // Update chat cards.
-    if (data?.message && data?.content) {
-      let message = game.messages.get(data.message);
-      message.update({'content': data.content});
+    if (isChatUpdatePayload(data)) {
+      applyChatUpdate(data);
+      return;
     }
 
     // Update the move counter if a player made a move. Requires a GM account

@@ -26,7 +26,7 @@ system:
     uuid: ''
   customNotes: ''
   easyEffects: |-
-    [Start of Round]
+    [On Clash Start]
     require (round) == 1 then
       power down attack N and power down defense N;
 effects: []

@@ -30,7 +30,7 @@ system:
   customNotes: ''
   easyEffects: |-
     [On Clash Win]
-    burst Rupture;
+    burst Rupture on target;
 
     [On Rupture Burst]
     require (burst.before) >= 4 then

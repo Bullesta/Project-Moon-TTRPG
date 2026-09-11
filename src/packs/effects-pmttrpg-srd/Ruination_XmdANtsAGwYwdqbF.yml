@@ -27,7 +27,9 @@ system:
   customNotes: ''
   easyEffects: |-
     [On FailedDevastationRoll]
-    on roll 1d10 <= Ruin then proc AskForDevastation;
+    roll 1d10 as secondRuinRoll;
+    require (secondRuinRoll) <= (target.status.Ruin) then
+      proc AskForDevastation on target;
 effects: []
 sort: 100000
 ownership:

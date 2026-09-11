@@ -2,10 +2,12 @@ import { PMTTRPGUtility } from '../utility.js';
 import { getActionEconomyFromRank, getRankFromLevel, TACTICAL_SQUARES_BASE, squareTurnCap } from './progression.js';
 import { actorHistorySquareCost, actorSquaresExhausted } from '../combat/movement.js';
 const { renderTemplate } = foundry.applications.handlebars;
-import { applyAlwaysActiveModifiers, emitActorAction, runOnTakingDamage, runDepletedEasyEffects } from '../easy-effects/registry.js';
+import { applyAlwaysActiveModifiers, emitActorAction, emitHeal, emitStatusEasyEffects, runOnTakingDamage, runBeforeDealingDamage, runOnDealingDamage, runDepletedEasyEffects } from '../easy-effects/registry.js';
+import { createHealBag, buildDealerDamageResult } from '../easy-effects/filters.js';
 import { applyResourceModsToSystem, applyResourceOverridesToSystem } from '../easy-effects/nouns.js';
 import { applyInventorySlotUsage } from '../inventory/slots.js';
 import { isPendingStatus, normalizeArrival } from '../status/pending.js';
+import { noteRemovedStatusItem } from '../status/lifecycle-pass.js';
 import { clampPoolValue, crossesDepletion } from '../pool-clamp.js';
 import {
   APPLY_POOLS,
@@ -21,6 +23,39 @@ import {
 
 const STATUS_STACK_HOOK_MAX_DEPTH = 8;
 const _statusStackHookDepth = new WeakMap();
+
+async function resolveUuidDocument(doc, uuid) {
+  if (doc) return doc;
+  const id = typeof uuid === "string" ? uuid.trim() : "";
+  if (!id) return null;
+  return fromUuid(id);
+}
+
+async function resolveApplySourceItems(options = {}, attackerItem = null) {
+  const out = [];
+  const seen = new Set();
+  const push = (item) => {
+    if (!item) return;
+    const key = item.uuid || item.id;
+    if (!key || seen.has(key)) return;
+    seen.add(key);
+    out.push(item);
+  };
+  push(attackerItem);
+  const live = options.sourceItems;
+  if (Array.isArray(live)) {
+    for (const item of live) push(item);
+  } else {
+    push(live);
+  }
+  const uuids = options.sourceItemUuids;
+  if (Array.isArray(uuids)) {
+    for (const uuid of uuids) {
+      push(await resolveUuidDocument(null, uuid));
+    }
+  }
+  return out;
+}
 
 function sourceSystemNumber(actorData, path) {
   const n = Number(foundry.utils.getProperty(actorData._source ?? {}, `system.${path}`));
@@ -48,10 +83,7 @@ async function emitStatusStackHook(actor, hookName, payload) {
   }
   _statusStackHookDepth.set(actor, depth + 1);
   try {
-    const results = Hooks.callAll(hookName, payload) ?? [];
-    await Promise.all(
-      (Array.isArray(results) ? results : [results]).filter((r) => r instanceof Promise)
-    );
+    await emitStatusEasyEffects(hookName, payload);
   } finally {
     const next = (_statusStackHookDepth.get(actor) ?? 1) - 1;
     if (next <= 0) _statusStackHookDepth.delete(actor);
@@ -362,7 +394,9 @@ export class ActorPMTTRPG extends Actor {
       }
     }
     if (foundry.utils.isEmpty(updates)) return this;
-    return this.update(updates);
+    const { runAsOwnerOrGM } = await import("../easy-effects/gm-route.js");
+    await runAsOwnerOrGM(this, "applyActorUpdate", { update: updates });
+    return this;
   }
 
   /**
@@ -397,8 +431,11 @@ export class ActorPMTTRPG extends Actor {
       }
       return false;
     }
-    await this.update({ [`system.attributes.${poolKey}.value`]: current - spent });
-    return true;
+    const { runAsOwnerOrGM } = await import("../easy-effects/gm-route.js");
+    const ok = await runAsOwnerOrGM(this, "applyActorUpdate", {
+      update: { [`system.attributes.${poolKey}.value`]: current - spent },
+    });
+    return !!ok;
   }
 
   /**
@@ -506,10 +543,15 @@ export class ActorPMTTRPG extends Actor {
     const eeDamageType = damageType || rawDamageType;
     const source = typeof options.source === "string" && options.source.trim() ? options.source.trim() : null;
     const fromAttack = options.fromAttack === true;
+    const skipEasyEffects = options.skipEasyEffects === true;
+    const dealer = await resolveUuidDocument(options.attacker, options.attackerUuid);
+    const attackerItem = await resolveUuidDocument(options.attackerItem, options.attackerItemUuid);
+    const sourceItems = await resolveApplySourceItems(options, attackerItem);
+    const runDealer = op !== "heal" && !skipEasyEffects && fromAttack && !!dealer;
     const explicitSourceLabel = typeof options.sourceLabel === "string" && options.sourceLabel.trim()
       ? options.sourceLabel.trim()
       : null;
-    const sourceLabel = explicitSourceLabel ?? source ?? options.attacker?.name ?? null;
+    const sourceLabel = explicitSourceLabel ?? source ?? dealer?.name ?? null;
     const formula = typeof options.formula === "string" && options.formula.trim()
       ? options.formula.trim()
       : null;
@@ -517,7 +559,6 @@ export class ActorPMTTRPG extends Actor {
     const forceSkipResistance = options.skipResistance === true || op === "heal";
     const forceApplyResistance = options.skipResistance === false;
     const useOutfitTypeResists = !forceSkipResistance && (forceApplyResistance || !source);
-    const skipEasyEffects = options.skipEasyEffects === true;
 
     const base = Number(amount) || 0;
     let sharedAmount = base;
@@ -556,7 +597,14 @@ export class ActorPMTTRPG extends Actor {
         afterDeltaByPool: {},
         beforeDeltaByPool: {},
       };
-      await runOnTakingDamage(this, damageCtx, { attacker: options.attacker ?? null });
+      if (runDealer) {
+        await runBeforeDealingDamage(dealer, damageCtx, {
+          defender: this,
+          sourceItems,
+          attackerItem,
+        });
+      }
+      await runOnTakingDamage(this, damageCtx, { attacker: dealer ?? null });
       amountAfterSource = Math.max(0, Number(damageCtx.amount) || 0);
       afterDeltaByPool = damageCtx.afterDeltaByPool && typeof damageCtx.afterDeltaByPool === "object"
         ? damageCtx.afterDeltaByPool
@@ -604,8 +652,50 @@ export class ActorPMTTRPG extends Actor {
       }
     }
 
+    if (op === "heal" && !skipEasyEffects) {
+      const beforeEe = amountAfterSource;
+      const healCtx = createHealBag({
+        amount: amountAfterSource,
+        pool: poolsAfter,
+        source: source ?? "",
+      });
+      const healer = await resolveUuidDocument(options.healer, options.healerUuid);
+      const sourceItem = await resolveUuidDocument(options.item, options.itemUuid);
+      await emitHeal({
+        actor: this,
+        healer,
+        heal: healCtx,
+        item: sourceItem,
+      });
+      amountAfterSource = Math.max(0, Number(healCtx.amount) || 0);
+      poolsAfter = normalizePools(healCtx.pool);
+      if (amountAfterSource !== beforeEe) {
+        breakdown.push({
+          key: "easyEffects",
+          reduction: beforeEe - amountAfterSource,
+          from: beforeEe,
+          to: amountAfterSource,
+        });
+      }
+      if (poolsAfter.join(",") !== pools.join(",")) {
+        breakdown.push({
+          key: "convert",
+          fromPool: pools.join(","),
+          toPool: poolsAfter.join(","),
+          fromType: "",
+          toType: "",
+        });
+      }
+    }
+
     const actorUpdates = {};
     const appliedEntries = [];
+    const requestedAmount = sharedAmount;
+    const primaryPool = op === "heal" ? null : (poolsAfter.length === 1 ? poolsAfter[0] : null);
+    const beforeValue = primaryPool
+      ? (Number(this.system?.attributes?.[primaryPool]?.value) || 0)
+      : null;
+    let finalAmountTotal = 0;
 
     for (const pool of poolsAfter) {
       const poolData = this.system?.attributes?.[pool];
@@ -659,6 +749,8 @@ export class ActorPMTTRPG extends Actor {
           to: newAmount,
         });
       }
+
+      if (op !== "heal") finalAmountTotal += newAmount;
 
       if (newAmount === 0 && op !== "heal") {
         breakdown.push({ key: "final", amount: 0, pool, heal: false });
@@ -740,6 +832,35 @@ export class ActorPMTTRPG extends Actor {
 
     if (appliedEntries.length) {
       await this.update(actorUpdates);
+    }
+
+    if (runDealer) {
+      let appliedAmountTotal = 0;
+      for (const entry of appliedEntries) {
+        appliedAmountTotal += Math.max(0, (Number(entry.pre) || 0) - (Number(entry.post) || 0));
+      }
+      const afterValue = primaryPool
+        ? (actorUpdates[poolValuePath(primaryPool)] ?? beforeValue)
+        : null;
+      const snapshot = buildDealerDamageResult({
+        requestedAmount,
+        finalAmount: finalAmountTotal,
+        appliedAmount: appliedAmountTotal,
+        pool: poolsAfter.length === 1 ? (poolsAfter[0] ?? "hp") : poolsAfter.slice(),
+        damageType: damageTypeForResist || eeDamageType || "",
+        fromAttack: true,
+        sourceActor: dealer,
+        targetActor: this,
+        sourceItem: attackerItem,
+        beforeValue,
+        afterValue,
+        source: source ?? "",
+      });
+      await runOnDealingDamage(dealer, snapshot, {
+        defender: this,
+        sourceItems,
+        attackerItem,
+      });
     }
 
     const appliedDamage = buildAppliedDamage(this, appliedEntries, breakdown);
@@ -1102,7 +1223,7 @@ export class ActorPMTTRPG extends Actor {
     }
 
     if (wasAbsent && kept) {
-      Hooks.callAll("pmttrpg.statusApplied", {
+      await emitStatusStackHook(this, "pmttrpg.statusApplied", {
         actor: this,
         item: kept,
         statusName: canonicalName,
@@ -1202,9 +1323,12 @@ export class ActorPMTTRPG extends Actor {
     const lost = current - next;
 
     if (next <= 0) {
-      const extras = matching.slice(1).map(i => i.id);
+      const extras = matching.slice(1);
+      // Identity is uuid-based and must be read while the item is still owned.
+      for (const extra of extras) noteRemovedStatusItem(extra);
+      noteRemovedStatusItem(item);
       if (extras.length) {
-        await this.deleteEmbeddedDocuments('Item', extras, statusMutationOptions({ silent: true }, 0));
+        await this.deleteEmbeddedDocuments('Item', extras.map(i => i.id), statusMutationOptions({ silent: true }, 0));
       }
       const deleted = await this.deleteEmbeddedDocuments(
         'Item',
@@ -1219,7 +1343,7 @@ export class ActorPMTTRPG extends Actor {
         after: 0,
         amount: lost,
       });
-      Hooks.callAll("pmttrpg.statusRemoved", {
+      await emitStatusStackHook(this, "pmttrpg.statusRemoved", {
         actor: this,
         item,
         statusName,
@@ -1241,6 +1365,22 @@ export class ActorPMTTRPG extends Actor {
       amount: lost,
     });
     return extras;
+  }
+
+  /**
+   * Deletes every status on this actor (including pending).
+   * Skips [On Removed] / [On Lose]. `silent` defaults to true.
+   */
+  async clearStatuses(options = {}) {
+    const statuses = this.items.filter(i => i.type === "status");
+    const ids = statuses.map(i => i.id);
+    if (!ids.length) return [];
+    for (const status of statuses) noteRemovedStatusItem(status);
+    return this.deleteEmbeddedDocuments(
+      "Item",
+      ids,
+      statusMutationOptions({ silent: options.silent !== false }, 0),
+    );
   }
 
   /**
@@ -1490,7 +1630,7 @@ export class ActorPMTTRPG extends Actor {
 
       if (shelved) continue;
 
-      Hooks.callAll("pmttrpg.statusApplied", {
+      await emitStatusStackHook(this, "pmttrpg.statusApplied", {
         actor: this,
         item,
         statusName: name,

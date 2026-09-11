@@ -22,8 +22,8 @@ system:
   procCondition: ''
   positive: >-
     <p>Any Bleed on the target is not reduced the next [N] times it activates.
-    This does not apply to Bleed that is activated as a result of this clash,
-    and counts as one instance of activation.</p>
+    This does apply to Bleed that activated as a result of this clash, and
+    counts as one instance of activation.</p>
 
     <p>This also prevents Bleed from being reduced by Reduce Status or other
     effects that immediately activate Bleed. When immediately activating Bleed,
@@ -34,7 +34,7 @@ system:
   customNotes: ''
   easyEffects: |-
     [On Clash Win]
-    inflict 1 "Bleed - Hemorrhage";
+    inflict N "Bleed - Hemorrhage";
 effects: []
 sort: 100000
 ownership:
