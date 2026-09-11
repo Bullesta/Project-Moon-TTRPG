@@ -27,6 +27,7 @@ PMTTRPG.INS: "INS"
 PMTTRPG.TEM: "TMP"
 
 PMTTRPG.Rank: "Rank"
+PMTTRPG.RankEX: "EX"
 PMTTRPG.Level: "Level"
 PMTTRPG.XP: "Experience"
 

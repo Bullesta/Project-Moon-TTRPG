@@ -344,8 +344,10 @@ export class PMTTRPGCharacterSheet extends HandlebarsApplicationMixin(ActorSheet
     const currentExp = Number(attrs.xp?.value) || 0;
     const maxExp = Math.max(1, Number(attrs.xp?.max) || 8);
 
+    const rank = Number(attrs.rank?.value);
+    const rankN = Number.isFinite(rank) ? rank : 0;
     return {
-      rank: Number(attrs.rank?.value) || 0,
+      rank: rankN >= 6 ? game.i18n.localize("PMTTRPG.RankEX") : rankN,
       level: Number(attrs.level?.value) || 0,
       currentExp,
       maxExp,
