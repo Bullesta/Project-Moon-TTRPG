@@ -23,7 +23,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - [EasyEffects] `increase flag` / `reduce flag` syntax added.
 - [EasyEffects] `range up/down <Amount>` syntax added.
 - [Macros] Effect Clear macro added.
-- NPCs SRD pack is now listed in the Foundry compendium directory.
 - Rank EX: the sheet shows EX at rank 6+, and level can go down to -3 (Rank 0). Rank EX still uses Rank 5 Action / Reaction counts.
 - GMs can now reveal or hide individual combat tracker stats per combatant.
 - Added anything in CR that interacted with a weapon's Range.
