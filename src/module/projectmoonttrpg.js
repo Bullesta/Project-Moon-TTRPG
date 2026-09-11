@@ -38,7 +38,11 @@ import {
   registerTokenStatusBadges,
   registerTokenStatusBadgeSettings,
 } from "./canvas/token.js";
-import { registerClashChatListeners } from "./combat/clash-chat.js";
+import {
+  registerClashChatListeners,
+  applyChatUpdate,
+  isChatUpdatePayload,
+} from "./combat/clash-chat.js";
 import { PMTTRPGClashAPI } from "./combat/clashing.js";
 
 import * as chat from "./chat.js";
@@ -229,10 +233,9 @@ Hooks.once("ready", async function() {
       return;
     }
 
-    // Update chat cards.
-    if (data?.message && data?.content) {
-      let message = game.messages.get(data.message);
-      message.update({'content': data.content});
+    if (isChatUpdatePayload(data)) {
+      applyChatUpdate(data);
+      return;
     }
 
     // Update the move counter if a player made a move. Requires a GM account

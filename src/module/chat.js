@@ -10,6 +10,7 @@ import {
   getClashApplyTarget,
   resolveClashCombatant,
   enhanceClashRollBreakdown,
+  emitChatUpdate,
 } from "./combat/clash-chat.js";
 import { getClashDamageSourceRef } from "./combat/clash-state.js";
 
@@ -193,7 +194,7 @@ async function _chatActionMarkXp(actor, message) {
   if (message.isAuthor || game.user.isGM) {
     await message.update({ content: newContent });
   } else {
-    game.socket.emit("system.projectmoonttrpg", { message: message.id, content: newContent });
+    emitChatUpdate(message.id, { content: newContent });
   }
 }
 
@@ -211,6 +212,19 @@ function _resolveDamageType(message, root) {
 
 function _controlledTokenActors() {
   return canvas.tokens?.controlled?.map((t) => t.document.actor).filter(Boolean) ?? [];
+}
+
+function _resolveDealerSourceItems(actor, ref) {
+  if (!actor || !ref) return { attackerItem: null, sourceItems: [] };
+  const get = (id) => (id ? actor.items.get(id) ?? null : null);
+  const attackerItem = get(ref.itemId);
+  const sourceItems = [
+    attackerItem,
+    get(ref.appliedToolId),
+    get(ref.skillId),
+    get(ref.ammoId),
+  ].filter(Boolean);
+  return { attackerItem, sourceItems };
 }
 
 async function _clashActionDamage(message, action, button) {
@@ -255,6 +269,7 @@ async function _clashActionDamage(message, action, button) {
   const attacker = sourceRef
     ? resolveClashCombatant(sourceRef.actorId, sourceRef.tokenId)
     : null;
+  const { attackerItem, sourceItems } = _resolveDealerSourceItems(attacker, sourceRef);
 
   for (const actor of actors) {
     await actor.applyDamage(rollTotal, {
@@ -262,6 +277,9 @@ async function _clashActionDamage(message, action, button) {
       op,
       damageType,
       attacker,
+      attackerItem,
+      sourceItems,
+      healer: op === "heal" ? actor : undefined,
       fromAttack: op !== "heal",
     });
   }
@@ -279,9 +297,10 @@ function _resolveClashDamageAmount(state, pools, message) {
       && state.defenseRollTotal != null) {
       return Number(state.defenseRollTotal) || 0;
     }
-    // Block win deals margin as ST (ranged attackers are exempt).
+    // Block win deals ST rebound (stored stDamage, else the clash difference). Ranged attackers are exempt.
     if (state.retaliationType === "block") {
       if (state.blockWinStExempt) return 0;
+      if (state.stDamage != null) return Number(state.stDamage) || 0;
       if (state.margin != null) return Number(state.margin) || 0;
     }
   }
@@ -316,6 +335,7 @@ async function _chatActionDamage(message, action, button) {
       op,
       damageType,
       attacker: op === "heal" ? null : attacker,
+      healer: op === "heal" ? attacker : undefined,
       sourceLabel: message.speaker?.alias ?? attacker?.name ?? null,
       fromAttack: op !== "heal",
     });

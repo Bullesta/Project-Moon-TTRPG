@@ -19,15 +19,13 @@ export function getRecycledEvade(actor) {
   return { active: true, penalty };
 }
 
-/** @param {Actor} actor @param {Item|null} [outfit] */
-export async function grantRecycledEvade(actor, outfit = null) {
+export async function grantRecycledEvadeLocal(actor, outfit = null) {
   if (!actor) return;
   if (getRecycledEvade(actor)) return;
   await actor.setFlag(FLAG_SCOPE, FLAG_KEY, { active: true, penalty: recycledEvadeStep(outfit) });
 }
 
-/** @param {Actor} actor @param {Item|null} [outfit] */
-export async function bumpRecycledEvade(actor, outfit = null) {
+export async function bumpRecycledEvadeLocal(actor, outfit = null) {
   if (!actor) return;
   const current = getRecycledEvade(actor);
   if (!current) return;
@@ -37,11 +35,28 @@ export async function bumpRecycledEvade(actor, outfit = null) {
   });
 }
 
-/** @param {Actor} actor */
-export async function clearRecycledEvade(actor) {
+export async function clearRecycledEvadeLocal(actor) {
   if (!actor) return;
   if (!actor.getFlag(FLAG_SCOPE, FLAG_KEY)) return;
   await actor.unsetFlag(FLAG_SCOPE, FLAG_KEY);
+}
+
+async function routeRecycled(actor, op, outfit = null) {
+  if (!actor) return;
+  const { runAsOwnerOrGM } = await import("../easy-effects/gm-route.js");
+  return runAsOwnerOrGM(actor, op, { outfitUuid: outfit?.uuid ?? null });
+}
+
+export async function grantRecycledEvade(actor, outfit = null) {
+  return routeRecycled(actor, "grantRecycledEvade", outfit);
+}
+
+export async function bumpRecycledEvade(actor, outfit = null) {
+  return routeRecycled(actor, "bumpRecycledEvade", outfit);
+}
+
+export async function clearRecycledEvade(actor) {
+  return routeRecycled(actor, "clearRecycledEvade");
 }
 
 /**

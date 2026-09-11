@@ -116,6 +116,9 @@ export function createClashState({
     retaliatorImg:       null,
     retaliatorItemId:    null,
     retaliatorItemName:  null,
+    retaliatorSkillId:   null,
+    retaliatorAppliedToolId: null,
+    retaliatorAmmoId:    null,
     retaliationType:     null,   // RETALIATION_TYPES value
 
     // Rolls
@@ -156,7 +159,14 @@ export function createClashState({
  * Evade regen, Counter out of range, and ranged Block exemption have no source.
  *
  * @param {object|null|undefined} state
- * @returns {{ actorId: string|null, tokenId: string|null }|null}
+ * @returns {{
+ *   actorId: string|null,
+ *   tokenId: string|null,
+ *   itemId: string|null,
+ *   skillId: string|null,
+ *   appliedToolId: string|null,
+ *   ammoId: string|null,
+ * }|null}
  */
 export function getClashDamageSourceRef(state) {
   if (!state) return null;
@@ -172,6 +182,10 @@ export function getClashDamageSourceRef(state) {
     return {
       actorId: state.attackerActorId ?? null,
       tokenId: state.attackerTokenId ?? null,
+      itemId: state.attackerItemId ?? null,
+      skillId: state.attackerSkillId ?? null,
+      appliedToolId: state.appliedToolId ?? null,
+      ammoId: state.attackerDryFire ? null : (state.attackerAmmoId ?? null),
     };
   }
 
@@ -179,7 +193,14 @@ export function getClashDamageSourceRef(state) {
     const actorId = state.retaliatorActorId ?? state.targetActorId ?? null;
     const tokenId = state.retaliatorTokenId ?? state.targetTokenId ?? null;
     if (!actorId && !tokenId) return null;
-    return { actorId, tokenId };
+    return {
+      actorId,
+      tokenId,
+      itemId: state.retaliationItemId ?? state.retaliatorItemId ?? null,
+      skillId: state.retaliatorSkillId ?? null,
+      appliedToolId: state.retaliatorAppliedToolId ?? null,
+      ammoId: state.retaliatorAmmoId ?? null,
+    };
   }
 
   return null;

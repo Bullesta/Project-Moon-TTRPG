@@ -35,6 +35,7 @@ import {
   rollCounter,
   rollBlock,
   resolveClash,
+  resolveBlockWinStDamage,
 } from "./clash-rolls.js";
 
 import {
@@ -49,8 +50,8 @@ import {
   promptRangedCounterAmmo,
 } from "./clash-dialog.js";
 
-import { createClashContext, emitAttackConnected, emitClashStarted, emitClashOutcome } from "../easy-effects/registry.js";
-import { normalizeDamageType, resolveRangedDamageType } from "../damage-application.js";
+import { createClashContext, emitAttackConnected, emitClashStarted, emitClashOutcome, emitDamageCalc } from "../easy-effects/registry.js";
+import { getEquippedOutfit, normalizeDamageType, resolveRangedDamageType } from "../damage-application.js";
 import {
   canConsumeAppliedTool,
   emitAppliedToolHooks,
@@ -67,6 +68,7 @@ import {
 } from "./recycled-evade.js";
 
 import {PMTTRPGUtility} from '../utility.js';
+import { canActAs, resolveTokenDocument } from "../acting-user.js";
 
 const REACTIONS_THAT_CLEAR_RECYCLED = new Set([
   RETALIATION_TYPES.EVADE,
@@ -188,7 +190,7 @@ export async function handleRetaliateClick(state, { isIntercept = false } = {}) 
     return;
   }
 
-  if (!retaliatorActor.isOwner) {
+  if (!canActAs(retaliatorActor, retaliatorTokenId)) {
     ui.notifications.warn(game.i18n.localize(
       isIntercept ? "PMTTRPG.Clash.NoOwnedActor" : "PMTTRPG.Clash.NotTargetOwner"
     ));
@@ -230,9 +232,22 @@ export async function handleRetaliateClick(state, { isIntercept = false } = {}) 
   state.retaliatorItemName  = _retaliatorItemLabel(choice);
   state.retaliationType     = choice.type;
   state.retaliatorAmmoId    = choice.dryFire ? null : (choice.ammo?.id ?? null);
+  state.retaliatorSkillId   = choice.skillItem?.id ?? null;
+  state.retaliatorAppliedToolId = choice.skillItem ? null : (choice.appliedTool?.id ?? null);
 
-  await updateAttackCard(state.attackMessageId, state);
-  await _executeClash(state, retaliatorActor, choice);
+  try {
+    await updateAttackCard(state.attackMessageId, state);
+    await _executeClash(state, retaliatorActor, choice);
+  } catch (error) {
+    console.error("[PMTTRPG] Clash execution failed", error);
+    _unlockClashState(state);
+    try {
+      await updateAttackCard(state.attackMessageId, state);
+    } catch (updateError) {
+      console.warn("[PMTTRPG] Failed to revert clash card after error", updateError);
+    }
+    ui.notifications.error(game.i18n.localize("PMTTRPG.Clash.ExecutionFailed"));
+  }
 }
 
 // ── Phase 3: Execute Clash ────────────────────────────────────────────────────
@@ -268,6 +283,8 @@ async function _executeClash(state, retaliatorActor, choice) {
     state.retaliationItemId = null;
     state.retaliatorItemName = null;
     state.retaliatorAmmoId = null;
+    state.retaliatorSkillId = null;
+    state.retaliatorAppliedToolId = null;
   }
 
   let isRecycled = choice.type === RETALIATION_TYPES.RECYCLED_EVADE || choice.recycled === true;
@@ -299,7 +316,11 @@ async function _executeClash(state, retaliatorActor, choice) {
   if (choice.ammo && choice.consumeAmmo) {
     const qty = Number(choice.ammo.system?.quantity ?? 0);
     if (qty > 0) {
-      await choice.ammo.update({ "system.quantity": Math.max(0, qty - 1) });
+      const { runAsOwnerOrGM } = await import("../easy-effects/gm-route.js");
+      await runAsOwnerOrGM(choice.ammo.actor ?? retaliatorActor, "updateOwnedItem", {
+        itemUuid: choice.ammo.uuid,
+        update: { "system.quantity": Math.max(0, qty - 1) },
+      });
     }
   }
 
@@ -311,7 +332,7 @@ async function _executeClash(state, retaliatorActor, choice) {
       ui.notifications.warn(game.i18n.localize("PMTTRPG.Dialog.noToolUses"));
       defenderAppliedTool = null;
     } else {
-      emitAppliedToolHooks({
+      await emitAppliedToolHooks({
         actor: retaliatorActor,
         tool: defenderAppliedTool,
         hostItem: choice.item ?? null,
@@ -375,12 +396,13 @@ async function _executeClash(state, retaliatorActor, choice) {
   state.clashBonuses = foundry.utils.deepClone(clashCtx.bonuses);
 
   let [attackResult, defenseResult] = await Promise.all([
-    rollAttack(attackerActor, attackerItem, clashCtx.bonuses.attacker),
+    rollAttack(attackerActor, attackerItem, clashCtx.bonuses.attacker, { skillItem: attackerSkill }),
     _rollDefense(
       retaliatorActor,
       choice,
       attackerItem,
       clashCtx.bonuses.defender,
+      { skillItem: defenderSkill },
     ),
   ]);
 
@@ -417,12 +439,13 @@ async function _executeClash(state, retaliatorActor, choice) {
 
   while (result === CLASH_RESULTS.TIE && choice.type !== RETALIATION_TYPES.ONESIDED) {
     const [attackReroll, defenseReroll] = await Promise.all([
-      rollAttack(attackerActor, attackerItem, clashCtx.bonuses.attacker),
+      rollAttack(attackerActor, attackerItem, clashCtx.bonuses.attacker, { skillItem: attackerSkill }),
       _rollDefense(
         retaliatorActor,
         choice,
         attackerItem,
         clashCtx.bonuses.defender,
+        { skillItem: defenderSkill },
       ),
     ]);
     attackResult = attackReroll;
@@ -447,8 +470,7 @@ async function _executeClash(state, retaliatorActor, choice) {
   state.result             = result;
   state.margin             = margin;
 
-  // Fire EasyEffects On Damage Calc before computing damage so bonuses accumulate.
-  Hooks.callAll("pmttrpg.damageCalc", {
+  await emitDamageCalc({
     attacker:     attackerActor,
     defender:     retaliatorActor,
     attackerItem,
@@ -473,6 +495,14 @@ async function _executeClash(state, retaliatorActor, choice) {
     state.stDamage = finalResult;
   } else if (result === CLASH_RESULTS.DEFENSE_WIN && state.retaliationType === RETALIATION_TYPES.BLOCK) {
     state.blockWinStExempt = PMTTRPGUtility.isRangedWeapon(attackerItem);
+    if (!state.blockWinStExempt) {
+      const outfit = getEquippedOutfit(retaliatorActor);
+      state.stDamage = resolveBlockWinStDamage(
+        defenseResult.total,
+        margin,
+        outfit?.system?.outfitProperty,
+      );
+    }
   } else if (result === CLASH_RESULTS.DEFENSE_WIN && counterItem) {
     const inRange = PMTTRPGUtility.isTargetInWeaponRange(
       state.retaliatorTokenId,
@@ -644,6 +674,7 @@ function _rangedAttackConsumesMovement(weapon) {
  * @param {Item|null} attackerItem
  * @param {object} bonuses
  * @param {object} [rollOptions]
+ * @param {Item|null} [rollOptions.skillItem]
  * @returns {Promise<object>}
  */
 async function _rollDefense(retaliatorActor, choice, attackerItem, bonuses, rollOptions = {}) {
@@ -700,24 +731,35 @@ async function _spendSkillLight(actor, skill) {
   const lightCost = Math.max(0, Number(skill?.system?.lightCost ?? 0));
   if (!actor || lightCost <= 0) return;
   const currentLight = Number(actor.system?.attributes?.light?.value ?? 0);
-  await actor.update({
-    "system.attributes.light.value": Math.max(0, currentLight - lightCost),
+  const { runAsOwnerOrGM } = await import("../easy-effects/gm-route.js");
+  await runAsOwnerOrGM(actor, "applyActorUpdate", {
+    update: {
+      "system.attributes.light.value": Math.max(0, currentLight - lightCost),
+    },
   });
 }
 
-/**
- * Retaliate answers as the clash target.
- * @param {ClashStateData} state
- * @returns {{ actor: Actor|null, tokenId: string|null }}
- */
+function _unlockClashState(state) {
+  state.phase = CLASH_PHASES.PENDING;
+  state.retaliatorActorId = null;
+  state.retaliatorTokenId = null;
+  state.retaliatorName = null;
+  state.retaliatorImg = null;
+  state.retaliationItemId = null;
+  state.retaliatorItemName = null;
+  state.retaliationType = null;
+  state.retaliatorAmmoId = null;
+}
+
+/** Retaliate answers as the clash target. */
 function _getClashTargetRetaliator(state) {
-  const token = state.targetTokenId ? canvas.tokens?.get(state.targetTokenId) : null;
-  if (token?.actor) return { actor: token.actor, tokenId: token.id };
+  const tokenDoc = resolveTokenDocument(state.targetTokenId);
+  if (tokenDoc?.actor) return { actor: tokenDoc.actor, tokenId: tokenDoc.id };
 
   const actor = state.targetActorId ? game.actors.get(state.targetActorId) : null;
   return {
     actor: actor ?? null,
-    tokenId: state.targetTokenId ?? actor?.getActiveTokens(true)[0]?.id ?? null,
+    tokenId: state.targetTokenId ?? actor?.getActiveTokens(false)?.[0]?.id ?? null,
   };
 }
 

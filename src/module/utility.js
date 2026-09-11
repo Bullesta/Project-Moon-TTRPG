@@ -172,3 +172,72 @@ export class PMTTRPGUtility {
     return document.querySelector('body').classList.contains('theme-dark');
   }
 }
+
+const DSN_TIMEOUT_MS = 8_000;
+
+function isDiceSoNiceBusy(dice3d) {
+  if (!dice3d) return false;
+  if (dice3d.box?.rolling) return true;
+  if (dice3d.queue?.length) return true;
+  const acc = dice3d.nextAnimation;
+  if (!acc) return false;
+  if (acc._isProcessing) return true;
+  if (acc._timeoutId) return true;
+  return (acc._items?.length ?? 0) > 0;
+}
+
+function waitForDiceSoNiceIdle(dice3d, timeoutMs) {
+  const budget = Math.max(0, Number(timeoutMs) || 0);
+  if (!dice3d || budget <= 0 || !isDiceSoNiceBusy(dice3d)) return Promise.resolve();
+
+  const deadline = Date.now() + budget;
+  return new Promise((resolve) => {
+    const tick = () => {
+      if (!isDiceSoNiceBusy(dice3d) || Date.now() >= deadline) {
+        resolve();
+        return;
+      }
+      if (typeof globalThis.requestAnimationFrame === "function") {
+        globalThis.requestAnimationFrame(tick);
+      } else {
+        setTimeout(tick, 16);
+      }
+    };
+    tick();
+  });
+}
+
+export async function showDiceForRoll(roll, { speaker, timeoutMs = DSN_TIMEOUT_MS } = {}) {
+  const dice3d = globalThis.game?.dice3d;
+  if (typeof dice3d?.showForRoll !== "function" || !roll) return;
+
+  const started = Date.now();
+  let timer;
+  try {
+    await Promise.race([
+      (async () => {
+        await Promise.resolve(
+          dice3d.showForRoll(
+            roll,
+            globalThis.game.user,
+            true,
+            null,
+            false,
+            null,
+            speaker ?? undefined,
+          ),
+        ).catch((err) => {
+          console.warn("[PMTTRPG] Dice So Nice showForRoll failed; continuing.", err);
+        });
+        await waitForDiceSoNiceIdle(dice3d, timeoutMs - (Date.now() - started));
+      })(),
+      new Promise((_, reject) => {
+        timer = setTimeout(() => reject(new Error("Dice So Nice timed out")), timeoutMs);
+      }),
+    ]);
+  } catch (err) {
+    console.warn("[PMTTRPG] Dice So Nice showForRoll failed; continuing.", err);
+  } finally {
+    if (timer) clearTimeout(timer);
+  }
+}
