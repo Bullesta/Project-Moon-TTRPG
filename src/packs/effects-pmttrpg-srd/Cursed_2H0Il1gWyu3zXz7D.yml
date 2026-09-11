@@ -32,6 +32,9 @@ system:
     uuid: ''
   customNotes: ''
   easyEffects: |-
+    [On Equip]
+    proc Cursed;
+
     [On Cursed]
     require (Ruin) < (N * 2) then set Ruin to (N * 2);
     require (Devastation) < N then set Devastation to N;

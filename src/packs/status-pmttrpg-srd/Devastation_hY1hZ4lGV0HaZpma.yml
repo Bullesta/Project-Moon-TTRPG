@@ -22,6 +22,7 @@ system:
 
     [On Gain]
     require (Ruin) == 0 then gain 1 Ruin;
+    proc Cursed;
 
     [On Lose]
     proc Cursed;

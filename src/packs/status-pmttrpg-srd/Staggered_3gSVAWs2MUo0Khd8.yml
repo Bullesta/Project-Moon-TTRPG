@@ -19,6 +19,7 @@ system:
   customNotes: ''
   easyEffects: |-
     [On Applied]
+    set flag "isStaggered" on self to 1;
     deal 5 sp damage to self;
     heal 1 light to self;
 
@@ -26,6 +27,7 @@ system:
     set resistances to fatal;
 
     [On Removed]
+    clear flag "isStaggered" on self;
     set st to max;
     gain 10 tempSt on self;
 effects: []

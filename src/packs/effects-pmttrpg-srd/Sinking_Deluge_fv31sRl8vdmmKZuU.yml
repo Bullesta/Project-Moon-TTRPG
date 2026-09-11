@@ -23,24 +23,20 @@ system:
   procCondition: ''
   positive: >-
     <p>On Sinking Burst, deal HP Damage equal to 2x of the burst Sinking stacks.
-    If the target is Staggered or Panicking, deal HP Damage equal to 3x
-    instead.</p>
+    If the target is Staggered/Panicking or if they Panic as a result of the
+    Sinking Burst, instead deal HP Damage equal to 3x the burst Sinking
+    stacks.</p>
   negative: ''
   macro:
     uuid: ''
   customNotes: ''
   easyEffects: |-
     [On Sinking Burst]
-    create dialog "Sinking Deluge: Is target panicking or staggered?":
-      tripleDamage as "Yes, target is panicking or staggered."
-      doubleDamage as "No, target is neither panicking nor staggered."
-      to self;
-
-    [On Dialog Answer doubleDamage]
-    deal (burst.amount * 2) hp damage to target;
-
-    [On Dialog Answer tripleDamage]
-    deal (burst.amount * 3) hp damage to target;
+    set flag "delugeMult" on event to 2;
+    require hasFlag "isPanicking" target == 1 then set flag "delugeMult" on event to 3;
+    require hasFlag "isStaggered" target == 1 then set flag "delugeMult" on event to 3;
+    require (target.sp.max) > 0 then require (target.sp) <= 0 then set flag "delugeMult" on event to 3;
+    deal (burst.amount * (event.flag.delugeMult)) hp damage to target;
 effects: []
 sort: 100000
 ownership:

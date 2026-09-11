@@ -29,9 +29,7 @@ system:
   customNotes: ''
   easyEffects: |-
     [On Clash Start]
-    require (Burn) >= 3 then power up CHOICE 1;
-    require (Burn) >= 6 then power up CHOICE 1;
-    require (Burn) >= 9 then power up CHOICE 1;
+    power up CHOICE (min(Burn //f 3, 3));
 effects: []
 sort: 0
 ownership:

@@ -53,17 +53,22 @@ packs:
     label: Status SRD
     path: packs/status-pmttrpg-srd
     type: Item
-    private: false
+    system: projectmoonttrpg
   - name: effects-pmttrpg-srd
     label: Effects SRD
     path: packs/effects-pmttrpg-srd
     type: Item
-    private: false
+    system: projectmoonttrpg
   - name: macros-pmttrpg-srd
     label: Macros
     path: packs/macros-pmttrpg-srd
     type: Macro
-    private: false
+    system: projectmoonttrpg
+  - name: npcs-pmttrpg-srd
+    label: NPCs SRD
+    path: packs/npcs-pmttrpg-srd
+    type: Actor
+    system: projectmoonttrpg
 languages:
   - lang: en
     name: English

@@ -22,12 +22,13 @@ system:
     [On RollForRuin]
     roll 1d10 as RuinRoll
     require (RuinRoll) <= Ruin then proc AskForDevastation
-    require (RuinRoll) > Ruin then proc FailedDevastationRoll
+    require (RuinRoll) > Ruin then
+      proc FailedDevastationRoll on attacker targeting self;
 
     [On AskForDevastation]
     create dialog "Proc Devastation?":
       procDevastation as "Do a Devastating Hit",
-      gainDevastation as "Inflict 1 Devastation and lose all Ruin"
+      gainDevastation as "Inflict 1 Devastation and reset Ruin to 1"
       to attacker;
 
     [On Dialog Answer procDevastation]
@@ -37,11 +38,13 @@ system:
     gain 1 Devastation and lose (Ruin - 1) Ruin;
 
     [On Gain]
-    require (changed.before) == 0 then set Devastation to 1;
+    require (changed.before) == 0 then
+      require (Devastation) == 0 then set Devastation to 1;
+    proc Cursed;
 
     [On Lose]
-    proc Cursed;
     require (changed.after) == 0 then set Devastation to 0;
+    proc Cursed;
 
     [On Removed]
     proc Cursed;

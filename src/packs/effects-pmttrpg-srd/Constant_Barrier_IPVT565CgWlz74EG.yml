@@ -29,11 +29,8 @@ system:
   customNotes: ''
   easyEffects: |-
     [Start of Round]
-    require (Charge) >= (N * 3) then
-      spend (N * 3) Charge to gain N "Charge Barrier";
-
-    require (Charge) < (N * 3) then require (Charge) >= 3 then
-      spend ((Charge // 3) * 3) Charge to gain (Charge // 3) "Charge Barrier";
+    let $bars = (min(Charge // 3, N));
+    require ($bars) >= 1 then spend ($bars * 3) Charge to gain ($bars) "Charge Barrier";
 effects: []
 sort: 100000
 ownership:

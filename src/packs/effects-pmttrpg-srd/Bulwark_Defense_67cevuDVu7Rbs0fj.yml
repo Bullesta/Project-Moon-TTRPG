@@ -34,12 +34,12 @@ system:
   easyEffects: >-
     [On Clash Win With Block]
 
-    roll 1d10 as poiseRoll
+    roll 1d10 as poiseRoll tagged "critical-check"
 
-    require (poiseRoll) <= (Poise - "Scattering Dance" - (4 * "Slasher Stance"))
-    then proc Critical with (1) as IgnoreDamage
+    require (poiseRoll) <= (Poise - (4 * "Slasher Stance"))
+    then proc Critical with (1) as IgnoreDamage, (Critical) as amount
 
-    require (poiseRoll) > (Poise - "Scattering Dance" - (4 * "Slasher Stance"))
+    require (poiseRoll) > (Poise - (4 * "Slasher Stance"))
     then proc BulwarkCritFail
 
 

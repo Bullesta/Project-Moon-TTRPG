@@ -35,12 +35,8 @@ system:
   customNotes: ''
   easyEffects: |-
     [On Clash Start]
-    require (self.reaction) < 2 then
-      power up attack 2 and power up defense 2;
-    require (self.reaction) >= 2 and (self.reaction) <= 6 then
-      power up attack (self.reaction) and power up defense (self.reaction);
-    require (self.reaction) > 6 then
-      power up attack 6 and power up defense 6;
+    power up attack (clamp(self.reaction, 2, 6));
+    power up defense (clamp(self.reaction, 2, 6));
     lose (self.reaction) Reaction;
 effects: []
 sort: 0

@@ -29,9 +29,7 @@ system:
   customNotes: ''
   easyEffects: |-
     [On Clash Start]
-    require (Haste) >= 2 then power up CHOICE 1;
-    require (Haste) >= 4 then power up CHOICE 1;
-    require (Haste) >= 6 then power up CHOICE 1;
+    power up CHOICE (min(Haste //f 2, 3));
 effects: []
 sort: 0
 ownership:

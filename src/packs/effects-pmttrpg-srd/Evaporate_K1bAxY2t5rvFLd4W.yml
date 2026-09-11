@@ -26,10 +26,7 @@ system:
   macro:
     uuid: ''
   customNotes: ''
-  easyEffects: |-
-    [On Clash Start]
-    require (target.status.Smoke) >= (N+3) then
-      power up attack N and power up defense N;
+  easyEffects: ''
 effects: []
 sort: 0
 ownership:

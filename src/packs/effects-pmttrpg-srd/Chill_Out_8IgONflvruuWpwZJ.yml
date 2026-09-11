@@ -6,8 +6,8 @@ system:
   name: ''
   description: ''
   slug: ''
-  cost: 4
-  stackMax: 5
+  cost: 6
+  stackMax: 1
   appliesTo: skill
   canPositive: true
   canNegative: false
@@ -21,15 +21,14 @@ system:
   procAction: any
   procCondition: ''
   positive: >-
-    <p>If the target has [N+3] Frostbite, inflict Bind equal to half of the
-    Frostbite stacks, to a maximum of [N*3].</p>
+    <p>Inflict Bind equal to half of the Frostbite stacks on the target.</p>
   negative: ''
   macro:
     uuid: ''
   customNotes: ''
   easyEffects: |-
     [On Clash Win]
-    inflict (Frostbite //f 2) Bind;
+    inflict (target.status.Frostbite //f 2) Bind;
 effects: []
 sort: 0
 ownership:

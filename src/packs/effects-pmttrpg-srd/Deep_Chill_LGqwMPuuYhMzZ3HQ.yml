@@ -7,7 +7,7 @@ system:
   name: ''
   description: ''
   slug: ''
-  cost: 10
+  cost: 8
   stackMax: 1
   appliesTo: skill
   canPositive: true
@@ -27,7 +27,7 @@ system:
 
     <p>This also prevents Frostbite from being reduced by Reduce Status or other
     effects that immediately activate Frostbite. When immediately activating
-    Frostbite, do not clear Frostbite and remove this effect.</p>
+    Frostbite, do not halve Frostbite and remove this effect.</p>
   negative: ''
   macro:
     uuid: ''

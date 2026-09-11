@@ -33,11 +33,8 @@ system:
   easyEffects: |-
     [On Clash Win With Attack]
     gain (target.status.Sinking) Sinking next round;
-    require (target.status.Sinking * 2) >= N then
-      gain N Strength next round and gain N Endurance next round;
-    require (target.status.Sinking * 2) < N then
-      gain (target.status.Sinking / 2) Strength next round and
-      gain (target.status.Sinking / 2) Endurance next round;
+    gain (min(target.status.Sinking //f 2, N)) Strength next round;
+    gain (min(target.status.Sinking //f 2, N)) Endurance next round;
     lose all Sinking on target;
 effects: []
 sort: 100000

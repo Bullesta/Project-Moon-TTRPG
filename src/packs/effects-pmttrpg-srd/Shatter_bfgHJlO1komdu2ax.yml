@@ -6,8 +6,8 @@ system:
   name: ''
   description: ''
   slug: ''
-  cost: 2
-  stackMax: 5
+  cost: 6
+  stackMax: 1
   appliesTo: skill
   canPositive: true
   canNegative: false
@@ -21,16 +21,17 @@ system:
   procAction: any
   procCondition: ''
   positive: >-
-    <p>Clear up to [N*2] Frostbite from the target, dealing 1d8 Force Damage per
-    2 cleared.</p>
+    <p>Clear all Frostbite from the target, dealing 1d8 Force Damage per 2
+    cleared.</p>
   negative: ''
   macro:
     uuid: ''
   customNotes: ''
   easyEffects: |-
     [On Clash Win]
-    spend ((target.status.Frostbite // 2) * 2) target.status.Frostbite to 
-      deal 1d8 hp damage per ((target.status.Frostbite // 2) * 2);
+    let $pairs = (target.status.Frostbite //f 2);
+    lose all Frostbite on target;
+    require ($pairs) > 0 then deal 1d8 hp damage per $pairs;
 effects: []
 sort: 0
 ownership:

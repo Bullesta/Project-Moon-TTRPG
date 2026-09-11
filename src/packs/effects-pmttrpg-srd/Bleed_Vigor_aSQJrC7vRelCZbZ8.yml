@@ -29,9 +29,7 @@ system:
   customNotes: ''
   easyEffects: |-
     [On Clash Start]
-    require (Bleed) >= 2 then power up CHOICE 1;
-    require (Bleed) >= 4 then power up CHOICE 1;
-    require (Bleed) >= 6 then power up CHOICE 1;
+    power up CHOICE (min(Bleed //f 2, 3));
 effects: []
 sort: 0
 ownership:

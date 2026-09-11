@@ -29,9 +29,7 @@ system:
   customNotes: ''
   easyEffects: |-
     [On Clash Start]
-    require (Frostbite) >= 2 then power up CHOICE 1;
-    require (Frostbite) >= 4 then power up CHOICE 1;
-    require (Frostbite) >= 6 then power up CHOICE 1;
+    power up CHOICE (min(Frostbite //f 2, 3));
 effects: []
 sort: 0
 ownership:

@@ -20,7 +20,7 @@ system:
   procDice: any
   procAction: any
   procCondition: ''
-  positive: <p>On Rupture Burst, Inflict 4 Bleed.</p>
+  positive: <p>On Rupture Burst, the target retains half of the burst Rupture stacks (rounded down).</p>
   negative: ''
   macro:
     uuid: ''

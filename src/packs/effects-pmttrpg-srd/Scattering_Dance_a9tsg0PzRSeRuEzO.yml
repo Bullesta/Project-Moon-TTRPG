@@ -5,9 +5,7 @@ img: >-
   systems/projectmoonttrpg/assets/icons/limbus_assets/Basic%20Effects/Bleed/Fatal%20Wound.webp
 system:
   name: ''
-  description: >-
-    <p><em>Note: Scattering Dance stacks are removed <strong>at the end of the
-    round</strong>, instead of at the end of the skill.</em></p>
+  description: ''
   slug: ''
   cost: 2
   stackMax: 5
@@ -33,17 +31,14 @@ system:
     uuid: ''
   customNotes: ''
   easyEffects: |-
-    [On Clash Start]
-    gain N "Scattering Dance";
-
-    [End of Round]
-    lose N "Scattering Dance";
+    [On Roll "critical-check"]
+    require (target.status.Bleed) >= N
+    and (pendingRoll.value) > 0
+    then reduce roll by (min(N, pendingRoll.value));
 
     [On Critical]
-    require (Critical) >= 3 then
-      inflict 3 "Bleed - Hemorrhage";
-    require (Critical) < 3 then
-      inflict (Critical) "Bleed - Hemorrhage";
+    require (proc.amount) > 0
+    then inflict (min(proc.amount, 3)) "Bleed - Hemorrhage";
 effects: []
 sort: 100000
 ownership:
