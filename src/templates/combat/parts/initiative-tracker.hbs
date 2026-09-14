@@ -1,6 +1,23 @@
 <div class="initiative-card" data-tracker-context data-reveal-key="initiative">
     <img class="initiative-icon" src="systems/projectmoonttrpg/assets/icons/sheet/initiative.webp" alt="{{localize "PMTTRPG.Combat.Stat.initiative"}}">
-    <span class="initiative-value">{{#if showValue}}{{initiative}}{{else}}?{{/if}}</span>
+    {{#if showValue}}
+        {{#if editable}}
+            <input
+                class="initiative-value num"
+                type="text"
+                inputmode="numeric"
+                value="{{initiative}}"
+                data-initiative-value
+                data-dtype="Number"
+                draggable="false"
+                aria-label="{{localize "PMTTRPG.Combat.InitiativeEdit"}}"
+            >
+        {{else}}
+            <span class="initiative-value">{{initiative}}</span>
+        {{/if}}
+    {{else}}
+        <span class="initiative-value">?</span>
+    {{/if}}
     {{#if showRevealEye}}
         <i class="fas fa-eye char-revealed" title="{{localize "PMTTRPG.Combat.TrackerRevealed"}}" aria-hidden="true"></i>
     {{else if showHiddenEye}}

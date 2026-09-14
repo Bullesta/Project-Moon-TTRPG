@@ -29,20 +29,31 @@ system:
   customNotes: ''
   easyEffects: |-
     [On Applied]
+    set flag "staggerRemain" on item to 2;
     require (self.flag.indomitable_removeStaggered) == 1 then
       lose all Staggered on self and
       clear flag "indomitable_removeStaggered" on self;
     set flag "isStaggered" on self to 1;
     deal 5 sp damage to self;
     heal 1 light to self;
+    proc Staggered on self;
 
     [Always Active]
     set resistances to fatal;
 
+    [Start of Round]
+    reduce flag "staggerRemain" on item by 1;
+    require (item.flag.staggerRemain) <= 0 then lose all Staggered;
+
+    [On Combat End]
+    set flag "skipStaggerBonus" on self to 1;
+    lose all Staggered;
+
     [On Removed]
     clear flag "isStaggered" on self;
     set st to max;
-    gain 10 tempSt on self;
+    require (self.flag.skipStaggerBonus) == 0 then gain 10 tempSt on self;
+    clear flag "skipStaggerBonus" on self;
 effects: []
 folder: null
 sort: 100000

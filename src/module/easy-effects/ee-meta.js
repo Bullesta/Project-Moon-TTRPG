@@ -125,6 +125,34 @@ function storedFlagMap(doc) {
   return doc?.flags?.[EE_FLAG_SCOPE]?.[EE_FLAG_BLOB]?.flags ?? {};
 }
 
+/**
+ * Persisted EE flags only.
+ */
+export function listPersistentFlags(doc) {
+  const stored = storedFlagMap(doc);
+  const rows = [];
+
+  for (const [encoded, value] of Object.entries(stored)) {
+    let key;
+    try {
+      key = decodeFlagKey(encoded);
+    } catch (err) {
+      console.warn(`[EasyEffects] Skipped invalid encoded flag key '${encoded}'`, err);
+      continue;
+    }
+
+    if (!isValidFlagValue(value)) {
+      console.warn(`[EasyEffects] Skipped invalid flag value for '${key}'`);
+      continue;
+    }
+
+    rows.push({ key, value });
+  }
+
+  rows.sort((a, b) => a.key.localeCompare(b.key));
+  return rows;
+}
+
 /*
  * The emission overlay wins over persisted metadata. That makes staged writes
  * visible immediately and staged clears behave as missing before Foundry is

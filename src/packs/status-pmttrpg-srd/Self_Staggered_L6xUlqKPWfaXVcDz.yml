@@ -22,8 +22,10 @@ system:
   customNotes: ''
   easyEffects: |-
     [On Applied]
+    set flag "staggerRemain" on item to 2;
     set flag "isStaggered" on self to 1;
     proc SelfStagger on self;
+    proc Staggered on self;
     create dialog "Self-Stagger : Deal SP Damage to Self?":
       selfSpDamage as "Deal 5 SP Damage to Self",
       dont as "Don't"
@@ -36,10 +38,19 @@ system:
     [Always Active]
     set resistances to fatal;
 
+    [Start of Round]
+    reduce flag "staggerRemain" on item by 1;
+    require (item.flag.staggerRemain) <= 0 then lose all "Self-Staggered";
+
+    [On Combat End]
+    set flag "skipStaggerBonus" on self to 1;
+    lose all "Self-Staggered";
+
     [On Removed]
     clear flag "isStaggered" on self;
     set st to max;
-    gain 10 tempSt on self;
+    require (self.flag.skipStaggerBonus) == 0 then gain 10 tempSt on self;
+    clear flag "skipStaggerBonus" on self;
 effects: []
 folder: null
 sort: 0

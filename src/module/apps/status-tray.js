@@ -1,4 +1,5 @@
 import { groupStatuses, onStatusItemChange } from "../status/group-statuses.js";
+import { applyStatusFromDrop } from "./status-drop-dialog.js";
 
 const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
 const { TextEditor } = foundry.applications.ux;
@@ -202,7 +203,7 @@ function showStatusScrollingText(actor, statusName, added, amount = 1) {
   }
 }
 
-async function applyStatusToTokenDrop(data) {
+async function applyStatusToTokenDrop(data, event) {
   const item = await fromUuid(data.uuid);
   if (!item || item.type !== "status") return;
 
@@ -213,19 +214,14 @@ async function applyStatusToTokenDrop(data) {
     return;
   }
 
-  const stacks = Math.max(0, Math.trunc(Number(item.system?.stacks ?? 1) || 0));
-  if (stacks > 0) {
-    await actor.addStatusStacks(item.name, stacks, item, {
-      originUuid: game.user.character?.uuid ?? null,
-    });
-  }
+  await applyStatusFromDrop(actor, item, event);
 }
 
 function registerStatusCanvasDrop() {
-  Hooks.on("dropCanvasData", (_canvas, data) => {
+  Hooks.on("dropCanvasData", (_canvas, data, event) => {
     if (data?.type !== "Item" || !data.uuid) return;
     if (peekItemType(data.uuid) !== "status") return;
-    void applyStatusToTokenDrop(data);
+    void applyStatusToTokenDrop(data, event);
     return false;
   });
 }

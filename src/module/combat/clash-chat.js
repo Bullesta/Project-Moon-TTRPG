@@ -104,7 +104,7 @@ export async function postResultCard(state, defenseRoll = null, messageId = null
   const evadeWin        = defenderWon && (state.retaliationType === "evade"
     || state.retaliationType === "recycledEvade");
   const counterWin      = defenderWon && state.retaliationType === "counter";
-  const counterHit      = counterWin && state.counterInRange === true;
+  const counterHit      = counterWin;
   const counterOutOfRange = counterWin && state.counterInRange === false;
 
   // We (yes we) match the damage controls to the summary.
@@ -242,7 +242,7 @@ export function getClashApplyTarget(state) {
   const type = state.retaliationType;
   const blockWinSt = defenderWon && type === "block" && !state.blockWinStExempt;
   const evadeWin = defenderWon && (type === "evade" || type === "recycledEvade");
-  const counterHit = defenderWon && type === "counter" && state.counterInRange === true;
+  const counterHit = defenderWon && type === "counter";
 
   let side = null;
   let kind = "damage";

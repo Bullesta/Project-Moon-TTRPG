@@ -34,6 +34,7 @@ export class PMTTRPGActorNpcSheet extends PMTTRPGCharacterSheet {
       counterIncrease: PMTTRPGCharacterSheet.prototype._onCounterIncrease,
       counterDecrease: PMTTRPGCharacterSheet.prototype._onCounterDecrease,
       statusControl: PMTTRPGCharacterSheet.prototype._onStatusControl,
+      eeFlags: PMTTRPGCharacterSheet.prototype._onOpenEEFlags,
     },
   };
 

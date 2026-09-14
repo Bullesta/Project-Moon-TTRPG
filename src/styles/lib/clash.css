@@ -504,6 +504,38 @@
   font-weight: 500;
 }
 
+.clash-option__range-tag {
+  margin-left: auto;
+  font-size:   0.7rem;
+  font-weight: 600;
+  color:       #d7a34b;
+  white-space: nowrap;
+}
+
+.clash-range-notice {
+  display:     flex;
+  align-items: flex-start;
+  gap:         0.45rem;
+  padding:     0.5rem 0.6rem;
+  border:      1px solid rgba(215, 163, 75, 0.45);
+  border-radius: 6px;
+  background:  rgba(215, 163, 75, 0.12);
+  color:       #d7a34b;
+  font-size:   0.8rem;
+}
+
+.clash-range-notice[hidden] {
+  display: none;
+}
+
+.clash-range-notice i {
+  margin-top: 0.1rem;
+}
+
+.clash-range-notice__text {
+  margin: 0;
+}
+
 .clash-item-picker {
   display:        flex;
   flex-direction: column;

@@ -19,17 +19,6 @@
     font-family: var(--ct-font);
 }
 
-.ct .initiative-divider {
-    background-image: var(--ct-gradient);
-    margin: 0px;
-    z-index: 5;
-    position: relative;
-}
-
-.ct .initiative-divider:last-of-type {
-    display:none;
-}
-
 /* ── Wrapper ── */
 .ct .character {
     display: flex;
@@ -43,6 +32,37 @@
     user-select: none;
     width: 100%;
     box-sizing: border-box;
+    position: relative;
+}
+
+.ct .character:not(:last-child)::after {
+    content: "";
+    display: block;
+    height: 2px;
+    margin-top: var(--ct-gap);
+    background-image: var(--ct-gradient);
+}
+
+.ct .character.dragging {
+    opacity: 0.45;
+}
+
+.ct .character.drop-before::before {
+    content: "";
+    display: block;
+    height: 3px;
+    margin-bottom: var(--ct-gap);
+    background-image: var(--ct-gradient);
+    box-shadow: 0 0 6px var(--ct-gold);
+}
+
+.ct .character.drop-after::after {
+    content: "";
+    display: block;
+    height: 3px;
+    margin-top: var(--ct-gap);
+    background-image: var(--ct-gradient);
+    box-shadow: 0 0 6px var(--ct-gold);
 }
 
 /* additional styling when player's turn is active */
@@ -133,6 +153,18 @@
     min-width: 0;
     gap: var(--ct-gap);
     padding: 0 0 2px 0;
+}
+
+.ct .character--draggable .char-drag-handle {
+    cursor: grab;
+}
+
+.ct .character--draggable .char-drag-handle img {
+    -webkit-user-drag: none;
+}
+
+.ct .character--draggable .char-drag-handle:active {
+    cursor: grabbing;
 }
 
 /* ── Faction badge ── */
@@ -248,6 +280,14 @@
     font-size: 28px;
     margin-top: -5px;
     text-shadow: 0px 2px 3px rgba(0,0,0,0.5);
+}
+
+.ct input.initiative-value {
+    width: 3ch;
+    min-width: 2ch;
+    max-width: 4.5ch;
+    text-align: center;
+    user-select: text;
 }
 
 /* ── Main stat card (HP / Shield / Frost) ── */

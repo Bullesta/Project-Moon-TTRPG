@@ -29,6 +29,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - You can now have multiple Augments per actor.
 - While targeting, there is now a red square highlighting the actor's range.
 - There are now 2 buttons on the header of Actors allowing you to do End of Combat Healing and Out of Combat Resting (according to CR 3.x rules).
+- Alt+drop a status onto a token or character sheet to set quantity and apply it now, next round, or next turn.
+- GMs can now edit EasyEffects flags from the 3-dot menu on actor sheets, item sheets, and the combat tracker.
+- You can now drag combatants in the tracker to change turn order, and GMs and owners can type a new Speed.
 - [EasyEffects] added various CR automation scripts : 
     - **Charge & Overcharge**
     - [M] Increase Range
@@ -67,8 +70,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Augments can now be enabled and disabled at will.
 - Improved Styling of unequipped/inactive equipment.
 - Clashes now spend the attacker's Action and the defender's Reaction when needed.
+- [EasyEffects] `Staggered` and `Self-Staggered` expire after two `[Start of Round]` ticks and `proc Staggered` on apply.
+- You can Counter out of range. Winning still deals the counter, and the result card shows `Out of range`.
 - [EasyEffects] `[On Action]` now fires when spending an Action or Reaction (clash and the sheet buttons) and when using a tool, before clash dice, so Paralysis and Bleed tick at the right time.
 - Tool use now awaits EasyEffects `[On Use]` / `[On Action]` instead of only firing public hooks.
+
+### Removed
+
+- [EasyEffects] Dropped the unused `[On Stagger]` lifecycle trigger and the `pmttrpg.actorStaggered` hook.
 
 ### Cleanup
 
@@ -77,6 +86,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- Weapon range 0 no longer counts as 1.
+- Combat tracker now scrolls when there are too many combatants.
 - [EasyEffects] Outfit `Additional Reaction` now stamps `[Always Active] gain 1 Reaction`.
 - [EasyEffects] `[On Hit]` / `[On Hit Before Results]` now run on the attacker's active augments.
 - [EasyEffects] `Rupture Boost` and `Tremor Boost` now burst the clash loser (`on target`), so Block Clash Wins apply the Burst.

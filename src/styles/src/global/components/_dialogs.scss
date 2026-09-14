@@ -286,3 +286,38 @@
   .damage-icon[data-damage="pierce"] { background-image: url('../../assets/icons/sheet/00_pierce.webp'); }
   .damage-icon[data-damage="blunt"] { background-image: url('../../assets/icons/sheet/00_blunt.webp'); }
 }
+
+.status-drop-dialog {
+  .status-drop-dialog__name {
+    margin: 0 0 0.6rem;
+    font-weight: 700;
+  }
+
+  .status-drop-dialog__timings {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+    margin: 0.75rem 0 0;
+    padding: 0;
+    border: 0;
+  }
+
+  .status-drop-dialog__timings legend {
+    padding: 0;
+    margin-bottom: 0.35rem;
+    font-weight: 700;
+  }
+
+  .status-drop-dialog__timing {
+    display: flex;
+    align-items: center;
+    gap: 0.55rem;
+    padding: 0.45rem 0.6rem;
+    border: 1px solid rgba(214, 162, 74, 0.18);
+    border-radius: 10px;
+    background: rgba(61, 42, 31, 0.55);
+    cursor: pointer;
+
+    input { flex: 0 0 auto; }
+  }
+}

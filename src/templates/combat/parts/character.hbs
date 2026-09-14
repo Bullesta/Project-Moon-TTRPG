@@ -1,7 +1,8 @@
 <div 
-    class="character {{#if isExpanded}}is-expanded{{/if}} {{#if isCurrentTurn}}current-turn{{/if}}" 
+    class="character {{#if isExpanded}}is-expanded{{/if}} {{#if isCurrentTurn}}current-turn{{/if}} {{#if canDrag}}character--draggable{{/if}}" 
     {{#if actorData.system.details.color}}style="background: color-mix(var(--ct-bg), {{actorData.system.details.color}} 30%)"{{/if}}
     data-combatant-id="{{combatantData._id}}"
+    {{#if rolled}}data-rolled="true"{{/if}}
 >
     <div class="main-part">
         <div class="avatar-side">
@@ -24,9 +25,17 @@
         </div>
 
         <div class="right-side">
-            <div class="name-container" data-tracker-context data-reveal-key="all">
+            <div
+                class="name-container{{#if canDrag}} char-drag-handle{{/if}}"
+                data-tracker-context
+                data-reveal-key="all"
+                {{#if canDrag}}
+                    draggable="true"
+                    title="{{localize "PMTTRPG.Combat.ReorderHint"}}"
+                {{/if}}
+            >
                 {{#if actorData.system.details.badge}}
-                    <img class="faction-badge" src="{{actorData.system.details.badge}}">
+                    <img class="faction-badge" src="{{actorData.system.details.badge}}" draggable="false" alt="">
                 {{/if}}
                 <span class="char-name">{{actorData.name}}</span>
                 {{#ifEquals actorData.type 'npc'}}
@@ -39,8 +48,9 @@
 
             <div class="main-stats">
                 {{> "systems/projectmoonttrpg/templates/combat/parts/initiative-tracker.hbs"
-                    initiative=combatantData.initiative
+                    initiative=initiativeValue
                     showValue=showInitiativeValue
+                    editable=canEditInitiative
                     showRevealEye=showInitiativeEye
                     showHiddenEye=showInitiativeHiddenEye }}
 
