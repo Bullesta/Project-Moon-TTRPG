@@ -379,7 +379,10 @@ export async function rollInitiative(actor, { macroMisc = null, manualMisc = nul
         : combat.combatants.find(entry => entry.actorId === actor.id && !entry.token?.actorLink === false) ?? null);
 
     if (resolvedCombatant) {
-      await resolvedCombatant.update({ initiative: roll.total });
+      await resolvedCombatant.update({
+        initiative: roll.total,
+        "flags.projectmoonttrpg.turnTiebreak": 0,
+      });
     }
   }
 

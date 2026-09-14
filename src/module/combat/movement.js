@@ -1,4 +1,5 @@
 import { emitTokenMoved } from "../easy-effects/registry.js";
+import { compareCombatants } from "./turn-order.js";
 
 function combatantForToken(tokenDoc) {
   const combat = game.combat;
@@ -241,6 +242,14 @@ function registerCombatDocument() {
         }
       }
       return result;
+    }
+
+    /**
+     * setupTurns sorts combat.turns with this comparator.
+     * @override
+     */
+    _sortCombatants(a, b) {
+      return compareCombatants(a, b);
     }
 
     /**

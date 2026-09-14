@@ -2,6 +2,13 @@ import { PMTTRPGUtility } from "../utility.js";
 import { emitCombatEnd, emitCombatStart, emitEndOfRound, emitEndOfTurn, emitStartOfRound, emitTurnStart } from "../easy-effects/registry.js";
 import { beginCombatLifecyclePass, endCombatLifecyclePass } from "../status/lifecycle-pass.js";
 import { rollInitiative } from "../targeting.js";
+import {
+  applyManualInitiative,
+  canControlCombatantOrder,
+  isRolledCombatant,
+  neighborsFromDrop,
+  placeCombatantInOrder,
+} from "./turn-order.js";
 const { renderTemplate } = foundry.applications.handlebars;
 
 const combatTurnSnapshots = new Map();
@@ -274,6 +281,24 @@ function combatantFromTrackerCard(target) {
   return game.combat?.combatants.get(id) ?? null;
 }
 
+function combatantIdFromDrag(event) {
+  const transfer = event.originalEvent?.dataTransfer ?? event.dataTransfer;
+  const raw = transfer?.getData("text/plain");
+  if (!raw) return null;
+  try {
+    const data = JSON.parse(raw);
+    return data?.type === "Combatant" ? data.combatantId ?? null : null;
+  } catch {
+    return null;
+  }
+}
+
+function clearTrackerDropState() {
+  for (const card of document.querySelectorAll(".ct .character.dragging, .ct .character.drop-before, .ct .character.drop-after")) {
+    card.classList.remove("dragging", "drop-before", "drop-after");
+  }
+}
+
 function combatantCanvasToken(combatant) {
   if (!canvas.ready) return null;
   const token = combatant?.token?.object ?? null;
@@ -364,6 +389,88 @@ export class CombatSidebarPMTTRPG {
           }
       });
 
+      $('body').on('blur', '.ct [data-initiative-value]', async (event) => {
+        const input = event.currentTarget;
+        const combatant = combatantFromTrackerCard(input);
+        const combat = game.combat;
+        if (!combat || !combatant || !canControlCombatantOrder(combatant)) {
+          ui.combat.render();
+          return;
+        }
+
+        const raw = String(input.value ?? "").trim();
+        const result = await applyManualInitiative(combat, combatant, raw);
+        if (result === false) ui.combat.render();
+      });
+
+      $('body').on('keydown', '.ct [data-initiative-value]', (event) => {
+        if (event.key === 'Enter') {
+          event.preventDefault();
+          event.currentTarget.blur();
+        }
+      });
+
+      $('body').on('dragstart', '.ct .char-drag-handle', (event) => {
+        const card = event.currentTarget.closest('[data-combatant-id]');
+        const combatant = combatantFromTrackerCard(card);
+        if (!card || !canControlCombatantOrder(combatant)) {
+          event.preventDefault();
+          return;
+        }
+
+        const transfer = event.originalEvent?.dataTransfer ?? event.dataTransfer;
+        if (!transfer) {
+          event.preventDefault();
+          return;
+        }
+
+        transfer.effectAllowed = "move";
+        transfer.setData("text/plain", JSON.stringify({
+          type: "Combatant",
+          combatantId: combatant.id,
+        }));
+        card.classList.add("dragging");
+      });
+
+      $('body').on('dragend', '.ct .character', () => {
+        clearTrackerDropState();
+      });
+
+      $('body').on('dragover', '.ct .character', (event) => {
+        const transfer = event.originalEvent?.dataTransfer ?? event.dataTransfer;
+        if (transfer) transfer.dropEffect = "move";
+        event.preventDefault();
+
+        const card = event.currentTarget;
+        const clientY = event.originalEvent?.clientY ?? event.clientY;
+        const rect = card.getBoundingClientRect();
+        const placeBefore = clientY < rect.top + (rect.height / 2);
+        for (const entry of document.querySelectorAll(".ct .character.drop-before, .ct .character.drop-after")) {
+          if (entry !== card) entry.classList.remove("drop-before", "drop-after");
+        }
+        card.classList.toggle("drop-before", placeBefore);
+        card.classList.toggle("drop-after", !placeBefore);
+      });
+
+      $('body').on('drop', '.ct .character', async (event) => {
+        event.preventDefault();
+        event.stopPropagation();
+        const card = event.currentTarget;
+        const placeBefore = card.classList.contains("drop-before");
+        clearTrackerDropState();
+
+        const combat = game.combat;
+        if (!combat) return;
+        const droppedId = combatantIdFromDrag(event);
+        const dropped = droppedId ? combat.combatants.get(droppedId) : null;
+        const target = combatantFromTrackerCard(card);
+        if (!dropped || !canControlCombatantOrder(dropped)) return;
+
+        const neighbors = neighborsFromDrop(combat, dropped, target, placeBefore);
+        if (!neighbors) return;
+        await placeCombatantInOrder(combat, dropped, neighbors);
+      });
+
       this.#bindCombatantContextMenu();
     });
 
@@ -423,6 +530,7 @@ export class CombatSidebarPMTTRPG {
       combatTurnSnapshots.delete(combat.id);
 
       if (snapshot.turn === combat.turn && snapshot.round === combat.round) return;
+      if (snapshot.combatantId === combat.combatant?.id && snapshot.round === combat.round) return;
 
       const statusMacros = game.projectmoonttrpg?.statusMacros;
       if (!statusMacros) return;
@@ -580,8 +688,6 @@ export class CombatSidebarPMTTRPG {
       if (game.combat) {
         let combatants = this.getCombatantsData();
 
-        combatants.sort((a, b) => b.combatantData.initiative - a.combatantData.initiative);
-
         let template = 'systems/projectmoonttrpg/templates/combat/combat-turn-order.hbs';
         let templateData = {
           combatants: combatants
@@ -599,22 +705,32 @@ export class CombatSidebarPMTTRPG {
   }
 
   /**
-   * Retrieve a flat, initiative-sorted list of combatants for the current combat.
-   *
-   * @param {Object}   [options]
-   * @returns {Array}
+   * Build tracker rows in combat.turns order.
    */
   getCombatantsData() {
     if (!game.combat) return [];
 
     const toDelete = [];
     const combatants = [];
+    const seen = new Set();
+    const ordered = [];
 
     for (const combatant of game.combat.combatants) {
-      if (!combatant.actor) {
-        toDelete.push(combatant._id);
-        continue;
-      }
+      if (!combatant.actor) toDelete.push(combatant._id);
+    }
+
+    for (const combatant of game.combat.turns ?? []) {
+      if (!combatant.actor || seen.has(combatant.id)) continue;
+      seen.add(combatant.id);
+      ordered.push(combatant);
+    }
+
+    for (const combatant of game.combat.combatants) {
+      if (!combatant.actor || seen.has(combatant.id)) continue;
+      ordered.push(combatant);
+    }
+
+    for (const combatant of ordered) {
 
       const actorData = combatant.actor;
       const canEdit = combatant.isOwner || game.user.isGM;
@@ -717,21 +833,22 @@ export class CombatSidebarPMTTRPG {
         || showStat("reactions")
         || showStat("movement")
         || showStat("light");
-      let isCurrentTurn = false;
-
-      if(combatant === game.combat.combatant) {
-        isCurrentTurn = true;
-      }
+      const rolled = isRolledCombatant(combatant);
+      const showInitiativeValue = showStat("initiative");
 
       combatants.push({
         combatantData: combatant,
         actorData,
         mainStats,
         detailedStats,
-        isCurrentTurn,
+        isCurrentTurn: combatant === game.combat.combatant,
         isExpanded: this.#expandedIds.has(combatant._id),
         showDetails,
-        showInitiativeValue: showStat("initiative"),
+        showInitiativeValue,
+        canEditInitiative: canEdit && showInitiativeValue,
+        canDrag: canEdit,
+        rolled,
+        initiativeValue: rolled ? Number(combatant.initiative) : "",
         showInitiativeEye: showRevealEye("initiative"),
         showInitiativeHiddenEye: showHiddenEye("initiative"),
         showNameRevealEye: game.user.isGM && !revealAll && anyRevealed,
@@ -742,13 +859,6 @@ export class CombatSidebarPMTTRPG {
     if (toDelete.length) {
       game.combat.deleteEmbeddedDocuments('Combatant', toDelete);
     }
-
-    // Sort by initiative, pushing null/undefined initiative to the end.
-    combatants.sort((a, b) => {
-      if (a.initiative == null) return 1;
-      if (b.initiative == null) return -1;
-      return Number(a.initiative) - Number(b.initiative);
-    });
 
     return combatants;
   }
