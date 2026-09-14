@@ -11,3 +11,7 @@ node_modules/
 dist/
 /pbta/
 /pbta.zip
+
+# Patreon Release Stuff
+release-patreon.py
+__pycache__
