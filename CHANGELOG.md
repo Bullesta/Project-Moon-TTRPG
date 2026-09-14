@@ -36,8 +36,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Augments can now be enabled and disabled at will.
 - Improved Styling of unequipped/inactive equipment.
 - Clashes now spend the attacker's Action and the defender's Reaction when needed.
+- [EasyEffects] `Staggered` and `Self-Staggered` expire after two `[Start of Round]` ticks and `proc Staggered` on apply.
 - [EasyEffects] `[On Action]` now fires when spending an Action or Reaction (clash and the sheet buttons) and when using a tool, before clash dice, so Paralysis and Bleed tick at the right time.
 - Tool use now awaits EasyEffects `[On Use]` / `[On Action]` instead of only firing public hooks.
+
+### Removed
+
+- [EasyEffects] Dropped the unused `[On Stagger]` lifecycle trigger and the `pmttrpg.actorStaggered` hook.
 
 ### Cleanup
 

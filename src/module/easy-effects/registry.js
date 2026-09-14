@@ -608,19 +608,6 @@ const TRIGGER_HOOKS = [
     },
   },
 
-  // ── [On Stagger] ────────────────────────────────────────────────────────────
-  {
-    hook: "pmttrpg.actorStaggered",
-    triggerName: "On Stagger",
-    getItems: ({ actor }) => getEquippedItems(actor),
-    buildContext: ({ actor, attacker }) => ({
-      self:   actor,
-      target: attacker ?? null,
-      ally:   null,
-      clash:  null,
-    }),
-  },
-
   // ── [On Applied] ────────────────────────────────────────────────────────────
   // Fires when the status effect is applied.
   {

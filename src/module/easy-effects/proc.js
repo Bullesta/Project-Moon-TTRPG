@@ -16,7 +16,6 @@ const RESERVED_PROC_NAMES = new Set([
   "equip",
   "unequip",
   "action",
-  "stagger",
   "applied",
   "gain",
   "lose",
