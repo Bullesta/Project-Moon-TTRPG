@@ -142,7 +142,6 @@ export function createClashState({
     hpDamage:  null,
     stDamage:  null,
 
-    // Counter Win range gate
     counterInRange: null,
 
     // Ranged attackers take no Block Win ST rebound
@@ -156,7 +155,7 @@ export function createClashState({
 
 /**
  * Combatant who caused the HP/ST on the result card, if any.
- * Evade regen, Counter out of range, and ranged Block exemption have no source.
+ * Evade regen and ranged Block exemption have no source.
  *
  * @param {object|null|undefined} state
  * @returns {{
@@ -174,7 +173,7 @@ export function getClashDamageSourceRef(state) {
   const attackerWon = state.result === "attackWin";
   const defenderWon = state.result === "defenseWin";
   const type = state.retaliationType;
-  const counterHit = defenderWon && type === "counter" && state.counterInRange === true;
+  const counterHit = defenderWon && type === "counter";
   const blockWinSt = defenderWon && type === "block" && !state.blockWinStExempt;
 
   if (attackerWon) {

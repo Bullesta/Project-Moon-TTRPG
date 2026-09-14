@@ -26,6 +26,7 @@
  */
 
 import { PMTTRPGUtility } from "../utility.js";
+import { showWeaponRange, hideWeaponRange } from "../canvas/token.js";
 import {
   getAppliedToolOptions,
   isAppliedToolEligible,
@@ -67,12 +68,28 @@ export async function showInterceptConfirmDialog(actorName = "") {
  * @param {ClashStateData} state
  * @param {object} [options]
  * @param {boolean} [options.isIntercept=false]
+ * @param {string|null} [options.retaliatorTokenId]
  * @returns {Promise<RetaliationChoice|null>}
  */
-export async function showRetaliationDialog(actor, state, { isIntercept = false } = {}) {
+export async function showRetaliationDialog(actor, state, { isIntercept = false, retaliatorTokenId = null } = {}) {
   const equippedWeapons = actor.items
     .filter(i => i.type === "weapon" && i.system?.equipped)
-    .map(i => ({ id: i.id, name: i.name, img: i.img, type: "weapon" }));
+    .map(i => {
+      const check = PMTTRPGUtility.getWeaponRangeCheck(
+        retaliatorTokenId,
+        state.attackerTokenId,
+        { weapon: i },
+      );
+      return {
+        id: i.id,
+        name: i.name,
+        img: i.img,
+        type: "weapon",
+        range: check.range,
+        distance: check.distance,
+        inRange: check.inRange,
+      };
+    });
 
   const equippedOutfits = actor.items
     .filter(i => i.type === "outfit" && i.system?.equipped)
@@ -121,6 +138,9 @@ export async function showRetaliationDialog(actor, state, { isIntercept = false 
   };
 
   const html = await renderTemplate(TEMPLATE_RETALIATION, templateData);
+  const hideRange = () => {
+    if (retaliatorTokenId) hideWeaponRange(retaliatorTokenId);
+  };
 
   return foundry.applications.api.DialogV2.wait({
     window: { title: templateData.i18n.title },
@@ -132,17 +152,24 @@ export async function showRetaliationDialog(actor, state, { isIntercept = false 
         label: templateData.i18n.confirm,
         icon: "fa-solid fa-check",
         default: true,
-        callback: (event, button, dialog) => _readRetaliationForm(dialog, actor),
+        callback: (event, button, dialog) => {
+          hideRange();
+          return _readRetaliationForm(dialog, actor);
+        },
       },
       {
         action: "cancel",
         label: templateData.i18n.cancel,
         icon: "fa-solid fa-xmark",
-        callback: () => null,
+        callback: () => {
+          hideRange();
+          return null;
+        },
       },
     ],
     rejectClose: false,
-    render: (event, dialog) => _bindRetaliationDialogListeners(dialog),
+    render: (event, dialog) => _bindRetaliationDialogListeners(dialog, { retaliatorTokenId }),
+    close: hideRange,
   });
 }
 
@@ -378,10 +405,31 @@ export async function promptRangedCounterAmmo(actor, weapon) {
   });
 }
 
-/**
- * Wires show/hide of the item picker sub-list based on which option is selected.
- */
-function _bindRetaliationDialogListeners(dialog) {
+function _counterRangeFromOption(src) {
+  if (!src) return null;
+  const rangeRaw = src.dataset.range;
+  const distanceRaw = src.dataset.distance;
+  const range = rangeRaw === "" || rangeRaw == null ? null : Number(rangeRaw);
+  const distance = distanceRaw === "" || distanceRaw == null ? null : Number(distanceRaw);
+  return {
+    inRange: src.dataset.inRange !== "0",
+    range: Number.isFinite(range) ? range : null,
+    distance: Number.isFinite(distance) ? distance : null,
+  };
+}
+
+function _counterOutOfRangeNotice(check) {
+  if (!check || check.inRange) return "";
+  if (check.distance != null && check.range != null) {
+    return game.i18n.format("PMTTRPG.Clash.CounterOutOfRangeHintMeasured", {
+      distance: check.distance,
+      range: check.range,
+    });
+  }
+  return game.i18n.localize("PMTTRPG.Clash.CounterOutOfRangeHint");
+}
+
+function _bindRetaliationDialogListeners(dialog, { retaliatorTokenId = null } = {}) {
   const el = dialog.element;
   if (!el) return;
 
@@ -394,6 +442,10 @@ function _bindRetaliationDialogListeners(dialog) {
   const toolPicker = el.querySelector(".clash-tool-picker");
   const toolSelect = el.querySelector("[name='appliedToolId']");
   const toolConsumeWrap = el.querySelector(".clash-tool-consume");
+  const itemSelect = el.querySelector("[name='retaliationItemId']");
+  const rangeTag = el.querySelector(".clash-option__range-tag");
+  const rangeNotice = el.querySelector(".clash-range-notice");
+  const rangeNoticeText = el.querySelector(".clash-range-notice__text");
 
   const fillNoneOption = (select, label) => {
     if (!select) return;
@@ -442,6 +494,28 @@ function _bindRetaliationDialogListeners(dialog) {
     refreshToolConsume();
   };
 
+  const refreshCounterRange = () => {
+    const selected = el.querySelector("[name='retaliationType']:checked")?.value;
+    const isCounter = selected === RETALIATION_TYPES.COUNTER;
+    let src = null;
+    if (isCounter && itemSelect?.value) {
+      src = el.querySelector(`.clash-item-option[data-type="counter"][data-item-id="${itemSelect.value}"]`);
+    } else {
+      src = el.querySelector('.clash-item-option[data-type="counter"]');
+    }
+    const check = _counterRangeFromOption(src);
+    const text = _counterOutOfRangeNotice(check);
+    if (rangeTag) rangeTag.hidden = !text;
+    if (rangeNotice) rangeNotice.hidden = !(isCounter && text);
+    if (rangeNoticeText) rangeNoticeText.textContent = isCounter ? text : "";
+
+    if (isCounter && retaliatorTokenId && check?.range != null) {
+      showWeaponRange(retaliatorTokenId, check.range);
+    } else if (retaliatorTokenId) {
+      hideWeaponRange(retaliatorTokenId);
+    }
+  };
+
   const refreshPicker = () => {
     const selected = el.querySelector("[name='retaliationType']:checked")?.value;
     const needsItem = [
@@ -459,7 +533,6 @@ function _bindRetaliationDialogListeners(dialog) {
         : (itemKind.dataset.weapon || itemKind.textContent);
     }
 
-    const itemSelect = el.querySelector("[name='retaliationItemId']");
     if (itemSelect && needsItem) {
       const items = el.querySelectorAll(`.clash-item-option[data-type="${selected}"]`);
       itemSelect.innerHTML = "";
@@ -489,6 +562,7 @@ function _bindRetaliationDialogListeners(dialog) {
     if (skillPicker) skillPicker.style.display = hasSkills ? "" : "none";
     refreshConsume();
     refreshTools();
+    refreshCounterRange();
   };
 
   for (const radio of radios) {
@@ -499,6 +573,7 @@ function _bindRetaliationDialogListeners(dialog) {
     refreshTools();
   });
   toolSelect?.addEventListener("change", refreshToolConsume);
+  itemSelect?.addEventListener("change", refreshCounterRange);
 
   refreshPicker();
 }

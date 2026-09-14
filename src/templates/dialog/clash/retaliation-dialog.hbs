@@ -39,6 +39,9 @@
             {{localize label}}
           {{/if}}
         </span>
+        {{#if (eq type "counter")}}
+          <span class="clash-option__range-tag" hidden>{{localize "PMTTRPG.Dialog.outOfRange"}}</span>
+        {{/if}}
 
         {{!-- Inline item data for JS to read --}}
         {{#if requiresItem}}
@@ -48,6 +51,11 @@
               data-type="{{../type}}"
               data-item-id="{{id}}"
               data-item-name="{{name}}"
+              {{#if (eq ../type "counter")}}
+              data-in-range="{{#if inRange}}1{{else}}0{{/if}}"
+              data-range="{{range}}"
+              data-distance="{{distance}}"
+              {{/if}}
               hidden
             ></span>
           {{/each}}
@@ -69,6 +77,11 @@
     </label>
     <select name="retaliationItemId" class="clash-item-picker__select">
     </select>
+  </div>
+
+  <div class="clash-range-notice" hidden>
+    <i class="fa-solid fa-ruler-combined" aria-hidden="true"></i>
+    <p class="clash-range-notice__text"></p>
   </div>
 
   {{!-- Optional Skill matching the chosen Reaction --}}

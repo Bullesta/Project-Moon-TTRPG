@@ -202,7 +202,7 @@ export async function handleRetaliateClick(state, { isIntercept = false } = {}) 
     if (!confirmed) return;
   }
 
-  const choice = await showRetaliationDialog(retaliatorActor, state, { isIntercept });
+  const choice = await showRetaliationDialog(retaliatorActor, state, { isIntercept, retaliatorTokenId });
   if (!choice) return;
   if (choice.type === RETALIATION_TYPES.RECYCLED_EVADE && !getRecycledEvade(retaliatorActor)) {
     ui.notifications.warn(game.i18n.localize("PMTTRPG.Clash.RecycledEvadeGone"));
@@ -484,7 +484,7 @@ async function _executeClash(state, retaliatorActor, choice) {
 
   // Compute damage using accumulated bonuses.
   // - Attack win: Block Lose reduces by margin; Counter/Evade/one-sided keep full attack.
-  // - Counter win: if original attacker is in counter weapon range, they take the counter.
+  // - Counter win: attacker takes the counter.
   // - Block win: ST rebound to attacker, except ranged attackers.
   const counterItem = choice.type === RETALIATION_TYPES.COUNTER ? (choice.item ?? null) : null;
   let counterConnects = false;
@@ -504,18 +504,18 @@ async function _executeClash(state, retaliatorActor, choice) {
       );
     }
   } else if (result === CLASH_RESULTS.DEFENSE_WIN && counterItem) {
-    const inRange = PMTTRPGUtility.isTargetInWeaponRange(
+    const range = PMTTRPGUtility.getWeaponRangeSquares(counterItem)
+      + (Number(clashCtx.bonuses?.defender?.rangeBonus) || 0);
+    const inRange = PMTTRPGUtility.getWeaponRangeCheck(
       state.retaliatorTokenId,
       state.attackerTokenId,
-      {weapon: counterItem},
-    );
+      { weaponRange: range },
+    ).inRange;
     state.counterInRange = inRange;
-    if (inRange) {
-      counterConnects = true;
-      state.hpDamage = defenseResult.total;
-      state.stDamage = defenseResult.total;
-      state.damageType = _counterDamageType(counterItem, choice, defenderAppliedTool);
-    }
+    counterConnects = true;
+    state.hpDamage = defenseResult.total;
+    state.stDamage = defenseResult.total;
+    state.damageType = _counterDamageType(counterItem, choice, defenderAppliedTool);
   }
 
   state.phase    = CLASH_PHASES.RESOLVED;

@@ -115,13 +115,14 @@ export class PMTTRPGUtility {
   }
 
   /**
-   * Effective weapon range in squares.
-   * Melee 1, Long melee 2, Ranged 10.
-   * @param {Item|null} weapon
-   * @returns {number}
+   * Reads prepared `system.range`. `0` is a valid range.
+   * Missing or non-numeric values fall back to 1.
    */
   static getWeaponRangeSquares(weapon) {
-    return weapon?.system?.range || 1;
+    const raw = weapon?.system?.range;
+    if (raw == null || raw === "") return 1;
+    const range = Number(raw);
+    return Number.isFinite(range) ? range : 1;
   }
 
   /**
@@ -139,14 +140,25 @@ export class PMTTRPGUtility {
   
     return Math.max(Math.abs(a.i - b.i), Math.abs(a.j - b.j));
   }
-  
-  static isTargetInWeaponRange(fromTokenId, toTokenId, { weapon = null, weaponRange = 1 }) {    
+
+  /**
+   * Compares grid distance to a square count.
+   * Uses the weapon's prepared range when `weapon` is passed, otherwise `weaponRange`.
+   * Missing tokens or a missing grid return `inRange` true.
+   */
+  static getWeaponRangeCheck(fromTokenId, toTokenId, { weapon = null, weaponRange = null } = {}) {
     const from = fromTokenId ? canvas.tokens.get(fromTokenId) : null;
-    const to   = toTokenId ? canvas.tokens.get(toTokenId) : null;
+    const to = toTokenId ? canvas.tokens.get(toTokenId) : null;
     const distance = PMTTRPGUtility.tokenDistanceSquares(from, to);
-    if (distance == null) return true;
-    if(weapon) return distance <= PMTTRPGUtility.getWeaponRangeSquares(weapon);
-    else return distance <= weaponRange;
+    const range = weapon != null
+      ? PMTTRPGUtility.getWeaponRangeSquares(weapon)
+      : (Number.isFinite(Number(weaponRange)) ? Number(weaponRange) : 1);
+    if (distance == null) return { inRange: true, distance: null, range };
+    return { inRange: distance <= range, distance, range };
+  }
+
+  static isTargetInWeaponRange(fromTokenId, toTokenId, options = {}) {
+    return PMTTRPGUtility.getWeaponRangeCheck(fromTokenId, toTokenId, options).inRange;
   }
 
   /**
