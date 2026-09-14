@@ -5,6 +5,7 @@ import { buildEffectSummaryGroups } from "../effects/effect-summary.js";
 import { groupStatuses } from "../status/group-statuses.js";
 import { isPendingStatus } from "../status/pending.js";
 import { EasyEffectsEditor } from "../apps/easy-effects-editor.js";
+import { applyStatusFromDrop } from "../apps/status-drop-dialog.js";
 import { buildEffectiveResistanceDisplay, DAMAGE_TYPES } from "../damage-application.js";
 import { getDiceType } from "../integrations/dice-so-nice.js";
 
@@ -936,6 +937,8 @@ export class PMTTRPGCharacterSheet extends HandlebarsApplicationMixin(ActorSheet
     const html = await renderTemplate("systems/projectmoonttrpg/templates/dialog/apply-end-of-combat-healing.hbs", { data });
     const confirmed = await foundry.applications.api.DialogV2.confirm({
       window: { title: game.i18n.localize("PMTTRPG.Sheet.Dialog.ApplyEOCHeal") },
+      position: pmttrpgDialogPosition(),
+      classes: pmttrpgDialogClasses(),
       content: html,
       rejectClose: false,
       modal: true,
@@ -966,6 +969,8 @@ export class PMTTRPGCharacterSheet extends HandlebarsApplicationMixin(ActorSheet
     const html = await renderTemplate("systems/projectmoonttrpg/templates/dialog/apply-out-of-combat-healing.hbs", { data });
     const hours = await foundry.applications.api.DialogV2.prompt({
       window: { title: game.i18n.localize("PMTTRPG.Sheet.Dialog.ApplyOOCHeal") },
+      position: pmttrpgDialogPosition(),
+      classes: pmttrpgDialogClasses(),
       content: html,
       ok: {
         label: game.i18n.localize("PMTTRPG.Sheet.Dialog.RestConfirm"),
@@ -1300,11 +1305,7 @@ export class PMTTRPGCharacterSheet extends HandlebarsApplicationMixin(ActorSheet
     if (item.parent?.id === this.actor.id) return null;
 
     if (item.type === "status") {
-      const stacks = Math.max(0, Math.trunc(Number(item.system?.stacks ?? 1) || 0));
-      if (stacks <= 0) return null;
-      return this.actor.addStatusStacks(item.name, stacks, item, {
-        originUuid: game.user.character?.uuid ?? null,
-      });
+      return applyStatusFromDrop(this.actor, item, event);
     }
 
     return super._onDropItem(event, item);

@@ -29,6 +29,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - You can now have multiple Augments per actor.
 - While targeting, there is now a red square highlighting the actor's range.
 - There are now 2 buttons on the header of Actors allowing you to do End of Combat Healing and Out of Combat Resting (according to CR 3.x rules).
+- Alt+drop a status onto a token or character sheet to set quantity and apply it now, next round, or next turn.
 
 ### Changed
 

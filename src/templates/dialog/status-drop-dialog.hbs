@@ -1,0 +1,22 @@
+<div class="status-drop-dialog">
+  <p class="status-drop-dialog__name">{{name}}</p>
+  <div class="form-group">
+    <label for="pmttrpg-status-drop-quantity">{{localize "PMTTRPG.StatusDropDialog.Quantity"}}</label>
+    <input id="pmttrpg-status-drop-quantity" type="number" name="quantity" min="1" step="1" value="{{stacks}}" />
+  </div>
+  <fieldset class="status-drop-dialog__timings">
+    <legend>{{localize "PMTTRPG.StatusDropDialog.When"}}</legend>
+    <label class="status-drop-dialog__timing">
+      <input type="radio" name="timing" value="now" checked />
+      <span>{{localize "PMTTRPG.StatusDropDialog.ApplyNow"}}</span>
+    </label>
+    <label class="status-drop-dialog__timing">
+      <input type="radio" name="timing" value="round" />
+      <span>{{localize "PMTTRPG.StatusTrayPendingRound"}}</span>
+    </label>
+    <label class="status-drop-dialog__timing">
+      <input type="radio" name="timing" value="turn" />
+      <span>{{localize "PMTTRPG.StatusTrayPendingTurn"}}</span>
+    </label>
+  </fieldset>
+</div>
