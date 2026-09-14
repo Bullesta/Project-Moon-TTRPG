@@ -1,0 +1,68 @@
+<div class="pm-ee-flags__body">
+  <section class="pm-ee-flags__list" aria-label="{{localize "PMTTRPG.EEFlagInspector.Title"}}">
+    {{#if hasRows}}
+    {{#each rows as |row|}}
+    <article class="pm-ee-flags__row" data-flag-key="{{row.key}}" data-flag-type="{{row.type}}">
+      <code class="pm-ee-flags__key">{{row.key}}</code>
+      <div class="pm-ee-flags__controls">
+        <select class="pm-ee-flags__type" data-field="type" aria-label="{{localize "PMTTRPG.EEFlagInspector.Type"}}">
+          {{selectOptions ../typeOptions selected=row.type localize=true}}
+        </select>
+        {{#if row.isBoolean}}
+        <select class="pm-ee-flags__value" data-field="value" aria-label="{{localize "PMTTRPG.EEFlagInspector.Value"}}">
+          <option value="true"{{#if (eq row.value true)}} selected{{/if}}>{{localize "PMTTRPG.EEFlagInspector.BooleanTrue"}}</option>
+          <option value="false"{{#if (eq row.value false)}} selected{{/if}}>{{localize "PMTTRPG.EEFlagInspector.BooleanFalse"}}</option>
+        </select>
+        {{else if row.isNumber}}
+        <input class="pm-ee-flags__value" type="number" data-field="value" value="{{row.value}}" step="any" aria-label="{{localize "PMTTRPG.EEFlagInspector.Value"}}">
+        {{else}}
+        <input class="pm-ee-flags__value" type="text" data-field="value" value="{{row.value}}" aria-label="{{localize "PMTTRPG.EEFlagInspector.Value"}}">
+        {{/if}}
+        <button type="button" class="pm-ee-flags__clear icon" data-action="clearFlag" data-flag-key="{{row.key}}" data-tooltip="{{localize "PMTTRPG.EEFlagInspector.Clear"}}" aria-label="{{localize "PMTTRPG.EEFlagInspector.Clear"}}">
+          <i class="fa-solid fa-trash"></i>
+        </button>
+      </div>
+    </article>
+    {{/each}}
+    {{else}}
+    <p class="pm-ee-flags__empty">{{localize "PMTTRPG.EEFlagInspector.Empty"}}</p>
+    {{/if}}
+  </section>
+
+  <section class="pm-ee-flags__add">
+    <label class="pm-ee-flags__field">
+      <span>{{localize "PMTTRPG.EEFlagInspector.Key"}}</span>
+      <input type="text" data-draft="key" value="{{draft.key}}" spellcheck="false">
+    </label>
+    <div class="pm-ee-flags__add-row">
+      <label class="pm-ee-flags__field">
+        <span>{{localize "PMTTRPG.EEFlagInspector.Type"}}</span>
+        <select data-draft="type">
+          {{selectOptions typeOptions selected=draft.type localize=true}}
+        </select>
+      </label>
+      <label class="pm-ee-flags__field pm-ee-flags__field--value">
+        <span>{{localize "PMTTRPG.EEFlagInspector.Value"}}</span>
+        {{#if draftIsBoolean}}
+        <select data-draft="value">
+          <option value="true"{{#if (eq draft.value "true")}} selected{{/if}}>{{localize "PMTTRPG.EEFlagInspector.BooleanTrue"}}</option>
+          <option value="false"{{#if (eq draft.value "false")}} selected{{/if}}>{{localize "PMTTRPG.EEFlagInspector.BooleanFalse"}}</option>
+        </select>
+        {{else if draftIsNumber}}
+        <input type="number" data-draft="value" value="{{draft.value}}" step="any">
+        {{else}}
+        <input type="text" data-draft="value" value="{{draft.value}}">
+        {{/if}}
+      </label>
+      <button type="button" class="pm-ee-flags__set" data-action="addFlag">
+        <span>{{localize "PMTTRPG.EEFlagInspector.Add"}}</span>
+      </button>
+    </div>
+  </section>
+</div>
+
+<footer class="pm-ee-flags__footer">
+  <button type="button" class="pm-ee-flags__clear-all" data-action="clearAll" {{#unless hasRows}}disabled{{/unless}}>
+    <span>{{localize "PMTTRPG.EEFlagInspector.ClearAll"}}</span>
+  </button>
+</footer>

@@ -33,6 +33,7 @@ import { registerChoiceDialogSocket } from "./easy-effects/choice-dialog.js";
 import { registerGmRouteSocket } from "./easy-effects/gm-route.js";
 import { registerStatusTray, registerStatusTraySettings } from "./apps/status-tray.js";
 import { registerWorldEasyEffectsSettings } from "./apps/easy-effects-editor.js";
+import { eeFlagsAPI } from "./apps/ee-flag-inspector.js";
 import { getActorWeaponDamageType, isSelectableDamageType } from "./damage-application.js";
 import {
   registerTokenStatusBadges,
@@ -68,6 +69,7 @@ Hooks.once("init", async function() {
     targeting: PMTTRPGTargetingAPI,
     statusMacros: PMTTRPGStatusMacroAPI,
     clash: PMTTRPGClashAPI,
+    eeFlags: eeFlagsAPI,
   };
 
   CONFIG.PMTTRPG = PMTTRPG;

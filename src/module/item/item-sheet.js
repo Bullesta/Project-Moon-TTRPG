@@ -9,6 +9,7 @@ import { bindEasyEffectsHighlighter } from "../easy-effects/highlight.js";
 import { emitItemEquipped } from "../easy-effects/registry.js";
 import { sluggify } from "../slug.js";
 import { isPendingStatus } from "../status/pending.js";
+import { openEEFlagInspector } from "../apps/ee-flag-inspector.js";
 
 const { ItemSheetV2 } = foundry.applications.sheets;
 const { HandlebarsApplicationMixin } = foundry.applications.api;
@@ -31,7 +32,7 @@ export class PMTTRPGItemSheet extends HandlebarsApplicationMixin(ItemSheetV2) {
 
   static DEFAULT_OPTIONS = {
     classes: ["projectmoonttrpg", "sheet", "item"],
-    position: { width: 520, height: 480 },
+    position: { width: 540, height: 560 },
     window: { resizable: true },
     form: {
       submitOnChange: true,
@@ -48,6 +49,7 @@ export class PMTTRPGItemSheet extends HandlebarsApplicationMixin(ItemSheetV2) {
       regenerateSlug: PMTTRPGItemSheet.prototype._onRegenerateSlug,
       "sync-easy-effects": PMTTRPGItemSheet.prototype._onSyncEasyEffects,
       syncEasyEffects: PMTTRPGItemSheet.prototype._onSyncEasyEffects,
+      eeFlags: PMTTRPGItemSheet.prototype._onOpenEEFlags,
     },
   };
 
@@ -59,9 +61,7 @@ export class PMTTRPGItemSheet extends HandlebarsApplicationMixin(ItemSheetV2) {
 
   _initializeApplicationOptions(options) {
     options = super._initializeApplicationOptions(options);
-    if (PMTTRPGUtility.nightmode && !options.classes.includes("nightmode")) {
-      options.classes.push("nightmode");
-    }
+    options.classes = (options.classes ?? []).filter((cls) => cls !== "nightmode");
     return options;
   }
 
@@ -73,6 +73,24 @@ export class PMTTRPGItemSheet extends HandlebarsApplicationMixin(ItemSheetV2) {
     }
     parts.body.scrollable ??= [".sheet-body"];
     return parts;
+  }
+
+  _getHeaderControls() {
+    const controls = super._getHeaderControls() ?? [];
+    if (!controls.some(c => c.action === "eeFlags")) {
+      controls.push({
+        icon: "fa-solid fa-flag",
+        label: "PMTTRPG.EEFlagInspector.HeaderControl",
+        action: "eeFlags",
+        visible: () => game.user.isGM,
+      });
+    }
+    return controls;
+  }
+
+  _onOpenEEFlags() {
+    if (!game.user.isGM) return;
+    openEEFlagInspector(this.item ?? this.document);
   }
 
   async _prepareContext(options) {
@@ -273,7 +291,8 @@ export class PMTTRPGItemSheet extends HandlebarsApplicationMixin(ItemSheetV2) {
       options: this.options,
       owner: this.document.isOwner,
       title: this.document.name,
-      activeTab: this.tabGroups?.primary ?? "description"
+      activeTab: this.tabGroups?.primary ?? "description",
+      itemTypeLabel: game.i18n.localize(`TYPES.Item.${this.document.type}`),
     });
 
     if (this._supportsEffects()) {

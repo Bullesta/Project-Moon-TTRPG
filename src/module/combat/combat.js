@@ -1,4 +1,5 @@
 import { PMTTRPGUtility } from "../utility.js";
+import { openEEFlagInspector } from "../apps/ee-flag-inspector.js";
 import { emitCombatEnd, emitCombatStart, emitEndOfRound, emitEndOfTurn, emitStartOfRound, emitTurnStart } from "../easy-effects/registry.js";
 import { beginCombatLifecyclePass, endCombatLifecyclePass } from "../status/lifecycle-pass.js";
 import { rollInitiative } from "../targeting.js";
@@ -333,6 +334,19 @@ export class CombatSidebarPMTTRPG {
       type: Boolean,
       default: false,
       onChange: () => ui.combat?.render(),
+    });
+
+    // Same 3-dot encounter menu as Reset Initiative.
+    Hooks.on("getCombatContextOptions", (app, menuItems) => {
+      menuItems.push({
+        label: "PMTTRPG.EEFlagInspector.CombatButton",
+        icon: "fa-solid fa-flag",
+        visible: () => game.user.isGM && !!app.viewed,
+        onClick: () => {
+          if (!game.user.isGM || !app.viewed) return;
+          openEEFlagInspector(app.viewed);
+        },
+      });
     });
 
     // Add support for damage rolls via event delegation.

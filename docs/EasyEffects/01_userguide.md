@@ -1040,6 +1040,7 @@ Not `enemies` / `allies` / `all`.
 
 - `event` lasts for this trigger only. `[On Hit]` and `[On Being Hit]` share it. A nested `roll`, `proc`, or `burst` starts a new set. A dialog answer keeps flags you set before `create dialog`.
 - The rest stay until you `clear` them (`self` on that actor, `item` on the item, `combat` on the encounter). Unequipping does not clear flags; use `[On Unequip]` if you set them in `[On Equip]`.
+- GMs can edit stored flags from the Actor or Item sheet header, and combat flags from the encounter menu on the combat tracker. The inspector lists stored EasyEffects metadata only. It does not show `event.flag`. That value lasts only for the current trigger.
 
 ```
 set flag "phase" on self to 2;
