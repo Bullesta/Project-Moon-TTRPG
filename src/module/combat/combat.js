@@ -321,6 +321,8 @@ export class CombatSidebarPMTTRPG {
   /** Tracks which combatant IDs are currently expanded. Survives re-renders. */
   #expandedIds = new Set();
 
+  #trackerScrollTop = 0;
+  
   /* Delegated to the document body so replacing tracker HTML does not drop the listener. */
   #combatantContextMenu = null;
 
@@ -335,6 +337,13 @@ export class CombatSidebarPMTTRPG {
       default: false,
       onChange: () => ui.combat?.render(),
     });
+
+    document.addEventListener("scroll", (event) => {
+      const target = event.target;
+      if (!(target instanceof HTMLElement)) return;
+      if (!target.classList.contains("ct") || !target.classList.contains("combat-tracker")) return;
+      this.#trackerScrollTop = target.scrollTop;
+    }, { capture: true, passive: true });
 
     // Same 3-dot encounter menu as Reset Initiative.
     Hooks.on("getCombatContextOptions", (app, menuItems) => {
@@ -710,6 +719,9 @@ export class CombatSidebarPMTTRPG {
         let content = await foundry.applications.handlebars.renderTemplate(template, templateData)
         newHtml.find('.combat-tracker').remove();
         newHtml.find('.combat-tracker-header').after(content);
+
+        const inserted = newHtml.find('.ct.combat-tracker')[0];
+        if (inserted) inserted.scrollTop = this.#trackerScrollTop;
 
         newHtml.find('.combat-tracker-header strong.encounter-title').text(
           game.i18n.format("PMTTRPG.Combat.Round", { round: game.combat.round })
