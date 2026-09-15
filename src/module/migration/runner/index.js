@@ -1,9 +1,7 @@
 import { MigrationRunnerBase } from "./base.js";
 
 export class MigrationRunner extends MigrationRunnerBase {
-  static LATEST_SCHEMA_VERSION = 0.001;
-  static MINIMUM_SAFE_VERSION = 0.001;
-  static RECOMMENDED_SAFE_VERSION = 0.001;
+  static LATEST_SCHEMA_VERSION = 0.01;
 
   /** Failure reasons from the most recent migration run, keyed by UUID */
   static lastRunFailures = new Map();

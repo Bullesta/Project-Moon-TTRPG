@@ -1,15 +1,7 @@
 export class MigrationRunnerBase {
   migrations = [];
 
-  static LATEST_VERSION = 0.001;
-  static MINIMUM_SAFE_VERSION = 0.001;
-  static RECOMMENDED_SAFE_VERSION = 0.001;
-
-  LATEST_VERSION = 0.001;
-  MINIMUM_SAFE_VERSION = 0.001;
-  RECOMMENDED_SAFE_VERSION = 0.001;
-
-  FOUNDRY_SCHEMA_VERSIONS = [[14, 0.001]];
+  LATEST_VERSION = 0.01;
 
   constructor(migrations = []) {
     this.migrations = [...migrations].sort((a, b) => Number(a.version) - Number(b.version));
