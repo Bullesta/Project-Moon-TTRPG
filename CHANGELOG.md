@@ -88,6 +88,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Weapon range 0 no longer counts as 1.
 - Combat tracker now scrolls when there are too many combatants.
+- Target picker now scrolls when the encounter has more combatants than fit in the dialog.
 - [EasyEffects] Outfit `Additional Reaction` now stamps `[Always Active] gain 1 Reaction`.
 - [EasyEffects] `[On Hit]` / `[On Hit Before Results]` now run on the attacker's active augments.
 - [EasyEffects] `Rupture Boost` and `Tremor Boost` now burst the clash loser (`on target`), so Block Clash Wins apply the Burst.
