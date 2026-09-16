@@ -15,11 +15,13 @@ clear flag "charge_decay" on self;
 `;
 
 export class Schema002WorldEasyEffectsMigration extends MigrationBase {
-  static version = 0.022;
+  static version = 0.025;
 
   async migrate() {
     const currentScript = String(game.settings?.get(SYSTEM_ID, WORLD_SCRIPT_SETTING) ?? "").replace(/\r\n?/g, "\n");
     const updatedScript = `${currentScript.trimEnd()}${APPEND_WORLD_EASY_EFFECTS}`.trimStart();
+
+    if(currentScript.includes("\"charge_decision\"")) return true;
 
     await game.settings.set(SYSTEM_ID, WORLD_SCRIPT_SETTING, updatedScript);
     return true;

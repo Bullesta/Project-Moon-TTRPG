@@ -1,7 +1,7 @@
 import { MigrationRunnerBase } from "./base.js";
 
 export class MigrationRunner extends MigrationRunnerBase {
-  static LATEST_SCHEMA_VERSION = 0.01;
+  static LATEST_SCHEMA_VERSION = 0.025;
 
   /** Failure reasons from the most recent migration run, keyed by UUID */
   static lastRunFailures = new Map();
@@ -24,13 +24,6 @@ export class MigrationRunner extends MigrationRunnerBase {
       if (Number.isFinite(Number(worldVersion))) return Number(worldVersion);
     } catch {
       // The setting is not registered yet.
-    }
-
-    try {
-      const legacyVersion = game?.settings?.get("projectmoonttrpg", "systemMigrationVersion");
-      if (Number.isFinite(Number(legacyVersion))) return Number(legacyVersion);
-    } catch {
-      // Ignore legacy setting problems.
     }
 
     return 0;
@@ -195,11 +188,6 @@ export class MigrationRunner extends MigrationRunnerBase {
     })();
     if (!updatedActor) return null;
 
-    const hasActiveEffects = Array.isArray(actor?._source?.effects) && actor._source.effects.some((effect) => Array.isArray(effect.statuses) && effect.statuses.some((status) => status !== "dead"));
-    if (hasActiveEffects) {
-      await actor.deleteEmbeddedDocuments("ActiveEffect", [], { deleteAll: true });
-    }
-
     const baseItems = [...(baseActor.items ?? [])];
     const updatedItems = [...(updatedActor.items ?? [])];
     const itemDiff = this.diffCollection(baseItems, updatedItems);
@@ -283,7 +271,7 @@ export class MigrationRunner extends MigrationRunnerBase {
 
         const deltaSource = token.delta?._source;
         const hasMigratableData =
-          (!!deltaSource && !!deltaSource.flags?.pmttrpg) ||
+          (!!deltaSource && !!deltaSource.flags?.projectmoonttrpg) ||
           ((deltaSource ?? {}).items ?? []).length > 0 ||
           Object.keys(deltaSource?.system ?? {}).length > 0;
 
@@ -334,7 +322,6 @@ export class MigrationRunner extends MigrationRunnerBase {
 
     if (migrationsToRun.length > 0) {
       await game.settings.set("projectmoonttrpg", "worldSchemaVersion", latestVersion);
-      await game.settings.set("projectmoonttrpg", "systemMigrationVersion", latestVersion);
     }
   }
 }

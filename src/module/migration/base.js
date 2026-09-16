@@ -17,18 +17,6 @@ class MigrationBase {
    * migrations after this in a batch. Use this if you are adding items to actors for instance.
    */
   requiresFlush = false;
-
-  async updateActor(actor) {
-    return actor;
-  }
-
-  async updateItem(item) {
-    return item;
-  }
-
-  async updateToken(token) {
-    return token;
-  }
 }
 
 export { MigrationBase }

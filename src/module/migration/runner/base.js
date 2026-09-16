@@ -1,7 +1,7 @@
 export class MigrationRunnerBase {
   migrations = [];
 
-  LATEST_VERSION = 0.01;
+  LATEST_VERSION = 0.025;
 
   constructor(migrations = []) {
     this.migrations = [...migrations].sort((a, b) => Number(a.version) - Number(b.version));

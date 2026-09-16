@@ -147,14 +147,6 @@ Hooks.once("init", async function() {
     default: 0
   });
 
-  game.settings.register("projectmoonttrpg", "systemMigrationVersion", {
-    name: "System Migration Version",
-    scope: "world",
-    config: false,
-    type: Number,
-    default: 0
-  });
-
   // Configurable system settings.
 
   let browserDefaultColor = false;
@@ -197,15 +189,8 @@ Hooks.once("init", async function() {
 });
 
 Hooks.once("ready", async function() {
-  if (!game.user?.isGM) {
-    registerStatusTray();
-    registerChoiceDialogSocket();
-    registerGmRouteSocket();
-    return;
-  }
-
   const migrationRunner = new MigrationRunner(MigrationList.constructAll());
-  if (migrationRunner.needsMigration()) {
+  if (game.user?.isGM && migrationRunner.needsMigration()) {
     const confirmed = await foundry.applications.api.DialogV2.confirm({
       window: { title: game.i18n.localize("PMTTRPG.Migrations.ConfirmTitle") },
       content: `<p>${game.i18n.localize("PMTTRPG.Migrations.ConfirmText")}</p>`,
@@ -213,12 +198,12 @@ Hooks.once("ready", async function() {
       modal: true,
     });
 
-    if (!confirmed) return;
-
-    ui.notifications?.info?.(game.i18n.localize("PMTTRPG.Migrations.Starting"), {
-      format: { version: game.system.version },
-    });
-    await migrationRunner.runMigration();
+    if (confirmed) {
+      ui.notifications?.info?.(game.i18n.localize("PMTTRPG.Migrations.Starting"), {
+        format: { version: game.system.version },
+      });
+      await migrationRunner.runMigration();
+    }
   }
 
   registerStatusTray();
