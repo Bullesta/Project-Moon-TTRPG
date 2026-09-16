@@ -256,7 +256,15 @@ export class MigrationRunner extends MigrationRunnerBase {
       if (typeof migration.migrate === "function") promises.push(migration.migrate());
     }
 
-    await Promise.allSettled(promises);
+    const migrateResults = await Promise.allSettled(promises);
+    for (const result of migrateResults) {
+      if (result.status === "rejected") {
+        MigrationRunner.lastRunFailures.set(
+          "worldEasyEffects",
+          MigrationRunner.flattenError(result.reason)
+        );
+      }
+    }
 
     let tokensProcessed = 0;
     for (const scene of game.scenes) {
@@ -320,8 +328,15 @@ export class MigrationRunner extends MigrationRunnerBase {
       if (migrationPhase.length) await this.runMigrations(migrationPhase);
     }
 
-    if (migrationsToRun.length > 0) {
+    if (migrationsToRun.length > 0 && MigrationRunner.lastRunFailures.size === 0) {
       await game.settings.set("projectmoonttrpg", "worldSchemaVersion", latestVersion);
+    } else if (MigrationRunner.lastRunFailures.size > 0) {
+      const details = [...MigrationRunner.lastRunFailures.entries()]
+        .map(([uuid, message]) => `${uuid}: ${message}`)
+        .join("; ");
+      ui.notifications?.error?.(
+        `World migration failed. Theschema version was not updated. ${details}`
+      );
     }
   }
 }
