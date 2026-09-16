@@ -5,7 +5,7 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
+## [0.1.3] - 2026-09-16
 
 ### Added
 
@@ -32,6 +32,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Alt+drop a status onto a token or character sheet to set quantity and apply it now, next round, or next turn.
 - GMs can now edit EasyEffects flags from the 3-dot menu on actor sheets, item sheets, and the combat tracker.
 - You can now drag combatants in the tracker to change turn order, and GMs and owners can type a new Speed.
+- Added a Migration System that allows GMs to update their world automatically via a popup at the start.
 - [EasyEffects] added various CR automation scripts : 
     - **Charge & Overcharge**
     - [M] Increase Range
