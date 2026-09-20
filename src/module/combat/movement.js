@@ -1,5 +1,8 @@
 import { emitTokenMoved } from "../easy-effects/registry.js";
-import { compareCombatants } from "./turn-order.js";
+import { compareCombatants, readTiebreak } from "./turn-order.js";
+import { getInitiativeFormulaParts } from "../targeting.js";
+
+const TIEBREAK_PATH = "flags.projectmoonttrpg.turnTiebreak";
 
 function combatantForToken(tokenDoc) {
   const combat = game.combat;
@@ -253,6 +256,23 @@ function registerCombatDocument() {
     }
 
     /**
+     * Foundry writes initiative here and skips Combatant.rollInitiative.
+     * @override
+     */
+    async rollInitiative(ids, options = {}) {
+      const result = await super.rollInitiative(ids, options);
+      const idList = typeof ids === "string" ? [ids] : Array.isArray(ids) ? ids : [];
+      const updates = [];
+      for (const id of idList) {
+        const combatant = this.combatants.get(id);
+        if (!combatant?.isOwner || readTiebreak(combatant) === 0) continue;
+        updates.push({ _id: combatant.id, "flags.projectmoonttrpg.turnTiebreak": 0 });
+      }
+      if (updates.length) await this.updateEmbeddedDocuments("Combatant", updates);
+      return result;
+    }
+
+    /**
      * Someone was taken out while combat is still up.
      * @override
      */
@@ -272,8 +292,37 @@ function registerCombatDocument() {
   CONFIG.Combat.documentClass = CombatPMTTRPG;
 }
 
+function registerCombatantDocument() {
+  const Base = CONFIG.Combatant.documentClass;
+
+  class CombatantPMTTRPG extends Base {
+    /**
+     * Roll All / Roll NPCs use this.
+     * @override
+     */
+    _getInitiativeFormula() {
+      const actor = this.actor;
+      if (!actor) return super._getInitiativeFormula();
+      return getInitiativeFormulaParts(actor).formula;
+    }
+
+    /**
+     * super only writes initiative. A new roll resets turnTiebreak to 0.
+     * @override
+     */
+    async rollInitiative(formula) {
+      const result = await super.rollInitiative(formula);
+      if (readTiebreak(this) === 0) return result;
+      return this.update({ [TIEBREAK_PATH]: 0 });
+    }
+  }
+
+  CONFIG.Combatant.documentClass = CombatantPMTTRPG;
+}
+
 export function registerCombatMovement() {
   registerCombatDocument();
+  registerCombatantDocument();
 
   Hooks.on("moveToken", (tokenDoc, movement, operation, user) => {
     refreshActorFromToken(tokenDoc);
