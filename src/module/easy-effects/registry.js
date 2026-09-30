@@ -850,8 +850,9 @@ async function runActorScriptsForDef(def, payload, emission = null) {
   const seen = new Set();
   for (const entry of entries) {
     const actor = entry?.actor;
-    if (!actor || !entry.context || seen.has(actor.id)) continue;
-    seen.add(actor.id);
+    const key = actorIdentityKey(actor);
+    if (!actor || !entry.context || !key || seen.has(key)) continue;
+    seen.add(key);
     try {
       const context = emission ? attachEmitState(entry.context, emission) : entry.context;
       await runActorEasyEffects(actor, def.triggerName, context);

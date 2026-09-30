@@ -1,33 +1,27 @@
 import { emitTokenMoved } from "../easy-effects/registry.js";
 import { compareCombatants, readTiebreak } from "./turn-order.js";
 import { getInitiativeFormulaParts } from "../targeting.js";
+import { findCombatant } from "./combatant-match.js";
 
 const TIEBREAK_PATH = "flags.projectmoonttrpg.turnTiebreak";
 
 function combatantForToken(tokenDoc) {
   const combat = game.combat;
-  if (!combat?.started || !tokenDoc) return null;
-  const tokenId = tokenDoc.id;
-  const actorId = tokenDoc.actor?.id;
-  return combat.combatants.find((entry) => {
-    const entryTokenId = entry.tokenId ?? entry.token?.id;
-    const entryActorId = entry.actorId ?? entry.actor?.id;
-    return (tokenId && entryTokenId === tokenId) || (actorId && entryActorId === actorId);
-  }) ?? null;
+  if (!combat?.started || !tokenDoc?.id) return null;
+  return findCombatant({ combatants: combat.combatants, tokenId: tokenDoc.id });
 }
 
 export function actorCombatToken(actor) {
   if (!actor) return null;
   if (actor.token) return actor.token;
   const combat = game.combat;
-  if (combat?.started) {
-    const combatant = combat.combatants.find((entry) => {
-      const entryActorId = entry.actorId ?? entry.actor?.id;
-      return entryActorId && entryActorId === actor.id;
-    });
+  if (combat?.started && !actor.isToken) {
+    const combatant = findCombatant({ combatants: combat.combatants, actorId: actor.id });
     if (combatant?.token) return combatant.token;
   }
-  return actor.getActiveTokens?.(true, true)?.[0] ?? null;
+  if (actor.isToken) return null;
+  const linked = actor.getActiveTokens?.(true, true) ?? [];
+  return linked.length === 1 ? linked[0] : null;
 }
 
 function paidHistory(tokenDoc) {
@@ -120,9 +114,11 @@ export function actorSquaresExhausted(actor) {
 export async function exhaustRemainingSquares(actor) {
   if (!actor || !game.combat?.started) return actor;
   const tokenDoc = actorCombatToken(actor);
-  const combatant = combatantForToken(tokenDoc) ?? game.combat.combatants.find((entry) => {
-    const entryActorId = entry.actorId ?? entry.actor?.id;
-    return entryActorId && entryActorId === actor.id;
+  const tokenId = tokenDoc?.id ?? null;
+  const combatant = findCombatant({
+    combatants: game.combat.combatants,
+    tokenId,
+    actorId: tokenId || actor.isToken ? null : actor.id,
   });
   if (!combatant || game.combat.combatant?.id !== combatant.id) return actor;
 

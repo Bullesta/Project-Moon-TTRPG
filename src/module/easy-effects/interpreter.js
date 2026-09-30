@@ -28,7 +28,7 @@ import { runAsOwnerOrGM, runEEMetaPatch } from "./gm-route.js";
 import { parseAccessorExpression } from "./parser.js";
 import { applyMathOp, applyMathCall } from "./numeric-expr.js";
 import { clampPoolValue } from "../pool-clamp.js";
-import { resolveBurstBurster, sameActor } from "./burst-roles.js";
+import { resolveBurstBurster, sameActor, selectRelativeActors } from "./burst-roles.js";
 import { showDiceForRoll } from "../utility.js";
 
 // Me and the boi's hate infinite recursion
@@ -1634,20 +1634,27 @@ function resolveTargets(targetName, context) {
   const combat = game.combat;
   if (!combat) { console.warn("[EasyEffects] Multi-target used but no active combat."); return []; }
   const self = context.self;
-  const all  = combat.combatants.map(c => c.actor).filter(Boolean);
-  switch (targetName) {
-    case "enemies": return all.filter(a => !self || (a.id !== self.id && _isEnemy(a, self)));
-    case "allies":  return all.filter(a => self && a.id !== self.id && !_isEnemy(a, self));
-    case "all":     return all;
-    default: console.warn(`[EasyEffects] Unknown target '${targetName}'`); return [];
+  const all = combat.combatants.map(c => c.actor).filter(Boolean);
+  const grouped = selectRelativeActors(all, self, targetName, _isEnemy);
+  if (!grouped) {
+    console.warn(`[EasyEffects] Unknown target '${targetName}'`);
+    return [];
   }
+  return grouped;
+}
+
+function tokenDisposition(actor) {
+  if (!actor) return null;
+  if (actor.isToken) return actor.token?.disposition ?? null;
+  const token = actor.getActiveTokens?.(true)?.[0] ?? null;
+  return token?.document?.disposition ?? null;
 }
 
 function _isEnemy(other, self) {
-  const st = self.getActiveTokens(true)[0];
-  const ot = other.getActiveTokens(true)[0];
-  if (!st || !ot) return false;
-  return ot.document.disposition !== st.document.disposition;
+  const selfDisposition = tokenDisposition(self);
+  const otherDisposition = tokenDisposition(other);
+  if (selfDisposition == null || otherDisposition == null) return false;
+  return otherDisposition !== selfDisposition;
 }
 
 /**

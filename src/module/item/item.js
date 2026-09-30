@@ -1,4 +1,5 @@
 import { PMTTRPGUtility } from "../utility.js";
+import { actorTokenPlaceables } from "../acting-user.js";
 import { PMTTRPGRolls } from "../rolls.js";
 import { getRankFromLevel } from "../actor/progression.js";
 import { computeEffectSummary, normalizeEffectEntries } from "../effects/effect-summary.js";
@@ -682,7 +683,7 @@ export class ItemPMTTRPG extends Item {
         const targeting = game.projectmoonttrpg?.targeting;
         const chosenTarget = targeting ? await targeting.promptTargetSelection({
           actor: this.actor,
-          token: this.actor.getActiveTokens(true)[0] ?? null,
+          token: actorTokenPlaceables(this.actor)[0] ?? null,
           title: this.name,
           sourceName: this.name,
           sourceImg: this.img,
