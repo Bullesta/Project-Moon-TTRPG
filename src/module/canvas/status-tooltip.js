@@ -16,11 +16,11 @@ function getElement() {
 }
 
 /**
- * @param {object} status  Grouped status (name, img, count, description, showCount, pending)
+ * @param {object} status  Grouped status (name, img, count, description, showCount, pending, showHoverDetails)
  * @param {{left:number, top:number, width:number, height:number}} rect  Client-space rect of the badge
  */
 export async function showStatusTooltip(status, rect) {
-  if(!game.settings.get("projectmoonttrpg", "showStatusInfoBoxWorld") || !game.settings.get("projectmoonttrpg", "showStatusInfoBoxClient")) return;
+  if(!game.settings.get("projectmoonttrpg", "showStatusInfoBoxWorld") || !game.settings.get("projectmoonttrpg", "showStatusInfoBoxClient") || !status.showHoverDetails) return;
 
   const id = ++requestId;
 
