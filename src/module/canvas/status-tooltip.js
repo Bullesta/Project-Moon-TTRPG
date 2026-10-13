@@ -20,6 +20,8 @@ function getElement() {
  * @param {{left:number, top:number, width:number, height:number}} rect  Client-space rect of the badge
  */
 export async function showStatusTooltip(status, rect) {
+  if(!game.settings.get("projectmoonttrpg", "showStatusInfoBoxWorld") || !game.settings.get("projectmoonttrpg", "showStatusInfoBoxClient")) return;
+
   const id = ++requestId;
 
   const TextEditor = foundry.applications.ux.TextEditor.implementation;

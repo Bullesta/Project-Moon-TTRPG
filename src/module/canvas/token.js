@@ -366,11 +366,15 @@ export class TokenPMTTRPG extends foundry.canvas.placeables.Token {
     const grow = iconSize * 0.09;
 
     entry.on("pointerover", () => {
+      if(!game.settings.get("projectmoonttrpg", "showStatusInfoBoxWorld") || !game.settings.get("projectmoonttrpg", "showStatusInfoBoxClient")) return;
+
       icon.scale.set(baseScale * 1.18);
       icon.position.set(-grow, -grow);
       void showStatusTooltip(status, entry);
     });
     entry.on("pointerout", () => {
+      if(!game.settings.get("projectmoonttrpg", "showStatusInfoBoxWorld") || !game.settings.get("projectmoonttrpg", "showStatusInfoBoxClient")) return;
+
       icon.scale.set(baseScale);
       icon.position.set(0, 0);
       hideStatusTooltip();
@@ -484,6 +488,24 @@ export function registerTokenStatusBadgeSettings() {
     type: Boolean,
     default: true,
     onChange: () => refreshAllTokenStatusBadges(),
+  });
+
+  game.settings.register("projectmoonttrpg", "showStatusInfoBoxWorld", {
+    name: "PMTTRPG.Settings.showStatusInfoBoxWorld.name",
+    hint: "PMTTRPG.Settings.showStatusInfoBoxWorld.hint",
+    scope: "world",
+    config: true,
+    type: Boolean,
+    default: true,
+  });
+
+  game.settings.register("projectmoonttrpg", "showStatusInfoBoxClient", {
+    name: "PMTTRPG.Settings.showStatusInfoBoxClient.name",
+    hint: "PMTTRPG.Settings.showStatusInfoBoxClient.hint",
+    scope: "client",
+    config: true,
+    type: Boolean,
+    default: true,
   });
 }
 
